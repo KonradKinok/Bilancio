@@ -1,0 +1,118 @@
+@import-normalize;
+/* bring in normalize.css styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+:root {
+  --body-background: rgb(176, 196, 222);
+  /* header */
+  --header-background: rgb(30, 144, 255);
+  --header-text-color: rgb(255, 255, 255);
+  --header-text-hover-color: rgb(0, 0, 255);
+  --header-text-active-background: rgb(0, 0, 255);
+  /* main */
+  --main-background: rgb(135, 206, 250);
+  /* form */
+  --form-color: rgb(0, 100, 255);
+  --form-field-background: rgb(255, 255, 255);
+  --form-button-color: rgb(255, 255, 255);
+  --form-button-background-first: rgb(0, 0, 255);
+  --form-button-background-second: rgb(0, 100, 255);
+  /* footer */
+  --footer-background: rgb(30, 144, 255);
+  --footer-text-color: rgb(0, 0, 255);
+  --footer-text-color-hover: rgb(25, 25, 112);
+  /* mobile-menu */
+  --mobile-menu-open-icon-color: rgb(0, 0, 255);
+  --mobile-menu-open-icon-color-hover: rgb(0, 0, 205);
+  --mobile-menu-background: rgb(135, 206, 250);
+  --mobile-menu-color: rgb(0, 0, 139);
+  --mobile-menu-close-icon-color: rgb(0, 0, 255);
+  --mobile-menu-close-icon-color-hover: rgba(0, 0, 205, 0.5);
+  /* modal-libraries */
+  --modal-libraries-background: rgba(0, 0, 0, 0.8);
+  --modal-libraries-link-text-color: rgb(135, 206, 235);
+  --modal-libraries-link-text-color-hover: rgb(0, 191, 255);
+  --modal-libraries-icon-color: rgb(135, 206, 250);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* Definicje dla motywu ciemnego */
+/* [data-theme="dark"] {
+  --primary-color: #ff751d;
+  --secondary-color: #f5f6fb;
+  --tertiary-color: #ffffff;
+  --accent-color: #242424;
+  --lighter-accent-color: #333333;
+} */
+body {
+  margin: 0 0;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--body-background);
+  min-height: 100vh;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* @media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+} */
