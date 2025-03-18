@@ -100,7 +100,8 @@ function App() {
         </p>
       </div>
       <p className="read-the-docs">
-        Kliknij na ten przycisk, aby przeczytać dokumentację{" "}
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Voluptates,
+        eius?
       </p>
     </div>
   );
