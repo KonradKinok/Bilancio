@@ -1,15 +1,15 @@
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import { Navigation } from "../../components/Navigation/Navigation";
+import scss from "./LayoutPage.module.scss";
 
 export const LayoutPage: React.FC = () => {
   return (
-    <div>
-      <header>
-        <h1>LayoutPage</h1>
+    <div className={scss["layoutpage-main-container"]}>
+      <header className={scss["header-main-container"]}>
         <Navigation />
       </header>
-      <main>
+      <main className={scss["main-main-container"]}>
         <Suspense fallback={"LOADING..."}>
           <Outlet />
         </Suspense>

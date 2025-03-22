@@ -1,0 +1,15 @@
+.layoutpage-main-container {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100vh;
+}
+
+.header-main-container {
+    padding: 1rem;
+    background-color: var(--header-background);
+}
+
+.main-main-container {
+    padding: 1rem;
+    background-color: var(--main-background);
+}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-export function useTableDictionaryDocuments() {
+export function useAllDocumentsName() {
   const [data, setData] = useState<AllDocumentsName[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);

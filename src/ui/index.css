@@ -8,14 +8,15 @@
   padding: 0;
 }
 :root {
-  --body-background: rgb(176, 196, 222);
+  --body-background: rgba(135, 206, 250, 1);
   /* header */
-  --header-background: rgb(30, 144, 255);
-  --header-text-color: rgb(255, 255, 255);
-  --header-text-hover-color: rgb(0, 0, 255);
-  --header-text-active-background: rgb(0, 0, 255);
+  --header-background: rgba(0, 100, 0, 1); /*DarkGreen*/
+  --header-text-color: rgb(0, 255, 127); /*SpringGreen*/
+  --header-text-hover-color: rgb(50, 205, 50); /*MediumSpringGreen*/
+  --header-text-active-color: rgb(50, 205, 50); /*MediumSpringGreen*/
+  --header-text-active-background: rgb(0, 128, 0); /*Green*/
   /* main */
-  --main-background: rgb(135, 206, 250);
+  --main-background: rgb(0, 128, 0); /*Green*/
   /* form */
   --form-color: rgb(0, 100, 255);
   --form-field-background: rgb(255, 255, 255);
