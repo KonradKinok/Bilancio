@@ -17,7 +17,8 @@ class Database {
       if (err) {
         console.error('Błąd połączenia z bazą danych:', err.message);
       } else {
-        console.log('Polaczono z baza danych.');
+
+        console.log('Polaczono z baza danych.', dbPath);
       }
     });
   }
@@ -34,7 +35,17 @@ class Database {
     });
   }
 
-  
+  public close(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    this.db.close((err: Error | null) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
 
   
 }

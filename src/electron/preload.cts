@@ -16,6 +16,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getTableDictionaryDocuments: () => ipcInvoke('getTableDictionaryDocuments'),
   queryToDB: () => ipcInvoke('queryToDB'),
   getAllDocumentsName: () => ipcInvoke('getAllDocumentName'),
+  getAllInvoices: () => ipcInvoke('getAllInvoices'),
 } satisfies Window["electron"]);
 
 

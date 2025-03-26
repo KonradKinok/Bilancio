@@ -5,7 +5,7 @@ import { getStaticData, pollResources } from "./resourceManager.js";
 import {getAssetPath, getDBPath, getPreloadPath, getUIPath} from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
-import { getAllDocumentsName, getTableDictionaryDocuments, queryToDB } from "./dataBase/dbFunction.js";
+import { getAllDocumentsName, getAllInvoices, getTableDictionaryDocuments, queryToDB } from "./dataBase/dbFunction.js";
 export type DictionaryDocuments = {
   DocumentId: number;
   DocumentName: string;
@@ -20,7 +20,8 @@ app.on("ready", () => {
     height: 768,
     resizable: true,
     webPreferences: {
-      preload:getPreloadPath(),
+      preload: getPreloadPath(),
+     
   },
     
     // disables default system frame (dont do this if you want a proper working menu bar)
@@ -43,6 +44,9 @@ app.on("ready", () => {
   });
   ipcMainHandle('getAllDocumentName',  () => {
     return getAllDocumentsName();
+  });
+  ipcMainHandle('getAllInvoices',  () => {
+    return getAllInvoices();
   });
   ipcMainHandle('queryToDB',  () => {
     return queryToDB.secondMetod();

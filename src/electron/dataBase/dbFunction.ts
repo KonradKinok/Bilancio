@@ -13,6 +13,7 @@ export async function getTableDictionaryDocuments()  {
    return [];
   }
 };
+
 // Pobierz nazwy wszystkich dokumentów
 export async function getAllDocumentsName()  {
   try {
@@ -20,10 +21,21 @@ export async function getAllDocumentsName()  {
     return rows || [];
   } catch (err) {
     console.error('getAllDocumentName() Błąd podczas pobierania dokumentów:', err);
+    return [];
+  }
+  
+};
+
+// Pobierz nazwy wszystkich dokumentów
+export async function getAllInvoices()  {
+  try {
+    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString("2010-01-01", "2011-12-31", 0));
+    return rows || [];
+  } catch (err) {
+    console.error('getAllInvoices() Błąd podczas pobierania faktur:', err);
    return [];
   }
 };
-
 
 
 
@@ -57,6 +69,13 @@ export const queryToDB = {
   }
 };
 
-
-
+// import { app } from 'electron';
+// app.on('before-quit', async () => {
+//   try {
+//     await db.close();
+//     console.log('Połączenie z bazą danych zostało zamknięte.');
+//   } catch (err) {
+//     console.error('Błąd przy zamykaniu bazy danych:', err);
+//   }
+// });
 

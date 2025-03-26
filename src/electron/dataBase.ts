@@ -1,61 +1,61 @@
-import sqlite3 from 'sqlite3';
-import { open } from 'sqlite';
-import { BrowserWindow } from 'electron';
-import { ipcWebContentsSend } from './util.js';
-import { getDBPath, getDBPath1 } from './pathResolver.js';
-// import { getDBPath, getAssetPath } from './pathResolver.js';
-const dbPath = getDBPath();
-const dbPath1=getDBPath1();
-// const dbPath= "../../userData/DaneAdresowe.db";
-async function openDb() {
-  return open({
-    filename: dbPath,
-    driver: sqlite3.Database
-  });
-}
-async function openDb1() {
-  return open({
-    filename: dbPath1,
-    driver: sqlite3.Database
-  });
-}
-export async function createTable() {
-  const db = await openDb();
-  await db.exec(`
-    CREATE TABLE IF NOT EXISTS Users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      age INTEGER NOT NULL
-    )
-  `);
-}
+// import sqlite3 from 'sqlite3';
+// import { open } from 'sqlite';
+// import { BrowserWindow } from 'electron';
+// import { ipcWebContentsSend } from './util.js';
+// import { getDBPath, getDBPath1 } from './pathResolver.js';
+// // import { getDBPath, getAssetPath } from './pathResolver.js';
+// const dbPath = getDBPath();
+// const dbPath1=getDBPath1();
+// // const dbPath= "../../userData/DaneAdresowe.db";
+// async function openDb() {
+//   return open({
+//     filename: dbPath,
+//     driver: sqlite3.Database
+//   });
+// }
+// async function openDb1() {
+//   return open({
+//     filename: dbPath1,
+//     driver: sqlite3.Database
+//   });
+// }
+// export async function createTable() {
+//   const db = await openDb();
+//   await db.exec(`
+//     CREATE TABLE IF NOT EXISTS Users (
+//       id INTEGER PRIMARY KEY AUTOINCREMENT,
+//       name TEXT NOT NULL,
+//       age INTEGER NOT NULL
+//     )
+//   `);
+// }
 
-export async function insertUser(name: string, age: number) {
-  const db = await openDb();
-  await db.run('INSERT INTO Users (name, age) VALUES (?, ?)', [name, age]);
-}
+// export async function insertUser(name: string, age: number) {
+//   const db = await openDb();
+//   await db.run('INSERT INTO Users (name, age) VALUES (?, ?)', [name, age]);
+// }
 
-export async function getUser(id: number) {
-  const db = await openDb();
+// export async function getUser(id: number) {
+//   const db = await openDb();
   
-  return db.get('SELECT * FROM Users WHERE id = ?', [id]);
-}
+//   return db.get('SELECT * FROM Users WHERE id = ?', [id]);
+// }
 
-export async function updateUser(id: number, name: string, age: number) {
-  const db = await openDb();
-  await db.run('UPDATE Users SET name = ?, age = ? WHERE id = ?', [name, age, id]);
-}
+// export async function updateUser(id: number, name: string, age: number) {
+//   const db = await openDb();
+//   await db.run('UPDATE Users SET name = ?, age = ? WHERE id = ?', [name, age, id]);
+// }
 
-export async function deleteUser(id: number) {
-  const db = await openDb();
-  await db.run('DELETE FROM Users WHERE id = ?', [id]);
-}
+// export async function deleteUser(id: number) {
+//   const db = await openDb();
+//   await db.run('DELETE FROM Users WHERE id = ?', [id]);
+// }
 
-export async function getDowodRejestracyjny(id: number) {
-  const db = await openDb();
+// export async function getDowodRejestracyjny(id: number) {
+//   const db = await openDb();
   
-  return db.get('SELECT * FROM Users WHERE id = ?', [id]);
-}
+//   return db.get('SELECT * FROM Users WHERE id = ?', [id]);
+// }
 // Określenie ścieżki do pliku bazy danych
 // const dbPath = getDBPath();
 // export async function openDb () {
