@@ -20,6 +20,7 @@ type Statistics = {
     textNazwa: string;
   };
   //Table
+  
    export type DictionaryDocuments={
     DocumentId: number;
     DocumentName: string ;
@@ -32,25 +33,25 @@ type Statistics = {
     SubtypeName: string ;
   }
 
-  type AllInvoicesDb1 = {
-    InvoiceId: number;
-    InvoiceName: string;
-    ReceiptDate: string;
-    DeadlineDate: string |null;
-    PaymentDate: string;
-    IsDeleted: 0 | 1;
-    InvoiceDetailsId: number;
-    DocumentId: number;
-    MainTypeId: number |null;
-    TypeId: number|null;
-    SubtypeId: number |null;
-    Quantity: number;
-    Price: number;
-    DocumentName: string;
-    MainTypeName: string;
-    TypeName: string;
-    SubtypeName: string;
-  }
+  // type AllInvoicesDb1 = {
+  //   InvoiceId: number;
+  //   InvoiceName: string;
+  //   ReceiptDate: string;
+  //   DeadlineDate: string |null;
+  //   PaymentDate: string;
+  //   IsDeleted: 0 | 1;
+  //   InvoiceDetailsId: number;
+  //   DocumentId: number;
+  //   MainTypeId: number |null;
+  //   TypeId: number|null;
+  //   SubtypeId: number |null;
+  //   Quantity: number;
+  //   Price: number;
+  //   DocumentName: string;
+  //   MainTypeName: string;
+  //   TypeName: string;
+  //   SubtypeName: string;
+  // }
    type AllInvoicesDb = {
     InvoiceId: number;
     InvoiceName: string;
@@ -82,6 +83,24 @@ type Statistics = {
      Prices: string[];
     [key: string]: string[]  | null;
   }
+
+  type LastRowInvoice={
+    InvoiceId: number;
+    InvoiceName: string;
+    ReceiptDate: string;
+    DeadlineDate: string |null;
+    PaymentDate: string;
+    IsDeleted: 0 | 1;
+  }
+  type RowInvoiceDetails={
+    InvoiceDetailsId: number;
+    DocumentId: number;
+    MainTypeId: number |null;
+    TypeId: number|null;
+    SubtypeId: number |null;
+    Quantity: number;
+    Price: number;
+  }
   type EventPayloadMapping = {
   statistics: Statistics;
   getStaticData: StaticData;
@@ -91,6 +110,7 @@ type Statistics = {
     queryToDB: unknown[];
     getAllDocumentName: AllDocumentsName[];
     getAllInvoices: AllInvoices[];
+    getLastRowFromTable: unknown;
 };
 type View = 'CPU' | 'RAM' | 'STORAGE';
 type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -108,6 +128,7 @@ type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<AllDocumentsName[]>;
       getAllInvoices: () => Promise<AllInvoices[]>;
+      getLastRowFromTable: () => Promise<unknown>;
     };
   }
 }

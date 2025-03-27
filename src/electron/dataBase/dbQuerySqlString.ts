@@ -24,31 +24,12 @@ ORDER BY
     st.SubtypeName;`;
 };
 
-// Pobierz wszystkie faktury 
-export function getAllInvoicesSqlString1(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
-    const firstDateStr = firstDate; ;
-  const lastDateStr = lastDate;
-  const isDeletedNum = isDeleted;
-    const sql = `SELECT
-    Invoices.*,
-    InvoiceDetails.*,
-    DictionaryDocuments.DocumentName,
-    DictionaryMainType.MainTypeName,
-    DictionaryType.TypeName,
-    DictionarySubtype.SubtypeName
-FROM
-    Invoices
-    LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
-    LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
-    LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
-    LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
-    LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
-WHERE
-    Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2020-12-31'
-    AND Invoices.IsDeleted = 0;`;
-
-    return sql
-}
+// Pobierz ostatni wiersz z tabeli 
+export function getLastRowFromTableSqlString(tableName:string, tableNameId:string):string {
+  return `SELECT *
+FROM ${tableName}
+WHERE ${tableNameId} = (SELECT MAX(${tableNameId}) FROM ${tableName});`;
+};
 
 // Pobierz wszystkie faktury 
 export function getAllInvoicesSqlString(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
@@ -85,3 +66,30 @@ export function getAllInvoicesSqlString(firstDate:string, lastDate:string, isDel
 
     return sql
 }
+
+
+// Pobierz wszystkie faktury 
+// export function getAllInvoicesSqlString1(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
+//     const firstDateStr = firstDate; ;
+//   const lastDateStr = lastDate;
+//   const isDeletedNum = isDeleted;
+//     const sql = `SELECT
+//     Invoices.*,
+//     InvoiceDetails.*,
+//     DictionaryDocuments.DocumentName,
+//     DictionaryMainType.MainTypeName,
+//     DictionaryType.TypeName,
+//     DictionarySubtype.SubtypeName
+// FROM
+//     Invoices
+//     LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
+//     LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
+//     LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
+//     LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
+//     LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
+// WHERE
+//     Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2020-12-31'
+//     AND Invoices.IsDeleted = 0;`;
+
+//     return sql
+// }

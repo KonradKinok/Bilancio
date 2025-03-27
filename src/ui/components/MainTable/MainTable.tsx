@@ -3,20 +3,13 @@ import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import scss from "./MainTable.module.scss";
 
-const data1 = [
-  {
-    DocumentName: "DocumentName",
-    MainTypeName: "MainTypeName",
-    TypeName: "TypeName",
-    SubtypeName: "SubtypeName",
-  },
-];
 export const MainTable: React.FC = () => {
-  const { data: dataAllInvoices } = useAllInvoices();
+  const { data: dataAllInvoices, refetch } = useAllInvoices();
   console.log("MainTable() dataAllInvoices", dataAllInvoices);
   return (
     <div className={scss[""]}>
       <h2>Main Table temp</h2>
+      <button onClick={refetch}>Refetch</button>
       <ul className={scss[""]}>
         {dataAllInvoices && dataAllInvoices.length > 0 ? (
           dataAllInvoices.map((invoice, index) => (
