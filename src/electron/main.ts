@@ -1,11 +1,11 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray } from "electron";
 import path from "path";
-import { ipcMainHandle, ipcMainOn, isDev } from "./util.js";
+import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 import { getStaticData, pollResources } from "./resourceManager.js";
 import {getAssetPath, getDBPath, getPreloadPath, getUIPath} from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
-import { getAllDocumentsName, getAllInvoices, getTableDictionaryDocuments, queryToDB } from "./dataBase/dbFunction.js";
+import { addInvoice, getAllDocumentsName, getAllInvoices, getTableDictionaryDocuments, przykladowaFunkcja, queryToDB } from "./dataBase/dbFunction.js";
 export type DictionaryDocuments = {
   DocumentId: number;
   DocumentName: string;
@@ -48,6 +48,12 @@ app.on("ready", () => {
   ipcMainHandle('getAllInvoices',  () => {
     return getAllInvoices();
   });
+  ipcMainHandle2('przykladowaFunkcja',  (payload, jakisNumer) => {
+    return przykladowaFunkcja(payload , jakisNumer);
+  });
+  // ipcMainHandle('addInvoice',  ( invoice:unknown) => {
+  //   return addInvoice(invoice);
+  // });
   ipcMainHandle('queryToDB',  () => {
     return queryToDB.secondMetod();
   });

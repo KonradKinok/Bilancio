@@ -80,6 +80,22 @@ export async function getLastRowFromTable(tableName:DbTables, tableNameId:Invoic
     throw err;
   }
 }
+
+export async function przykladowaFunkcja(tekst2:string, jakisNumer:number) {
+  const tekst = "Przykładowa funkcja";
+  try {
+    console.log("Przykładowa funkcja:", tekst2);
+    const obiekt={jakisTekst: tekst2, jakisNumer: jakisNumer};
+    return obiekt;
+  }
+  catch (err) {
+    console.error('fetchDocuments() Błąd podczas pobierania dokumentów:', err);
+const obiekt={jakisTekst: tekst2, jakisNumer: jakisNumer};
+    return obiekt;
+  }
+}
+
+
 // Przykład funkcji asynchronicznej w module Electron do wstawiania nowej faktury
 
 

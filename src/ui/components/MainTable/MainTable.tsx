@@ -5,10 +5,32 @@ import scss from "./MainTable.module.scss";
 
 export const MainTable: React.FC = () => {
   const { data: dataAllInvoices, refetch } = useAllInvoices();
+  const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   console.log("MainTable() dataAllInvoices", dataAllInvoices);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await window.electron.przykladowaFunkcja(
+          "Przykład tekstu",
+          20
+        );
+        setSomeTemp(result);
+      } catch (err) {
+        console.error(
+          "getAllDocumentsName() Błąd podczas pobierania danych:",
+          err
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className={scss[""]}>
       <h2>Main Table temp</h2>
+      <h3>
+        Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
+      </h3>
       <button onClick={refetch}>Refetch</button>
       <ul className={scss[""]}>
         {dataAllInvoices && dataAllInvoices.length > 0 ? (
@@ -19,6 +41,7 @@ export const MainTable: React.FC = () => {
           <li>No data</li>
         )}
       </ul>
+
       <table>
         <thead>
           <tr>
@@ -36,66 +59,51 @@ export const MainTable: React.FC = () => {
         <tbody>
           {dataAllInvoices &&
             dataAllInvoices.length > 0 &&
-            dataAllInvoices.map(
-              (
-                {
-                  InvoiceId,
-                  InvoiceName,
-                  ReceiptDate,
-                  DeadlineDate,
-                  PaymentDate,
-                  IsDeleted,
-                  DocumentNames,
-                  MainTypeNames,
-                  TypeNames,
-                  SubtypeNames,
-                  Quantities,
-                  Prices,
-                },
-                index
-              ) => {
-                // Obliczanie sumy opłaty za fakturę
-                const totalAmount = calculateTotalAmount(Quantities, Prices);
-
-                return (
-                  <tr key={InvoiceId}>
-                    <td>{++index}</td>
-                    <td>{totalAmount}</td> {/* Wyświetlanie sumy opłaty */}
-                    <td>{InvoiceName}</td>
-                    <td>{ReceiptDate}</td>
-                    <td>{DeadlineDate}</td>
-                    <td>{PaymentDate}</td>
-                    <td>
-                      {DocumentNames &&
-                        DocumentNames.map((documentName, i) => (
-                          <div key={i}>
-                            {documentName}{" "}
-                            {MainTypeNames && MainTypeNames[i]
-                              ? MainTypeNames[i]
-                              : ""}{" "}
-                            {TypeNames && TypeNames[i] ? TypeNames[i] : ""}{" "}
-                            {SubtypeNames && SubtypeNames[i]
-                              ? SubtypeNames[i]
-                              : ""}
-                          </div>
-                        ))}
-                    </td>
-                    <td>
-                      {Quantities &&
-                        Quantities.map((quantities, i) => (
-                          <div key={i}>{quantities} </div>
-                        ))}
-                    </td>
-                    <td>
-                      {Prices &&
-                        Prices.map((price, i) => (
-                          <div key={i}>{currencyFormater(price)} </div>
-                        ))}
-                    </td>
-                  </tr>
-                );
-              }
-            )}
+            dataAllInvoices.map((invoice, index) => {
+              const totalAmount = calculateTotalAmount(
+                invoice.Quantities,
+                invoice.Prices
+              );
+              return (
+                <tr key={invoice.InvoiceId}>
+                  <td>{index + 1}</td>
+                  <td>{totalAmount}</td>
+                  <td>{invoice.InvoiceName}</td>
+                  <td>{invoice.ReceiptDate}</td>
+                  <td>{invoice.DeadlineDate}</td>
+                  <td>{invoice.PaymentDate}</td>
+                  <td>
+                    {invoice.DocumentNames &&
+                      invoice.DocumentNames.map((documentName, i) => (
+                        <div key={i}>
+                          {documentName}
+                          {invoice.MainTypeNames &&
+                            invoice.MainTypeNames[i] &&
+                            ` ${invoice.MainTypeNames[i]}`}
+                          {invoice.TypeNames &&
+                            invoice.TypeNames[i] &&
+                            ` ${invoice.TypeNames[i]}`}
+                          {invoice.SubtypeNames &&
+                            invoice.SubtypeNames[i] &&
+                            ` ${invoice.SubtypeNames[i]}`}
+                        </div>
+                      ))}
+                  </td>
+                  <td>
+                    {invoice.Quantities &&
+                      invoice.Quantities.map((quantity, i) => (
+                        <div key={i}>{quantity}</div>
+                      ))}
+                  </td>
+                  <td>
+                    {invoice.Prices &&
+                      invoice.Prices.map((price, i) => (
+                        <div key={i}>{currencyFormater(price)}</div>
+                      ))}
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
       </table>
     </div>

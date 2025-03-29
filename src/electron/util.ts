@@ -6,7 +6,7 @@ export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
 
-// export function ipcMainHandle<Key extends keyof EventPayloadMapping>(
+// export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
 //   key: Key,
 //   handler: () => EventPayloadMapping[Key]
 // ) {
@@ -17,6 +17,19 @@ export function isDev(): boolean {
 //     return handler();
 //   });
 // }
+
+export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
+  key: Key,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handler: (...args: any[]) => EventPayloadMapping[Key] | Promise<EventPayloadMapping[Key]>
+): void {
+  ipcMain.handle(key, async (event, ...args) => {
+    if (event.senderFrame) {
+      validateEventFrame(event.senderFrame);
+    }
+    return await handler(...args);
+  });
+}
 
 export function ipcMainHandle<Key extends keyof EventPayloadMapping>(
   key: Key,

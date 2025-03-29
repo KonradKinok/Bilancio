@@ -18,15 +18,24 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getAllDocumentsName: () => ipcInvoke('getAllDocumentName'),
   getAllInvoices: () => ipcInvoke('getAllInvoices'),
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
+  // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
+  przykladowaFunkcja: (payload,numer) => ipcInvoke2('przykladowaFunkcja',payload,numer),
+  // addInvoice: (payload) => ipcInvoke('addInvoice'),
 } satisfies Window["electron"]);
 
 
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
   key: Key
+  
 ): Promise<EventPayloadMapping[Key]> {
-  return electron.ipcRenderer.invoke(key);
+  return electron.ipcRenderer.invoke(key );
 }
-
+function ipcInvoke2<Key extends keyof EventPayloadMapping>(
+  key: Key,
+  ...params: any[]
+): Promise<EventPayloadMapping[Key]> {
+  return electron.ipcRenderer.invoke(key, ...params);
+}
 function ipcOn<Key extends keyof EventPayloadMapping>(
   key: Key,
   callback: (payload: EventPayloadMapping[Key]) => void
