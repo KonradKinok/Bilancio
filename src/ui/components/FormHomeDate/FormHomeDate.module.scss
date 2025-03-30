@@ -1,0 +1,112 @@
+.form {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+}
+
+.container-dateTimePicker {
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+  border: solid 1px rgb(138, 43, 226);
+  padding: 5px;
+  border-radius: 5px;
+  z-index: 900;
+}
+
+.container-radio {
+  width: 100%;
+  border: solid 1px rgb(138, 43, 226);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.toggle-switch {
+  width: 2.75rem;
+  height: 1.5rem;
+  appearance: none;
+  position: relative;
+  background-color: var(--form-radiobutton-unchecked-background);
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background-color .2s ease-in-out;
+}
+
+.toggle-switch::before {
+  content: '';
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background-color: #fff;
+  position: absolute;
+  transform: translate3d(2px, 2px, 0);
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.12);
+  transition: transform .2s ease-in-out;
+}
+
+.toggle-switch:checked {
+  background-color: var(--form-radiobutton-checked-background);
+}
+
+.toggle-switch:hover:not(:checked) {
+  background-color: var(--form-radiobutton-unchecked-hover-background);
+}
+
+.toggle-switch:checked::before {
+  transform: translate3d(calc(1.25rem + 2px), 2px, 0);
+}
+
+.container-button {
+  z-index: 1;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+
+  button {
+    margin: 15px 0;
+    width: 80%;
+    height: 50px;
+    font-size: 18px;
+    line-height: 50px;
+    font-weight: 600;
+    color: var(--form-button-color);
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; // Dodano transition do box-shadow
+    background-image: linear-gradient(to right, var(--form-button-background-first), var(--form-button-background-second));
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); // Cień domyślny
+  }
+
+  button:not(:disabled):focus,
+  button:not(:disabled):hover {
+    background-image: linear-gradient(to left, var(--form-button-background-first), var(--form-button-background-second));
+    transform: scale(1.01);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); // Cień przy najechaniu
+  }
+
+  button:not(:disabled):active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); // Przywrócenie cienia
+  }
+
+  button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+//media
+@media print {
+
+  //Ukrywamy element
+  .container-form {
+    display: none;
+  }
+}

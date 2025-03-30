@@ -1,0 +1,91 @@
+.month-container {
+    background-color: var(--dateTimePicker-month);
+    user-select: none;
+}
+
+.drop-down-control {
+    border: 2px var(--dateTimePicker-input-button-border) solid;
+    border-radius: 10px;
+}
+
+.day-class {
+    color: var(--dateTimePicker-day-color);
+
+    &:hover {
+        background-color: var(--dateTimePicker-day-hover-background) !important;
+        color: var(--dateTimePicker-day-hover-color) !important;
+    }
+}
+
+.selected-day {
+    color: var(--dateTimePicker-day-selected-color) !important;
+    background-color: var(--dateTimePicker-day-selected-background) !important;
+
+    &:hover {
+        color: var(--dateTimePicker-day-hover-color) !important;
+        background-color: var(--dateTimePicker-day-hover-background) !important;
+    }
+}
+
+.week-day {
+    color: var(--dateTimePicker-weekday-color);
+}
+
+.input-button {
+    border: 2px var(--dateTimePicker-input-button-border) solid;
+    border-radius: 5px;
+    background-color: var(--dateTimePicker-input-button-background);
+    color: var(--dateTimePicker-input-button-color);
+    width: 150px;
+    text-align: center;
+    padding: 6px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color .25s cubic-bezier(.4, 0, .2, 1);
+}
+
+.input-button:hover {
+    background-color: var(--dateTimePicker-input-button-hover-background);
+}
+
+.icon {
+    cursor: pointer;
+}
+
+:global {
+    .react-datepicker__today-button {
+        background-color: var(--dateTimePicker-todaybutton-background);
+        color: var(--dateTimePicker-todaybutton-color);
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color .25s cubic-bezier(.4, 0, .2, 1);
+    }
+
+    .react-datepicker__today-button:hover {
+        background-color: var(--dateTimePicker-todaybutton-hover-background);
+        /* Zmiana koloru tła na hover */
+    }
+
+    .react-datepicker__current-month {
+        color: var(--dateTimePicker-day-color);
+        padding-bottom: 5px;
+    }
+
+    .react-datepicker__day--outside-month {
+        color: var(--dateTimePicker-outside-month-day-color); // Kolor dni z poprzedniego/następnego miesiąca
+        opacity: 0.5; // dodanie przezroczystości
+    }
+
+    .react-datepicker__day--outside-month:hover {
+        color: var(--dateTimePicker-outside-month-day-hover-color); // Kolor na hover
+        background-color: var(--dateTimePicker-outside-month-day-hover-background); // Tło na hover
+    }
+
+    .react-datepicker__day--outside-month.selected-day {
+        color: var(--dateTimePicker-outside-month-selected-color) !important; // Kolor wybranego dnia z innego miesiąca
+        background-color: var(--dateTimePicker-outside-month-selected-background) !important; // Tło wybranego dnia z innego miesiąca
+    }
+}

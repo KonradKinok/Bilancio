@@ -17,6 +17,33 @@
   --header-text-active-background: rgb(0, 128, 0); /*Green*/
   /* main */
   --main-background: rgb(0, 128, 0); /*Green*/
+
+  /* dateTimePicker */
+  --first-color: rgb(0, 0, 255);
+  --second-color: rgb(0, 100, 255);
+  --third-color: rgb(224, 255, 255);
+  --fourth-color: rgb(175, 238, 238);
+  --dateTimePicker-month: var(--fourth-color); /*PaleTurquoise */
+  --dateTimePicker-day-color: var(--first-color); /*Indygo */
+  --dateTimePicker-day-hover-color: var(--third-color); /*LightCyan */
+  --dateTimePicker-day-hover-background: var(--first-color); /*Indygo */
+  --dateTimePicker-day-selected-color: var(--third-color); /*LightCyan */
+  --dateTimePicker-day-selected-background: var(--second-color); /*DarkOrchid */
+  --dateTimePicker-weekday-color: var(--first-color); /*Indygo */
+  --dateTimePicker-todaybutton-color: var(--third-color); /*LightCyan */
+  --dateTimePicker-todaybutton-background: var(--first-color); /*Indygo */
+  --dateTimePicker-todaybutton-hover-background: var(
+    --second-color
+  ); /*DarkOrchid */
+
+  /* dateTimePicker - button*/
+  --dateTimePicker-input-button-color: var(--first-color); /*Indygo */
+  --dateTimePicker-input-button-background: var(--third-color); /*LightCyan */
+  --dateTimePicker-input-button-border: var(--first-color); /*Indygo */
+  --dateTimePicker-input-button-hover-background: var(
+    --fourth-color
+  ); /*PaleTurquoise */
+
   /* form */
   --form-color: rgb(0, 100, 255);
   --form-field-background: rgb(255, 255, 255);
