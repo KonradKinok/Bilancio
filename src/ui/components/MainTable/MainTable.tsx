@@ -6,15 +6,34 @@ import scss from "./MainTable.module.scss";
 export const MainTable: React.FC = () => {
   const { data: dataAllInvoices, refetch } = useAllInvoices();
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
+  const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   console.log("MainTable() dataAllInvoices", dataAllInvoices);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const result = await window.electron.przykladowaFunkcja(
           "Przykład tekstu",
-          20
+          10
         );
         setSomeTemp(result);
+      } catch (err) {
+        console.error(
+          "getAllDocumentsName() Błąd podczas pobierania danych:",
+          err
+        );
+      }
+    };
+
+    fetchData();
+  }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await window.electron.przykladowaFunkcja2(
+          "Przykład tekstu2",
+          20
+        );
+        setSomeTemp1(result);
       } catch (err) {
         console.error(
           "getAllDocumentsName() Błąd podczas pobierania danych:",
@@ -31,6 +50,15 @@ export const MainTable: React.FC = () => {
       <h3>
         Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
       </h3>
+      <h3>Tu powinien być status: {someTemp1?.status}</h3>
+      {someTemp1?.status === "sukces" ? (
+        <h3>
+          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
+          {someTemp1.dane.jakisNumer}
+        </h3>
+      ) : (
+        <h3>Błąd: {someTemp1?.komunikat}</h3>
+      )}
       <button onClick={refetch}>Refetch</button>
       <ul className={scss[""]}>
         {dataAllInvoices && dataAllInvoices.length > 0 ? (
@@ -121,15 +149,18 @@ export const MainTable: React.FC = () => {
 // }
 
 function calculateTotalAmount(quantities: string[], prices: string[]): string {
-  const totalAmount = quantities.reduce((acc, quantity, i) => {
-    const price = prices[i];
-    if (price) {
-      return acc + parseFloat(quantity) * parseFloat(price);
-    }
-    return acc;
-  }, 0);
+  if (quantities && prices) {
+    const totalAmount = quantities.reduce((acc, quantity, i) => {
+      const price = prices[i];
+      if (price) {
+        return acc + parseFloat(quantity) * parseFloat(price);
+      }
+      return acc;
+    }, 0);
 
-  return currencyFormater(totalAmount.toString());
+    return currencyFormater(totalAmount.toString());
+  }
+  return currencyFormater("0");
 }
 
 function currencyFormater(value: string): string {

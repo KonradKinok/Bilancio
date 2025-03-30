@@ -62,6 +62,7 @@ export function useAllInvoices() {
     try {
       setLoading(true);
       const result = await window.electron.getAllInvoices();
+      console.log("useAllInvoices()", result)
       setDataAllInvoices(result);
     } catch (err) {
       setError(err as Error);

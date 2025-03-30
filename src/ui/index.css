@@ -11,9 +11,9 @@
   --body-background: rgba(135, 206, 250, 1);
   /* header */
   --header-background: rgba(0, 100, 0, 1); /*DarkGreen*/
-  --header-text-color: rgb(0, 255, 127); /*SpringGreen*/
-  --header-text-hover-color: rgb(50, 205, 50); /*MediumSpringGreen*/
-  --header-text-active-color: rgb(50, 205, 50); /*MediumSpringGreen*/
+  --header-text-color: rgb(50, 205, 50); /*SpringGreen*/
+  --header-text-hover-color: rgb(0, 255, 127); /*MediumSpringGreen*/
+  --header-text-active-color: rgb(0, 255, 127); /*MediumSpringGreen*/
   --header-text-active-background: rgb(0, 128, 0); /*Green*/
   /* main */
   --main-background: rgb(0, 128, 0); /*Green*/

@@ -59,15 +59,42 @@ export function getAllInvoicesSqlString(firstDate:string, lastDate:string, isDel
        DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
        LEFT JOIN
        DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
- WHERE Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2015-12-31' AND
+ WHERE Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2025-12-31' AND
        Invoices.IsDeleted = 0
  GROUP BY Invoices.InvoiceId;
 `;
-
-    return sql
+const sql1=`SELECT 
+    Invoices.InvoiceId,
+    Invoices.InvoiceName,
+    Invoices.ReceiptDate,
+    Invoices.DeadlineDate,
+    Invoices.PaymentDate,
+    Invoices.IsDeleted,
+    GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentName, ''), ';') AS DocumentNames,
+    GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeName, ''), ';') AS MainTypeNames,
+    GROUP_CONCAT(IFNULL(DictionaryType.TypeName, ''), ';') AS TypeNames,
+    GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeName, ''), ';') AS SubtypeNames,
+    GROUP_CONCAT(IFNULL(InvoiceDetails.Quantity, ''), ';') AS Quantities,
+    GROUP_CONCAT(IFNULL(InvoiceDetails.Price, ''), ';') AS Prices
+FROM Invoices
+    LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
+    LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
+    LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
+    LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
+    LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
+WHERE 
+    Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2025-12-31'
+    AND Invoices.IsDeleted = 0
+GROUP BY Invoices.InvoiceId;
+`
+    return sql1
 }
 
-
+// Pobierz ostatni wiersz z tabeli 
+export function addInvoiceSqlString():string {
+  return `INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
+    VALUES (?, ?, ?, ?, ?)`;
+};
 // Pobierz wszystkie faktury 
 // export function getAllInvoicesSqlString1(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
 //     const firstDateStr = firstDate; ;
