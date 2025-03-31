@@ -18,11 +18,18 @@
   /* main */
   --main-background: rgb(0, 128, 0); /*Green*/
 
-  /* dateTimePicker */
+  /* form */
   --first-color: rgb(0, 0, 255);
   --second-color: rgb(0, 100, 255);
   --third-color: rgb(224, 255, 255);
   --fourth-color: rgb(175, 238, 238);
+
+  /* radio-button */
+  --radiobutton-checked-background: rgb(75, 0, 130);
+  --radiobutton-unchecked-background: rgba(75, 0, 130, 0.2);
+  --radiobutton-unchecked-hover-background: rgba(75, 0, 130, 0.5);
+
+  /* dateTimePicker */
   --dateTimePicker-month: var(--fourth-color); /*PaleTurquoise */
   --dateTimePicker-day-color: var(--first-color); /*Indygo */
   --dateTimePicker-day-hover-color: var(--third-color); /*LightCyan */
@@ -35,7 +42,7 @@
   --dateTimePicker-todaybutton-hover-background: var(
     --second-color
   ); /*DarkOrchid */
-
+  --dateTimePicker-icon-color: var(--first-color);
   /* dateTimePicker - button*/
   --dateTimePicker-input-button-color: var(--first-color); /*Indygo */
   --dateTimePicker-input-button-background: var(--third-color); /*LightCyan */
