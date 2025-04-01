@@ -3,37 +3,36 @@
   .form {
     display: flex;
     flex-flow: nowrap;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
+    gap: 1rem;
     box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
       0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    border-radius: 1rem;
   }
 
   .dateTimePicker-main-container {
     display: flex;
     flex-flow: nowrap;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    border: solid 1px rgb(138, 43, 226);
-    padding: 5px;
-    border-radius: 5px;
+    gap: 1.5rem;
+    padding: 1rem;
+    margin-left: 2rem;
     z-index: 900;
     text-align: center;
+
+    .dateTimePicker-container {
+      display: flex;
+      flex-flow: column nowrap;
+    }
   }
 
   .container-button {
     z-index: 1;
     display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-
+    align-items: end;
 
     .button {
       --button-gradient-first-color: rgb(0, 0, 255);
       --button-gradient-second-color: rgb(0, 100, 255);
-      margin: 10px;
+      // margin: 10px;
       padding: 15px 30px;
       text-align: center;
       text-transform: uppercase;

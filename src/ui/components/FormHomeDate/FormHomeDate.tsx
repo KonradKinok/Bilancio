@@ -1,8 +1,16 @@
 import { useState } from "react";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
+import { type FormValuesHomePage } from "../../pages/HomePage/HomePage";
 
-export const FormHomeDate: React.FC = () => {
+interface FormHomeDate {
+  formValuesHomePage: FormValuesHomePage;
+  setFormValuesHomePAge: React.Dispatch<
+    React.SetStateAction<FormValuesHomePage>
+  >;
+}
+
+export const FormHomeDate: React.FC<FormHomeDate> = () => {
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
@@ -10,6 +18,30 @@ export const FormHomeDate: React.FC = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    //  setFormValues((prevData) => ({
+    //    ...prevData,
+    //    selectedDate: dateTimePickerDate,
+    //  }));
+    //  const {
+    //    selectedDate,
+    //    sold,
+    //    bought,
+    //    isNaturalPerson,
+    //    isLegalPerson,
+    //    detailedData,
+    //  } = formValues;
+
+    //  const calculatedDataFunction = calculator.calculationNumberOfDays(
+    //    selectedDate,
+    //    sold,
+    //    bought,
+    //    isNaturalPerson,
+    //    isLegalPerson,
+    //    detailedData,
+    //    currentLanguage
+    //  );
+
+    //  setCalculatedData(calculatedDataFunction);
   };
 
   return (
@@ -32,7 +64,7 @@ export const FormHomeDate: React.FC = () => {
           </div>
           <div className={scss["container-button"]}>
             <button className={scss["button"]} type="submit">
-              Przycisk
+              Pokaż
             </button>
           </div>
         </div>
