@@ -1,10 +1,19 @@
 import { use, useEffect, useState } from "react";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
+import { type FormValuesHomePage } from "../../pages/HomePage/HomePage";
 import scss from "./MainTable.module.scss";
-
-export const MainTable: React.FC = () => {
-  const { data: dataAllInvoices, refetch } = useAllInvoices();
+interface MainTable {
+  formValuesHomePage: FormValuesHomePage;
+  setFormValuesHomePage: React.Dispatch<
+    React.SetStateAction<FormValuesHomePage>
+  >;
+}
+export const MainTable: React.FC<MainTable> = ({
+  formValuesHomePage,
+  setFormValuesHomePage,
+}) => {
+  const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   console.log("MainTable() dataAllInvoices", dataAllInvoices);

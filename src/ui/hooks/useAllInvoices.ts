@@ -50,8 +50,8 @@
 // }
 
 import { useState, useEffect } from "react";
-
-export function useAllInvoices() {
+import { type FormValuesHomePage } from "../pages/HomePage/HomePage";
+export function useAllInvoices(formValuesHomePage:FormValuesHomePage) {
   const [dataAllInvoices, setDataAllInvoices] = useState<AllInvoices[] | null>(null);
   const [data, setData] = useState<AllInvoices[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

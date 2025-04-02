@@ -1,10 +1,10 @@
 import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
+import { format } from "date-fns";
 import { MainTable } from "../../components/MainTable/MainTable";
 import { DateTimePicker } from "../../components/DateTimePicker/DateTimePicker";
-import scss from "./HomePage.module.scss";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
-
+import scss from "./HomePage.module.scss";
 export interface FormValuesHomePage {
   firstDate: Date | null;
   secondDate: Date | null;
@@ -16,14 +16,23 @@ const HomePage: React.FC = () => {
       firstDate: null,
       secondDate: null,
     });
+  
   return (
     <div>
+      <p>
+        {formValuesHomePage.firstDate
+          ? format(formValuesHomePage.firstDate, "yyyy.MM.dd")
+          : "Brak daty"}
+      </p>
       <FormHomeDate
         formValuesHomePage={formValuesHomePage}
-        setFormValuesHomePAge={setFormValuesHomePage}
+        setFormValuesHomePage={setFormValuesHomePage}
       />
 
-      <MainTable />
+      <MainTable
+        formValuesHomePage={formValuesHomePage}
+        setFormValuesHomePage={setFormValuesHomePage}
+      />
     </div>
   );
 };

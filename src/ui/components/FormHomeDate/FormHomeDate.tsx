@@ -5,12 +5,15 @@ import { type FormValuesHomePage } from "../../pages/HomePage/HomePage";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
-  setFormValuesHomePAge: React.Dispatch<
+  setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >;
 }
 
-export const FormHomeDate: React.FC<FormHomeDate> = () => {
+export const FormHomeDate: React.FC<FormHomeDate> = ({
+  formValuesHomePage,
+  setFormValuesHomePage,
+}) => {
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
@@ -18,30 +21,11 @@ export const FormHomeDate: React.FC<FormHomeDate> = () => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    //  setFormValues((prevData) => ({
-    //    ...prevData,
-    //    selectedDate: dateTimePickerDate,
-    //  }));
-    //  const {
-    //    selectedDate,
-    //    sold,
-    //    bought,
-    //    isNaturalPerson,
-    //    isLegalPerson,
-    //    detailedData,
-    //  } = formValues;
-
-    //  const calculatedDataFunction = calculator.calculationNumberOfDays(
-    //    selectedDate,
-    //    sold,
-    //    bought,
-    //    isNaturalPerson,
-    //    isLegalPerson,
-    //    detailedData,
-    //    currentLanguage
-    //  );
-
-    //  setCalculatedData(calculatedDataFunction);
+    setFormValuesHomePage((prevData) => ({
+      ...prevData,
+      firstDate: dateTimePickerFirstDate,
+      secondDate: dateTimePickerLastDate,
+    }));
   };
 
   return (
