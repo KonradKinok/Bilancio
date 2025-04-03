@@ -50,7 +50,7 @@
 // }
 
 import { useState, useEffect } from "react";
-import { type FormValuesHomePage } from "../pages/HomePage/HomePage";
+import { type FormValuesHomePage } from "../components/Context/ElectronProvider";
 export function useAllInvoices(formValuesHomePage:FormValuesHomePage) {
   const [dataAllInvoices, setDataAllInvoices] = useState<AllInvoices[] | null>(null);
   const [data, setData] = useState<AllInvoices[]>([]);

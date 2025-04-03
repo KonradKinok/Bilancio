@@ -1,22 +1,14 @@
 import { Suspense, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { format } from "date-fns";
+import { useMainDataContext } from "../../components/Context/useOptionsImage";
 import { MainTable } from "../../components/MainTable/MainTable";
 import { DateTimePicker } from "../../components/DateTimePicker/DateTimePicker";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
 import scss from "./HomePage.module.scss";
-export interface FormValuesHomePage {
-  firstDate: Date | null;
-  secondDate: Date | null;
-}
 
 const HomePage: React.FC = () => {
-  const [formValuesHomePage, setFormValuesHomePage] =
-    useState<FormValuesHomePage>({
-      firstDate: null,
-      secondDate: null,
-    });
-  
+  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   return (
     <div>
       <p>

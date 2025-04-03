@@ -1,7 +1,7 @@
 import { use, useEffect, useState } from "react";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
-import { type FormValuesHomePage } from "../../pages/HomePage/HomePage";
+import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import scss from "./MainTable.module.scss";
 interface MainTable {
   formValuesHomePage: FormValuesHomePage;
