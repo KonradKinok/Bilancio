@@ -53,7 +53,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       selected={dateTimePickerDate}
       onChange={(date) => setDateTimePickerDate(date)}
       openToDate={dateTimePickerDate ?? undefined}
-      minDate={new Date("2024/01/01")}
+      minDate={new Date("2010/01/01")}
       todayButton="Dzisiaj"
       name="dateTimePicker"
       locale={calendarLanguage}

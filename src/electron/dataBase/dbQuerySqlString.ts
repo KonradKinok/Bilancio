@@ -32,9 +32,15 @@ WHERE ${tableNameId} = (SELECT MAX(${tableNameId}) FROM ${tableName});`;
 };
 
 // Pobierz wszystkie faktury 
-export function getAllInvoicesSqlString(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
-    const firstDateStr = firstDate; ;
-  const lastDateStr = lastDate;
+export function getAllInvoicesSqlString(formValuesHomePage:FormValuesHomePage, isDeleted:number=0 ):string {
+    
+    if (!formValuesHomePage) {
+    console.error('getAllInvoicesSqlString: formValuesHomePage is undefined or null');
+    return ''; // lub inny odpowiedni sposób obsługi błędu
+    }
+    const firstDateStr = formValuesHomePage.firstDate; 
+    const lastDateStr = formValuesHomePage.secondDate;
+    console.log("getAllInvoicesSqlString()", {firstDateStr, lastDateStr, isDeleted})
   const isDeletedNum = isDeleted;
     const sql = `SELECT Invoices.InvoiceId,
        Invoices.InvoiceName,

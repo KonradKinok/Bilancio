@@ -45,8 +45,8 @@ app.on("ready", () => {
   ipcMainHandle('getAllDocumentName',  () => {
     return getAllDocumentsName();
   });
-  ipcMainHandle('getAllInvoices',  () => {
-    return getAllInvoices();
+  ipcMainHandle2('getAllInvoices',  (payload) => {
+    return getAllInvoices(payload);
   });
   ipcMainHandle2('przykladowaFunkcja',  (payload, jakisNumer) => {
     return przykladowaFunkcja(payload , jakisNumer);

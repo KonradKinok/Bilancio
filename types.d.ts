@@ -9,7 +9,12 @@ type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
 type UnsubscribeFunction = () => void;
  
 declare global {
-
+  //Context HomePage
+  interface FormValuesHomePage {
+  firstDate: Date | null;
+    secondDate: Date | null;
+    isDeleted?: 0 | 1;
+}
 
 type Statistics = {
   cpuUsage: number;
@@ -163,7 +168,7 @@ type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
       getTableDictionaryDocuments: () => Promise<DictionaryDocuments[]>;
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<AllDocumentsName[]>;
-      getAllInvoices: () => Promise<AllInvoices[]>;
+      getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
        przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;

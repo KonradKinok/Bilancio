@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
-import { type FormValuesHomePage } from "../Context/ElectronProvider";
+// import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import { useMainDataContext } from "../Context/useOptionsImage";
+import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
@@ -11,15 +12,13 @@ interface FormHomeDate {
   >;
 }
 
-export const FormHomeDate: React.FC<FormHomeDate> = ({
-  formValuesHomePage,
-  setFormValuesHomePage,
-}) => {
+export const FormHomeDate: React.FC = () => {
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
   const { options, setOptions } = useMainDataContext();
+  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setFormValuesHomePage((prevData) => ({
@@ -54,6 +53,15 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
             <DateTimePicker
               dateTimePickerDate={dateTimePickerLastDate}
               setDateTimePickerDate={setDateTimePickerLastDate}
+            />
+          </div>
+          <div>
+            <CheckboxSlider
+              textLabel={"Pokaż usunięte:"}
+              type={"checkbox"}
+              name={"checkbox-homepage"}
+              id={"checkbox-homepage"}
+              classLabel={scss["temp"]}
             />
           </div>
           <div className={scss["container-button"]}>

@@ -1,7 +1,7 @@
 import Database from './dbClass.js';
 import * as sqlString from "./dbQuerySqlString.js";
 import { DbTables, InvoicesTable } from './enum.js';
-
+// import {type FormValuesHomePage} from "../../ui/components/Context/ElectronProvider.jsx"
 
 // Tworzymy instancję bazy danych
 const db = new Database();
@@ -29,10 +29,9 @@ export async function getAllDocumentsName()  {
 };
 
 // Pobierz nazwy wszystkich dokumentów
-export async function getAllInvoices()  {
+export async function getAllInvoices(formValuesHomePage: FormValuesHomePage) {
   try {
-    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString("2010-01-01", "2011-12-31", 0));
-    console.log("getAllInvoices()",rows)
+    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage, 0));
     return rows || [];
     
   } catch (err) {

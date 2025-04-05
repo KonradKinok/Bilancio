@@ -49,31 +49,44 @@
 //   return { data, loading, error };
 // }
 
-import { useState, useEffect } from "react";
-import { type FormValuesHomePage } from "../components/Context/ElectronProvider";
-export function useAllInvoices(formValuesHomePage:FormValuesHomePage) {
+import { useState, useEffect, useCallback } from "react";
+import { useMainDataContext } from "../components/Context/useOptionsImage";
+// import { type FormValuesHomePage } from "../components/Context/ElectronProvider";
+export function useAllInvoices(formValuesHomePage: FormValuesHomePage) {
   const [dataAllInvoices, setDataAllInvoices] = useState<AllInvoices[] | null>(null);
   const [data, setData] = useState<AllInvoices[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   // Funkcja pobierająca dane
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const result = await window.electron.getAllInvoices();
-      console.log("useAllInvoices()", result)
-      setDataAllInvoices(result);
-    } catch (err) {
-      setError(err as Error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // const fetchData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const result = await window.electron.getAllInvoices(formValuesHomePage);
+  //     console.log("useAllInvoices()", result)
+  //     setDataAllInvoices(result);
+  //   } catch (err) {
+  //     setError(err as Error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+const fetchData = useCallback(async () => {
+  try {
+    setLoading(true);
+    console.log("useAllInvoices()", {formValuesHomePage})
+    const result = await window.electron.getAllInvoices(formValuesHomePage);
+    setDataAllInvoices(result);
+  } catch (err) {
+    setError(err as Error);
+  } finally {
+    setLoading(false);
+  }
+}, [formValuesHomePage]);
+  
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   useEffect(() => {
     const fieldsToSplit = [

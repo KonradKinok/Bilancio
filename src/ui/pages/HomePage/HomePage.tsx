@@ -16,15 +16,9 @@ const HomePage: React.FC = () => {
           ? format(formValuesHomePage.firstDate, "yyyy.MM.dd")
           : "Brak daty"}
       </p>
-      <FormHomeDate
-        formValuesHomePage={formValuesHomePage}
-        setFormValuesHomePage={setFormValuesHomePage}
-      />
+      <FormHomeDate />
 
-      <MainTable
-        formValuesHomePage={formValuesHomePage}
-        setFormValuesHomePage={setFormValuesHomePage}
-      />
+      <MainTable />
     </div>
   );
 };

@@ -16,7 +16,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getTableDictionaryDocuments: () => ipcInvoke('getTableDictionaryDocuments'),
   queryToDB: () => ipcInvoke('queryToDB'),
   getAllDocumentsName: () => ipcInvoke('getAllDocumentName'),
-  getAllInvoices: () => ipcInvoke('getAllInvoices'),
+  getAllInvoices: (payload) => ipcInvoke2('getAllInvoices',payload),
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
   przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),

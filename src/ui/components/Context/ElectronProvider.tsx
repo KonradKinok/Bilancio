@@ -7,10 +7,6 @@ export interface Options {
   color: string;
 }
 
-export interface FormValuesHomePage {
-  firstDate: Date | null;
-  secondDate: Date | null;
-}
 // Typ dla kontekstu
 export interface ElectronContextType {
   options: Options; // Obiekt zawierający orientację
@@ -35,8 +31,9 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
   );
   const [formValuesHomePage, setFormValuesHomePage] =
     useState<FormValuesHomePage>({
-      firstDate: new Date(new Date().getFullYear(), 0, 1),
-      secondDate: new Date(new Date().getFullYear(), 11, 31),
+      firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      secondDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
+      isDeleted: 0,
     });
   // Wartość kontekstu (obiekt z opcjami)
   const value: ElectronContextType = {

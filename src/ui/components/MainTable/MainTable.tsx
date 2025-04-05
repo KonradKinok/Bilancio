@@ -1,22 +1,21 @@
 import { use, useEffect, useState } from "react";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
-import { type FormValuesHomePage } from "../Context/ElectronProvider";
+// import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import scss from "./MainTable.module.scss";
+import { useMainDataContext } from "../Context/useOptionsImage";
 interface MainTable {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >;
 }
-export const MainTable: React.FC<MainTable> = ({
-  formValuesHomePage,
-  setFormValuesHomePage,
-}) => {
+export const MainTable: React.FC = () => {
+  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
-  console.log("MainTable() dataAllInvoices", dataAllInvoices);
+  console.log("MainTable() useMainDataContext", formValuesHomePage);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -56,6 +55,7 @@ export const MainTable: React.FC<MainTable> = ({
   return (
     <div className={scss[""]}>
       <h2>Main Table temp</h2>
+      <h3>ContextDate: {formValuesHomePage.firstDate?.toDateString()}</h3>
       <h3>
         Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
       </h3>
