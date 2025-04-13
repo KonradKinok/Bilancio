@@ -54,31 +54,6 @@ export const MainTable: React.FC = () => {
   }, []);
   return (
     <div className={scss[""]}>
-      <h2>Main Table temp</h2>
-      <h3>ContextDate: {formValuesHomePage.firstDate?.toDateString()}</h3>
-      <h3>
-        Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
-      </h3>
-      <h3>Tu powinien być status: {someTemp1?.status}</h3>
-      {someTemp1?.status === "sukces" ? (
-        <h3>
-          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
-          {someTemp1.dane.jakisNumer}
-        </h3>
-      ) : (
-        <h3>Błąd: {someTemp1?.komunikat}</h3>
-      )}
-      <button onClick={refetch}>Refetch</button>
-      <ul className={scss[""]}>
-        {dataAllInvoices && dataAllInvoices.length > 0 ? (
-          dataAllInvoices.map((invoice, index) => (
-            <li key={index}>{JSON.stringify(invoice)}</li>
-          ))
-        ) : (
-          <li>No data</li>
-        )}
-      </ul>
-
       <table>
         <thead>
           <tr>
@@ -143,6 +118,34 @@ export const MainTable: React.FC = () => {
             })}
         </tbody>
       </table>
+      <h2>Main Table temp</h2>
+      <h3>
+        ContextDate: {formValuesHomePage.firstDate?.toDateString()}{" "}
+        {formValuesHomePage.secondDate?.toDateString()}{" "}
+        {formValuesHomePage.isDeleted}
+      </h3>
+      <h3>
+        Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
+      </h3>
+      <h3>Tu powinien być status: {someTemp1?.status}</h3>
+      {someTemp1?.status === "sukces" ? (
+        <h3>
+          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
+          {someTemp1.dane.jakisNumer}
+        </h3>
+      ) : (
+        <h3>Błąd: {someTemp1?.komunikat}</h3>
+      )}
+      <button onClick={refetch}>Refetch</button>
+      <ul className={scss[""]}>
+        {dataAllInvoices && dataAllInvoices.length > 0 ? (
+          dataAllInvoices.map((invoice, index) => (
+            <li key={index}>{JSON.stringify(invoice)}</li>
+          ))
+        ) : (
+          <li>No data</li>
+        )}
+      </ul>
     </div>
   );
 };

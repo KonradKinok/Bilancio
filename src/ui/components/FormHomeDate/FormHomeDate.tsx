@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { FaInfoCircle } from "react-icons/fa";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
 // import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
+import { Tooltip } from "react-tooltip";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
@@ -17,6 +19,7 @@ export const FormHomeDate: React.FC = () => {
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
+  const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(0);
   const { options, setOptions } = useMainDataContext();
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -25,6 +28,7 @@ export const FormHomeDate: React.FC = () => {
       ...prevData,
       firstDate: dateTimePickerFirstDate,
       secondDate: dateTimePickerLastDate,
+      isDeleted: radioButtonIsDeleted,
     }));
     setOptions((prevData) => ({
       ...prevData,
@@ -36,6 +40,7 @@ export const FormHomeDate: React.FC = () => {
   useEffect(() => {
     setDateTimePickerFirstDate(formValuesHomePage.firstDate);
     setDateTimePickerLastDate(formValuesHomePage.secondDate);
+    setRadioButtonIsDeleted(formValuesHomePage.isDeleted || 0);
   }, [formValuesHomePage]);
   return (
     <div className={scss["formhomedate-main-container"]}>
@@ -58,10 +63,12 @@ export const FormHomeDate: React.FC = () => {
           <div>
             <CheckboxSlider
               textLabel={"Pokaż usunięte:"}
-              type={"checkbox"}
-              name={"checkbox-homepage"}
-              id={"checkbox-homepage"}
+              inputType={"checkbox"}
+              inputName={"checkbox-homepage"}
+              inputId={"checkbox-homepage"}
               classLabel={scss["temp"]}
+              radioButtonIsDeleted={radioButtonIsDeleted}
+              setRadioButtonIsDeleted={setRadioButtonIsDeleted}
             />
           </div>
           <div className={scss["container-button"]}>
@@ -70,7 +77,19 @@ export const FormHomeDate: React.FC = () => {
             </button>
           </div>
         </div>
+        <div
+          className={scss["container-icon"]}
+          data-tooltip-id="tooltip-formHomeDate"
+          data-tooltip-content="Hello world!"
+        >
+          <FaInfoCircle className={scss["icon"]} />
+        </div>
       </form>
+      <Tooltip
+        id="tooltip-formHomeDate"
+        className={scss["tooltip-custom"]}
+        offset={5}
+      />
     </div>
   );
 };

@@ -2,24 +2,29 @@ import scss from "./CheckboxSlider.module.scss";
 
 interface CheckboxSliderProps {
   textLabel: string;
-  type: string;
-  name: string;
-  id: string;
+  inputType: string;
+  inputName: string;
+  inputId: string;
   classMainContainer?: string;
   classLabel?: string;
+  radioButtonIsDeleted: 0 | 1;
+  setRadioButtonIsDeleted: React.Dispatch<React.SetStateAction<0 | 1>>;
 }
 
 export const CheckboxSlider: React.FC<CheckboxSliderProps> = ({
   textLabel,
-  type,
-  name,
-  id,
+  inputType,
+  inputName,
+  inputId,
   classMainContainer,
   classLabel,
+  radioButtonIsDeleted,
+  setRadioButtonIsDeleted,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked, id } = e.target;
+    setRadioButtonIsDeleted((prevData) => (prevData === 1 ? 0 : 1));
   };
+
   return (
     <div
       className={`
@@ -27,15 +32,15 @@ export const CheckboxSlider: React.FC<CheckboxSliderProps> = ({
       ${classMainContainer || ""}
       `}
     >
-      <label className={`${classLabel || ""}`} htmlFor={name}>
+      <label className={`${classLabel || ""}`} htmlFor={inputName}>
         <p className={scss["custom-title"]}>{textLabel}</p>
       </label>
       <input
-        type={type}
-        name={name}
-        id={id}
+        type={inputType}
+        name={inputName}
+        id={inputId}
         className={scss["toggle-switch"]}
-        // checked={formValues.detailedData}
+        checked={radioButtonIsDeleted === 1}
         onChange={handleChange}
       />
     </div>

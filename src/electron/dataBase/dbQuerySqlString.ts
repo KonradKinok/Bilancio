@@ -32,43 +32,17 @@ WHERE ${tableNameId} = (SELECT MAX(${tableNameId}) FROM ${tableName});`;
 };
 
 // Pobierz wszystkie faktury 
-export function getAllInvoicesSqlString(formValuesHomePage:FormValuesHomePage, isDeleted:number=0 ):string {
+export function getAllInvoicesSqlString(formValuesHomePage:FormValuesHomePage ):string {
     
     if (!formValuesHomePage) {
     console.error('getAllInvoicesSqlString: formValuesHomePage is undefined or null');
     return ''; // lub inny odpowiedni sposób obsługi błędu
     }
-    const firstDateStr = formValuesHomePage.firstDate; 
-    const lastDateStr = formValuesHomePage.secondDate;
+    const firstDateStr = formValuesHomePage.firstDate?.toISOString().split("T")[0]; 
+    const lastDateStr = formValuesHomePage.secondDate?.toISOString().split("T")[0];
+    const isDeleted = formValuesHomePage.isDeleted ; // Ustaw domyślną wartość na 0, jeśli isDeleted jest undefined
     console.log("getAllInvoicesSqlString()", {firstDateStr, lastDateStr, isDeleted})
-  const isDeletedNum = isDeleted;
-    const sql = `SELECT Invoices.InvoiceId,
-       Invoices.InvoiceName,
-       Invoices.ReceiptDate,
-       Invoices.DeadlineDate,
-       Invoices.PaymentDate,
-       Invoices.IsDeleted,
-       GROUP_CONCAT(DictionaryDocuments.DocumentName, ';') AS DocumentNames,
-       GROUP_CONCAT(DictionaryMainType.MainTypeName, ';') AS MainTypeNames,
-       GROUP_CONCAT(DictionaryType.TypeName, ';') AS TypeNames,
-       GROUP_CONCAT(DictionarySubtype.SubtypeName, ';') AS SubtypeNames,
-       GROUP_CONCAT(InvoiceDetails.Quantity, ';') AS Quantities,
-       GROUP_CONCAT(InvoiceDetails.Price, ';') AS Prices
-  FROM Invoices
-       LEFT JOIN
-       InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
-       LEFT JOIN
-       DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
-       LEFT JOIN
-       DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
-       LEFT JOIN
-       DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
-       LEFT JOIN
-       DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
- WHERE Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2025-12-31' AND
-       Invoices.IsDeleted = 0
- GROUP BY Invoices.InvoiceId;
-`;
+
 const sql1=`SELECT 
     Invoices.InvoiceId,
     Invoices.InvoiceName,
@@ -89,8 +63,8 @@ FROM Invoices
     LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
     LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
 WHERE 
-    Invoices.ReceiptDate BETWEEN '2010-01-01' AND '2025-12-31'
-    AND Invoices.IsDeleted = 0
+    Invoices.ReceiptDate BETWEEN '${firstDateStr}' AND '${lastDateStr}'
+    AND Invoices.IsDeleted = ${isDeleted}
 GROUP BY Invoices.InvoiceId;
 `
     return sql1
@@ -101,7 +75,7 @@ export function addInvoiceSqlString():string {
   return `INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
     VALUES (?, ?, ?, ?, ?)`;
 };
-// Pobierz wszystkie faktury 
+// Pobierz wszystkie faktury
 // export function getAllInvoicesSqlString1(firstDate:string, lastDate:string, isDeleted:number=0 ):string {
 //     const firstDateStr = firstDate; ;
 //   const lastDateStr = lastDate;
@@ -126,3 +100,4 @@ export function addInvoiceSqlString():string {
 
 //     return sql
 // }
+

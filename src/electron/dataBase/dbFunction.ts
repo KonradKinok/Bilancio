@@ -31,7 +31,7 @@ export async function getAllDocumentsName()  {
 // Pobierz nazwy wszystkich dokumentów
 export async function getAllInvoices(formValuesHomePage: FormValuesHomePage) {
   try {
-    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage, 0));
+    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage));
     return rows || [];
     
   } catch (err) {
