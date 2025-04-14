@@ -25,6 +25,8 @@
   --fourth-color: rgb(175, 238, 238);
   --fifth-color: rgb(255, 255, 255); /*White*/
   --sixth-color: rgb(0, 0, 139); /*DarkBlue*/
+  --seventh-color: rgb(255, 0, 0); /*DarkBlue*/
+  --eighth-color: rgba(0, 100, 0, 1); /*Yellow*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -52,10 +54,14 @@
   --checkbox-slider-checked-background: var(--first-color);
   --checkbox-slider-unchecked-background: rgba(0, 0, 255, 0.2);
   --checkbox-slider-unchecked-hover-background: rgba(0, 0, 255, 0.5);
+  /* checkbox*/
+  --vertical-line-color: var(--eighth-color);
   /* icon-info*/
   --icon-info-color: var(--first-color); /*Indygo */
   --icon-info-hover-color: var(--sixth-color); /*Indygo */
   --icon-info-background: var(--fifth-color); /*LightCyan */
+  /* tooltip*/
+  --tooltip-error-background: var(--seventh-color); /*Indygo */
 
   /* form */
   --form-color: rgb(0, 100, 255);

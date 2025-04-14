@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FaInfoCircle } from "react-icons/fa";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
-// import { type FormValuesHomePage } from "../Context/ElectronProvider";
+import { useToggle } from "../../hooks/useToggle";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { Tooltip } from "react-tooltip";
@@ -15,6 +15,12 @@ interface FormHomeDate {
 }
 
 export const FormHomeDate: React.FC = () => {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const {
+    isOpenModal: isModalOptionsOpen,
+    openModal: openModalOptions,
+    closeModal: closeModalOptions,
+  } = useToggle();
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
@@ -24,6 +30,13 @@ export const FormHomeDate: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (
+      dateTimePickerFirstDate &&
+      dateTimePickerLastDate &&
+      dateTimePickerFirstDate > dateTimePickerLastDate
+    ) {
+      return;
+    }
     setFormValuesHomePage((prevData) => ({
       ...prevData,
       firstDate: dateTimePickerFirstDate,
@@ -42,6 +55,19 @@ export const FormHomeDate: React.FC = () => {
     setDateTimePickerLastDate(formValuesHomePage.secondDate);
     setRadioButtonIsDeleted(formValuesHomePage.isDeleted || 0);
   }, [formValuesHomePage]);
+
+  useEffect(() => {
+    if (
+      dateTimePickerFirstDate &&
+      dateTimePickerLastDate &&
+      dateTimePickerFirstDate > dateTimePickerLastDate
+    ) {
+      setShowTooltip(true);
+    } else {
+      setShowTooltip(false);
+    }
+  }, [dateTimePickerFirstDate, dateTimePickerLastDate]);
+
   return (
     <div className={scss["formhomedate-main-container"]}>
       <form className={scss["form"]} onSubmit={handleSubmit}>
@@ -72,24 +98,51 @@ export const FormHomeDate: React.FC = () => {
             />
           </div>
           <div className={scss["container-button"]}>
-            <button className={scss["button"]} type="submit">
+            <button
+              className={scss["button"]}
+              type="submit"
+              data-tooltip-id={showTooltip ? "tooltip-error-date" : undefined}
+              data-tooltip-content={
+                showTooltip ? tooltipErrorDateFormHomeDateTekst() : undefined
+              }
+            >
               Pokaż
+            </button>
+          </div>
+          <div className={scss["vertical-line"]}></div>
+          <div className={scss["container-button"]}>
+            <button className={scss["button"]} type="button" onClick={() => {}}>
+              Dodaj fakturę
             </button>
           </div>
         </div>
         <div
           className={scss["container-icon"]}
           data-tooltip-id="tooltip-formHomeDate"
-          data-tooltip-content="Hello world!"
+          data-tooltip-html={tooltipInfoFormHomeDateTekst()}
         >
           <FaInfoCircle className={scss["icon"]} />
         </div>
       </form>
+      <Tooltip id="tooltip-formHomeDate" className={scss["tooltip"]} />
       <Tooltip
-        id="tooltip-formHomeDate"
-        className={scss["tooltip-custom"]}
-        offset={5}
+        id="tooltip-error-date"
+        className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
       />
     </div>
   );
 };
+
+function tooltipInfoFormHomeDateTekst() {
+  const text = `Formularz wyboru daty.
+  Umożliwia wybór początkowej i końcowej daty wpływu faktury oraz opcjonalne wyświetlenie usuniętych elementów.
+  Wybierz daty, kliknij przycisk "Pokaż", aby zastosować zmiany.
+  Uwaga! Data początkowa nie może być późniejsza niż data końcowa.
+  Przycisk "Dodaj fakturę" służy do otwarcia okna, w którym można dodać fakturę.`;
+  return text.replace(/\n/g, "<br/>");
+}
+
+function tooltipErrorDateFormHomeDateTekst() {
+  const text = `Data początkowa nie może być późniejsza niż data końcowa.`;
+  return text.replace(/\n/g, "<br/>");
+}
