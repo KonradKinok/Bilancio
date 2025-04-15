@@ -30,6 +30,7 @@ type Statistics = {
     DocumentId: number;
     DocumentName: string ;
   }
+
   type InvoiceTable={
     InvoiceId?: number;
     InvoiceName: string;
@@ -47,6 +48,10 @@ type InvoiceDetailsTable={
     Quantity: number;
     Price: number;
   }
+  type InvoiceSave = {
+  invoice: InvoiceTable;
+  details: InvoiceDetailsTable[];
+};
   type ReturnInvoiceSave={
     lastID: number;
     changes: number;

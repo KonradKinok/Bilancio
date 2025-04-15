@@ -4,6 +4,7 @@ import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
 import { useToggle } from "../../hooks/useToggle";
 import { useMainDataContext } from "../Context/useOptionsImage";
+import { ModalAddInvoice } from "../../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { Tooltip } from "react-tooltip";
 
@@ -17,9 +18,9 @@ interface FormHomeDate {
 export const FormHomeDate: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(false);
   const {
-    isOpenModal: isModalOptionsOpen,
-    openModal: openModalOptions,
-    closeModal: closeModalOptions,
+    isOpenModal: isModalAddInvoiceOpen,
+    openModal: openModalAddInvoice,
+    closeModal: closeModalAddInvoice,
   } = useToggle();
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
@@ -111,7 +112,11 @@ export const FormHomeDate: React.FC = () => {
           </div>
           <div className={scss["vertical-line"]}></div>
           <div className={scss["container-button"]}>
-            <button className={scss["button"]} type="button" onClick={() => {}}>
+            <button
+              className={scss["button"]}
+              type="button"
+              onClick={openModalAddInvoice}
+            >
               Dodaj fakturę
             </button>
           </div>
@@ -128,6 +133,10 @@ export const FormHomeDate: React.FC = () => {
       <Tooltip
         id="tooltip-error-date"
         className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
+      />
+      <ModalAddInvoice
+        closeModalAddInvoice={closeModalAddInvoice}
+        isModalAddInvoiceOpen={isModalAddInvoiceOpen}
       />
     </div>
   );

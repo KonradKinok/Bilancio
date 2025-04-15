@@ -1,24 +1,45 @@
-import React, { useCallback, useEffect } from "react";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { FormAddInvoice } from "../components/FormAddInvoice/FormAddInvoice";
 import scss from "./ModalAddInvoice.module.scss";
 
-interface ModalProps {
-  closeModal: () => void;
-  isModalLibrariesOpen: boolean;
-  poster_path: string | null;
-  backdrop_path: string | null;
-  title: string;
+interface ModalAddInvoiceProps {
+  closeModalAddInvoice: () => void;
+  isModalAddInvoiceOpen: boolean;
 }
 
-export function ImageModal({ closeModal, isModalLibrariesOpen }: ModalProps) {
+export function ModalAddInvoice({
+  closeModalAddInvoice,
+  isModalAddInvoiceOpen,
+}: ModalAddInvoiceProps) {
+  const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
+    invoice: {
+      InvoiceId: undefined,
+      InvoiceName: "",
+      ReceiptDate: "",
+      DeadlineDate: null,
+      PaymentDate: "",
+      IsDeleted: 0,
+    },
+    details: [
+      {
+        InvoiceId: undefined,
+        DocumentId: 0,
+        MainTypeId: null,
+        TypeId: null,
+        SubtypeId: null,
+        Quantity: 0,
+        Price: 0,
+      },
+    ],
+  });
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         console.log("Zamykam modal!");
-        closeModal();
+        closeModalAddInvoice();
       }
     },
-    [closeModal]
+    [closeModalAddInvoice]
   );
 
   useEffect(() => {
@@ -29,20 +50,25 @@ export function ImageModal({ closeModal, isModalLibrariesOpen }: ModalProps) {
     };
   }, [handleEsc]);
 
-  const handleClickOutside = () => {
-    closeModal();
+  const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget) {
+      closeModalAddInvoice();
+    }
   };
 
   return (
     <div
-      className={`${scss["modal-images-overlay"]} ${
-        isModalLibrariesOpen ? scss["is-open"] : ""
-      } `}
+      className={`${scss["add-invoice-modal-container"]} 
+      ${isModalAddInvoiceOpen ? scss["is-open"] : ""} `}
       onClick={handleClickOutside}
     >
-      <div className={scss["modal"]}>
-        <div className={scss["container-top-img"]} onClick={closeModal}></div>
-        <div className={scss["container-top-img"]}></div>
+      <div className={scss["add-invoice-modal"]}>
+        <div className={scss["add-invoice-main-container"]}>
+          <FormAddInvoice
+            addInvoiceData={addInvoiceData}
+            setAddInvoiceData={setAddInvoiceData}
+          />
+        </div>
       </div>
     </div>
   );
