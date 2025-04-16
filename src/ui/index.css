@@ -27,6 +27,7 @@
   --sixth-color: rgb(0, 0, 139); /*DarkBlue*/
   --seventh-color: rgb(255, 0, 0); /*DarkBlue*/
   --eighth-color: rgba(0, 100, 0, 1); /*Yellow*/
+  --nineth-color: rgb(0, 128, 0); /*Red*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -62,6 +63,8 @@
   --icon-info-background: var(--fifth-color); /*LightCyan */
   /* tooltip*/
   --tooltip-error-background: var(--seventh-color); /*Indygo */
+  /* form */
+  --form-background-color: var(--nineth-color);
 
   /* form */
   --form-color: rgb(0, 100, 255);

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FormAddInvoice } from "../components/FormAddInvoice/FormAddInvoice";
+import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
 import scss from "./ModalAddInvoice.module.scss";
 
 interface ModalAddInvoiceProps {

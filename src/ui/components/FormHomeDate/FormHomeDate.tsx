@@ -4,7 +4,7 @@ import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import scss from "./FormHomeDate.module.scss";
 import { useToggle } from "../../hooks/useToggle";
 import { useMainDataContext } from "../Context/useOptionsImage";
-import { ModalAddInvoice } from "../../ModalAddInvoice/ModalAddInvoice";
+import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { Tooltip } from "react-tooltip";
 

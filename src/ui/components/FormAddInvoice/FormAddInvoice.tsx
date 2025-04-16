@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaUser } from "react-icons/fa";
 import scss from "./FormAddInvoice.module.scss";
 import { SingleInput } from "../SingleInput/SingleInput";
+import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -14,6 +15,10 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 }) => {
   const [inputName, setInputName] = useState<string>("");
   const [inputNameError, setInputNameError] = useState<string>("");
+  const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
+    useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
+  const [dateTimePickerLastDate, setDateTimePickerLastDate] =
+    useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
   const [inputEmail, setInputEmail] = useState<string>("");
   const [inputEmailError, setInputEmailError] = useState<string>("");
   const [inputPhone, setInputPhone] = useState<string>("");
@@ -60,20 +65,36 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   };
 
   return (
-    <form action="">
-      <h3 className={scss["contact-form-title"]}>Contact Form - login</h3>
-      <SingleInput
-        inputName={addInvoiceData.invoice.InvoiceName}
-        singleInputValue={inputName}
-        handleSingleInputChange={handleSingleInputChange}
-        inputPlaceholder="Enter your name"
-        iconLeft={<FaUser size={16} />}
-        singleInputError={inputNameError}
-        required={false}
-        classNameInputContainer={scss["custom-input-container"]}
-      />
+    <form action="" className={scss["form-add-invoice"]}>
+      <h3 className={scss["form-add-invoice-title"]}>Dodaj nową fakturę:</h3>
+      <div className={scss["form-invoice-data"]}>
+        <div>
+          <SingleInput
+            inputName={addInvoiceData.invoice.InvoiceName}
+            singleInputValue={inputName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Enter your name"
+            iconLeft={<FaUser size={16} />}
+            singleInputError={inputNameError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        </div>
+        <div className={scss["dateTimePicker-container"]}>
+          <label htmlFor="dateTimePicker">Data początkowa:</label>
+          <DateTimePicker
+            dateTimePickerDate={dateTimePickerFirstDate}
+            setDateTimePickerDate={setDateTimePickerFirstDate}
+          />
+        </div>
+        <div className={scss["dateTimePicker-container"]}>
+          <label htmlFor="dateTimePicker">Data końcowa:</label>
+          <DateTimePicker
+            dateTimePickerDate={dateTimePickerLastDate}
+            setDateTimePickerDate={setDateTimePickerLastDate}
+          />
+        </div>
+      </div>
     </form>
   );
-  //   const { formValuesHomePage, setFormValuesHomePage } =
-  //     useMainDataContext();
 };
