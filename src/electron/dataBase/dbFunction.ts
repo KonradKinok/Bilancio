@@ -1,22 +1,39 @@
 import Database from './dbClass.js';
 import * as sqlString from "./dbQuerySqlString.js";
 import { DbTables, InvoicesTable } from './enum.js';
-// import {type FormValuesHomePage} from "../../ui/components/Context/ElectronProvider.jsx"
+import  { STATUS, DataBaseResponse, isSuccess } from './../../sharedTypes/status.js';
 
 // Tworzymy instancję bazy danych
 const db = new Database();
 
 // Pobierz tablicę DictionaryDocuments
+// export async function getTableDictionaryDocuments()  {
+//   try {
+//     const rows = await db.all<DictionaryDocuments>(sqlString.getTableDictionaryDocumentsSqlString());
+//     return rows || [];
+//   } catch (err) {
+//     console.error('getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:');
+//    return [];
+//   }
+// };
+
+  // export type Status = (typeof STATUS)[keyof typeof STATUS];
 export async function getTableDictionaryDocuments()  {
-  try {
+ try {
     const rows = await db.all<DictionaryDocuments>(sqlString.getTableDictionaryDocumentsSqlString());
-    return rows || [];
+console.log("dbFunction.ts getTableDictionaryDocuments()", rows);
+    return {
+      status: STATUS.Success,
+      data: rows ?? [], 
+    };
   } catch (err) {
-    console.error('getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:');
-   return [];
+    console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
+    return {
+      status: STATUS.Error,
+      message: "Błąd podczas pobierania dokumentów z bazy danych.",
+    };
   }
 };
-
 // Pobierz nazwy wszystkich dokumentów
 export async function getAllDocumentsName()  {
   try {

@@ -3,6 +3,7 @@ import { FaUser } from "react-icons/fa";
 import scss from "./FormAddInvoice.module.scss";
 import { SingleInput } from "../SingleInput/SingleInput";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
+import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -13,20 +14,15 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   addInvoiceData,
   setAddInvoiceData,
 }) => {
-  const [inputName, setInputName] = useState<string>("");
-  const [inputNameError, setInputNameError] = useState<string>("");
-  const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
-    useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
-  const [dateTimePickerLastDate, setDateTimePickerLastDate] =
-    useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
-  const [inputEmail, setInputEmail] = useState<string>("");
-  const [inputEmailError, setInputEmailError] = useState<string>("");
-  const [inputPhone, setInputPhone] = useState<string>("");
-  const [inputPhoneError, setInputPhoneError] = useState<string>("");
-  const [inputAddress, setInputAddress] = useState<string>("");
-  const [inputAddressError, setInputAddressError] = useState<string>("");
-  const [inputNip, setInputNip] = useState<string>("");
-  const [inputNipError, setInputNipError] = useState<string>("");
+  const [inputInvoiceName, setInputInvoiceName] = useState<string>("");
+  const [inputInvoiceNameError, setInputInvoiceNameError] =
+    useState<string>("");
+  const [dateTimePickerReceiptDate, setDateTimePickerReceiptDate] =
+    useState<Date | null>(new Date());
+  const [dateTimePickerDeadlineDate, setDateTimePickerDeadlineDate] =
+    useState<Date | null>(new Date());
+  const [dateTimePickerPaymentDate, setDateTimePickerPaymentDate] =
+    useState<Date | null>(new Date());
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -36,13 +32,13 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     let errorTextInput = "";
 
     if (currentName === addInvoiceData.invoice.InvoiceName) {
-      setInputName(currentValue);
+      setInputInvoiceName(currentValue);
       if (currentValue.length === 1) {
         errorTextInput = "Za mało liter";
       } else if (!currentValue) {
         errorTextInput = "Musisz wypełnić te pole";
       }
-      setInputNameError(errorTextInput);
+      setInputInvoiceNameError(errorTextInput);
     }
     // if (currentName === fieldNames.email) {
     //   setInputEmail(currentValue);
@@ -68,31 +64,41 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     <form action="" className={scss["form-add-invoice"]}>
       <h3 className={scss["form-add-invoice-title"]}>Dodaj nową fakturę:</h3>
       <div className={scss["form-invoice-data"]}>
-        <div>
+        <div className={scss["form-invoice-main-data"]}>
           <SingleInput
             inputName={addInvoiceData.invoice.InvoiceName}
-            singleInputValue={inputName}
+            singleInputValue={inputInvoiceName}
             handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="Enter your name"
+            inputPlaceholder="Nazwa faktury"
             iconLeft={<FaUser size={16} />}
-            singleInputError={inputNameError}
+            singleInputError={inputInvoiceNameError}
             required={false}
             classNameInputContainer={scss["custom-input-container"]}
           />
         </div>
         <div className={scss["dateTimePicker-container"]}>
-          <label htmlFor="dateTimePicker">Data początkowa:</label>
+          <label htmlFor="dateTimePicker">Data wpływu:</label>
           <DateTimePicker
-            dateTimePickerDate={dateTimePickerFirstDate}
-            setDateTimePickerDate={setDateTimePickerFirstDate}
+            dateTimePickerDate={dateTimePickerReceiptDate}
+            setDateTimePickerDate={setDateTimePickerReceiptDate}
           />
         </div>
         <div className={scss["dateTimePicker-container"]}>
-          <label htmlFor="dateTimePicker">Data końcowa:</label>
+          <label htmlFor="dateTimePicker">Termin płatności:</label>
           <DateTimePicker
-            dateTimePickerDate={dateTimePickerLastDate}
-            setDateTimePickerDate={setDateTimePickerLastDate}
+            dateTimePickerDate={dateTimePickerDeadlineDate}
+            setDateTimePickerDate={setDateTimePickerDeadlineDate}
           />
+        </div>
+        <div className={scss["dateTimePicker-container"]}>
+          <label htmlFor="dateTimePicker">Termin płatności:</label>
+          <DateTimePicker
+            dateTimePickerDate={dateTimePickerPaymentDate}
+            setDateTimePickerDate={setDateTimePickerPaymentDate}
+          />
+        </div>
+        <div>
+          <FormAddInvoiceDocuments />
         </div>
       </div>
     </form>

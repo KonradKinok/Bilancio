@@ -12,22 +12,22 @@ function App() {
   const [anyTable, setAnyTable] = useState<unknown[] | null>(null);
   const { data: tableDictionaryDocuments } = useTableDictionaryDocuments();
   const { data: allDocumentsName } = useTableDictionaryDocuments();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await window.electron.getTableDictionaryDocuments();
-        console.log("getDataDocumentsNieznany: Odpowiedź z serwera:", response);
-        if (response) setDocuments(response);
-      } catch (error) {
-        console.error(
-          "getDataDocuments: Błąd podczas pobierania danych:",
-          error
-        );
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await window.electron.getTableDictionaryDocuments();
+  //       console.log("getDataDocumentsNieznany: Odpowiedź z serwera:", response);
+  //       if (response) setDocuments(response);
+  //     } catch (error) {
+  //       console.error(
+  //         "getDataDocuments: Błąd podczas pobierania danych:",
+  //         error
+  //       );
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   useEffect(() => {
     const fetchData = async () => {

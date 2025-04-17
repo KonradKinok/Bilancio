@@ -34,18 +34,25 @@ import { useState, useEffect } from "react";
 
 // function DocumentsComponent() {
 //   const { data: documents, loading, error } = useFetch<DictionaryDocuments[]>(fetchDocuments);
+import  { STATUS, DataBaseResponse, isSuccess } from './../../sharedTypes/status';
 export function useTableDictionaryDocuments() {
   const [data, setData] = useState<DictionaryDocuments[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await window.electron.getTableDictionaryDocuments();
-        setData(result);
+        const result: DataBaseResponse<DictionaryDocuments[]> = await window.electron.getTableDictionaryDocuments();
+        console.log("frontend useTableDictionaryDocuments", result);
+         if (result.status === STATUS.Success) {
+           setData(result.data); // ustawiamy dane z odpowiedzi
+           setError(null);
+        } else {
+          setError(result.message || "useTableDictionaryDocuments Błąd podczas pobierania danych");
+        }
       } catch (err) {
-        setError(err as Error);
+         setError(err instanceof Error ? err.message : "Nieznany błąd");
       } finally {
         setLoading(false);
       }
