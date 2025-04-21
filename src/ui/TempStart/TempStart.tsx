@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from "react";
 import "./TempStart.css";
 import { useStatistics } from "../useStatistics";
 import { Chart } from "../Chart";
-import { useTableDictionaryDocuments } from "../hooks/useTableDictionaryDocuments";
 function App() {
   const [text, setText] = useState<string | null>(null);
   const [documents, setDocuments] = useState<DictionaryDocuments[] | null>(

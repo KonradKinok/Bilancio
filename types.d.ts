@@ -37,7 +37,7 @@ declare global {
     MainTypeName: string;
   }
 
-  export type DictionaryType = {
+  export type DictionaryType = { 
     TypeId: number;
     TypeName: string;
   }

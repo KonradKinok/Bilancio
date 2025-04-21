@@ -112,6 +112,13 @@ export const FormAddInvoiceDocuments = () => {
     setSelectedType(null);
     setSelectedSubtype(null);
   }, [selectedDocument]);
+  useEffect(() => {
+    setSelectedType(null);
+    setSelectedSubtype(null);
+  }, [selectedMainType]);
+  useEffect(() => {
+    setSelectedSubtype(null);
+  }, [selectedType]);
   const defaultDocumentComboBox = (): undefined => {
     // const languageFromLocalStorage = globalFunctions.loadLocalStorage(
     //   LOCAL_STORAGE_KEY_LANGUAGE
@@ -147,7 +154,7 @@ export const FormAddInvoiceDocuments = () => {
         onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
         options={optionsDictionaryDocumentTable} // Użyj danych z hooka
         isSearchable={false}
-        placeholder="Wybierz"
+        placeholder="Wybierz..."
         // styles={customStyles}
         menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
         menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
@@ -177,6 +184,7 @@ export const FormAddInvoiceDocuments = () => {
         onChange={(option) => setSelectedType(option as ComboBoxOption)}
         options={optionsDictionaryTypeTable} // Użyj danych z hooka
         isSearchable={false}
+        placeholder="Wybierz..."
         // styles={customStyles}
         menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
         menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
@@ -191,6 +199,7 @@ export const FormAddInvoiceDocuments = () => {
         onChange={(option) => setSelectedSubtype(option as ComboBoxOption)}
         options={optionsDictionarySubtypeTable} // Użyj danych z hooka
         isSearchable={false}
+        placeholder="Wybierz..."
         // styles={customStyles}
         menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
         menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"

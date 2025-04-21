@@ -60,7 +60,7 @@ export async function getTableDictionaryDocuments<T>(tableName: DbTables) {
     }
 
     const rows = await db.all<T>(query);
-    console.log("dbFunction.ts getTableDictionaryDocuments1()", tableName, rows);
+    console.log("dbFunction.ts getTableDictionaryDocuments()", tableName, rows);
     return {
       status: STATUS.Success,
       data: rows ?? [],

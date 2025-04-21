@@ -44,11 +44,6 @@ export const FormHomeDate: React.FC = () => {
       secondDate: dateTimePickerLastDate,
       isDeleted: radioButtonIsDeleted,
     }));
-    setOptions((prevData) => ({
-      ...prevData,
-      orientation: "dateTimePickerFirstDate",
-      secondDate: "color",
-    }));
   };
 
   useEffect(() => {

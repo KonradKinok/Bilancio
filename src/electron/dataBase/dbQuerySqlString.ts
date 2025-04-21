@@ -47,24 +47,21 @@ AND DictionaryType.TypeId = ${typeId};
 };
 // Pobierz wszystkie nazwy dokumentów 
 export function getAllDocumentsNameSqlString():string {
-  return `SELECT
-  dd.DocumentName AS DocumentName,
-    mt.MainTypeName AS MainTypeName,
-    t.TypeName AS TypeName,
-    st.SubtypeName AS SubtypeName
-FROM
-    DictionaryDocuments dd
-    LEFT JOIN DictionaryDocuments_MainType dmt ON dd.DocumentId = dmt.DocumentId
-    LEFT JOIN DictionaryMainType mt ON dmt.MainTypeId = mt.MainTypeId
-    LEFT JOIN DictionaryMainType_DictionaryType mtdt ON mt.MainTypeId = mtdt.MainTypeId
-    LEFT JOIN DictionaryType t ON mtdt.TypeId = t.TypeId
-    LEFT JOIN DictionaryType_DictionarySubtype tds ON t.TypeId = tds.TypeId
-    LEFT JOIN DictionarySubtype st ON tds.SubtypeId = st.SubtypeId
-ORDER BY
-    dd.DocumentName,
-    mt.MainTypeName,
-    t.TypeName,
-    st.SubtypeName;`;
+  return `SELECT 
+    AllDocuments.DocumentId, 
+    AllDocuments.MainTypeId, 
+    AllDocuments.TypeId, 
+    AllDocuments.SubtypeId, 
+    AllDocuments.Price,
+    DictionaryDocuments.DocumentName,
+    DictionaryMainType.MainTypeName,
+    DictionaryType.TypeName,
+    DictionarySubtype.SubtypeName
+FROM AllDocuments
+LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
+LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId;`;
 };
 
 // Pobierz ostatni wiersz z tabeli 
