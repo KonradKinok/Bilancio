@@ -1,7 +1,50 @@
-export function getTableDictionaryDocumentsSqlString() {
-    return `SELECT * FROM DictionaryDocuments`;
+//Pobierz wszystkie dokumenty z tabeli DictionaryDocuments
+export function getTableDictionaryDocumentsSqlString(tableName: string): string {
+    console.log("getTableDictionaryDocumentsSqlString", tableName)
+    if (!tableName) {
+        return ``;
+    }
+    return `SELECT * FROM ${tableName}`;
 };
 
+// Pobierz wybrane połączone dokumenty z tabeli DictionaryDocuments-DictionaryMainType
+export function getConnectedTableDictionaryDocumentsDictionaryMainTypeSqlString(documentId:number):string {
+  const sql= `SELECT DISTINCT DictionaryMainType.MainTypeId, DictionaryMainType.MainTypeName
+FROM DictionaryMainType
+JOIN AllDocuments ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+WHERE DictionaryDocuments.DocumentId = ${documentId};';
+`;
+    return sql;
+};
+
+// Pobierz wybrane połączone dokumenty z tabeli DictionaryDocuments-DictionaryMainType-DictionaryType
+export function getConnectedTableDictionaryMainTypeDictionaryTypeSqlString(documentId:number, mainTypeId:number):string {
+  const sql= `SELECT DISTINCT DictionaryType.*
+FROM DictionaryType
+JOIN AllDocuments ON DictionaryType.TypeId = AllDocuments.TypeId
+JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+WHERE DictionaryDocuments.DocumentId = ${documentId}
+AND DictionaryMainType.MainTypeId = ${mainTypeId};
+`;
+    return sql;
+};
+
+// Pobierz wybrane połączone dokumenty z tabeli DictionaryDocuments-DictionaryMainType-DictionaryType-DictionarySubtype
+export function getConnectedTableDictionaryTypeDictionarySubtypeSqlString(documentId:number, mainTypeId:number, typeId:number):string {
+  const sql= `SELECT DISTINCT DictionarySubtype.*
+FROM DictionarySubtype
+JOIN AllDocuments ON DictionarySubtype.SubtypeId = AllDocuments.SubtypeId
+JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
+WHERE DictionaryDocuments.DocumentId = ${documentId}
+AND DictionaryMainType.MainTypeId = ${mainTypeId}
+AND DictionaryType.TypeId = ${typeId};
+`;
+    return sql;
+};
 // Pobierz wszystkie nazwy dokumentów 
 export function getAllDocumentsNameSqlString():string {
   return `SELECT

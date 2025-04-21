@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import {DbTables} from "./../../electron/dataBase/enum"
 // type FetchState<T> = {
 //   data: T | null;
 //   loading: boolean;
@@ -34,16 +34,16 @@ import { useState, useEffect } from "react";
 
 // function DocumentsComponent() {
 //   const { data: documents, loading, error } = useFetch<DictionaryDocuments[]>(fetchDocuments);
-import  { STATUS, DataBaseResponse, isSuccess } from './../../sharedTypes/status';
-export function useTableDictionaryDocuments() {
-  const [data, setData] = useState<DictionaryDocuments[] | null>(null);
+import  { STATUS, DataBaseResponse, isSuccess } from '../../electron/sharedTypes/status';
+export function useTableDictionaryDocuments<T>(tableName:DbTables) {
+  const [data, setData] = useState<T[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result: DataBaseResponse<DictionaryDocuments[]> = await window.electron.getTableDictionaryDocuments();
+        const result: DataBaseResponse<T[]> = await window.electron.getTableDictionaryDocuments<T>(tableName);
         console.log("frontend useTableDictionaryDocuments", result);
          if (result.status === STATUS.Success) {
            setData(result.data); // ustawiamy dane z odpowiedzi
@@ -59,7 +59,7 @@ export function useTableDictionaryDocuments() {
     };
 
     fetchData();
-  }, []);
+  }, [tableName]);
 
   return { data, loading, error };
 }

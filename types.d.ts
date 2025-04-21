@@ -1,4 +1,4 @@
-import  { STATUS, DataBaseResponse, isSuccess } from './src/sharedTypes/status';
+import  { STATUS, DataBaseResponse, isSuccess } from './src/electron/sharedTypes/status';
 
 type StaticData = {
   totalStorage: number;
@@ -27,12 +27,25 @@ declare global {
     textNazwa: string;
   };
   //Table
-
   export type DictionaryDocuments = {
     DocumentId: number;
     DocumentName: string;
   }
+  
+  export type DictionaryMainType = {
+    MainTypeId: number;
+    MainTypeName: string;
+  }
 
+  export type DictionaryType = {
+    TypeId: number;
+    TypeName: string;
+  }
+
+  export type DictionarySubtype = {
+    SubtypeId: number;
+    SubtypeName: string;
+  }
   type InvoiceTable = {
     InvoiceId?: number;
     InvoiceName: string;
@@ -151,7 +164,8 @@ declare global {
     getStaticData: StaticData;
     changeView: View;
     sendFrameAction: FrameWindowAction;
-    getTableDictionaryDocuments: DataBaseResponse<DictionaryDocuments[]>;
+    getTableDictionaryDocuments: DataBaseResponse<T[]>;
+    getConnectedTableDictionary:DataBaseResponse<T[]>;
     queryToDB: unknown[];
     getAllDocumentName: AllDocumentsName[];
     getAllInvoices: AllInvoices[];
@@ -173,13 +187,15 @@ declare global {
         callback: (view: View) => void
       ) => UnsubscribeFunction;
       sendFrameAction: (payload: FrameWindowAction) => void;
-      getTableDictionaryDocuments: () => Promise<DataBaseResponse<DictionaryDocuments[]>>;
+      getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
+      getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<AllDocumentsName[]>;
       getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
+
       // addInvoice: (invoice: {
       //   InvoiceName: string;
       //   ReceiptDate: string;

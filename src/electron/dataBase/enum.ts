@@ -1,4 +1,8 @@
 export enum DbTables {
+  DictionaryDocuments = "DictionaryDocuments",
+  DictionaryMainType = "DictionaryMainType",
+  DictionaryType = "DictionaryType",
+  DictionarySubtype = "DictionarySubtype",
   Invoices = "Invoices"
 }
 

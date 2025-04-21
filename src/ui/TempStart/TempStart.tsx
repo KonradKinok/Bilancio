@@ -10,8 +10,8 @@ function App() {
     null
   );
   const [anyTable, setAnyTable] = useState<unknown[] | null>(null);
-  const { data: tableDictionaryDocuments } = useTableDictionaryDocuments();
-  const { data: allDocumentsName } = useTableDictionaryDocuments();
+  // const { data: tableDictionaryDocuments } = useTableDictionaryDocuments();
+  // const { data: allDocumentsName } = useTableDictionaryDocuments();
   // useEffect(() => {
   //   const fetchData = async () => {
   //     try {
@@ -84,12 +84,7 @@ function App() {
       </div>
 
       <h1>Nazwisko1: {text}</h1>
-      <ul>
-        {tableDictionaryDocuments &&
-          tableDictionaryDocuments.map((document) => (
-            <li key={document.DocumentId}>{document.DocumentName}</li>
-          ))}
-      </ul>
+
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           liczbą jest {count}
