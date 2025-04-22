@@ -73,10 +73,15 @@ declare global {
   }
   //ConnectedTable
   type AllDocumentsName = {
+    DocumentId: number;
     DocumentName: string;
+    MainTypeId: number | null;
     MainTypeName: string;
+    TypeId: number | null;
     TypeName: string;
+    SubtypeId: number | null;
     SubtypeName: string;
+    Price: number;
   }
 
   // type AllInvoicesDb1 = {
@@ -167,7 +172,7 @@ declare global {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
     getConnectedTableDictionary:DataBaseResponse<T[]>;
     queryToDB: unknown[];
-    getAllDocumentName: AllDocumentsName[];
+    getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
     getAllInvoices: AllInvoices[];
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
@@ -190,7 +195,7 @@ declare global {
       getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       queryToDB: () => Promise<unknown[]>;
-      getAllDocumentsName: () => Promise<AllDocumentsName[]>;
+      getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
       getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;

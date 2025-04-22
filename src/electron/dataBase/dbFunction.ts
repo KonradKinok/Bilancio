@@ -121,10 +121,16 @@ export async function getConnectedTableDictionary<T>(tableName: DbTables, docume
 export async function getAllDocumentsName() {
   try {
     const rows = await db.all<AllDocumentsName>(sqlString.getAllDocumentsNameSqlString());
-    return rows || [];
+    return {
+      status: STATUS.Success,
+      data: rows ?? [],
+    };
   } catch (err) {
     console.error('getAllDocumentName() Błąd podczas pobierania dokumentów:', err);
-    return [];
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
+    };
   }
 };
 

@@ -13,6 +13,7 @@ interface MainTable {
 export const MainTable: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
+  const { data: dataAllDocumentsName } = useAllDocumentsName();
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   console.log("MainTable() useMainDataContext", formValuesHomePage);
@@ -118,6 +119,20 @@ export const MainTable: React.FC = () => {
             })}
         </tbody>
       </table>
+      <div>
+        <h2>Dokumenty</h2>
+        {dataAllDocumentsName &&
+          dataAllDocumentsName.length > 0 &&
+          dataAllDocumentsName.map((document, index) => (
+            <p key={index}>
+              {index + 1}. {document.DocumentName}
+              {document.DocumentId} {document.MainTypeName}
+              {document.MainTypeId} {document.TypeName}
+              {document.TypeId} {document.SubtypeName}
+              {document.SubtypeId} {currencyFormater(document.Price)}
+            </p>
+          ))}
+      </div>
       <h2>Main Table temp</h2>
       <h3>
         ContextDate: {formValuesHomePage.firstDate?.toDateString()}{" "}
@@ -175,19 +190,38 @@ function calculateTotalAmount(quantities: string[], prices: string[]): string {
   return currencyFormater("0");
 }
 
-function currencyFormater(value: string): string {
+// function currencyFormater(value: string): string {
+//   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
+//     style: "currency",
+//     currency: "PLN",
+//   });
+//   // Sprawdzenie, czy value jest różne od null i undefined
+//   if (value == null) {
+//     return currencyFormatter.format(0); // Zwrócenie "0,00zł"
+//   }
+//   const num = parseFloat(value.replace(",", "."));
+//   // Sprawdzenie, czy num jest NaN
+//   if (isNaN(num)) {
+//     return currencyFormatter.format(0); // Zwrócenie "0,00zł"
+//   }
+//   return currencyFormatter.format(num);
+// }
+function currencyFormater(value: string | number | null | undefined): string {
   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: "PLN",
   });
-  // Sprawdzenie, czy value jest różne od null i undefined
-  if (value == null) {
-    return currencyFormatter.format(0); // Zwrócenie "0,00zł"
+
+  if (value === null || value === undefined) {
+    return currencyFormatter.format(0);
   }
-  const num = parseFloat(value.replace(",", "."));
-  // Sprawdzenie, czy num jest NaN
+
+  const num =
+    typeof value === "number" ? value : parseFloat(value.replace(",", "."));
+
   if (isNaN(num)) {
-    return currencyFormatter.format(0); // Zwrócenie "0,00zł"
+    return currencyFormatter.format(0);
   }
+
   return currencyFormatter.format(num);
 }
