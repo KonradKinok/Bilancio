@@ -4,6 +4,7 @@ import scss from "./FormAddInvoice.module.scss";
 import { SingleInput } from "../SingleInput/SingleInput";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
+import { TextInput } from "../TextInput/TextInput";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -18,11 +19,11 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   const [inputInvoiceNameError, setInputInvoiceNameError] =
     useState<string>("");
   const [dateTimePickerReceiptDate, setDateTimePickerReceiptDate] =
-    useState<Date | null>(new Date());
+    useState<Date | null>(null);
   const [dateTimePickerDeadlineDate, setDateTimePickerDeadlineDate] =
-    useState<Date | null>(new Date());
+    useState<Date | null>(null);
   const [dateTimePickerPaymentDate, setDateTimePickerPaymentDate] =
-    useState<Date | null>(new Date());
+    useState<Date | null>(null);
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -31,7 +32,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     const currentName = event.target.name;
     let errorTextInput = "";
 
-    if (currentName === addInvoiceData.invoice.InvoiceName) {
+    if (currentName === "invoiceName") {
       setInputInvoiceName(currentValue);
       if (currentValue.length === 1) {
         errorTextInput = "Za mało liter";
@@ -64,13 +65,25 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     <form action="" className={scss["form-add-invoice"]}>
       <h3 className={scss["form-add-invoice-title"]}>Dodaj nową fakturę:</h3>
       <div className={scss["form-invoice-data"]}>
-        <div className={scss["form-invoice-main-data"]}>
+        {/* <div className={scss["form-invoice-main-data"]}>
           <SingleInput
             inputName={addInvoiceData.invoice.InvoiceName}
             singleInputValue={inputInvoiceName}
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="Nazwa faktury"
             iconLeft={<FaUser size={16} />}
+            singleInputError={inputInvoiceNameError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        </div> */}
+        <div className={scss[""]}>
+          <TextInput
+            inputName="invoiceName"
+            singleInputValue={inputInvoiceName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Wprowadź nazwę faktury ..."
+            inputLabelText="Nazwa faktury:"
             singleInputError={inputInvoiceNameError}
             required={false}
             classNameInputContainer={scss["custom-input-container"]}

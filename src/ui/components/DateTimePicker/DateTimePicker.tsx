@@ -74,6 +74,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       peekNextMonth
       showMonthDropdown
       showYearDropdown
+      isClearable
       placeholderText="Wpisz datę"
       dropdownMode="select"
       // calendarContainer={MyContainer}

@@ -1,0 +1,14 @@
+.formAddInvoiceDocuments-main-container {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1rem;
+
+  .select-document-container {
+    min-width: 220px;
+  }
+
+  .select-maintype-container {
+    min-width: 180px;
+  }
+
+}

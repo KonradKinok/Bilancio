@@ -4,10 +4,12 @@ import { useConnectedTableDictionary } from "../../hooks/useConnectedTableDictio
 import scss from "./FormAddInvoiceDocuments.module.scss";
 import Select, { SingleValue } from "react-select";
 import { DbTables } from "../../../electron/dataBase/enum";
-interface ComboBoxOption {
-  value: number; // typ LanguageValue zamiast string
-  label: string;
-}
+import { TextInput } from "../TextInput/TextInput";
+import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
+// interface ComboBoxOption {
+//   value: number; // typ LanguageValue zamiast string
+//   label: string;
+// }
 
 export const FormAddInvoiceDocuments = () => {
   //useState
@@ -69,6 +71,14 @@ export const FormAddInvoiceDocuments = () => {
       value: doc.DocumentId,
       label: doc.DocumentName + doc.DocumentId,
     }));
+    //  return dictionaryDocumentTable.map((doc) => ({
+    //    value: doc.DocumentId,
+    //    label: (
+    //      <div className={scss["combobox-item"]}>
+    //        {doc.DocumentName} {doc.DocumentId}
+    //      </div>
+    //    ),
+    //  }));
   }, [dictionaryDocumentTable]);
   //dictionaryMainTypeTable
   const optionsDictionaryMainTypeTable = useMemo(() => {
@@ -146,68 +156,66 @@ export const FormAddInvoiceDocuments = () => {
     // }
   };
   return (
-    <>
-      <h1>Form Add Invoice Documents</h1>
-      <Select
-        value={selectedDocument} // <-- zamiast tylko defaultValue
-        defaultValue={getSingleDefaultOption(optionsDictionaryDocumentTable)}
-        onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
-        options={optionsDictionaryDocumentTable} // Użyj danych z hooka
-        isSearchable={false}
-        placeholder="Wybierz..."
-        // styles={customStyles}
-        menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
-        menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
-        menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }), // 👈 super ważne
-        }}
-      />
-      <Select
-        value={selectedMainType}
-        defaultValue={getSingleDefaultOption(optionsDictionaryMainTypeTable)}
-        onChange={(option) => setSelectedMainType(option as ComboBoxOption)}
-        options={optionsDictionaryMainTypeTable} // Użyj danych z hooka
-        isSearchable={false}
-        placeholder="Wybierz..."
-        // styles={customStyles}
-        menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
-        menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
-        menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }), // 👈 super ważne
-        }}
-      />
-      <Select
-        value={selectedType}
-        defaultValue={getSingleDefaultOption(optionsDictionaryTypeTable)}
-        onChange={(option) => setSelectedType(option as ComboBoxOption)}
-        options={optionsDictionaryTypeTable} // Użyj danych z hooka
-        isSearchable={false}
-        placeholder="Wybierz..."
-        // styles={customStyles}
-        menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
-        menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
-        menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }), // 👈 super ważne
-        }}
-      />
-      <Select
-        value={selectedSubtype}
-        defaultValue={getSingleDefaultOption(optionsDictionarySubtypeTable)}
-        onChange={(option) => setSelectedSubtype(option as ComboBoxOption)}
-        options={optionsDictionarySubtypeTable} // Użyj danych z hooka
-        isSearchable={false}
-        placeholder="Wybierz..."
-        // styles={customStyles}
-        menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
-        menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
-        menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-        styles={{
-          menuPortal: (base) => ({ ...base, zIndex: 9999 }), // 👈 super ważne
-        }}
-      />
+    <div>
+      <h1>Form Add Invoice Documents .........</h1>
+      <div className={scss["formAddInvoiceDocuments-main-container"]}>
+        <div className={scss[""]}>
+          <Select<ComboBoxOption>
+            value={selectedDocument} // <-- zamiast tylko defaultValue
+            defaultValue={getSingleDefaultOption(
+              optionsDictionaryDocumentTable
+            )}
+            onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
+            options={optionsDictionaryDocumentTable} // Użyj danych z hooka
+            isSearchable={false}
+            placeholder="Wybierz..."
+            styles={customStylesComboBox}
+            menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+            menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+            menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+            className={scss["select-document-container"]}
+            classNamePrefix={scss["select-document"]}
+          />
+        </div>
+        <Select<ComboBoxOption>
+          value={selectedMainType}
+          defaultValue={getSingleDefaultOption(optionsDictionaryMainTypeTable)}
+          onChange={(option) => setSelectedMainType(option as ComboBoxOption)}
+          options={optionsDictionaryMainTypeTable} // Użyj danych z hooka
+          isSearchable={false}
+          placeholder="Wybierz..."
+          styles={customStylesComboBox}
+          menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+          menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+          menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+          className={scss["select-maintype-container"]}
+        />
+        <Select<ComboBoxOption>
+          value={selectedType}
+          defaultValue={getSingleDefaultOption(optionsDictionaryTypeTable)}
+          onChange={(option) => setSelectedType(option as ComboBoxOption)}
+          options={optionsDictionaryTypeTable} // Użyj danych z hooka
+          isSearchable={false}
+          placeholder="Wybierz..."
+          styles={customStylesComboBox}
+          menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+          menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+          menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+        />
+        <Select<ComboBoxOption>
+          value={selectedSubtype}
+          defaultValue={getSingleDefaultOption(optionsDictionarySubtypeTable)}
+          onChange={(option) => setSelectedSubtype(option as ComboBoxOption)}
+          options={optionsDictionarySubtypeTable} // Użyj danych z hooka
+          isSearchable={false}
+          placeholder="Wybierz..."
+          styles={customStylesComboBox}
+          menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+          menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+          menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+          classNamePrefix="select-document"
+        />
+      </div>
       <div>
         Wybrane dokumenty:
         {dictionarySubtypeTable &&
@@ -236,7 +244,7 @@ export const FormAddInvoiceDocuments = () => {
           <p>Brak wybranego typu</p>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

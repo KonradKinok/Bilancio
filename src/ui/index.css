@@ -20,6 +20,8 @@
 
   /* form */
   --first-color: rgb(0, 0, 255);
+  --first-color-alpha-two: rgba(0, 0, 255, 0.2);
+  --first-color-alpha-five: rgba(0, 0, 255, 0.5);
   --second-color: rgb(0, 100, 255);
   --third-color: rgb(224, 255, 255);
   --fourth-color: rgb(175, 238, 238);
@@ -40,21 +42,17 @@
   --dateTimePicker-weekday-color: var(--first-color); /*Indygo */
   --dateTimePicker-todaybutton-color: var(--third-color); /*LightCyan */
   --dateTimePicker-todaybutton-background: var(--first-color); /*Indygo */
-  --dateTimePicker-todaybutton-hover-background: var(
-    --second-color
-  ); /*DarkOrchid */
+  --dateTimePicker-todaybutton-hover-background: var(--second-color);
   --dateTimePicker-icon-color: var(--first-color);
   /* dateTimePicker - button*/
   --dateTimePicker-input-button-color: var(--first-color); /*Indygo */
   --dateTimePicker-input-button-background: var(--third-color); /*LightCyan */
   --dateTimePicker-input-button-border: var(--first-color); /*Indygo */
-  --dateTimePicker-input-button-hover-background: var(
-    --fourth-color
-  ); /*PaleTurquoise */
+  --dateTimePicker-input-button-hover-background: var(--fourth-color);
   /* checkbox*/
   --checkbox-slider-checked-background: var(--first-color);
-  --checkbox-slider-unchecked-background: rgba(0, 0, 255, 0.2);
-  --checkbox-slider-unchecked-hover-background: rgba(0, 0, 255, 0.5);
+  --checkbox-slider-unchecked-background: var(--first-color-alpha-two);
+  --checkbox-slider-unchecked-hover-background: var(--first-color-alpha-five);
   /* checkbox*/
   --vertical-line-color: var(--eighth-color);
   /* icon-info*/
@@ -65,6 +63,18 @@
   --tooltip-error-background: var(--seventh-color); /*Indygo */
   /* form */
   --form-background-color: var(--nineth-color);
+  /* input */
+  --input-border-color: var(--first-color); /*Indygo */
+  --input-border-color-focus: var(--second-color); /*Indygo */
+  --input-text-color: var(--first-color);
+  --input-placeholder-text-color: var(--first-color-alpha-five);
+  /* combobox */
+  --combobox-text-color: var(--first-color); /*Indygo */
+  --combobox-text-hover-color: var(--first-color-alpha-two); /*LightCyan */
+  --combobox-text-selected-background: var(--first-color-alpha-two);
+  --combobox-control-background: var(--fifth-color); /*LightCyan */
+  --combobox-control-border: var(--first-color); /*BlueViolet */
+  --combobox-control-border-hover: var(--first-color-alpha-five);
 
   /* form */
   --form-color: rgb(0, 100, 255);
