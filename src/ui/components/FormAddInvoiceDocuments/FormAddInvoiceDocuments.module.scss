@@ -1,7 +1,13 @@
 .formAddInvoiceDocuments-main-container {
   display: flex;
-  flex-flow: row nowrap;
+  flex-flow: column nowrap;
   gap: 1rem;
+
+  .document-container {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1rem;
+  }
 
   .select-document-container {
     min-width: 220px;
@@ -11,4 +17,18 @@
     min-width: 180px;
   }
 
+  .select-type-container {
+    min-width: 380px;
+  }
+
+  .select-subtype-container {
+    min-width: 150px;
+  }
+
+  .textinput-container {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 1rem;
+
+  }
 }

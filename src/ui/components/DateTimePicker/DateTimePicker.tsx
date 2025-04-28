@@ -1,3 +1,4 @@
+//https//:reactdatepicker.com/
 import React, { forwardRef, useEffect, useState } from "react";
 import DatePicker, { CalendarContainer } from "react-datepicker";
 import { pl } from "date-fns/locale/pl";
@@ -13,6 +14,7 @@ interface MyContainerProps {
 interface DateTimePickerProps {
   dateTimePickerDate: Date | null;
   setDateTimePickerDate: React.Dispatch<React.SetStateAction<Date | null>>;
+  isClearable?: boolean;
 }
 
 interface CustomInputProps {
@@ -24,9 +26,9 @@ interface CustomInputProps {
 export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   dateTimePickerDate,
   setDateTimePickerDate,
+  isClearable = true,
 }) => {
   const [calendarLanguage, setCalendarLanguage] = useState(pl);
-
   const MyContainer: React.FC<MyContainerProps> = ({ className, children }) => {
     return (
       <div style={{ padding: "8px", background: "red", color: "#fff" }}>
@@ -44,6 +46,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       </button>
     )
   );
+
   return (
     <DatePicker
       customInput={<ExampleCustomInput className={scss["input-button"]} />}
@@ -74,7 +77,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       peekNextMonth
       showMonthDropdown
       showYearDropdown
-      isClearable
+      isClearable={isClearable}
       placeholderText="Wpisz datę"
       dropdownMode="select"
       // calendarContainer={MyContainer}

@@ -32,7 +32,7 @@
 }
 
 .input-button {
-    border: 2px var(--dateTimePicker-input-button-border) solid;
+    border: 2px solid var(--dateTimePicker-input-button-border);
     border-radius: 5px;
     background-color: var(--dateTimePicker-input-button-background);
     color: var(--dateTimePicker-input-button-color);
@@ -41,8 +41,8 @@
     padding: 6px;
     cursor: pointer;
     user-select: none;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 300;
     transition: background-color .25s cubic-bezier(.4, 0, .2, 1);
 }
 
@@ -88,5 +88,9 @@
     .react-datepicker__day--outside-month.selected-day {
         color: var(--dateTimePicker-outside-month-selected-color) !important; // Kolor wybranego dnia z innego miesiąca
         background-color: var(--dateTimePicker-outside-month-selected-background) !important; // Tło wybranego dnia z innego miesiąca
+    }
+
+    .react-datepicker__input-container input::placeholder {
+        color: rgba(0, 128, 0, 0.5); // zielony z przezroczystością 50%
     }
 }

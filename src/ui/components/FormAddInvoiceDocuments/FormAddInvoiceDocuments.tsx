@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTableDictionaryDocuments } from "../../hooks/useTableDictionaryDocuments";
 import { useConnectedTableDictionary } from "../../hooks/useConnectedTableDictionary";
+import { FaUser } from "react-icons/fa";
 import scss from "./FormAddInvoiceDocuments.module.scss";
 import Select, { SingleValue } from "react-select";
 import { DbTables } from "../../../electron/dataBase/enum";
 import { TextInput } from "../TextInput/TextInput";
 import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
+import { SingleInput } from "../SingleInput/SingleInput";
 // interface ComboBoxOption {
 //   value: number; // typ LanguageValue zamiast string
 //   label: string;
@@ -21,6 +23,50 @@ export const FormAddInvoiceDocuments = () => {
   const [selectedSubtype, setSelectedSubtype] = useState<ComboBoxOption | null>(
     null
   );
+
+  const [inputInvoiceQuantity, setInputInvoiceQuantity] = useState<string>("");
+  const [inputInvoiceQuantityError, setInputInvoiceQuantityError] =
+    useState<string>("");
+  const [inputInvoicePrice, setInputInvoicePrice] = useState<string>("");
+  const [inputInvoicePriceError, setInputInvoicePriceError] =
+    useState<string>("");
+
+  const handleSingleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const currentValue = event.target.value;
+    const currentName = event.target.name;
+    let errorTextInput = "";
+
+    if (currentName === "quantity") {
+      setInputInvoiceQuantity(currentValue);
+      if (currentValue.length === 1) {
+        errorTextInput = "Za mało liter";
+      } else if (!currentValue) {
+        errorTextInput = "Musisz wypełnić te pole";
+      }
+      setInputInvoiceQuantityError(errorTextInput);
+    }
+    if (currentName === "price") {
+      setInputInvoicePrice(currentValue);
+      if (currentValue.length === 1) {
+        errorTextInput = "Za mało liter";
+      } else if (!currentValue) {
+        errorTextInput = "Musisz wypełnić te pole";
+      }
+      setInputInvoicePriceError(errorTextInput);
+    }
+    // if (currentName === fieldNames.password) {
+    //   setInputPassword(currentValue);
+    //   if (currentValue.length === 1) {
+    //     errorTextInput = "Za mało liter";
+    //   } else if (!currentValue) {
+    //     errorTextInput = "Musisz wypełnić te pole";
+    //   }
+    //   setInputPasswordError(errorTextInput);
+    // }
+  };
+
   //Dane tabel pobrane z hooka
   //dictionaryDocumentTable
   const {
@@ -156,27 +202,23 @@ export const FormAddInvoiceDocuments = () => {
     // }
   };
   return (
-    <div>
+    <div className={scss["formAddInvoiceDocuments-main-container"]}>
       <h1>Form Add Invoice Documents .........</h1>
-      <div className={scss["formAddInvoiceDocuments-main-container"]}>
-        <div className={scss[""]}>
-          <Select<ComboBoxOption>
-            value={selectedDocument} // <-- zamiast tylko defaultValue
-            defaultValue={getSingleDefaultOption(
-              optionsDictionaryDocumentTable
-            )}
-            onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
-            options={optionsDictionaryDocumentTable} // Użyj danych z hooka
-            isSearchable={false}
-            placeholder="Wybierz..."
-            styles={customStylesComboBox}
-            menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
-            menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
-            menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-            className={scss["select-document-container"]}
-            classNamePrefix={scss["select-document"]}
-          />
-        </div>
+      <div className={scss["document-container"]}>
+        <Select<ComboBoxOption>
+          value={selectedDocument} // <-- zamiast tylko defaultValue
+          defaultValue={getSingleDefaultOption(optionsDictionaryDocumentTable)}
+          onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
+          options={optionsDictionaryDocumentTable} // Użyj danych z hooka
+          isSearchable={false}
+          placeholder="Wybierz..."
+          styles={customStylesComboBox}
+          menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+          menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+          menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+          className={scss["select-document-container"]}
+          classNamePrefix={scss["select-document"]}
+        />
         <Select<ComboBoxOption>
           value={selectedMainType}
           defaultValue={getSingleDefaultOption(optionsDictionaryMainTypeTable)}
@@ -201,6 +243,7 @@ export const FormAddInvoiceDocuments = () => {
           menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
           menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
           menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+          className={scss["select-type-container"]}
         />
         <Select<ComboBoxOption>
           value={selectedSubtype}
@@ -213,8 +256,34 @@ export const FormAddInvoiceDocuments = () => {
           menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
           menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
           menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
-          classNamePrefix="select-document"
+          className={scss["select-subtype-container"]}
         />
+      </div>
+      <div className={scss["textinput-container"]}>
+        <div className={scss["textinput"]}>
+          <TextInput
+            inputName="quantity"
+            singleInputValue={inputInvoiceQuantity}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Wprowadź liczbę sztuk ..."
+            inputLabelText="Liczba sztuk:"
+            singleInputError={inputInvoiceQuantityError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        </div>
+        <div>
+          <TextInput
+            inputName="price"
+            singleInputValue={inputInvoicePrice}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Wprowadź kwotę ..."
+            inputLabelText="Kwota jednostkowa:"
+            singleInputError={inputInvoicePriceError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        </div>
       </div>
       <div>
         Wybrane dokumenty:
