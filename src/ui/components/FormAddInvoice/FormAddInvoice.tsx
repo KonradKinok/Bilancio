@@ -111,7 +111,10 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           />
         </div>
         <div>
-          <FormAddInvoiceDocuments />
+          <FormAddInvoiceDocuments
+            addInvoiceData={addInvoiceData}
+            setAddInvoiceData={setAddInvoiceData}
+          />
         </div>
       </div>
     </form>

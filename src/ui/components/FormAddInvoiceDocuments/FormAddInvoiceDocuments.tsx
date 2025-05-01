@@ -8,12 +8,18 @@ import { DbTables } from "../../../electron/dataBase/enum";
 import { TextInput } from "../TextInput/TextInput";
 import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
 import { SingleInput } from "../SingleInput/SingleInput";
+import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 // interface ComboBoxOption {
 //   value: number; // typ LanguageValue zamiast string
 //   label: string;
 // }
-
-export const FormAddInvoiceDocuments = () => {
+interface FormAddInvoiceDocumentsProps {
+  addInvoiceData: InvoiceSave;
+  setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
+}
+export const FormAddInvoiceDocuments: React.FC<
+  FormAddInvoiceDocumentsProps
+> = ({ addInvoiceData, setAddInvoiceData }) => {
   //useState
   const [selectedDocument, setSelectedDocument] =
     useState<ComboBoxOption | null>(null);
@@ -259,29 +265,37 @@ export const FormAddInvoiceDocuments = () => {
           className={scss["select-subtype-container"]}
         />
       </div>
-      <div className={scss["textinput-container"]}>
-        <div className={scss["textinput"]}>
-          <TextInput
-            inputName="quantity"
-            singleInputValue={inputInvoiceQuantity}
-            handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="Wprowadź liczbę sztuk ..."
-            inputLabelText="Liczba sztuk:"
-            singleInputError={inputInvoiceQuantityError}
-            required={false}
-            classNameInputContainer={scss["custom-input-container"]}
-          />
+      <div className={scss["textinput-and-button-container"]}>
+        <div className={scss["textinput-container"]}>
+          <div className={scss["textinput"]}>
+            <TextInput
+              inputName="quantity"
+              singleInputValue={inputInvoiceQuantity}
+              handleSingleInputChange={handleSingleInputChange}
+              inputPlaceholder="Wprowadź liczbę sztuk ..."
+              inputLabelText="Liczba sztuk:"
+              singleInputError={inputInvoiceQuantityError}
+              required={false}
+              classNameInputContainer={scss["custom-input-container"]}
+            />
+          </div>
+          <div>
+            <TextInput
+              inputName="price"
+              singleInputValue={inputInvoicePrice}
+              handleSingleInputChange={handleSingleInputChange}
+              inputPlaceholder="Wprowadź kwotę ..."
+              inputLabelText="Kwota jednostkowa:"
+              singleInputError={inputInvoicePriceError}
+              required={false}
+              classNameInputContainer={scss["custom-input-container"]}
+            />
+          </div>
         </div>
-        <div>
-          <TextInput
-            inputName="price"
-            singleInputValue={inputInvoicePrice}
-            handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="Wprowadź kwotę ..."
-            inputLabelText="Kwota jednostkowa:"
-            singleInputError={inputInvoicePriceError}
-            required={false}
-            classNameInputContainer={scss["custom-input-container"]}
+        <div className={scss["button-container"]}>
+          <ButtonCancel
+            buttonName={"deleteDocument"}
+            buttonText={"Usuń dokument"}
           />
         </div>
       </div>

@@ -13,7 +13,12 @@ interface MainTable {
 export const MainTable: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
-  const { data: dataAllDocumentsName } = useAllDocumentsName();
+  const { allDocumentsData } = useMainDataContext();
+  const {
+    data: dataAllDocumentsName,
+    loading: loadingAllDocumentsName,
+    error: errorAllDocumentsName,
+  } = allDocumentsData;
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   console.log("MainTable() useMainDataContext", formValuesHomePage);
@@ -119,6 +124,7 @@ export const MainTable: React.FC = () => {
             })}
         </tbody>
       </table>
+
       <div>
         <h2>Dokumenty</h2>
         {dataAllDocumentsName &&

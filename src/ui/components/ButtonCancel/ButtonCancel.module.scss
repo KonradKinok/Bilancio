@@ -1,0 +1,64 @@
+.button-6 {
+  --background-color: rgb(255, 255, 255);
+  --background-hover-color: rgb(255, 0, 0);
+  --text-color: rgb(0, 0, 255);
+  width: 150px;
+  height: 34px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--text-color);
+  border-radius: 5px;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+  background: var(--background-color);
+  transition: all .500s cubic-bezier(.4, 0, .2, 1);
+
+  .text,
+  .icon-container {
+    transition: all .500s cubic-bezier(.4, 0, .2, 1);
+  }
+
+  &:hover {
+    background: var(--background-hover-color);
+  }
+
+  &:hover .text {
+    color: transparent;
+  }
+
+  &:hover .icon-container {
+    width: 150px;
+    border-left: none;
+    transform: translateX(0);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transition: 50ms linear;
+    transform: scale(0.9);
+  }
+
+  .text {
+    color: var(--text-color);
+    font-weight: bold;
+    padding: 0.5rem;
+  }
+
+  .icon-container {
+    position: absolute;
+    // border-left: 1px solid var(--text-color);
+    transform: translateX(110px);
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-container>svg {
+    font-size: 24px;
+    color: var(--text-color);
+  }
+}
