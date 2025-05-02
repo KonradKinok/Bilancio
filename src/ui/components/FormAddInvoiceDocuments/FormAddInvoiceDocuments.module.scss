@@ -2,6 +2,11 @@
   display: flex;
   flex-flow: column nowrap;
   gap: 1rem;
+  min-width: 978px;
+  justify-content: center;
+
+
+
 
   .document-container {
     display: flex;

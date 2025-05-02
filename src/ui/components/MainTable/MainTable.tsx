@@ -13,6 +13,8 @@ interface MainTable {
 export const MainTable: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
+
+  //Nazwy wszystkich dokumentów
   const { allDocumentsData } = useMainDataContext();
   const {
     data: dataAllDocumentsName,

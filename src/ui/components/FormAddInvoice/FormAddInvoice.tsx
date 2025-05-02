@@ -111,6 +111,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           />
         </div>
         <div>
+          <h3 className={scss["title"]}>Dodaj dokumenty:</h3>
           <FormAddInvoiceDocuments
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
