@@ -4,6 +4,10 @@ import { useAllInvoices } from "../../hooks/useAllInvoices";
 // import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import scss from "./MainTable.module.scss";
 import { useMainDataContext } from "../Context/useOptionsImage";
+import {
+  calculateTotalAmount,
+  currencyFormater,
+} from "../GlobalFunctions/GlobalFunctions";
 interface MainTable {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
@@ -183,21 +187,6 @@ export const MainTable: React.FC = () => {
 //   }, 0);
 // }
 
-function calculateTotalAmount(quantities: string[], prices: string[]): string {
-  if (quantities && prices) {
-    const totalAmount = quantities.reduce((acc, quantity, i) => {
-      const price = prices[i];
-      if (price) {
-        return acc + parseFloat(quantity) * parseFloat(price);
-      }
-      return acc;
-    }, 0);
-
-    return currencyFormater(totalAmount.toString());
-  }
-  return currencyFormater("0");
-}
-
 // function currencyFormater(value: string): string {
 //   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
 //     style: "currency",
@@ -214,22 +203,3 @@ function calculateTotalAmount(quantities: string[], prices: string[]): string {
 //   }
 //   return currencyFormatter.format(num);
 // }
-function currencyFormater(value: string | number | null | undefined): string {
-  const currencyFormatter = new Intl.NumberFormat("pl-PL", {
-    style: "currency",
-    currency: "PLN",
-  });
-
-  if (value === null || value === undefined) {
-    return currencyFormatter.format(0);
-  }
-
-  const num =
-    typeof value === "number" ? value : parseFloat(value.replace(",", "."));
-
-  if (isNaN(num)) {
-    return currencyFormatter.format(0);
-  }
-
-  return currencyFormatter.format(num);
-}

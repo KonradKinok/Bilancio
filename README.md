@@ -52,3 +52,120 @@ export default tseslint.config({
   },
 })
 ```
+
+```
+Bilancio
+├─ backup
+│  ├─ BilancioDataBase1.db
+│  ├─ BilancioDataBase20.04.2025.db
+│  ├─ BilancioDataBase20.04.2025a.db
+│  └─ tsconfig.app.json..txtbackup
+├─ desktopIcon.png
+├─ electron-builder.json
+├─ eslint.config.js
+├─ index.html
+├─ package-lock.json
+├─ package.json
+├─ playwright.config.ts
+├─ README.md
+├─ src
+│  ├─ assets
+│  │  ├─ trayIcon.png
+│  │  └─ trayIconTemplate.png
+│  ├─ electron
+│  │  ├─ dataBase
+│  │  │  ├─ dbClass.ts
+│  │  │  ├─ dbFunction.ts
+│  │  │  ├─ dbQuerySqlString.ts
+│  │  │  └─ enum.ts
+│  │  ├─ dataBase.ts
+│  │  ├─ main.ts
+│  │  ├─ menu.ts
+│  │  ├─ pathResolver.ts
+│  │  ├─ preload.cts
+│  │  ├─ resourceManager.ts
+│  │  ├─ sharedTypes
+│  │  │  ├─ status.backup..js
+│  │  │  └─ status.ts
+│  │  ├─ tray.ts
+│  │  ├─ tsconfig.json
+│  │  └─ util.ts
+│  └─ ui
+│     ├─ App
+│     │  ├─ App.css
+│     │  └─ App.tsx
+│     ├─ assets
+│     │  └─ react.svg
+│     ├─ BaseChart.tsx
+│     ├─ Chart.tsx
+│     ├─ components
+│     │  ├─ ButtonCancel
+│     │  │  ├─ ButtonCancel.module.scss
+│     │  │  └─ ButtonCancel.tsx
+│     │  ├─ CheckboxSlider
+│     │  │  ├─ CheckboxSlider.module.scss
+│     │  │  └─ CheckboxSlider.tsx
+│     │  ├─ ComboBox
+│     │  │  └─ ComboBox.tsx
+│     │  ├─ Context
+│     │  │  ├─ ElectronProvider.tsx
+│     │  │  └─ useOptionsImage.ts
+│     │  ├─ DateTimePicker
+│     │  │  ├─ DateTimePicer.module.scss
+│     │  │  └─ DateTimePicker.tsx
+│     │  ├─ FormAddInvoice
+│     │  │  ├─ FormAddInvoice.module.scss
+│     │  │  └─ FormAddInvoice.tsx
+│     │  ├─ FormAddInvoiceDocuments
+│     │  │  ├─ FormAddInvoiceDocuments.module.scss
+│     │  │  └─ FormAddInvoiceDocuments.tsx
+│     │  ├─ FormHomeDate
+│     │  │  ├─ FormHomeDate.module.scss
+│     │  │  └─ FormHomeDate.tsx
+│     │  ├─ GlobalFunctions
+│     │  │  └─ GlobalFunctions.ts
+│     │  ├─ MainTable
+│     │  │  ├─ MainTable.module.scss
+│     │  │  └─ MainTable.tsx
+│     │  ├─ ModalAddInvoice
+│     │  │  ├─ ModalAddInvoice.module.scss
+│     │  │  └─ ModalAddInvoice.tsx
+│     │  ├─ Navigation
+│     │  │  ├─ Navigation.module.scss
+│     │  │  └─ Navigation.tsx
+│     │  ├─ SingleInput
+│     │  │  ├─ SingleInput.module.scss
+│     │  │  └─ SingleInput.tsx
+│     │  └─ TextInput
+│     │     ├─ TextInput.module.scss
+│     │     └─ TextInput.tsx
+│     ├─ hooks
+│     │  ├─ useAllDocumentName.ts
+│     │  ├─ useAllInvoices.ts
+│     │  ├─ useConnectedTableDictionary.ts
+│     │  ├─ useLocalStorage.ts
+│     │  ├─ useTableDictionaryDocuments.ts
+│     │  └─ useToggle.ts
+│     ├─ index.css
+│     ├─ main.tsx
+│     ├─ pages
+│     │  ├─ HomePage
+│     │  │  ├─ HomePage.module.scss
+│     │  │  └─ HomePage.tsx
+│     │  ├─ LayoutPage
+│     │  │  ├─ LayoutPage.module.scss
+│     │  │  └─ LayoutPage.tsx
+│     │  └─ ReportDataPage
+│     │     └─ ReportDataPage.tsx
+│     ├─ TempStart
+│     │  ├─ TempStart.css
+│     │  └─ TempStart.tsx
+│     ├─ useStatistics.ts
+│     └─ vite-env.d.ts
+├─ structure.txt
+├─ tsconfig.json
+├─ tsconfig.node.json
+├─ types.d.ts
+└─ vite.config.ts
+
+```

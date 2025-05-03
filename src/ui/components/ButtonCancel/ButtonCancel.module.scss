@@ -12,21 +12,22 @@
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
   background: var(--background-color);
   transition: all .500s cubic-bezier(.4, 0, .2, 1);
+  position: relative;
 
   .text,
   .icon-container {
     transition: all .500s cubic-bezier(.4, 0, .2, 1);
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--background-hover-color);
   }
 
-  &:hover .text {
+  &:hover:not(:disabled) .text {
     color: transparent;
   }
 
-  &:hover .icon-container {
+  &:hover:not(:disabled) .icon-container {
     width: 150px;
     border-left: none;
     transform: translateX(0);
@@ -36,9 +37,15 @@
     outline: none;
   }
 
-  &:active {
+  &:active:not(:disabled) {
     transition: 50ms linear;
     transform: scale(0.9);
+  }
+
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    color: #666666;
   }
 
   .text {
@@ -49,7 +56,6 @@
 
   .icon-container {
     position: absolute;
-    // border-left: 1px solid var(--text-color);
     transform: translateX(110px);
     width: 40px;
     display: flex;

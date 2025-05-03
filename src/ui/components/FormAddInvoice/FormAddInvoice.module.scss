@@ -1,7 +1,19 @@
 .form-add-invoice {
   background-color: var(--form-background-color);
   padding: 1.5rem;
+  border: 2px solid white;
   border-radius: 1rem;
+
+  .form-add-invoice-container {
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2),
+      0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .form-add-invoice-title-container {
+    position: relative;
+  }
 
   .form-add-invoice-title {
     font-size: 1.5rem;
@@ -16,9 +28,10 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
+
     width: 100%;
     height: 100%;
-    padding: 1rem;
+
   }
 
   .form-invoice-main-data {
@@ -34,6 +47,39 @@
     display: flex;
     flex-flow: column wrap;
     align-items: center;
+  }
+
+  .container-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--icon-info-background);
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    transition: all 3.75s cubic-bezier(.4, 0, .2, 1);
+    cursor: help;
+    user-select: none;
+    z-index: 100;
+
+    .icon {
+      color: var(--icon-info-color);
+      transition: all .75s cubic-bezier(.4, 0, .2, 1);
+      font-size: 1.5rem;
+    }
+
+    &:hover {
+      .icon {
+        color: var(--icon-info-hover-color);
+      }
+    }
+  }
+
+  .tooltip {
+    z-index: 2;
   }
 
   .custom-input-container {

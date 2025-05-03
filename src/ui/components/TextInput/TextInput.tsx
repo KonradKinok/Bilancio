@@ -10,6 +10,8 @@ interface TextInputInterface {
   required?: boolean;
   singleInputValue: string;
   // setSingleInputValue: React.Dispatch<React.SetStateAction<string>>;
+  handleKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   inputPlaceholder: string;
   inputLabelText: string;
   singleInputError?: string;
@@ -26,6 +28,8 @@ export const TextInput: React.FC<TextInputInterface> = ({
   inputLabelText,
   singleInputError = "",
   handleSingleInputChange,
+  handleKeyDown,
+  handleOnPaste,
   required = false,
   classNameInputContainer = "",
 }) => {
@@ -49,6 +53,8 @@ export const TextInput: React.FC<TextInputInterface> = ({
           placeholder={inputPlaceholder}
           value={singleInputValue}
           onChange={handleSingleInputChange}
+          onKeyDown={handleKeyDown} // Obsługa zdarzenia onKeyDown
+          onPaste={handleOnPaste} // Obsługa zdarzenia onPaste
           required={required}
           className={`${scss["input"]} ${
             singleInputError ? scss["input-error"] : ""

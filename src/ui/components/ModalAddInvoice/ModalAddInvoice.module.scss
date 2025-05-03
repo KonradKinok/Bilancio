@@ -27,9 +27,26 @@
     }
 
     .add-invoice-main-container {
-        width: 1250px;
-        height: 700px;
-
+        max-width: 90vw;
+        max-height: 90vh;
+        overflow-y: auto;
 
     }
+
+    // .add-invoice-modal {
+    //     max-width: calc(100vw - 48px);
+    //     max-height: calc(100vh - 24px);
+    //     background-color: white;
+    //     border-radius: 8px;
+
+
+    // }
+
+    // .add-invoice-main-container {
+    //     min-width: 1250px;
+    //     max-height: 90vh;
+    //     overflow-y: auto;
+    //     border-radius: 18px;
+
+    // }
 }

@@ -8,7 +8,8 @@ interface ButtonCancelProps {
   buttonName: string;
   buttonText: string;
   buttonIcon?: React.ReactNode;
-  buttonClick?: React.MouseEventHandler<HTMLButtonElement>;
+  buttonDisabled?: boolean;
+  buttonClick: React.MouseEventHandler<HTMLButtonElement>;
   classNameButtonContainer?: string;
 }
 
@@ -17,7 +18,8 @@ export const ButtonCancel: React.FC<ButtonCancelProps> = ({
   buttonName,
   buttonText,
   buttonIcon = <RiDeleteBin6Line />,
-  buttonClick = undefined,
+  buttonDisabled = false,
+  buttonClick,
   classNameButtonContainer = "",
 }) => {
   const containerClassName =
@@ -30,6 +32,7 @@ export const ButtonCancel: React.FC<ButtonCancelProps> = ({
       id={buttonName}
       type={buttonType}
       onClick={buttonClick}
+      disabled={buttonDisabled}
     >
       <span className={scss["text"]}>{buttonText}</span>
       <span className={scss["icon-container"]}>{buttonIcon}</span>

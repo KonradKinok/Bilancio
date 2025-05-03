@@ -1,7 +1,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { useTableDictionaryDocuments } from "../../hooks/useTableDictionaryDocuments";
 import { useConnectedTableDictionary } from "../../hooks/useConnectedTableDictionary";
-import { FaUser } from "react-icons/fa";
+import { MdOutlinePostAdd } from "react-icons/md";
 import scss from "./FormAddInvoiceDocuments.module.scss";
 import Select, { SingleValue } from "react-select";
 import { DbTables } from "../../../electron/dataBase/enum";
@@ -10,17 +10,28 @@ import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
 import { SingleInput } from "../SingleInput/SingleInput";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 import { useMainDataContext } from "../Context/useOptionsImage";
-// interface ComboBoxOption {
-//   value: number; // typ LanguageValue zamiast string
-//   label: string;
-// }
+import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
+
 interface FormAddInvoiceDocumentsProps {
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
+  onAddDocument: () => void;
+  onRemoveDocument: () => void;
+  isLast: boolean;
+  isOnly: boolean;
+  index: number;
 }
 export const FormAddInvoiceDocuments: React.FC<
   FormAddInvoiceDocumentsProps
-> = ({ addInvoiceData, setAddInvoiceData }) => {
+> = ({
+  addInvoiceData,
+  setAddInvoiceData,
+  onAddDocument,
+  onRemoveDocument,
+  isLast,
+  isOnly,
+  index,
+}) => {
   //useState combobox
   const [selectedDocument, setSelectedDocument] =
     useState<ComboBoxOption | null>(null);
@@ -43,6 +54,8 @@ export const FormAddInvoiceDocuments: React.FC<
   const [inputInvoicePrice, setInputInvoicePrice] = useState<string>("");
   const [inputInvoicePriceError, setInputInvoicePriceError] =
     useState<string>("");
+  const [isPriceManuallyEdited, setIsPriceManuallyEdited] =
+    useState<boolean>(false); // Nowy stan
   //All documents name
   const { allDocumentsData } = useMainDataContext();
   const {
@@ -59,39 +72,59 @@ export const FormAddInvoiceDocuments: React.FC<
     let errorTextInput = "";
 
     if (currentName === "quantity") {
-      setInputInvoiceQuantity(currentValue);
-      if (currentValue.length === 1) {
-        errorTextInput = "Za mało liter";
-      } else if (!currentValue) {
-        errorTextInput = "Musisz wypełnić te pole";
+      const isValidInteger = /^\d*$/.test(currentValue);
+      if (isValidInteger) {
+        // Usuń wiodące zera i sparsuj do liczby
+        const parsedValue = currentValue ? parseInt(currentValue, 10) : NaN;
+        const cleanedValue = isNaN(parsedValue) ? "" : parsedValue.toString();
+
+        setInputInvoiceQuantity(cleanedValue);
+
+        if (!cleanedValue) {
+          errorTextInput = "Musisz wypełnić to pole";
+        } else if (parsedValue <= 0) {
+          errorTextInput = "Wprowadź liczbę większą od 0";
+        }
+      } else {
+        errorTextInput = "Dozwolone są tylko liczby całkowite";
       }
       setInputInvoiceQuantityError(errorTextInput);
     }
     if (currentName === "price") {
+      const isValidPrice = /^\d*\.?\d*$/.test(currentValue); // Dopuszcza liczby zmiennoprzecinkowe
       setInputInvoicePrice(currentValue);
-      if (currentValue.length === 1) {
-        errorTextInput = "Za mało liter";
-      } else if (!currentValue) {
-        errorTextInput = "Musisz wypełnić te pole";
+      setIsPriceManuallyEdited(true); // Ustaw flagę, że cena została ręcznie edytowana
+      if (!currentValue) {
+        errorTextInput = "Musisz wypełnić to pole";
+      } else if (currentValue.includes(",")) {
+        errorTextInput = "Zamiast przecinka użyj kropki";
+      } else if (!isValidPrice) {
+        errorTextInput = "Wprowadź poprawną liczbę";
       }
       setInputInvoicePriceError(errorTextInput);
     }
-    // if (currentName === fieldNames.password) {
-    //   setInputPassword(currentValue);
-    //   if (currentValue.length === 1) {
-    //     errorTextInput = "Za mało liter";
-    //   } else if (!currentValue) {
-    //     errorTextInput = "Musisz wypełnić te pole";
-    //   }
-    //   setInputPasswordError(errorTextInput);
-    // }
   };
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDownQuantityInput = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
     if (
       event.key.match(/[^0-9]/) &&
       !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"].includes(
         event.key
       )
+    ) {
+      event.preventDefault();
+    }
+  };
+  const handleKeyDownPriceInput = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (
+      event.key === "," ||
+      (event.key.match(/[^0-9.]/) &&
+        !["Backspace", "Delete", "ArrowLeft", "ArrowRight", "Tab"].includes(
+          event.key
+        ))
     ) {
       event.preventDefault();
     }
@@ -144,16 +177,8 @@ export const FormAddInvoiceDocuments: React.FC<
     }
     return dictionaryDocumentTable.map((doc) => ({
       value: doc.DocumentId,
-      label: doc.DocumentName + doc.DocumentId,
+      label: doc.DocumentName,
     }));
-    //  return dictionaryDocumentTable.map((doc) => ({
-    //    value: doc.DocumentId,
-    //    label: (
-    //      <div className={scss["combobox-item"]}>
-    //        {doc.DocumentName} {doc.DocumentId}
-    //      </div>
-    //    ),
-    //  }));
   }, [dictionaryDocumentTable]);
   //dictionaryMainTypeTable
   const optionsDictionaryMainTypeTable = useMemo(() => {
@@ -162,7 +187,7 @@ export const FormAddInvoiceDocuments: React.FC<
     }
     return dictionaryMainTypeTable.map((doc) => ({
       value: doc.MainTypeId,
-      label: doc.MainTypeName + doc.MainTypeId,
+      label: doc.MainTypeName,
     }));
   }, [dictionaryMainTypeTable]);
   //dictionaryTypeTable
@@ -172,7 +197,7 @@ export const FormAddInvoiceDocuments: React.FC<
     }
     return dictionaryTypeTable.map((doc) => ({
       value: doc.TypeId,
-      label: doc.TypeName + doc.TypeId,
+      label: doc.TypeName,
     }));
   }, [dictionaryTypeTable]);
   //dictionarySubtypeTable
@@ -182,14 +207,14 @@ export const FormAddInvoiceDocuments: React.FC<
     }
     return dictionarySubtypeTable.map((doc) => ({
       value: doc.SubtypeId,
-      label: doc.SubtypeName + doc.SubtypeId,
+      label: doc.SubtypeName,
     }));
   }, [dictionarySubtypeTable]);
 
+  //set single item in combobox
   const getSingleDefaultOption = <T extends ComboBoxOption>(
     options: T[]
   ): T | undefined => {
-    console.log("getSingleDefaultOption", options);
     return options.length === 1 ? options[0] : undefined;
   };
   useEffect(() => {
@@ -216,20 +241,25 @@ export const FormAddInvoiceDocuments: React.FC<
       setSelectedSubtype(defaultSubtype);
     }
   }, [optionsDictionarySubtypeTable, selectedSubtype]);
+
   //removing elements from the combobox when changing
   useEffect(() => {
     setSelectedMainType(null);
     setSelectedType(null);
     setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
   }, [selectedDocument]);
   useEffect(() => {
     setSelectedType(null);
     setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
   }, [selectedMainType]);
   useEffect(() => {
     setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
   }, [selectedType]);
-  //set price
+
+  //Setting the price and checking the existence of types
   useEffect(() => {
     const isMainTypeExists = checkComboBoxExistence(
       [selectedDocument],
@@ -249,17 +279,20 @@ export const FormAddInvoiceDocuments: React.FC<
     );
     setIsSubtypeExistsBool(isSubtypeExists);
 
-    const price = getPrice(
-      dataAllDocumentsName,
-      selectedDocument,
-      selectedMainType,
-      isMainTypeExists,
-      selectedType,
-      isTypeExists,
-      selectedSubtype,
-      isSubtypeExists
-    );
-    setInputInvoicePrice(price);
+    // Ustaw cenę tylko, jeśli nie była ręcznie edytowana
+    if (!isPriceManuallyEdited) {
+      const price = getPrice(
+        dataAllDocumentsName,
+        selectedDocument,
+        selectedMainType,
+        isMainTypeExists,
+        selectedType,
+        isTypeExists,
+        selectedSubtype,
+        isSubtypeExists
+      );
+      setInputInvoicePrice(price);
+    }
   }, [
     dataAllDocumentsName,
     selectedDocument,
@@ -271,33 +304,29 @@ export const FormAddInvoiceDocuments: React.FC<
     optionsDictionarySubtypeTable,
     inputInvoiceQuantity,
     inputInvoicePrice,
+    isPriceManuallyEdited,
   ]);
 
-  const defaultDocumentComboBox = (): undefined => {
-    // const languageFromLocalStorage = globalFunctions.loadLocalStorage(
-    //   LOCAL_STORAGE_KEY_LANGUAGE
-    // ) as LanguageLocalStorage | null;
-    // if (languageFromLocalStorage) {
-    //   const language = languageFromLocalStorage.currentLanguage as LanguageValue;
-    //   return languageOptions.find((option) => option.value === language);
-    // }
-    // return languageOptions.find((option) => option.value === currentLanguage);
-  };
-  // const handleChangeLanguage = (option: SingleValue<LanguageOption>): void => {
-  //   if (option) {
-  //     dispatch(setLanguage(option.value)); // Użyj zdefiniowanego typu
-  //     globalFunctions.saveLocalStorage(LOCAL_STORAGE_KEY_LANGUAGE, {
-  //       currentLanguage: option.value,
-  //     });
-  //   }
-  // };
-  const handleChangeLanguage = (option: null): void => {
-    // if (option) {
-    //   dispatch(setLanguage(option.value)); // Użyj zdefiniowanego typu
-    //   globalFunctions.saveLocalStorage(LOCAL_STORAGE_KEY_LANGUAGE, {
-    //     currentLanguage: option.value,
-    //   });
-    // }
+  const areFieldsFilled = () => {
+    const isDocumentSelected = !!selectedDocument;
+    const isQuantityValid =
+      inputInvoiceQuantity && parseInt(inputInvoiceQuantity) > 0;
+    const isPriceValid =
+      inputInvoicePrice && /^\d*\.?\d*$/.test(inputInvoicePrice);
+
+    // Sprawdź, czy wymagane pola zależne są wypełnione
+    const isMainTypeFilled = !isMainTypeExistsBool || !!selectedMainType;
+    const isTypeFilled = !isTypeExistsBool || !!selectedType;
+    const isSubtypeFilled = !isSubtypeExistsBool || !!selectedSubtype;
+
+    return (
+      isDocumentSelected &&
+      isQuantityValid &&
+      isPriceValid &&
+      isMainTypeFilled &&
+      isTypeFilled &&
+      isSubtypeFilled
+    );
   };
   return (
     <div className={scss["formAddInvoiceDocuments-main-container"]}>
@@ -366,11 +395,12 @@ export const FormAddInvoiceDocuments: React.FC<
       </div>
       <div className={scss["textinput-and-button-container"]}>
         <div className={scss["textinput-container"]}>
-          <div className={scss["textinput"]}>
+          <div className={scss[""]}>
             <TextInput
               inputName="quantity"
               singleInputValue={inputInvoiceQuantity}
               handleSingleInputChange={handleSingleInputChange}
+              handleKeyDown={handleKeyDownQuantityInput}
               inputPlaceholder="Wprowadź liczbę sztuk ..."
               inputLabelText="Liczba sztuk:"
               singleInputError={inputInvoiceQuantityError}
@@ -383,6 +413,7 @@ export const FormAddInvoiceDocuments: React.FC<
               inputName="price"
               singleInputValue={inputInvoicePrice}
               handleSingleInputChange={handleSingleInputChange}
+              handleKeyDown={handleKeyDownPriceInput}
               inputPlaceholder="Wprowadź kwotę ..."
               inputLabelText="Kwota jednostkowa:"
               singleInputError={inputInvoicePriceError}
@@ -390,40 +421,34 @@ export const FormAddInvoiceDocuments: React.FC<
               classNameInputContainer={scss["custom-input-container"]}
             />
           </div>
+          <div className={scss["document-total-amount-container"]}>
+            <p>
+              Razem:{" "}
+              {calculateTotalAmount(
+                [inputInvoiceQuantity],
+                [inputInvoicePrice]
+              )}
+            </p>
+          </div>
         </div>
-        <div className={scss["button-container"]}>
+      </div>
+      <div className={scss["button-container"]}>
+        <ButtonCancel
+          buttonName={"deleteDocument"}
+          buttonText={"Usuń dokument"}
+          buttonClick={onRemoveDocument}
+          buttonDisabled={isOnly}
+        />
+      </div>
+      <div className={scss["button-container"]}>
+        {isLast && areFieldsFilled() && (
           <ButtonCancel
-            buttonName={"deleteDocument"}
-            buttonText={"Usuń dokument"}
+            buttonName={"addDocument"}
+            buttonText={"Dodaj dokument"}
+            buttonClick={onAddDocument}
+            buttonIcon={<MdOutlinePostAdd />}
+            classNameButtonContainer={scss["button-add-document"]}
           />
-        </div>
-      </div>
-      <div>
-        Wybrane dokumenty:
-        {dictionarySubtypeTable &&
-          JSON.stringify(dictionarySubtypeTable, null, 2)}
-      </div>
-      <div>
-        <h3>Wybrany dokument:</h3>
-        {selectedDocument ? (
-          <p>
-            value: <strong>{selectedDocument.value}</strong>, label:{" "}
-            <strong>{selectedDocument.label}</strong>
-          </p>
-        ) : (
-          <p>Brak wybranego dokumentu</p>
-        )}
-      </div>
-
-      <div>
-        <h3>Wybrany typ :</h3>
-        {selectedMainType ? (
-          <p>
-            value: <strong>{selectedMainType.value}</strong>, label:{" "}
-            <strong>{selectedMainType.label}</strong>
-          </p>
-        ) : (
-          <p>Brak wybranego typu</p>
         )}
       </div>
     </div>
