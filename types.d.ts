@@ -51,7 +51,7 @@ declare global {
     InvoiceName: string;
     ReceiptDate: string;
     DeadlineDate: string | null;
-    PaymentDate: string;
+    PaymentDate: string | null;
     IsDeleted: 0 | 1;
   }
   type InvoiceDetailsTable = {
@@ -178,7 +178,8 @@ declare global {
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
     // addInvoice: unknown;
-    // addInvoice: ReturnInvoiceSave;
+    addInvoice: ReturnInvoiceSave;
+    addInvoiceDetails: ReturnInvoiceSave;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -197,18 +198,11 @@ declare global {
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
       getAllInvoices: (payload) => Promise<AllInvoices[]>;
+      addInvoice: (payload) => Promise<ReturnInvoiceSave>;
+      addInvoiceDetails: (invoice, invoiceDetails) => Promise<ReturnInvoiceSave>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
-
-      // addInvoice: (invoice: {
-      //   InvoiceName: string;
-      //   ReceiptDate: string;
-      //   DeadlineDate?: string;
-      //   PaymentDate: string;
-      //   IsDeleted: 0 | 1;
-      // }) => Promise<ReturnInvoiceSave>;
-      // addInvoice: (invoice) => Promise<unknown>;
     };
   }
 }

@@ -279,7 +279,6 @@ export const FormAddInvoiceDocuments: React.FC<
     );
     setIsSubtypeExistsBool(isSubtypeExists);
 
-    // Ustaw cenę tylko, jeśli nie była ręcznie edytowana
     if (!isPriceManuallyEdited) {
       const price = getPrice(
         dataAllDocumentsName,
@@ -293,6 +292,21 @@ export const FormAddInvoiceDocuments: React.FC<
       );
       setInputInvoicePrice(price);
     }
+
+    // Aktualizacja addInvoiceData.details
+    setAddInvoiceData((prev) => {
+      const newDetails = [...prev.details];
+      newDetails[index] = {
+        InvoiceId: undefined,
+        DocumentId: selectedDocument?.value ?? 0,
+        MainTypeId: selectedMainType?.value ?? null,
+        TypeId: selectedType?.value ?? null,
+        SubtypeId: selectedSubtype?.value ?? null,
+        Quantity: inputInvoiceQuantity ? parseInt(inputInvoiceQuantity) : 0,
+        Price: inputInvoicePrice ? parseFloat(inputInvoicePrice) : 0,
+      };
+      return { ...prev, details: newDetails };
+    });
   }, [
     dataAllDocumentsName,
     selectedDocument,
@@ -305,6 +319,8 @@ export const FormAddInvoiceDocuments: React.FC<
     inputInvoiceQuantity,
     inputInvoicePrice,
     isPriceManuallyEdited,
+    index,
+    setAddInvoiceData,
   ]);
 
   const areFieldsFilled = () => {

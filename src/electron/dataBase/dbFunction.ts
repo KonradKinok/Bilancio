@@ -156,9 +156,7 @@ export async function getLastRowFromTable(tableName: DbTables, tableNameId: Invo
     return [];
   }
 };
-
-//Dodaj fakturę do tabeli Invoice
-export async function addInvoice(invoice: InvoiceTable) {
+export async function addInvoice(invoice: InvoiceTable): Promise<ReturnInvoiceSave> {
   const sql = `
     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
     VALUES (?, ?, ?, ?, ?)
@@ -166,86 +164,145 @@ export async function addInvoice(invoice: InvoiceTable) {
   const params = [
     invoice.InvoiceName,
     invoice.ReceiptDate,
-    invoice.DeadlineDate,
+    invoice.DeadlineDate || null,
     invoice.PaymentDate || null,
-    invoice.IsDeleted = 0,
+    invoice.IsDeleted,
   ];
 
   try {
     const result = await db.run(sql, params);
-    return result;
+    if (!result.lastID || !result.changes) {
+      throw new Error("Nie udało się dodać faktury.");
+    }
+    return { lastID: result.lastID, changes: result.changes };
   } catch (err) {
     console.error('Błąd podczas dodawania nowej faktury:', err);
     throw err;
   }
 }
 
-const invoice = {
-  InvoiceName: "D01PF0031",
-  ReceiptDate: "2016-06-14",
-  DeadlineDate: "2016-07-28",
-  PaymentDate: "2016-07-10",
-  IsDeleted: 0 as const,
-}
-const invoiceDetails = [
-  // Rekord 1
-  { DocumentId: 1, MainTypeId: null, TypeId: null, SubtypeId: null, Quantity: 23, Price: 40 },
-  // Rekord 2
-  { DocumentId: 3, MainTypeId: 4, TypeId: 3, SubtypeId: 5, Quantity: 4, Price: 24 },
-  // Rekord 3
-  { DocumentId: 3, MainTypeId: null, TypeId: 2, SubtypeId: 2, Quantity: 7, Price: 42.34 }
-];
-//Dodaj szczegóły faktury do tabeli Invoice
-export async function addInvoiceDetails(invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]) {
+export async function addInvoiceDetails(invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]): Promise<ReturnInvoiceSave> {
   const sql = `
     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  // const params = [
-  //   invoice.InvoiceName,
-  //   invoice.ReceiptDate,
-  //   invoice.DeadlineDate ,
-  //   invoice.PaymentDate|| null,
-  //   invoice.IsDeleted,
-  // ];
-  //   // Dane szczegółowe faktury
-  // const invoiceDetails = [
-  //   // Rekord 1
-  //   { DocumentId: 1, MainTypeId: null, TypeId: null, SubtypeId: null, Quantity: 23, Price: 40 },
-  //   // Rekord 2
-  //   { DocumentId: 3, MainTypeId: 4, TypeId: 3, SubtypeId: 5, Quantity: 4, Price: 24 },
-  //   // Rekord 3
-  //   { DocumentId: 3, MainTypeId: null, TypeId: 2, SubtypeId: 2, Quantity: 7, Price: 42.34 }
-  // ];
-
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
 
   try {
     const resultAddInvoice = await addInvoice(invoice);
     if (resultAddInvoice.changes && resultAddInvoice.lastID) {
-      console.log(`Dodano nowa fakture z ID -lastId: ${resultAddInvoice.lastID}`);
-      console.log(`Dodano nowa fakture z ID -changes: ${resultAddInvoice.changes}`);
+      console.log(`Dodano nową fakturę z ID: ${resultAddInvoice.lastID}`);
       for (const detail of invoiceDetails) {
-        const invoiceDetailsTableToSave = [resultAddInvoice.lastID, detail.DocumentId, detail.MainTypeId, detail.TypeId, detail.SubtypeId, detail.Quantity, detail.Price];
-        console.log(invoiceDetailsTableToSave)
-        const result = await db.run(sql, invoiceDetailsTableToSave);
-        console.log({ result })
+        const params = [
+          resultAddInvoice.lastID,
+          detail.DocumentId,
+          detail.MainTypeId || null,
+          detail.TypeId || null,
+          detail.SubtypeId || null,
+          detail.Quantity,
+          detail.Price,
+        ];
+        const resultDetail = await db.run(sql, params);
+        if (!resultDetail.changes) {
+          throw new Error("Nie udało się dodać szczegółów faktury.");
+        }
       }
+      return { lastID: resultAddInvoice.lastID, changes: resultAddInvoice.changes };
     }
-
-
-    // for (const detail of invoiceDetails) {
-    //           stmt.run(
-    //             [newInvoiceId, detail.DocumentId, detail.MainTypeId, detail.TypeId, detail.SubtypeId, detail.Quantity, detail.Price],
-    //             (err) => {
-    //               if (err) reject(err);
-    //             }
-    //           );
-    //         }
-    return "";
+    throw new Error("Nie udało się dodać faktury.");
   } catch (err) {
-    console.error('Błąd podczas dodawania nowej faktury:', err);
+    console.error('Błąd podczas dodawania szczegółów faktury:', err);
     throw err;
   }
 }
+//Dodaj fakturę do tabeli Invoice
+// export async function addInvoice(invoice: InvoiceTable): Promise<ReturnInvoiceSave> {
+//   const sql = `
+//     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
+//     VALUES (?, ?, ?, ?, ?)
+//   `;
+//   const params = [
+//     invoice.InvoiceName,
+//     invoice.ReceiptDate,
+//     invoice.DeadlineDate|| null,
+//     invoice.PaymentDate || null,
+//     invoice.IsDeleted = 0,
+//   ];
+
+//   try {
+//     const result = await db.run(sql, params);
+//     return result;
+//   } catch (err) {
+//     console.error('Błąd podczas dodawania nowej faktury:', err);
+//     throw err;
+//   }
+// }
+
+// const invoice = {
+//   InvoiceName: "D01PF0031",
+//   ReceiptDate: "2016-06-14",
+//   DeadlineDate: "2016-07-28",
+//   PaymentDate: "2016-07-10",
+//   IsDeleted: 0 as const,
+// }
+// const invoiceDetails = [
+//   // Rekord 1
+//   { DocumentId: 1, MainTypeId: null, TypeId: null, SubtypeId: null, Quantity: 23, Price: 40 },
+//   // Rekord 2
+//   { DocumentId: 3, MainTypeId: 4, TypeId: 3, SubtypeId: 5, Quantity: 4, Price: 24 },
+//   // Rekord 3
+//   { DocumentId: 3, MainTypeId: null, TypeId: 2, SubtypeId: 2, Quantity: 7, Price: 42.34 }
+// ];
+// //Dodaj szczegóły faktury do tabeli Invoice
+// export async function addInvoiceDetails(invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]) {
+//   const sql = `
+//     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
+//     VALUES (?, ?, ?, ?, ?, ?, ?)`;
+//   // const params = [
+//   //   invoice.InvoiceName,
+//   //   invoice.ReceiptDate,
+//   //   invoice.DeadlineDate ,
+//   //   invoice.PaymentDate|| null,
+//   //   invoice.IsDeleted,
+//   // ];
+//   //   // Dane szczegółowe faktury
+//   // const invoiceDetails = [
+//   //   // Rekord 1
+//   //   { DocumentId: 1, MainTypeId: null, TypeId: null, SubtypeId: null, Quantity: 23, Price: 40 },
+//   //   // Rekord 2
+//   //   { DocumentId: 3, MainTypeId: 4, TypeId: 3, SubtypeId: 5, Quantity: 4, Price: 24 },
+//   //   // Rekord 3
+//   //   { DocumentId: 3, MainTypeId: null, TypeId: 2, SubtypeId: 2, Quantity: 7, Price: 42.34 }
+//   // ];
+
+
+//   try {
+//     const resultAddInvoice = await addInvoice(invoice);
+//     if (resultAddInvoice.changes && resultAddInvoice.lastID) {
+//       console.log(`Dodano nowa fakture z ID -lastId: ${resultAddInvoice.lastID}`);
+//       console.log(`Dodano nowa fakture z ID -changes: ${resultAddInvoice.changes}`);
+//       for (const detail of invoiceDetails) {
+//         const invoiceDetailsTableToSave = [resultAddInvoice.lastID, detail.DocumentId, detail.MainTypeId, detail.TypeId, detail.SubtypeId, detail.Quantity, detail.Price];
+//         console.log(invoiceDetailsTableToSave)
+//         const result = await db.run(sql, invoiceDetailsTableToSave);
+//         console.log({ result })
+//       }
+//     }
+
+
+//     // for (const detail of invoiceDetails) {
+//     //           stmt.run(
+//     //             [newInvoiceId, detail.DocumentId, detail.MainTypeId, detail.TypeId, detail.SubtypeId, detail.Quantity, detail.Price],
+//     //             (err) => {
+//     //               if (err) reject(err);
+//     //             }
+//     //           );
+//     //         }
+//     return "";
+//   } catch (err) {
+//     console.error('Błąd podczas dodawania nowej faktury:', err);
+//     throw err;
+//   }
+// }
 
 // addInvoiceDetails(invoice,invoiceDetails);
 

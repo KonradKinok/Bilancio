@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
@@ -6,7 +6,7 @@ import { TextInput } from "../TextInput/TextInput";
 import scss from "./FormAddInvoice.module.scss";
 import { Tooltip } from "react-tooltip";
 import { FaInfoCircle } from "react-icons/fa";
-
+import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
@@ -28,6 +28,72 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   const [documentComponents, setDocumentComponents] = useState<string[]>([
     nanoid(),
   ]);
+  const [isSaveButtonEnabled, setIsSaveButtonEnabled] =
+    useState<boolean>(false);
+
+  // Formatowanie daty do YYYY-MM-DD
+  const formatDate = (date: Date | null): string | null => {
+    if (!date) return null;
+    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+  };
+
+  // Aktualizacja dat w addInvoiceData
+  useEffect(() => {
+    setAddInvoiceData((prev) => ({
+      ...prev,
+      invoice: {
+        ...prev.invoice,
+        ReceiptDate: formatDate(dateTimePickerReceiptDate) || "",
+        DeadlineDate: formatDate(dateTimePickerDeadlineDate),
+        PaymentDate: formatDate(dateTimePickerPaymentDate) || null,
+      },
+    }));
+  }, [
+    dateTimePickerReceiptDate,
+    dateTimePickerDeadlineDate,
+    dateTimePickerPaymentDate,
+    setAddInvoiceData,
+  ]);
+  // Walidacja pól i unikalności dokumentów
+  const validateForm = (): boolean => {
+    // Sprawdzenie invoiceName
+    const isInvoiceNameValid = inputInvoiceName.trim() !== "";
+
+    // Sprawdzenie ReceiptDate
+    const isReceiptDateValid = !!dateTimePickerReceiptDate;
+
+    // Sprawdzenie dokumentów
+    const areDetailsValid = addInvoiceData.details.every((detail) => {
+      return (
+        detail.DocumentId !== 0 &&
+        detail.Quantity > 0 &&
+        detail.Price >= 0 &&
+        (!detail.MainTypeId || detail.MainTypeId > 0) &&
+        (!detail.TypeId || detail.TypeId > 0) &&
+        (!detail.SubtypeId || detail.SubtypeId > 0)
+      );
+    });
+
+    // Sprawdzenie unikalności dokumentów
+    const documentKeys = addInvoiceData.details.map(
+      (detail) =>
+        `${detail.DocumentId}-${detail.MainTypeId ?? "null"}-${
+          detail.TypeId ?? "null"
+        }-${detail.SubtypeId ?? "null"}`
+    );
+    const uniqueDocuments = new Set(documentKeys).size === documentKeys.length;
+
+    return (
+      isInvoiceNameValid &&
+      isReceiptDateValid &&
+      areDetailsValid &&
+      uniqueDocuments
+    );
+  };
+  // Aktualizacja stanu przycisku Zapisz
+  useEffect(() => {
+    setIsSaveButtonEnabled(validateForm());
+  }, [inputInvoiceName, dateTimePickerReceiptDate, addInvoiceData.details]);
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -68,20 +134,98 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       ],
     }));
   };
-
   const handleRemoveDocument = (id: string) => {
     if (documentComponents.length <= 1) {
       return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
     }
+    const indexToRemove = documentComponents.indexOf(id);
+    if (indexToRemove === -1) return; // Zabezpieczenie przed błędnym ID
     setDocumentComponents((prev) =>
       prev.filter((componentId) => componentId !== id)
     );
     setAddInvoiceData((prev) => ({
       ...prev,
-      details: prev.details.filter((_, i) => documentComponents[i] !== id),
+      details: prev.details.filter((_, i) => i !== indexToRemove),
     }));
   };
+  // const handleRemoveDocument = (id: string) => {
+  //   if (documentComponents.length <= 1) {
+  //     return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
+  //   }
+  //   setDocumentComponents((prev) =>
+  //     prev.filter((componentId) => componentId !== id)
+  //   );
+  //   setAddInvoiceData((prev) => ({
+  //     ...prev,
+  //     details: prev.details.filter((_, i) => documentComponents[i] !== id),
+  //   }));
+  // };
+  const handleSaveInvoice = async () => {
+    if (!isSaveButtonEnabled) return;
 
+    try {
+      const invoice: InvoiceTable = {
+        InvoiceName: addInvoiceData.invoice.InvoiceName,
+        ReceiptDate: addInvoiceData.invoice.ReceiptDate,
+        DeadlineDate: addInvoiceData.invoice.DeadlineDate,
+        PaymentDate: addInvoiceData.invoice.PaymentDate,
+        IsDeleted: 0,
+      };
+
+      const invoiceDetails: InvoiceDetailsTable[] = addInvoiceData.details.map(
+        (detail) => ({
+          DocumentId: detail.DocumentId,
+          MainTypeId: detail.MainTypeId,
+          TypeId: detail.TypeId,
+          SubtypeId: detail.SubtypeId,
+          Quantity: detail.Quantity,
+          Price: detail.Price,
+        })
+      );
+
+      const result = await window.electron.addInvoiceDetails(
+        invoice,
+        invoiceDetails
+      );
+      if (result.changes && result.lastID) {
+        alert(`Faktura zapisana pomyślnie! ID: ${result.lastID}`);
+        // Reset formularza po zapisie
+        setInputInvoiceName("");
+        setDateTimePickerReceiptDate(null);
+        setDateTimePickerDeadlineDate(null);
+        setDateTimePickerPaymentDate(null);
+        setDocumentComponents([nanoid()]);
+        setAddInvoiceData({
+          invoice: {
+            InvoiceId: undefined,
+            InvoiceName: "",
+            ReceiptDate: "",
+            DeadlineDate: null,
+            PaymentDate: null,
+            IsDeleted: 0,
+          },
+          details: [
+            {
+              InvoiceId: undefined,
+              DocumentId: 0,
+              MainTypeId: null,
+              TypeId: null,
+              SubtypeId: null,
+              Quantity: 0,
+              Price: 0,
+            },
+          ],
+        });
+      } else {
+        throw new Error("Nie udało się dodać faktury.");
+      }
+    } catch (error) {
+      console.error("Błąd podczas zapisywania faktury:", error);
+      alert(
+        `Wystąpił błąd podczas zapisywania faktury: ${(error as Error).message}`
+      );
+    }
+  };
   return (
     <form action="" className={scss["form-add-invoice"]}>
       <div className={scss["form-add-invoice-container"]}>
@@ -132,24 +276,30 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
               setDateTimePickerDate={setDateTimePickerPaymentDate}
             />
           </div>
-          <div>
-            <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
-            {documentComponents.map((id, index) => (
-              <FormAddInvoiceDocuments
-                key={id}
-                addInvoiceData={addInvoiceData}
-                setAddInvoiceData={setAddInvoiceData}
-                onAddDocument={handleAddDocument}
-                onRemoveDocument={() => handleRemoveDocument(id)}
-                isLast={index === documentComponents.length - 1}
-                isOnly={documentComponents.length === 1}
-                index={index}
-              />
-            ))}
-          </div>
+        </div>
+        <div>
+          <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
+          {documentComponents.map((id, index) => (
+            <FormAddInvoiceDocuments
+              key={id}
+              addInvoiceData={addInvoiceData}
+              setAddInvoiceData={setAddInvoiceData}
+              onAddDocument={handleAddDocument}
+              onRemoveDocument={() => handleRemoveDocument(id)}
+              isLast={index === documentComponents.length - 1}
+              isOnly={documentComponents.length === 1}
+              index={index}
+            />
+          ))}
         </div>
         <div>
           <p>Faktura: 1234,00 zł</p>
+          <ButtonCancel
+            buttonName="saveInvoice"
+            buttonText="Zapisz fakturę"
+            buttonClick={handleSaveInvoice}
+            buttonDisabled={!isSaveButtonEnabled}
+          />
         </div>
       </div>
       <Tooltip id="tooltip-formAddInvoice" className={scss["tooltip"]} />
@@ -158,7 +308,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 };
 
 function tooltipInfoFormAddInvoice() {
-  const text = `Formularz wyboru daty.
+  const text = `Formularz dodania nowej faktury.
   Umożliwia wybór początkowej i końcowej daty wpływu faktury oraz opcjonalne wyświetlenie usuniętych elementów.
   Wybierz daty, kliknij przycisk "Pokaż", aby zastosować zmiany.
   Uwaga! Data początkowa nie może być późniejsza niż data końcowa.
