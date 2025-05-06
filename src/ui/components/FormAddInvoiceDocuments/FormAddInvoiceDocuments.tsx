@@ -11,6 +11,7 @@ import { SingleInput } from "../SingleInput/SingleInput";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
+import { IconInfo } from "../IconInfo/IconInfo";
 
 interface FormAddInvoiceDocumentsProps {
   addInvoiceData: InvoiceSave;

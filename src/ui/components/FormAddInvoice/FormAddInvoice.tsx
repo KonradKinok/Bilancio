@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
@@ -8,6 +8,7 @@ import { Tooltip } from "react-tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
+import { IconInfo } from "../IconInfo/IconInfo";
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
@@ -65,14 +66,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     setAddInvoiceData,
   ]);
   // Walidacja pól i unikalności dokumentów
-  const validateForm = (): boolean => {
-    // Sprawdzenie invoiceName
+  const validateForm = useCallback((): boolean => {
     const isInvoiceNameValid = inputInvoiceName.trim() !== "";
-
-    // Sprawdzenie ReceiptDate
     const isReceiptDateValid = !!dateTimePickerReceiptDate;
-
-    // Sprawdzenie dokumentów
     const areDetailsValid = addInvoiceData.details.every((detail) => {
       return (
         detail.DocumentId !== 0 &&
@@ -83,8 +79,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         (!detail.SubtypeId || detail.SubtypeId > 0)
       );
     });
-
-    // Sprawdzenie unikalności dokumentów
     const documentKeys = addInvoiceData.details.map(
       (detail) =>
         `${detail.DocumentId}-${detail.MainTypeId ?? "null"}-${
@@ -92,18 +86,22 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         }-${detail.SubtypeId ?? "null"}`
     );
     const uniqueDocuments = new Set(documentKeys).size === documentKeys.length;
-
     return (
       isInvoiceNameValid &&
       isReceiptDateValid &&
       areDetailsValid &&
       uniqueDocuments
     );
-  };
-  // Aktualizacja stanu przycisku Zapisz
+  }, [inputInvoiceName, dateTimePickerReceiptDate, addInvoiceData.details]);
+
   useEffect(() => {
     setIsSaveButtonEnabled(validateForm());
-  }, [inputInvoiceName, dateTimePickerReceiptDate, addInvoiceData.details]);
+  }, [
+    inputInvoiceName,
+    dateTimePickerReceiptDate,
+    addInvoiceData.details,
+    validateForm,
+  ]);
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -119,7 +117,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         invoice: { ...prev.invoice, InvoiceName: currentValue },
       }));
       if (!currentValue) {
-        errorTextInput = "Musisz wypełnić te pole";
+        errorTextInput = "Musisz wypełnić to pole";
       }
       setInputInvoiceNameError(errorTextInput);
     }
@@ -243,13 +241,10 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           <h3 className={scss["form-add-invoice-title"]}>
             Dodaj nową fakturę:
           </h3>
-          <div
-            className={scss["container-icon"]}
-            data-tooltip-id="tooltip-formAddInvoice"
-            data-tooltip-html={tooltipInfoFormAddInvoice()}
-          >
-            <FaInfoCircle className={scss["icon"]} />
-          </div>
+          <IconInfo
+            tooltipId="tooltip-formAddInvoice"
+            tooltipInfoTextHtml={tooltipInfoFormAddInvoice()}
+          />
         </div>
         <div className={scss["form-invoice-data"]}>
           <div className={scss[""]}>
@@ -287,7 +282,13 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
-        <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
+        <div className={scss["form-add-invoice-title-container"]}>
+          <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
+          <IconInfo
+            tooltipId="tooltip-formAddDocument"
+            tooltipInfoTextHtml={tooltipInfoFormAddDocument()}
+          />
+        </div>
         {documentComponents.map((id, index) => (
           <FormAddInvoiceDocuments
             key={id}
@@ -313,7 +314,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           />
         </div>
       </div>
-      <Tooltip id="tooltip-formAddInvoice" className={scss["tooltip"]} />
     </form>
   );
 };
@@ -322,11 +322,18 @@ function tooltipInfoFormAddInvoice() {
   const text = `Formularz dodania nowej faktury.
   Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
   Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
-  Pole "Termin płatności" (Opcjonalne) umożliwia wybranie końcowej daty płatności za fakturę
-   i "Data płatności" umożliwiają wybór daty.
-  Wybór daty odbywa się poprzez kliknięcie w pole, co otworzy kalendarz.
-  Wybór daty można również wykonać ręcznie, wpisując datę w formacie YYYY-MM-DD.
-  Uwaga! Data początkowa nie może być późniejsza niż data końcowa.
-  Przycisk "Dodaj fakturę" służy do otwarcia okna, w którym można dodać fakturę.`;
+  Pole "Termin płatności" (opcjonalne) umożliwia wybranie daty terminu płatności za fakturę
+  Pole "Data płatności" (opcjonalne) umożliwiają wybór daty płatności za fakturę.
+  Wybór daty odbywa się poprzez kliknięcie w pole, co otworzy kalendarz.`;
+  return text.replace(/\n/g, "<br/>");
+}
+
+function tooltipInfoFormAddDocument() {
+  const text = `Formularz dodania nowej faktury.
+  Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
+  Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
+  Pole "Termin płatności" (opcjonalne) umożliwia wybranie daty terminu płatności za fakturę
+  Pole "Data płatności" (opcjonalne) umożliwiają wybór daty płatności za fakturę.
+  Wybór daty odbywa się poprzez kliknięcie w pole, co otworzy kalendarz.`;
   return text.replace(/\n/g, "<br/>");
 }

@@ -7,6 +7,7 @@ import { useMainDataContext } from "../Context/useOptionsImage";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { Tooltip } from "react-tooltip";
+import { IconInfo } from "../IconInfo/IconInfo";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
@@ -118,15 +119,11 @@ export const FormHomeDate: React.FC = () => {
             </button>
           </div>
         </div>
-        <div
-          className={scss["container-icon"]}
-          data-tooltip-id="tooltip-formHomeDate"
-          data-tooltip-html={tooltipInfoFormHomeDateTekst()}
-        >
-          <FaInfoCircle className={scss["icon"]} />
-        </div>
+        <IconInfo
+          tooltipId="tooltip-formHomeDate"
+          tooltipInfoTextHtml={tooltipInfoFormHomeDateTekst()}
+        />
       </form>
-      <Tooltip id="tooltip-formHomeDate" className={scss["tooltip"]} />
       <Tooltip
         id="tooltip-error-date"
         className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
