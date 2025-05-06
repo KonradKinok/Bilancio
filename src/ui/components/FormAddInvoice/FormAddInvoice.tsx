@@ -7,6 +7,7 @@ import scss from "./FormAddInvoice.module.scss";
 import { Tooltip } from "react-tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
+import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
@@ -30,6 +31,15 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   ]);
   const [isSaveButtonEnabled, setIsSaveButtonEnabled] =
     useState<boolean>(false);
+
+  // Przygotowanie tablic quantities i prices dla calculateTotalAmount
+  const quantities = addInvoiceData.details.map((detail) =>
+    detail.Quantity.toString()
+  );
+  const prices = addInvoiceData.details.map((detail) =>
+    detail.Price.toString()
+  );
+  const totalAmount = calculateTotalAmount(quantities, prices);
 
   // Formatowanie daty do YYYY-MM-DD
   const formatDate = (date: Date | null): string | null => {
@@ -277,23 +287,24 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
+        <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
+        {documentComponents.map((id, index) => (
+          <FormAddInvoiceDocuments
+            key={id}
+            addInvoiceData={addInvoiceData}
+            setAddInvoiceData={setAddInvoiceData}
+            onAddDocument={handleAddDocument}
+            onRemoveDocument={() => handleRemoveDocument(id)}
+            isLast={index === documentComponents.length - 1}
+            isOnly={documentComponents.length === 1}
+            index={index}
+          />
+        ))}
+
         <div>
-          <h3 className={scss["form-add-invoice-title"]}>Dodaj dokumenty:</h3>
-          {documentComponents.map((id, index) => (
-            <FormAddInvoiceDocuments
-              key={id}
-              addInvoiceData={addInvoiceData}
-              setAddInvoiceData={setAddInvoiceData}
-              onAddDocument={handleAddDocument}
-              onRemoveDocument={() => handleRemoveDocument(id)}
-              isLast={index === documentComponents.length - 1}
-              isOnly={documentComponents.length === 1}
-              index={index}
-            />
-          ))}
-        </div>
-        <div>
-          <p>Faktura: 1234,00 zł</p>
+          <p>
+            Faktura {inputInvoiceName}: {totalAmount}
+          </p>
           <ButtonCancel
             buttonName="saveInvoice"
             buttonText="Zapisz fakturę"
@@ -309,8 +320,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 
 function tooltipInfoFormAddInvoice() {
   const text = `Formularz dodania nowej faktury.
-  Umożliwia wybór początkowej i końcowej daty wpływu faktury oraz opcjonalne wyświetlenie usuniętych elementów.
-  Wybierz daty, kliknij przycisk "Pokaż", aby zastosować zmiany.
+  Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
+  Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
+  Pole "Termin płatności" (Opcjonalne) umożliwia wybranie końcowej daty płatności za fakturę
+   i "Data płatności" umożliwiają wybór daty.
+  Wybór daty odbywa się poprzez kliknięcie w pole, co otworzy kalendarz.
+  Wybór daty można również wykonać ręcznie, wpisując datę w formacie YYYY-MM-DD.
   Uwaga! Data początkowa nie może być późniejsza niż data końcowa.
   Przycisk "Dodaj fakturę" służy do otwarcia okna, w którym można dodać fakturę.`;
   return text.replace(/\n/g, "<br/>");

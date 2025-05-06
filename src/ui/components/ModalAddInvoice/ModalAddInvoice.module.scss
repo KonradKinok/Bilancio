@@ -28,8 +28,10 @@
 
     .add-invoice-main-container {
         max-width: 90vw;
+        width: 1100px;
+        min-width: 505px;
         max-height: 90vh;
-        overflow-y: auto;
+        overflow: auto;
 
     }
 
