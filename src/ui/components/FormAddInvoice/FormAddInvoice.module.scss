@@ -48,6 +48,17 @@
     align-items: center;
   }
 
+  .form-add-invoice-save-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .button-save-document {
+    --background-hover-color: rgb(170, 255, 0);
+
+  }
+
   .custom-input-container {
     --color-light: var(--background-color);
     --color-dark: var(--text-color);

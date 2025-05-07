@@ -6,6 +6,7 @@ import { TextInput } from "../TextInput/TextInput";
 import scss from "./FormAddInvoice.module.scss";
 import { Tooltip } from "react-tooltip";
 import { FaInfoCircle } from "react-icons/fa";
+import { RiSave3Fill } from "react-icons/ri";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -302,7 +303,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           />
         ))}
 
-        <div>
+        <div className={scss["form-add-invoice-save-container"]}>
           <p>
             Faktura {inputInvoiceName}: {totalAmount}
           </p>
@@ -311,6 +312,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             buttonText="Zapisz fakturę"
             buttonClick={handleSaveInvoice}
             buttonDisabled={!isSaveButtonEnabled}
+            buttonIcon={<RiSave3Fill />}
+            classNameButtonContainer={scss["button-save-document"]}
           />
         </div>
       </div>
@@ -329,11 +332,18 @@ function tooltipInfoFormAddInvoice() {
 }
 
 function tooltipInfoFormAddDocument() {
-  const text = `Formularz dodania nowej faktury.
-  Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
-  Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
-  Pole "Termin płatności" (opcjonalne) umożliwia wybranie daty terminu płatności za fakturę
-  Pole "Data płatności" (opcjonalne) umożliwiają wybór daty płatności za fakturę.
-  Wybór daty odbywa się poprzez kliknięcie w pole, co otworzy kalendarz.`;
+  const text = `Formularz dodania nowego dokumentu do faktury.
+  Pole wyboru dokumentu (wymagane) umożliwia wybranie dokumentu.
+  Jeżeli pojawia się kolejne pole wyboru, również należy je uzupełnić.
+  Po uzupełnieniu wymaganych pól dokumentu, kwota jednostkowa pojawia się automatycznie.
+  Kwotę jednostkową można zmienić w polu "Kwota jednostkowa".
+  Pole "Liczba sztuk" (wymagane) umożliwia wpisanie liczby sztuk dokumentu.
+  Po prawidłowym uzupełnieniu pól dokumentu pojawia się przycisk "Dodaj dokument".
+  Aby dodać kolejny dokument należy kliknąć przycisk "Dodaj dokument".
+  Przycisk "Usuń dokument" umożliwia usunięcie dokumentu z formularza.
+  Jeżeli jest to jedyny dokument, nie można go usunąć.
+  Uwaga! Zduplikowanie rodzajów dokumentów uniemożłiwa zapisanie faktury.
+  Przycisk "Zapisz fakturę" staje się aktywny po prawidłowym uzupełnieniu pól formularza.
+  Po kliknięciu przycisku "Zapisz fakturę" faktura zostaje zapisana w bazie danych.`;
   return text.replace(/\n/g, "<br/>");
 }
