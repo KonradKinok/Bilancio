@@ -1,5 +1,6 @@
 import { use, useEffect, useState } from "react";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
+import toast from "react-hot-toast";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 // import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import scss from "./MainTable.module.scss";
@@ -64,6 +65,9 @@ export const MainTable: React.FC = () => {
 
     fetchData();
   }, []);
+  const toastClick = () => {
+    toast.success("Successfully created!");
+  };
   return (
     <div className={scss[""]}>
       <table>
@@ -132,6 +136,7 @@ export const MainTable: React.FC = () => {
       </table>
 
       <div>
+        <button onClick={toastClick}>Refetch</button>
         <h2>Dokumenty</h2>
         {dataAllDocumentsName &&
           dataAllDocumentsName.length > 0 &&
@@ -163,7 +168,7 @@ export const MainTable: React.FC = () => {
       ) : (
         <h3>Błąd: {someTemp1?.komunikat}</h3>
       )}
-      <button onClick={refetch}>Refetch</button>
+
       <ul className={scss[""]}>
         {dataAllInvoices && dataAllInvoices.length > 0 ? (
           dataAllInvoices.map((invoice, index) => (
@@ -176,30 +181,3 @@ export const MainTable: React.FC = () => {
     </div>
   );
 };
-
-// function calculateTotalAmount(quantities: string[], prices: string[]): number {
-//   return quantities.reduce((acc, quantity, i) => {
-//     const price = prices[i];
-//     if (price) {
-//       return acc + parseFloat(quantity) * parseFloat(price);
-//     }
-//     return acc;
-//   }, 0);
-// }
-
-// function currencyFormater(value: string): string {
-//   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
-//     style: "currency",
-//     currency: "PLN",
-//   });
-//   // Sprawdzenie, czy value jest różne od null i undefined
-//   if (value == null) {
-//     return currencyFormatter.format(0); // Zwrócenie "0,00zł"
-//   }
-//   const num = parseFloat(value.replace(",", "."));
-//   // Sprawdzenie, czy num jest NaN
-//   if (isNaN(num)) {
-//     return currencyFormatter.format(0); // Zwrócenie "0,00zł"
-//   }
-//   return currencyFormatter.format(num);
-// }

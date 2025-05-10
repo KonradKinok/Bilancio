@@ -305,6 +305,9 @@ export const FormAddInvoiceDocuments: React.FC<
         SubtypeId: selectedSubtype?.value ?? null,
         Quantity: inputInvoiceQuantity ? parseInt(inputInvoiceQuantity) : 0,
         Price: inputInvoicePrice ? parseFloat(inputInvoicePrice) : 0,
+        isMainTypeRequired: isMainTypeExists, // Nowe pole
+        isTypeRequired: isTypeExists, // Nowe pole
+        isSubtypeRequired: isSubtypeExists, // Nowe pole
       };
       return { ...prev, details: newDetails };
     });

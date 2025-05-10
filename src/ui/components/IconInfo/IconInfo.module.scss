@@ -2,6 +2,7 @@
    --background-color: var(--icon-info-background);
    --color: var(--icon-info-color);
    --color-hover: var(--icon-info-hover-color);
+   --tooltip-fontsize: 0.9rem;
    display: flex;
    align-items: center;
    justify-content: center;
@@ -35,36 +36,5 @@
 
  .tooltip {
    z-index: 101;
+   font-size: var(--tooltip-fontsize) !important;
  }
-
- // .container-icon {
- //   --background-color: var(--icon-info-background, #f0f0f0);
- //   --color: var(--icon-info-color, #333);
- //   --color-hover: var(--icon-info-hover-color, #007bff);
- //   --background-hover: var(--icon-info-hover-background, #e0e0e0);
- //   display: flex;
- //   align-items: center;
- //   justify-content: center;
- //   background-color: var(--background-color);
- //   width: 1.5rem;
- //   height: 1.5rem;
- //   border-radius: 50%;
- //   transition: background-color 0.3s cubic-bezier(.4, 0, .2, 1);
- //   cursor: help;
- //   user-select: none;
- //   z-index: 100;
-
- //   &>svg {
- //     color: var(--color);
- //     transition: color 0.3s cubic-bezier(.4, 0, .2, 1);
- //     font-size: 1.5rem;
- //   }
-
- //   &:hover {
- //     background-color: var(--background-hover);
-
- //     >svg {
- //       color: var(--color-hover);
- //     }
- //   }
- // }

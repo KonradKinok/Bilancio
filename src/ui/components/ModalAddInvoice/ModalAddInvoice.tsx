@@ -67,6 +67,7 @@ export function ModalAddInvoice({
           <FormAddInvoice
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
+            closeModalAddInvoice={closeModalAddInvoice}
           />
         </div>
       </div>

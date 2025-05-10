@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
+import toast from "react-hot-toast";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
 import { TextInput } from "../TextInput/TextInput";
@@ -10,15 +11,32 @@ import { RiSave3Fill } from "react-icons/ri";
 import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
+import { useToggle } from "../../hooks/useToggle";
+import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
+import { useMainDataContext } from "../Context/useOptionsImage";
+
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
+  closeModalAddInvoice: () => void;
 }
 
 export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   addInvoiceData,
   setAddInvoiceData,
+  closeModalAddInvoice,
 }) => {
+  const {
+    isOpenModal: isOpenModalConfirmationSave,
+    openModal: openModalConfirmationSave,
+    closeModal: closeModalConfirmationSave,
+  } = useToggle();
+  const { allDocumentsData } = useMainDataContext();
+  const {
+    data: dataAllDocumentsName,
+    loading: loadingAllDocumentsName,
+    error: errorAllDocumentsName,
+  } = allDocumentsData;
   const [inputInvoiceName, setInputInvoiceName] = useState<string>("");
   const [inputInvoiceNameError, setInputInvoiceNameError] =
     useState<string>("");
@@ -43,12 +61,46 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   );
   const totalAmount = calculateTotalAmount(quantities, prices);
 
-  // Formatowanie daty do YYYY-MM-DD
   const formatDate = (date: Date | null): string | null => {
     if (!date) return null;
-    return date.toISOString().split("T")[0]; // YYYY-MM-DD
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`; // YYYY-MM-DD
   };
+  // Funkcja do formatowania szczegółów dokumentu
+  const formatDocumentDetails = (detail: InvoiceDetailsTable) => {
+    const document = dataAllDocumentsName?.find(
+      (doc) => doc.DocumentId === detail.DocumentId
+    );
+    const mainType = detail.MainTypeId
+      ? dataAllDocumentsName?.find(
+          (doc) => doc.MainTypeId === detail.MainTypeId
+        )
+      : null;
+    const type = detail.TypeId
+      ? dataAllDocumentsName?.find((doc) => doc.TypeId === detail.TypeId)
+      : null;
+    const subtype = detail.SubtypeId
+      ? dataAllDocumentsName?.find((doc) => doc.SubtypeId === detail.SubtypeId)
+      : null;
 
+    return {
+      documentName:
+        document?.DocumentName || `Dokument ID: ${detail.DocumentId}`,
+      mainTypeName:
+        mainType?.MainTypeName ||
+        (detail.MainTypeId ? `Typ główny ID: ${detail.MainTypeId}` : ""),
+      typeName:
+        type?.TypeName || (detail.TypeId ? `Typ ID: ${detail.TypeId}` : ""),
+      subtypeName:
+        subtype?.SubtypeName ||
+        (detail.SubtypeId ? `Podtyp ID: ${detail.SubtypeId}` : ""),
+      quantity: detail.Quantity,
+      price: detail.Price.toFixed(2),
+      total: (detail.Quantity * detail.Price).toFixed(2),
+    };
+  };
   // Aktualizacja dat w addInvoiceData
   useEffect(() => {
     setAddInvoiceData((prev) => ({
@@ -66,18 +118,25 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     dateTimePickerPaymentDate,
     setAddInvoiceData,
   ]);
-  // Walidacja pól i unikalności dokumentów
+
   const validateForm = useCallback((): boolean => {
     const isInvoiceNameValid = inputInvoiceName.trim() !== "";
     const isReceiptDateValid = !!dateTimePickerReceiptDate;
     const areDetailsValid = addInvoiceData.details.every((detail) => {
+      const isMainTypeValid =
+        !detail.isMainTypeRequired ||
+        (detail.MainTypeId && detail.MainTypeId > 0);
+      const isTypeValid =
+        !detail.isTypeRequired || (detail.TypeId && detail.TypeId > 0);
+      const isSubtypeValid =
+        !detail.isSubtypeRequired || (detail.SubtypeId && detail.SubtypeId > 0);
       return (
         detail.DocumentId !== 0 &&
         detail.Quantity > 0 &&
         detail.Price >= 0 &&
-        (!detail.MainTypeId || detail.MainTypeId > 0) &&
-        (!detail.TypeId || detail.TypeId > 0) &&
-        (!detail.SubtypeId || detail.SubtypeId > 0)
+        isMainTypeValid &&
+        isTypeValid &&
+        isSubtypeValid
       );
     });
     const documentKeys = addInvoiceData.details.map(
@@ -143,6 +202,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       ],
     }));
   };
+
   const handleRemoveDocument = (id: string) => {
     if (documentComponents.length <= 1) {
       return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
@@ -157,21 +217,42 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       details: prev.details.filter((_, i) => i !== indexToRemove),
     }));
   };
-  // const handleRemoveDocument = (id: string) => {
-  //   if (documentComponents.length <= 1) {
-  //     return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
-  //   }
-  //   setDocumentComponents((prev) =>
-  //     prev.filter((componentId) => componentId !== id)
-  //   );
-  //   setAddInvoiceData((prev) => ({
-  //     ...prev,
-  //     details: prev.details.filter((_, i) => documentComponents[i] !== id),
-  //   }));
-  // };
-  const handleSaveInvoice = async () => {
-    if (!isSaveButtonEnabled) return;
 
+  const resetForm = () => {
+    setInputInvoiceName("");
+    setDateTimePickerReceiptDate(null);
+    setDateTimePickerDeadlineDate(null);
+    setDateTimePickerPaymentDate(null);
+    setDocumentComponents([nanoid()]);
+    setAddInvoiceData({
+      invoice: {
+        InvoiceId: undefined,
+        InvoiceName: "",
+        ReceiptDate: "",
+        DeadlineDate: null,
+        PaymentDate: null,
+        IsDeleted: 0,
+      },
+      details: [
+        {
+          InvoiceId: undefined,
+          DocumentId: 0,
+          MainTypeId: null,
+          TypeId: null,
+          SubtypeId: null,
+          Quantity: 0,
+          Price: 0,
+          isMainTypeRequired: false,
+          isTypeRequired: false,
+          isSubtypeRequired: false,
+        },
+      ],
+    });
+  };
+
+  const handleConfirmSave = async () => {
+    const toastErrorMessage = `Nie udało się dodać faktury. Sprawdź dane i spróbuj ponownie.`;
+    const toastSuccessMessage = `Faktura została pomyślnie dodana!`;
     try {
       const invoice: InvoiceTable = {
         InvoiceName: addInvoiceData.invoice.InvoiceName,
@@ -189,6 +270,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           SubtypeId: detail.SubtypeId,
           Quantity: detail.Quantity,
           Price: detail.Price,
+          isMainTypeRequired: detail.isMainTypeRequired,
+          isTypeRequired: detail.isTypeRequired,
+          isSubtypeRequired: detail.isSubtypeRequired,
         })
       );
 
@@ -197,42 +281,19 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         invoiceDetails
       );
       if (result.changes && result.lastID) {
-        alert(`Faktura zapisana pomyślnie! ID: ${result.lastID}`);
-        // Reset formularza po zapisie
-        setInputInvoiceName("");
-        setDateTimePickerReceiptDate(null);
-        setDateTimePickerDeadlineDate(null);
-        setDateTimePickerPaymentDate(null);
-        setDocumentComponents([nanoid()]);
-        setAddInvoiceData({
-          invoice: {
-            InvoiceId: undefined,
-            InvoiceName: "",
-            ReceiptDate: "",
-            DeadlineDate: null,
-            PaymentDate: null,
-            IsDeleted: 0,
-          },
-          details: [
-            {
-              InvoiceId: undefined,
-              DocumentId: 0,
-              MainTypeId: null,
-              TypeId: null,
-              SubtypeId: null,
-              Quantity: 0,
-              Price: 0,
-            },
-          ],
-        });
+        // alert(`Faktura zapisana pomyślnie! ID: ${result.lastID}`);
+        resetForm();
+        closeModalConfirmationSave();
+        closeModalAddInvoice();
+        toast.success(toastSuccessMessage);
       } else {
+        toast.error(toastErrorMessage);
         throw new Error("Nie udało się dodać faktury.");
       }
     } catch (error) {
       console.error("Błąd podczas zapisywania faktury:", error);
-      alert(
-        `Wystąpił błąd podczas zapisywania faktury: ${(error as Error).message}`
-      );
+      toast.error(toastErrorMessage);
+      closeModalConfirmationSave();
     }
   };
   return (
@@ -305,18 +366,29 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 
         <div className={scss["form-add-invoice-save-container"]}>
           <p>
-            Faktura {inputInvoiceName}: {totalAmount}
+            <strong>Całkowita kwota:</strong> {totalAmount}
           </p>
           <ButtonCancel
             buttonName="saveInvoice"
             buttonText="Zapisz fakturę"
-            buttonClick={handleSaveInvoice}
+            buttonClick={openModalConfirmationSave}
             buttonDisabled={!isSaveButtonEnabled}
             buttonIcon={<RiSave3Fill />}
             classNameButtonContainer={scss["button-save-document"]}
           />
         </div>
       </div>
+      {isOpenModalConfirmationSave && (
+        <ModalConfirmationSave
+          addInvoiceData={addInvoiceData}
+          totalAmount={totalAmount}
+          formatDocumentDetails={formatDocumentDetails}
+          onConfirm={handleConfirmSave}
+          onCancel={closeModalConfirmationSave}
+          loadingDocuments={loadingAllDocumentsName}
+          errorDocuments={errorAllDocumentsName}
+        />
+      )}
     </form>
   );
 };
@@ -342,7 +414,7 @@ function tooltipInfoFormAddDocument() {
   Aby dodać kolejny dokument należy kliknąć przycisk "Dodaj dokument".
   Przycisk "Usuń dokument" umożliwia usunięcie dokumentu z formularza.
   Jeżeli jest to jedyny dokument, nie można go usunąć.
-  Uwaga! Zduplikowanie rodzajów dokumentów uniemożłiwa zapisanie faktury.
+  Uwaga! Zduplikowanie rodzajów dokumentów uniemożliwa zapisanie faktury.
   Przycisk "Zapisz fakturę" staje się aktywny po prawidłowym uzupełnieniu pól formularza.
   Po kliknięciu przycisku "Zapisz fakturę" faktura zostaje zapisana w bazie danych.`;
   return text.replace(/\n/g, "<br/>");

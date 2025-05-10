@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
 import { Navigation } from "../../components/Navigation/Navigation";
 import scss from "./LayoutPage.module.scss";
+import { Toaster } from "react-hot-toast";
 
 export const LayoutPage: React.FC = () => {
   return (
@@ -15,7 +16,15 @@ export const LayoutPage: React.FC = () => {
         </Suspense>
       </main>
 
-      {/* <Toaster position="top-right" reverseOrder={false} /> */}
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          success: { duration: 4000 },
+          error: { duration: 6000 },
+          loading: { duration: Infinity }, // Nie znika, dopóki nie zakończy się ładowanie
+        }}
+      />
     </div>
   );
 };

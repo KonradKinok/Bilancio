@@ -25,8 +25,8 @@ export const IconInfo: React.FC<IconInfoProps> = ({
         data-tooltip-html={tooltipInfoTextHtml}
       >
         {icon}
+        <Tooltip id={tooltipId} className={scss["tooltip"]} />
       </div>
-      <Tooltip id={tooltipId} className={scss["tooltip"]} />
     </>
   );
 };

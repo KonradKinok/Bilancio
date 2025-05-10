@@ -62,6 +62,9 @@ declare global {
     SubtypeId: number | null;
     Quantity: number;
     Price: number;
+    isMainTypeRequired?: boolean; // Nowe pole
+  isTypeRequired?: boolean; // Nowe pole
+  isSubtypeRequired?: boolean; // Nowe pole
   }
   type InvoiceSave = {
     invoice: InvoiceTable;
