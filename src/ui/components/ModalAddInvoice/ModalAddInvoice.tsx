@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
 import scss from "./ModalAddInvoice.module.scss";
 
@@ -32,6 +32,9 @@ export function ModalAddInvoice({
       },
     ],
   });
+
+  const modalContentRef = useRef<HTMLDivElement>(null);
+
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -63,11 +66,15 @@ export function ModalAddInvoice({
       onClick={handleClickOutside}
     >
       <div className={scss["add-invoice-modal"]}>
-        <div className={scss["add-invoice-main-container"]}>
+        <div
+          className={scss["add-invoice-main-container"]}
+          ref={modalContentRef}
+        >
           <FormAddInvoice
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
             closeModalAddInvoice={closeModalAddInvoice}
+            modalContentRef={modalContentRef}
           />
         </div>
       </div>

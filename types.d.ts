@@ -181,8 +181,8 @@ declare global {
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
     // addInvoice: unknown;
-    addInvoice: ReturnInvoiceSave;
-    addInvoiceDetails: ReturnInvoiceSave;
+    addInvoice: DataBaseResponse<ReturnInvoiceSave>;
+    addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -201,8 +201,8 @@ declare global {
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
       getAllInvoices: (payload) => Promise<AllInvoices[]>;
-      addInvoice: (payload) => Promise<ReturnInvoiceSave>;
-      addInvoiceDetails: (invoice, invoiceDetails) => Promise<ReturnInvoiceSave>;
+      addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
+      addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { RiSave3Fill } from "react-icons/ri";
 import { GiConfirmed } from "react-icons/gi";
 import { GiCancel } from "react-icons/gi";
-import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import scss from "./ModalConfirmationSave.module.scss";
 import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -139,14 +139,14 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
           </p>
         </div>
         <div className={scss["modal-buttons"]}>
-          <ButtonCancel
+          <ButtonUniversal
             buttonName="confirmSave"
             buttonText="Tak"
             buttonClick={handleConfirm}
             buttonIcon={<GiConfirmed />}
             classNameButtonContainer={scss["modal-button-confirm"]}
           />
-          <ButtonCancel
+          <ButtonUniversal
             buttonName="cancelSave"
             buttonText="Nie"
             buttonClick={handleClose}

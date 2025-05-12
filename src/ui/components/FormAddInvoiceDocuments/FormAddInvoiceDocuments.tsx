@@ -1,4 +1,4 @@
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTableDictionaryDocuments } from "../../hooks/useTableDictionaryDocuments";
 import { useConnectedTableDictionary } from "../../hooks/useConnectedTableDictionary";
 import { MdOutlinePostAdd } from "react-icons/md";
@@ -8,7 +8,7 @@ import { DbTables } from "../../../electron/dataBase/enum";
 import { TextInput } from "../TextInput/TextInput";
 import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
 import { SingleInput } from "../SingleInput/SingleInput";
-import { ButtonCancel } from "../ButtonCancel/ButtonCancel";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -21,6 +21,7 @@ interface FormAddInvoiceDocumentsProps {
   isLast: boolean;
   isOnly: boolean;
   index: number;
+  modalContentRef?: React.RefObject<HTMLDivElement | null>;
 }
 export const FormAddInvoiceDocuments: React.FC<
   FormAddInvoiceDocumentsProps
@@ -32,6 +33,7 @@ export const FormAddInvoiceDocuments: React.FC<
   isLast,
   isOnly,
   index,
+  modalContentRef,
 }) => {
   //useState combobox
   const [selectedDocument, setSelectedDocument] =
@@ -348,6 +350,18 @@ export const FormAddInvoiceDocuments: React.FC<
       isSubtypeFilled
     );
   };
+
+  const handleAddButtonClick = () => {
+    onAddDocument();
+    setTimeout(() => {
+      if (modalContentRef?.current) {
+        modalContentRef.current.scrollTo({
+          top: modalContentRef.current.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
+  };
   return (
     <div className={scss["formAddInvoiceDocuments-main-container"]}>
       <div className={scss["document-container"]}>
@@ -453,7 +467,7 @@ export const FormAddInvoiceDocuments: React.FC<
         </div>
       </div>
       <div className={scss["button-container"]}>
-        <ButtonCancel
+        <ButtonUniversal
           buttonName={"deleteDocument"}
           buttonText={"Usuń dokument"}
           buttonClick={onRemoveDocument}
@@ -462,10 +476,10 @@ export const FormAddInvoiceDocuments: React.FC<
       </div>
       <div className={scss["button-container"]}>
         {isLast && areFieldsFilled() && (
-          <ButtonCancel
+          <ButtonUniversal
             buttonName={"addDocument"}
             buttonText={"Dodaj dokument"}
-            buttonClick={onAddDocument}
+            buttonClick={handleAddButtonClick}
             buttonIcon={<MdOutlinePostAdd />}
             classNameButtonContainer={scss["button-add-document"]}
           />

@@ -16,7 +16,7 @@
    transition: color 3.75s cubic-bezier(.4, 0, .2, 1);
    cursor: help;
    user-select: none;
-   z-index: 100;
+
 
    &>svg {
      color: var(--color);

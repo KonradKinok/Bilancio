@@ -1,9 +1,9 @@
-import scss from "./ButtonCancel.module.scss";
+import scss from "./ButtonUniversal.module.scss";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
 type ButtonType = "button" | "submit" | "reset" | undefined;
 
-interface ButtonCancelProps {
+interface ButtonUniversalProps {
   buttonType?: ButtonType;
   buttonName: string;
   buttonText: string;
@@ -13,7 +13,7 @@ interface ButtonCancelProps {
   classNameButtonContainer?: string;
 }
 
-export const ButtonCancel: React.FC<ButtonCancelProps> = ({
+export const ButtonUniversal: React.FC<ButtonUniversalProps> = ({
   buttonType = "button",
   buttonName,
   buttonText,
