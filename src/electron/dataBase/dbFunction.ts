@@ -189,7 +189,6 @@ export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseRespons
     };
   }
 }
-
 export async function addInvoiceDetails(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
@@ -200,10 +199,18 @@ export async function addInvoiceDetails(
   `;
 
   try {
+    await db.beginTransaction();
     const resultAddInvoice = await addInvoice(invoice);
     if (resultAddInvoice.status === STATUS.Success && resultAddInvoice.data) {
       console.log(`Dodano nową fakturę z ID: ${resultAddInvoice.data.lastID}`);
       for (const detail of invoiceDetails) {
+        if (!detail.DocumentId || detail.Quantity <= 0) {
+          await db.rollback();
+          return {
+            status: STATUS.Error,
+            message: "Nieprawidłowe dane szczegółów faktury (DocumentId lub Quantity).",
+          };
+        }
         const params = [
           resultAddInvoice.data.lastID,
           detail.DocumentId,
@@ -215,16 +222,20 @@ export async function addInvoiceDetails(
         ];
         const resultDetail = await db.run(sql, params);
         if (!resultDetail.changes) {
+          await db.rollback();
           return {
             status: STATUS.Error,
-            message: "Nie udało się dodać szczegółów faktury.",
+            message: `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId}.`,
           };
         }
       }
-      return resultAddInvoice; // Zwracamy wynik z addInvoice, który jest już w formacie DataBaseResponse
+      await db.commit();
+      return resultAddInvoice;
     }
-    return resultAddInvoice; // Zwracamy błąd z addInvoice
+    await db.rollback();
+    return resultAddInvoice;
   } catch (err) {
+    await db.rollback();
     console.error("Błąd podczas dodawania szczegółów faktury:", err);
     return {
       status: STATUS.Error,
@@ -232,6 +243,48 @@ export async function addInvoiceDetails(
     };
   }
 }
+// export async function addInvoiceDetails(
+//   invoice: InvoiceTable,
+//   invoiceDetails: InvoiceDetailsTable[]
+// ): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+//   const sql = `
+//     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
+//     VALUES (?, ?, ?, ?, ?, ?, ?)
+//   `;
+
+//   try {
+//     const resultAddInvoice = await addInvoice(invoice);
+//     if (resultAddInvoice.status === STATUS.Success && resultAddInvoice.data) {
+//       console.log(`Dodano nową fakturę z ID: ${resultAddInvoice.data.lastID}`);
+//       for (const detail of invoiceDetails) {
+//         const params = [
+//           resultAddInvoice.data.lastID,
+//           detail.DocumentId,
+//           detail.MainTypeId || null,
+//           detail.TypeId || null,
+//           detail.SubtypeId || null,
+//           detail.Quantity,
+//           detail.Price,
+//         ];
+//         const resultDetail = await db.run(sql, params);
+//         if (!resultDetail.changes) {
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać szczegółów faktury.",
+//           };
+//         }
+//       }
+//       return resultAddInvoice; // Zwracamy wynik z addInvoice, który jest już w formacie DataBaseResponse
+//     }
+//     return resultAddInvoice; // Zwracamy błąd z addInvoice
+//   } catch (err) {
+//     console.error("Błąd podczas dodawania szczegółów faktury:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: err instanceof Error ? err.message : "Nieznany błąd podczas dodawania szczegółów faktury.",
+//     };
+//   }
+// }
 // export async function addInvoice(invoice: InvoiceTable): Promise<ReturnInvoiceSave> {
 //   const sql = `
 //     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)

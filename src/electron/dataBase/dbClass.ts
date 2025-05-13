@@ -22,6 +22,45 @@ class Database {
       }
     });
   }
+
+  // Metoda do rozpoczynania transakcji
+  public async beginTransaction(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run('BEGIN TRANSACTION', (err: Error | null) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  // Metoda do zatwierdzania transakcji
+  public async commit(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run('COMMIT', (err: Error | null) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  // Metoda do cofania transakcji
+  public async rollback(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.run('ROLLBACK', (err: Error | null) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
   // Metoda do wykonywania zapytań SELECT
   public all<T>(sql: string, params: QueryParams = []): Promise<T[]> {
     return new Promise((resolve, reject) => {

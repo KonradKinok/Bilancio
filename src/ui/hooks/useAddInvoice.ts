@@ -11,7 +11,7 @@ export function useAddInvoice() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addInvoice = async (invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]) => {
+  const addInvoice = async (invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]): Promise<DataBaseResponse<ReturnInvoiceSave>> => {
     setLoading(true);
     setError(null);
     setData(null);
@@ -25,12 +25,20 @@ export function useAddInvoice() {
 
       if (result.status === STATUS.Success ) {
         setData(result.data);
+        console.log("useAddInvoice result.data", result.data);
         setError(null);
       } else {
         setError(result.message || "Błąd podczas zapisywania faktury");
       }
+      return result;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Nieznany błąd");
+      const errorMessage = err instanceof Error ? err.message : "Nieznany błąd";
+      setError(errorMessage);
+      return {
+        status: STATUS.Error,
+        message: errorMessage,
+      };
     } finally {
       setLoading(false);
     }

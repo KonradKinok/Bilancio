@@ -1,0 +1,54 @@
+.add-invoice-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--modal-libraries-background);
+    z-index: 1200;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0s 0.5s;
+
+    &.is-open {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity 0.5s ease-in-out, visibility 0s;
+        // cursor: url('../../images/videoModal/exit-sign-svgrepo-com.svg'), auto;
+    }
+
+    .add-invoice-modal {
+        max-width: calc(100vw - 48px);
+        max-height: calc(100vh - 24px);
+
+    }
+
+    .add-invoice-main-container {
+        max-width: 90vw;
+        width: 1120px;
+        min-width: 505px;
+        max-height: 90vh;
+        overflow: auto;
+
+    }
+
+    // .add-invoice-modal {
+    //     max-width: calc(100vw - 48px);
+    //     max-height: calc(100vh - 24px);
+    //     background-color: white;
+    //     border-radius: 8px;
+
+
+    // }
+
+    // .add-invoice-main-container {
+    //     min-width: 1250px;
+    //     max-height: 90vh;
+    //     overflow-y: auto;
+    //     border-radius: 18px;
+
+    // }
+}

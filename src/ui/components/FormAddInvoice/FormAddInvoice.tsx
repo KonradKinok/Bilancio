@@ -8,6 +8,7 @@ import scss from "./FormAddInvoice.module.scss";
 import { Tooltip } from "react-tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 import { RiSave3Fill } from "react-icons/ri";
+import { ImExit } from "react-icons/im";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -15,6 +16,7 @@ import { useToggle } from "../../hooks/useToggle";
 import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { useAddInvoice } from "../../hooks/useAddInvoice";
+import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -33,6 +35,11 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     isOpenModal: isOpenModalConfirmationSave,
     openModal: openModalConfirmationSave,
     closeModal: closeModalConfirmationSave,
+  } = useToggle();
+  const {
+    isOpenModal: isOpenModalConfirmationClose,
+    openModal: openModalConfirmationClose,
+    closeModal: closeModalConfirmationClose,
   } = useToggle();
   const { allDocumentsData } = useMainDataContext();
   const {
@@ -57,8 +64,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   const {
     addInvoice,
     data: saveInvoiceData,
-    loading: addInvoiceLoading,
-    error: addInvoiceError,
+    loading: saveInvoiceLoading,
+    error: saveInvoiceError,
   } = useAddInvoice();
   // Przygotowanie tablic quantities i prices dla calculateTotalAmount
   const quantities = addInvoiceData.details.map((detail) =>
@@ -252,11 +259,18 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       ],
     });
   };
-
   const handleConfirmSave = async () => {
     const toastErrorMessage = `Nie udało się dodać faktury. Sprawdź dane i spróbuj ponownie.`;
     const toastSuccessMessage = `Faktura została pomyślnie dodana!`;
     try {
+      // Walidacja formularza
+      if (!validateForm()) {
+        console.log("handleConfirmSave: Walidacja formularza nieudana.");
+        toast.error("Formularz zawiera błędy. Sprawdź dane.");
+        closeModalConfirmationSave();
+        return;
+      }
+
       const invoice: InvoiceTable = {
         InvoiceName: addInvoiceData.invoice.InvoiceName,
         ReceiptDate: addInvoiceData.invoice.ReceiptDate,
@@ -279,30 +293,111 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         })
       );
 
-      await toast.promise(addInvoice(invoice, invoiceDetails), {
+      console.log("handleConfirmSave: Rozpoczynanie zapisu faktury...");
+      const result = await toast.promise(addInvoice(invoice, invoiceDetails), {
         loading: "Zapisywanie faktury...",
-        success: toastSuccessMessage,
-        error: addInvoiceError || toastErrorMessage,
+        success: (res: DataBaseResponse<ReturnInvoiceSave>) => {
+          console.log("toast.promise sukces:", res);
+          if (res.status === STATUS.Success && res.data?.lastID) {
+            return toastSuccessMessage;
+          }
+          throw new Error(toastErrorMessage);
+        },
+        error: (err: Error) => {
+          console.log("toast.promise błąd:", err);
+          return err.message || toastErrorMessage;
+        },
       });
-      if (
-        saveInvoiceData &&
-        saveInvoiceData.changes &&
-        saveInvoiceData.lastID
-      ) {
+
+      console.log("handleConfirmSave: Wynik addInvoice:", result);
+      if (result.status === STATUS.Success && result.data?.lastID) {
+        console.log("handleConfirmSave: Zapis udany, zamykanie modali.");
         resetForm();
         closeModalConfirmationSave();
         closeModalAddInvoice();
-        // toast.success(toastSuccessMessage);
       } else {
-        // toast.error(toastErrorMessage);
+        console.log("handleConfirmSave: Zapis nieudany, wynik:", result);
         throw new Error("Nie udało się dodać faktury.");
       }
     } catch (error) {
-      console.error("Błąd podczas zapisywania faktury:", error);
-      // toast.error(toastErrorMessage);
+      console.error(
+        "handleConfirmSave: Błąd podczas zapisywania faktury:",
+        error
+      );
       closeModalConfirmationSave();
     }
   };
+
+  const handleCloseModal = () => {
+    if (isOpenModalConfirmationClose) {
+      closeModalConfirmationClose();
+    } else {
+      openModalConfirmationClose();
+    }
+  };
+  // const handleConfirmSave = async () => {
+  //   const toastErrorMessage = `Nie udało się dodać faktury. Sprawdź dane i spróbuj ponownie.`;
+  //   const toastSuccessMessage = `Faktura została pomyślnie dodana!`;
+  //   try {
+  //     const invoice: InvoiceTable = {
+  //       InvoiceName: addInvoiceData.invoice.InvoiceName,
+  //       ReceiptDate: addInvoiceData.invoice.ReceiptDate,
+  //       DeadlineDate: addInvoiceData.invoice.DeadlineDate,
+  //       PaymentDate: addInvoiceData.invoice.PaymentDate,
+  //       IsDeleted: 0,
+  //     };
+
+  //     const invoiceDetails: InvoiceDetailsTable[] = addInvoiceData.details.map(
+  //       (detail) => ({
+  //         DocumentId: detail.DocumentId,
+  //         MainTypeId: detail.MainTypeId,
+  //         TypeId: detail.TypeId,
+  //         SubtypeId: detail.SubtypeId,
+  //         Quantity: detail.Quantity,
+  //         Price: detail.Price,
+  //         isMainTypeRequired: detail.isMainTypeRequired,
+  //         isTypeRequired: detail.isTypeRequired,
+  //         isSubtypeRequired: detail.isSubtypeRequired,
+  //       })
+  //     );
+
+  //     await toast.promise(addInvoice(invoice, invoiceDetails), {
+  //       loading: "Zapisywanie faktury...",
+  //       success: toastSuccessMessage,
+  //       error: saveInvoiceError || toastErrorMessage,
+  //     });
+  //     console.log("FormAddInvoice: Faktura zapisana:", saveInvoiceData);
+  //     console.log(
+  //       "FormAddInvoice: saveInvoiceData?.changes:",
+  //       saveInvoiceData?.changes
+  //     );
+  //     console.log(
+  //       "FormAddInvoice: saveInvoiceData.lastID:",
+  //       saveInvoiceData?.lastID
+  //     );
+  //     console.log(
+  //       "FormAddInvoice: saveInvoiceLoading:",
+  //       saveInvoiceLoading.toString()
+  //     );
+  //     if (
+  //       saveInvoiceData &&
+  //       saveInvoiceData.changes &&
+  //       saveInvoiceData.lastID
+  //     ) {
+  //       resetForm();
+  //       closeModalConfirmationSave();
+  //       closeModalAddInvoice();
+  //       // toast.success(toastSuccessMessage);
+  //     } else {
+  //       // toast.error(toastErrorMessage);
+  //       throw new Error("Nie udało się dodać faktury.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Błąd podczas zapisywania faktury:", error);
+  //     // toast.error(toastErrorMessage);
+  //     closeModalConfirmationSave();
+  //   }
+  // };
   return (
     <form action="" className={scss["form-add-invoice"]}>
       <div className={scss["form-add-invoice-container"]}>
@@ -376,14 +471,23 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           <p>
             <strong>Całkowita kwota:</strong> {totalAmount}
           </p>
-          <ButtonUniversal
-            buttonName="saveInvoice"
-            buttonText="Zapisz fakturę"
-            buttonClick={openModalConfirmationSave}
-            buttonDisabled={!isSaveButtonEnabled}
-            buttonIcon={<RiSave3Fill />}
-            classNameButtonContainer={scss["button-save-document"]}
-          />
+          <div className={scss["form-add-invoice-button-save-container"]}>
+            <ButtonUniversal
+              buttonName="saveInvoice"
+              buttonText="Zapisz fakturę"
+              buttonClick={openModalConfirmationSave}
+              buttonDisabled={!isSaveButtonEnabled}
+              buttonIcon={<RiSave3Fill />}
+              classNameButtonContainer={scss["button-save-document"]}
+            />
+            <ButtonUniversal
+              buttonName="closeInvoice"
+              buttonText="Zamknij okno"
+              buttonClick={handleCloseModal}
+              buttonIcon={<ImExit />}
+              classNameButtonContainer={scss[""]}
+            />
+          </div>
         </div>
       </div>
       {isOpenModalConfirmationSave && (

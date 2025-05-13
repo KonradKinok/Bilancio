@@ -29,8 +29,6 @@
     align-items: center;
     gap: 1rem;
     margin-bottom: 1rem;
-
-
   }
 
   .form-invoice-main-data {
@@ -52,11 +50,19 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+
+    .form-add-invoice-button-save-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+
+      .button-save-document {
+        --background-hover-color: rgb(25 255 0);
+      }
+    }
   }
 
-  .button-save-document {
-    --background-hover-color: rgb(170, 255, 0);
-  }
 
   .custom-input-container {
     --color-light: var(--background-color);

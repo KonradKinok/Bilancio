@@ -141,14 +141,14 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
         <div className={scss["modal-buttons"]}>
           <ButtonUniversal
             buttonName="confirmSave"
-            buttonText="Tak"
+            buttonText="Zapisz"
             buttonClick={handleConfirm}
             buttonIcon={<GiConfirmed />}
             classNameButtonContainer={scss["modal-button-confirm"]}
           />
           <ButtonUniversal
             buttonName="cancelSave"
-            buttonText="Nie"
+            buttonText="Anuluj"
             buttonClick={handleClose}
             buttonIcon={<GiCancel />}
             classNameButtonContainer={scss["modal-button-cancel"]}
@@ -161,7 +161,7 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
 
 function tooltipInfoFormAddInvoice() {
   const text = `Formularz potwierdzenia zapisu faktury.
-  Kliknięcie przycisku "Tak" zapisuje dane faktury do bazy danych.
-  Kliknięcie przycisku "Nie" zamyka okno potwierdzenia zapisu faktury i powraca do okna edycji danych faktury.`;
+  Kliknięcie przycisku "Zapisz" zapisuje dane faktury do bazy danych.
+  Kliknięcie przycisku "Anuluj" zamyka okno potwierdzenia zapisu faktury i powraca do okna edycji danych faktury.`;
   return text.replace(/\n/g, "<br/>");
 }
