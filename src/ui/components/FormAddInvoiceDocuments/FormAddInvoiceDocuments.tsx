@@ -370,7 +370,7 @@ export const FormAddInvoiceDocuments: React.FC<
           defaultValue={getSingleDefaultOption(optionsDictionaryDocumentTable)}
           onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
           options={optionsDictionaryDocumentTable} // Użyj danych z hooka
-          isSearchable={false}
+          isSearchable={true}
           placeholder="Wybierz..."
           styles={customStylesComboBox}
           menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
@@ -387,7 +387,7 @@ export const FormAddInvoiceDocuments: React.FC<
             )}
             onChange={(option) => setSelectedMainType(option as ComboBoxOption)}
             options={optionsDictionaryMainTypeTable} // Użyj danych z hooka
-            isSearchable={false}
+            isSearchable={true}
             placeholder="Wybierz..."
             styles={customStylesComboBox}
             menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
@@ -402,7 +402,7 @@ export const FormAddInvoiceDocuments: React.FC<
             defaultValue={getSingleDefaultOption(optionsDictionaryTypeTable)}
             onChange={(option) => setSelectedType(option as ComboBoxOption)}
             options={optionsDictionaryTypeTable} // Użyj danych z hooka
-            isSearchable={false}
+            isSearchable={true}
             placeholder="Wybierz..."
             styles={customStylesComboBox}
             menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body

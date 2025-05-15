@@ -51,11 +51,13 @@ export default tseslint.config({
     ...reactDom.configs.recommended.rules,
   },
 })
-```
+
+
 
 ```
 Bilancio
 ├─ backup
+│  ├─ ai.docx
 │  ├─ BilancioDataBase1.db
 │  ├─ BilancioDataBase20.04.2025.db
 │  ├─ BilancioDataBase20.04.2025a.db
@@ -99,9 +101,9 @@ Bilancio
 │     ├─ BaseChart.tsx
 │     ├─ Chart.tsx
 │     ├─ components
-│     │  ├─ ButtonCancel
-│     │  │  ├─ ButtonCancel.module.scss
-│     │  │  └─ ButtonCancel.tsx
+│     │  ├─ ButtonUniversal
+│     │  │  ├─ ButtonUniversal.module.scss
+│     │  │  └─ ButtonUniversal.tsx
 │     │  ├─ CheckboxSlider
 │     │  │  ├─ CheckboxSlider.module.scss
 │     │  │  └─ CheckboxSlider.tsx
@@ -124,12 +126,21 @@ Bilancio
 │     │  │  └─ FormHomeDate.tsx
 │     │  ├─ GlobalFunctions
 │     │  │  └─ GlobalFunctions.ts
+│     │  ├─ IconInfo
+│     │  │  ├─ IconInfo.module.scss
+│     │  │  └─ IconInfo.tsx
 │     │  ├─ MainTable
 │     │  │  ├─ MainTable.module.scss
 │     │  │  └─ MainTable.tsx
 │     │  ├─ ModalAddInvoice
 │     │  │  ├─ ModalAddInvoice.module.scss
 │     │  │  └─ ModalAddInvoice.tsx
+│     │  ├─ ModalConfirmationSave
+│     │  │  ├─ ModalConfirmationSave.module.scss
+│     │  │  └─ ModalConfirmationSave.tsx
+│     │  ├─ ModalSelectionWindow
+│     │  │  ├─ ModalSelectionWindow.module.scss
+│     │  │  └─ ModalSelectionWindow.tsx
 │     │  ├─ Navigation
 │     │  │  ├─ Navigation.module.scss
 │     │  │  └─ Navigation.tsx
@@ -140,6 +151,7 @@ Bilancio
 │     │     ├─ TextInput.module.scss
 │     │     └─ TextInput.tsx
 │     ├─ hooks
+│     │  ├─ useAddInvoice.ts
 │     │  ├─ useAllDocumentName.ts
 │     │  ├─ useAllInvoices.ts
 │     │  ├─ useConnectedTableDictionary.ts
@@ -162,7 +174,6 @@ Bilancio
 │     │  └─ TempStart.tsx
 │     ├─ useStatistics.ts
 │     └─ vite-env.d.ts
-├─ structure.txt
 ├─ tsconfig.json
 ├─ tsconfig.node.json
 ├─ types.d.ts

@@ -1,16 +1,24 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
 import scss from "./ModalSelectionWindow.module.scss";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
+import { GiCancel, GiConfirmed } from "react-icons/gi";
 
-interface ModalAddInvoiceProps {
+interface ModalSelectionWindowProps {
+  closeModalSelectionWindow: () => void;
   closeModalAddInvoice: () => void;
-  isModalAddInvoiceOpen: boolean;
+  resetFormAddInvoice: () => void;
+  isModalSelectionWindowOpen: boolean;
+  titleModalSelectionWindow: string;
 }
 
 export function ModalSelectionWindow({
+  closeModalSelectionWindow,
   closeModalAddInvoice,
-  isModalAddInvoiceOpen,
-}: ModalAddInvoiceProps) {
+  resetFormAddInvoice,
+  isModalSelectionWindowOpen,
+  titleModalSelectionWindow,
+}: ModalSelectionWindowProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
       InvoiceId: undefined,
@@ -37,10 +45,10 @@ export function ModalSelectionWindow({
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         console.log("Zamykam modal!");
-        closeModalAddInvoice();
+        closeModalSelectionWindow();
       }
     },
-    [closeModalAddInvoice]
+    [closeModalSelectionWindow]
   );
 
   useEffect(() => {
@@ -53,26 +61,45 @@ export function ModalSelectionWindow({
 
   const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
-      closeModalAddInvoice();
+      closeModalSelectionWindow();
     }
   };
 
+  const handleConfirm = () => {
+    console.log("Zamknij");
+    // Add your save logic here
+
+    closeModalSelectionWindow();
+    closeModalAddInvoice();
+    resetFormAddInvoice();
+  };
+
+  const handleClose = () => {
+    console.log("Anuluj");
+    closeModalSelectionWindow();
+  };
   return (
     <div
-      className={`${scss["add-invoice-modal-container"]} 
-      ${isModalAddInvoiceOpen ? scss["is-open"] : ""} `}
-      onClick={handleClickOutside}
+      className={`${scss["modalSelectionWindow-main-container"]} 
+      ${isModalSelectionWindowOpen ? scss["is-open"] : ""} `}
+      ref={modalContentRef}
     >
-      <div className={scss["add-invoice-modal"]}>
-        <div
-          className={scss["add-invoice-main-container"]}
-          ref={modalContentRef}
-        >
-          <FormAddInvoice
-            addInvoiceData={addInvoiceData}
-            setAddInvoiceData={setAddInvoiceData}
-            closeModalAddInvoice={closeModalAddInvoice}
-            modalContentRef={modalContentRef}
+      <div className={scss["modalSelectionWindow-container"]}>
+        <h3>{titleModalSelectionWindow}</h3>
+        <div className={scss["modal-buttons"]}>
+          <ButtonUniversal
+            buttonName="closeWindow"
+            buttonText="Zamknij okno"
+            buttonClick={handleConfirm}
+            buttonIcon={<GiConfirmed />}
+            classNameButtonContainer={scss["modal-button-confirm"]}
+          />
+          <ButtonUniversal
+            buttonName="cancelCloseWindow"
+            buttonText="Anuluj"
+            buttonClick={handleClose}
+            buttonIcon={<GiCancel />}
+            classNameButtonContainer={scss["modal-button-cancel"]}
           />
         </div>
       </div>

@@ -17,6 +17,7 @@ import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmatio
 import { useMainDataContext } from "../Context/useOptionsImage";
 import { useAddInvoice } from "../../hooks/useAddInvoice";
 import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
+import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -37,9 +38,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     closeModal: closeModalConfirmationSave,
   } = useToggle();
   const {
-    isOpenModal: isOpenModalConfirmationClose,
-    openModal: openModalConfirmationClose,
-    closeModal: closeModalConfirmationClose,
+    isOpenModal: isOpenModalSelectionWindow,
+    openModal: openModalSelectionWindow,
+    closeModal: closeModalSelectionWindow,
   } = useToggle();
   const { allDocumentsData } = useMainDataContext();
   const {
@@ -67,6 +68,17 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     loading: saveInvoiceLoading,
     error: saveInvoiceError,
   } = useAddInvoice();
+
+  // Przechowywanie początkowego stanu dla wykrywania zmian
+  const [initialState] = useState({
+    addInvoiceData: JSON.stringify(addInvoiceData),
+    inputInvoiceName: "",
+    dateTimePickerReceiptDate: null,
+    dateTimePickerDeadlineDate: null,
+    dateTimePickerPaymentDate: null,
+    documentComponents: [nanoid()],
+  });
+
   // Przygotowanie tablic quantities i prices dla calculateTotalAmount
   const quantities = addInvoiceData.details.map((detail) =>
     detail.Quantity.toString()
@@ -327,12 +339,26 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       closeModalConfirmationSave();
     }
   };
+  //ModalSelectionWindow
+  const handleCloseModalAddInvoice = () => {
+    // Porównanie bieżącego stanu z początkowym
+    const hasChanges =
+      inputInvoiceName !== initialState.inputInvoiceName ||
+      dateTimePickerReceiptDate !== initialState.dateTimePickerReceiptDate ||
+      dateTimePickerDeadlineDate !== initialState.dateTimePickerDeadlineDate ||
+      dateTimePickerPaymentDate !== initialState.dateTimePickerPaymentDate;
 
-  const handleCloseModal = () => {
-    if (isOpenModalConfirmationClose) {
-      closeModalConfirmationClose();
+    const temp =
+      JSON.stringify(documentComponents) !==
+      JSON.stringify(initialState.documentComponents);
+    console.log("handleCloseModalAddInvoice: addInvoiceData:", temp.toString());
+    if (isOpenModalSelectionWindow) {
+      closeModalSelectionWindow();
+    } else if (hasChanges) {
+      openModalSelectionWindow();
     } else {
-      openModalConfirmationClose();
+      closeModalAddInvoice();
+      resetForm();
     }
   };
   // const handleConfirmSave = async () => {
@@ -483,24 +509,32 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             <ButtonUniversal
               buttonName="closeInvoice"
               buttonText="Zamknij okno"
-              buttonClick={handleCloseModal}
+              buttonClick={handleCloseModalAddInvoice}
               buttonIcon={<ImExit />}
               classNameButtonContainer={scss[""]}
             />
           </div>
         </div>
       </div>
-      {isOpenModalConfirmationSave && (
-        <ModalConfirmationSave
-          addInvoiceData={addInvoiceData}
-          totalAmount={totalAmount}
-          formatDocumentDetails={formatDocumentDetails}
-          onConfirm={handleConfirmSave}
-          onCancel={closeModalConfirmationSave}
-          loadingDocuments={loadingAllDocumentsName}
-          errorDocuments={errorAllDocumentsName}
-        />
-      )}
+
+      <ModalConfirmationSave
+        addInvoiceData={addInvoiceData}
+        totalAmount={totalAmount}
+        formatDocumentDetails={formatDocumentDetails}
+        isOpenModalConfirmationSave={isOpenModalConfirmationSave}
+        onConfirm={handleConfirmSave}
+        onCancel={closeModalConfirmationSave}
+        loadingDocuments={loadingAllDocumentsName}
+        errorDocuments={errorAllDocumentsName}
+      />
+
+      <ModalSelectionWindow
+        closeModalAddInvoice={closeModalAddInvoice}
+        closeModalSelectionWindow={closeModalSelectionWindow}
+        isModalSelectionWindowOpen={isOpenModalSelectionWindow}
+        titleModalSelectionWindow="Czy na pewno chcesz zamknąć okno?"
+        resetFormAddInvoice={resetForm}
+      />
     </form>
   );
 };

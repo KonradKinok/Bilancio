@@ -19,6 +19,7 @@ interface ModalConfirmationSaveProps {
     price: string;
     total: string;
   };
+  isOpenModalConfirmationSave: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   loadingDocuments: boolean;
@@ -29,39 +30,18 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
   addInvoiceData,
   totalAmount,
   formatDocumentDetails,
+  isOpenModalConfirmationSave,
   onConfirm,
   onCancel,
   loadingDocuments,
   errorDocuments,
 }) => {
-  const [isClosing, setIsClosing] = useState(false);
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      onCancel();
-      setIsClosing(false); // Reset stanu po zamknięciu
-    }, 300); // Czas trwania animacji (300ms)
-  };
-
-  const handleConfirm = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      onConfirm();
-      setIsClosing(false); // Reset stanu po potwierdzeniu
-    }, 300); // Czas trwania animacji (300ms)
-  };
-
   return (
     <div
-      className={`${scss["modalConfirmationSave-overlay"]} ${
-        isClosing ? scss["closing"] : ""
-      }`}
+      className={`${scss["modalConfirmationSave-overlay"]} 
+      ${isOpenModalConfirmationSave ? scss["is-open"] : ""} `}
     >
-      <div
-        className={`${scss["modal"]} ${isClosing ? scss["closing"] : ""}`}
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className={`${scss["modal"]}`}>
         <div className={scss["modal-title-container"]}>
           <h3 className={scss["modal-title"]}>Potwierdź zapis faktury</h3>
           <RiSave3Fill className={scss["modal-title-icon"]} />
@@ -70,10 +50,8 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
             tooltipInfoTextHtml={tooltipInfoFormAddInvoice()}
           />
         </div>
-
         <div className={scss["modal-content"]}>
           <h4>Dane faktury:</h4>
-
           <table className={scss["modal-table"]}>
             <thead>
               <tr>
@@ -142,14 +120,14 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
           <ButtonUniversal
             buttonName="confirmSave"
             buttonText="Zapisz"
-            buttonClick={handleConfirm}
+            buttonClick={onConfirm}
             buttonIcon={<GiConfirmed />}
             classNameButtonContainer={scss["modal-button-confirm"]}
           />
           <ButtonUniversal
             buttonName="cancelSave"
             buttonText="Anuluj"
-            buttonClick={handleClose}
+            buttonClick={onCancel}
             buttonIcon={<GiCancel />}
             classNameButtonContainer={scss["modal-button-cancel"]}
           />
