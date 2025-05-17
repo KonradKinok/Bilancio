@@ -1,0 +1,58 @@
+.pagination-container {
+    list-style-type: none;
+
+    .pagination-item {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: "Roboto", sans-serif;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 1.33333;
+        color: rgb(2, 247, 153);
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        user-select: none;
+        border-radius: 5px;
+
+        &.dots {
+            align-self: baseline;
+            color: aqua;
+            width: auto;
+            height: 32px;
+        }
+
+        &.dots:hover {
+            background-color: transparent;
+            cursor: default;
+        }
+
+        &:hover {
+            background-color: rgba(0, 140, 61, 1);
+            cursor: pointer;
+        }
+
+        &.selected {
+            background-color: rgba(0, 140, 61, 1);
+        }
+
+        .arrow {
+
+            &.left {
+                transform: rotate(180deg);
+                line-height: 0;
+            }
+        }
+
+        &.disabled {
+            pointer-events: none;
+            color: rgba(0, 140, 61, 1);
+
+            &:hover {
+                background-color: transparent;
+                cursor: not-allowed;
+            }
+        }
+    }
+}

@@ -1,0 +1,126 @@
+.mainTable-main-container {
+  --th-background-color: var(--maintable-th-background);
+  --tr-odd-background-color: var(--maintable-tr-odd-background);
+  --tr-even-background-color: var(--maintable-tr-even-background);
+  --tr-hover-background-color: var(--maintable-tr-hover-background);
+
+  margin: 1rem auto;
+
+  .table {
+    border-collapse: collapse;
+    border: 1px solid white;
+    background-color: var(--tr-odd-background-color);
+    box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
+    color: white;
+    margin: 1rem auto;
+
+    th,
+    td {
+      text-align: left;
+      padding: 2px 5px;
+    }
+
+    th {
+      border: 1px solid rgb(0 117 21);
+      background-color: var(--th-background-color);
+      color: white;
+
+      text-transform: uppercase;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    td {
+      border: 1px solid var(--th-background-color);
+      cursor: pointer;
+    }
+
+    tr {
+      color: black;
+      transition: background-color 0.2s ease, color 0.2s ease;
+
+      &:nth-child(even) {
+        background-color: var(--tr-even-background-color);
+      }
+
+      &:hover {
+        color: white;
+        background-color: var(--tr-hover-background-color);
+      }
+    }
+
+    .actions {}
+
+    .editButton,
+    .deleteButton {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transform: scale(1); // Domyślny stan skalowania
+      transition: background-color 0.5s ease, transform 0.15s ease; // Animacja dla obu właściwości
+
+      &:active {
+        // transition: 50ms linear;
+        transform: scale(0.9);
+      }
+    }
+
+    .editButton {
+      background-color: #4caf50;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #2e7d32;
+      }
+    }
+
+    .deleteButton {
+      background-color: #f44336;
+      color: #ffffff;
+
+      &:hover {
+        background-color: #d32f2f;
+      }
+    }
+  }
+
+  .maintable-controls-container {
+    display: flex;
+    margin: 10px auto;
+
+    .controls {
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .label {
+        font-size: 14px;
+        color: #333;
+      }
+
+      .select {
+        padding: 5px;
+        border: 1px solid #4caf50;
+        border-radius: 4px;
+        font-size: 14px;
+        cursor: pointer;
+
+        &:focus {
+          outline: none;
+          border-color: #2e7d32;
+        }
+      }
+    }
+
+    .pagination {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto;
+    }
+  }
+}

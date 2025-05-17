@@ -105,7 +105,8 @@ FROM Invoices
 WHERE 
     Invoices.ReceiptDate BETWEEN '${firstDateStr}' AND '${lastDateStr}'
     AND Invoices.IsDeleted = ${isDeleted}
-GROUP BY Invoices.InvoiceId;
+GROUP BY Invoices.InvoiceId
+ORDER BY Invoices.ReceiptDate DESC;;
 `
     return sql1
 }

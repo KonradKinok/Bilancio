@@ -9,6 +9,14 @@ import {
   calculateTotalAmount,
   currencyFormater,
 } from "../GlobalFunctions/GlobalFunctions";
+import Pagination from "../Pagination/Pagination";
+
+interface PageState {
+  firstPage: number;
+  lastPage: number;
+  paginationPage: number;
+}
+
 interface MainTable {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
@@ -18,6 +26,9 @@ interface MainTable {
 export const MainTable: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
+  const [totalPages, setTotalPages] = useState<number>(20);
+  // Stan dla liczby wierszy na stronę
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
 
   //Nazwy wszystkich dokumentów
   const { allDocumentsData } = useMainDataContext();
@@ -26,6 +37,14 @@ export const MainTable: React.FC = () => {
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
   } = allDocumentsData;
+
+  //Pagination
+  const initialPage = 1;
+  const [page, setPage] = useState<PageState>({
+    paginationPage: initialPage,
+    firstPage: 2 * initialPage - 1,
+    lastPage: 2 * initialPage,
+  });
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   console.log("MainTable() useMainDataContext", formValuesHomePage);
@@ -68,73 +87,127 @@ export const MainTable: React.FC = () => {
   const toastClick = () => {
     toast.success("Successfully created!");
   };
-  return (
-    <div className={scss[""]}>
-      <table>
-        <thead>
-          <tr>
-            <th>Lp.</th>
-            <th>Suma faktury</th>
-            <th>Nazwa faktury</th>
-            <th>Data wpływu</th>
-            <th>Termin płatności</th>
-            <th>Data płatności</th>
-            <th>Dokumenty</th>
-            <th>Liczba</th>
-            <th>Cena</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dataAllInvoices &&
-            dataAllInvoices.length > 0 &&
-            dataAllInvoices.map((invoice, index) => {
-              const totalAmount = calculateTotalAmount(
-                invoice.Quantities,
-                invoice.Prices
-              );
-              return (
-                <tr key={invoice.InvoiceId}>
-                  <td>{index + 1}</td>
-                  <td>{totalAmount}</td>
-                  <td>{invoice.InvoiceName}</td>
-                  <td>{invoice.ReceiptDate}</td>
-                  <td>{invoice.DeadlineDate}</td>
-                  <td>{invoice.PaymentDate}</td>
-                  <td>
-                    {invoice.DocumentNames &&
-                      invoice.DocumentNames.map((documentName, i) => (
-                        <div key={i}>
-                          {documentName}
-                          {invoice.MainTypeNames &&
-                            invoice.MainTypeNames[i] &&
-                            ` ${invoice.MainTypeNames[i]}`}
-                          {invoice.TypeNames &&
-                            invoice.TypeNames[i] &&
-                            ` ${invoice.TypeNames[i]}`}
-                          {invoice.SubtypeNames &&
-                            invoice.SubtypeNames[i] &&
-                            ` ${invoice.SubtypeNames[i]}`}
-                        </div>
-                      ))}
-                  </td>
-                  <td>
-                    {invoice.Quantities &&
-                      invoice.Quantities.map((quantity, i) => (
-                        <div key={i}>{quantity}</div>
-                      ))}
-                  </td>
-                  <td>
-                    {invoice.Prices &&
-                      invoice.Prices.map((price, i) => (
-                        <div key={i}>{currencyFormater(price)}</div>
-                      ))}
-                  </td>
-                </tr>
-              );
-            })}
-        </tbody>
-      </table>
+  // Obsługa zmiany liczby wierszy na stronę
+  const handleRowsPerPageChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setRowsPerPage(Number(event.target.value));
+  };
 
+  // Przycięcie danych na podstawie liczby wierszy
+  const displayedInvoices = dataAllInvoices
+    ? dataAllInvoices.slice(0, rowsPerPage)
+    : [];
+
+  //Pagination
+  const onPageChange = (newPage: number) => {
+    const newFirstPage = 2 * newPage - 1;
+    const newLastPage = newFirstPage + 1;
+
+    setPage({
+      paginationPage: newPage,
+      firstPage: newFirstPage,
+      lastPage: newLastPage,
+    });
+  };
+  return (
+    <div className={scss["mainTable-main-container"]}>
+      <div>
+        <table className={scss["table"]}>
+          <thead>
+            <tr>
+              <th>Lp.</th>
+              <th>Suma faktury</th>
+              <th>Nazwa faktury</th>
+              <th>Data wpływu</th>
+              <th>Termin płatności</th>
+              <th>Data płatności</th>
+              <th>Dokumenty</th>
+              <th>Liczba</th>
+              <th>Cena</th>
+              <th colSpan={2}>Akcje</th>
+            </tr>
+          </thead>
+          <tbody>
+            {displayedInvoices &&
+              displayedInvoices.length > 0 &&
+              displayedInvoices.map((invoice, index) => {
+                const totalAmount = calculateTotalAmount(
+                  invoice.Quantities,
+                  invoice.Prices
+                );
+                return (
+                  <tr key={invoice.InvoiceId}>
+                    <td>{index + 1}.</td>
+                    <td>{totalAmount}</td>
+                    <td>{invoice.InvoiceName}</td>
+                    <td>{invoice.ReceiptDate}</td>
+                    <td>{invoice.DeadlineDate}</td>
+                    <td>{invoice.PaymentDate}</td>
+                    <td>
+                      {invoice.DocumentNames &&
+                        invoice.DocumentNames.map((documentName, i) => (
+                          <div key={i}>
+                            {documentName}
+                            {invoice.MainTypeNames &&
+                              invoice.MainTypeNames[i] &&
+                              ` ${invoice.MainTypeNames[i]}`}
+                            {invoice.TypeNames &&
+                              invoice.TypeNames[i] &&
+                              ` ${invoice.TypeNames[i]}`}
+                            {invoice.SubtypeNames &&
+                              invoice.SubtypeNames[i] &&
+                              ` ${invoice.SubtypeNames[i]}`}
+                          </div>
+                        ))}
+                    </td>
+                    <td>
+                      {invoice.Quantities &&
+                        invoice.Quantities.map((quantity, i) => (
+                          <div key={i}>{quantity}</div>
+                        ))}
+                    </td>
+                    <td>
+                      {invoice.Prices &&
+                        invoice.Prices.map((price, i) => (
+                          <div key={i}>{currencyFormater(price)}</div>
+                        ))}
+                    </td>
+                    <td className={scss.actions}>
+                      <button className={scss.editButton}>Edytuj</button>
+                    </td>
+                    <td className={scss.actions}>
+                      <button className={scss.deleteButton}>Usuń</button>
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+        <div className={scss["maintable-controls-container"]}>
+          <div className={scss["controls"]}>
+            <label className={scss["label"]} htmlFor="rowsPerPage">
+              Wiersze na stronę:{" "}
+            </label>
+            <select
+              id="rowsPerPage"
+              value={rowsPerPage}
+              onChange={handleRowsPerPageChange}
+              className={scss["select"]}
+            >
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <Pagination
+            className={scss.pagination}
+            currentPage={page.paginationPage}
+            totalCount={totalPages}
+            onPageChange={(page) => onPageChange(page)}
+          />
+        </div>
+      </div>
       <div>
         <button onClick={toastClick}>Refetch</button>
         <h2>Dokumenty</h2>

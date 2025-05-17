@@ -30,6 +30,9 @@
   --seventh-color: rgb(255, 0, 0); /*DarkBlue*/
   --eighth-color: rgba(0, 100, 0, 1); /*Yellow*/
   --nineth-color: rgb(0, 128, 0); /*Red*/
+  --tenth-color: rgb(14 133 0); /*Red*/
+  --eleventh-color: rgb(0 91 0); /*Red*/
+  --twelfth-color: rgb(0 153 67); /*Red*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -75,6 +78,11 @@
   --combobox-control-background: var(--fifth-color); /*LightCyan */
   --combobox-control-border: var(--first-color); /*BlueViolet */
   --combobox-control-border-hover: var(--first-color-alpha-five);
+  /* MainTable */
+  --maintable-th-background: var(--eleventh-color); /*Indygo */
+  --maintable-tr-odd-background: var(--nineth-color);
+  --maintable-tr-even-background: var(--tenth-color);
+  --maintable-tr-hover-background: var(--twelfth-color);
 
   /* form */
   --form-color: rgb(0, 100, 255);

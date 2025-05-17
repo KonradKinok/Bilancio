@@ -10,7 +10,7 @@ import scss from "./HomePage.module.scss";
 const HomePage: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
   return (
-    <div>
+    <div className={scss["homepage-main-container"]}>
       <FormHomeDate />
       <MainTable />
     </div>
