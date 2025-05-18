@@ -173,11 +173,11 @@ export const MainTable: React.FC = () => {
                           <div key={i}>{currencyFormater(price)}</div>
                         ))}
                     </td>
-                    <td className={scss.actions}>
-                      <button className={scss.editButton}>Edytuj</button>
+                    <td className={scss[""]}>
+                      <button className={scss["edit-button"]}>Edytuj</button>
                     </td>
-                    <td className={scss.actions}>
-                      <button className={scss.deleteButton}>Usuń</button>
+                    <td className={scss[""]}>
+                      <button className={scss["delete-button"]}>Usuń</button>
                     </td>
                   </tr>
                 );

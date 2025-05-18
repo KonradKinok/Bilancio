@@ -4,15 +4,19 @@
   --tr-even-background-color: var(--maintable-tr-even-background);
   --tr-hover-background-color: var(--maintable-tr-hover-background);
 
-  margin: 1rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center; //
+  font-size: 1rem;
 
   .table {
     border-collapse: collapse;
-    border: 1px solid white;
     background-color: var(--tr-odd-background-color);
     box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
     color: white;
     margin: 1rem auto;
+    border-radius: 0.5rem; // Dodaje zaokrąglone rogi do tabeli
+    overflow: hidden; // Ukrywa wystające kanciaste rogi komórek
 
     th,
     td {
@@ -49,15 +53,14 @@
       }
     }
 
-    .actions {}
-
-    .editButton,
-    .deleteButton {
+    .edit-button,
+    .delete-button {
       padding: 6px 12px;
+      margin: 4px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 0.6rem;
       transform: scale(1); // Domyślny stan skalowania
       transition: background-color 0.5s ease, transform 0.15s ease; // Animacja dla obu właściwości
 
@@ -67,7 +70,7 @@
       }
     }
 
-    .editButton {
+    .edit-button {
       background-color: #4caf50;
       color: #ffffff;
 
@@ -76,7 +79,7 @@
       }
     }
 
-    .deleteButton {
+    .delete-button {
       background-color: #f44336;
       color: #ffffff;
 
@@ -88,10 +91,9 @@
 
   .maintable-controls-container {
     display: flex;
-    margin: 10px auto;
 
     .controls {
-      margin: 10px;
+
       display: flex;
       align-items: center;
       gap: 10px;
@@ -120,7 +122,8 @@
       gap: 3px;
       align-items: center;
       justify-content: center;
-      margin: 10px auto;
+      margin: 0 auto;
+      // rgb(2, 247, 153)
     }
   }
 }
