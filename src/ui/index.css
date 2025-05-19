@@ -33,6 +33,8 @@
   --tenth-color: rgb(14 133 0); /*Red*/
   --eleventh-color: rgb(0 91 0); /*Red*/
   --twelfth-color: rgb(0 153 67); /*Red*/
+  --thirteenth-color: rgb(0, 140, 61); /*Red*/
+  --fourteenth-color: rgb(2, 247, 153); /*Red*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -80,9 +82,14 @@
   --combobox-control-border-hover: var(--first-color-alpha-five);
   /* MainTable */
   --maintable-th-background: var(--eleventh-color); /*Indygo */
+  --maintable-th-color: var(--fourteenth-color);
   --maintable-tr-odd-background: var(--nineth-color);
   --maintable-tr-even-background: var(--tenth-color);
-  --maintable-tr-hover-background: var(--twelfth-color);
+  --maintable-tr-hover-background: var(--thirteenth-color);
+  --maintable-tr-hover-color: var(--fourteenth-color);
+  /* Pagination */
+  --pagination-item-hover-disabled-select-background: var(--thirteenth-color);
+  --pagination-item-color: var(--fourteenth-color); /*Indygo */
 
   /* form */
   --form-color: rgb(0, 100, 255);

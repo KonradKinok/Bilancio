@@ -1,5 +1,7 @@
 .pagination-container {
     list-style-type: none;
+    --item-hover-select-disabled-background: var(--pagination-item-hover-disabled-select-background, rgba(0, 140, 61, 1));
+    --item-color: var(--pagination-item-color, rgba(2, 247, 153, 1));
 
     .pagination-item {
         display: flex;
@@ -9,7 +11,7 @@
         font-weight: 500;
         font-size: 12px;
         line-height: 1.33333;
-        color: rgb(2, 247, 153);
+        color: var(--item-color);
         width: 40px;
         height: 40px;
         cursor: pointer;
@@ -29,12 +31,12 @@
         }
 
         &:hover {
-            background-color: rgba(0, 140, 61, 1);
+            background-color: var(--item-hover-select-disabled-background);
             cursor: pointer;
         }
 
         &.selected {
-            background-color: rgba(0, 140, 61, 1);
+            background-color: var(--item-hover-select-disabled-background);
         }
 
         .arrow {
@@ -47,7 +49,7 @@
 
         &.disabled {
             pointer-events: none;
-            color: rgba(0, 140, 61, 1);
+            color: var(--item-hover-select-disabled-background);
 
             &:hover {
                 background-color: transparent;

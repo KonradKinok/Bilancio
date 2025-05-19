@@ -148,7 +148,7 @@ export const MainTable: React.FC = () => {
                       {invoice.DocumentNames &&
                         invoice.DocumentNames.map((documentName, i) => (
                           <div key={i}>
-                            {documentName}
+                            {i + 1}. {documentName}
                             {invoice.MainTypeNames &&
                               invoice.MainTypeNames[i] &&
                               ` ${invoice.MainTypeNames[i]}`}

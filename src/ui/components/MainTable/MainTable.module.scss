@@ -1,8 +1,10 @@
 .mainTable-main-container {
   --th-background-color: var(--maintable-th-background);
+  --th-color: var(--maintable-th-color);
   --tr-odd-background-color: var(--maintable-tr-odd-background);
   --tr-even-background-color: var(--maintable-tr-even-background);
   --tr-hover-background-color: var(--maintable-tr-hover-background);
+  --tr-hover-color: var(--maintable-tr-hover-color);
 
   display: flex;
   flex-direction: column;
@@ -13,10 +15,10 @@
     border-collapse: collapse;
     background-color: var(--tr-odd-background-color);
     box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
-    color: white;
-    margin: 1rem auto;
-    border-radius: 0.5rem; // Dodaje zaokrąglone rogi do tabeli
+    margin: 1rem auto 0;
     overflow: hidden; // Ukrywa wystające kanciaste rogi komórek
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
 
     th,
     td {
@@ -27,8 +29,7 @@
     th {
       border: 1px solid rgb(0 117 21);
       background-color: var(--th-background-color);
-      color: white;
-
+      color: var(--th-color);
       text-transform: uppercase;
       text-align: center;
       font-weight: 600;
@@ -41,6 +42,7 @@
 
     tr {
       color: black;
+
       transition: background-color 0.2s ease, color 0.2s ease;
 
       &:nth-child(even) {
@@ -48,8 +50,9 @@
       }
 
       &:hover {
-        color: white;
+        color: var(--tr-hover-color);
         background-color: var(--tr-hover-background-color);
+
       }
     }
 
@@ -91,16 +94,23 @@
 
   .maintable-controls-container {
     display: flex;
+    background-color: var(--th-background-color);
+    box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    padding: 0.5rem;
+    align-items: center;
+
 
     .controls {
-
       display: flex;
+      align-self: start;
       align-items: center;
       gap: 10px;
 
       .label {
         font-size: 14px;
-        color: #333;
+        color: rgb(2, 247, 153);
       }
 
       .select {
@@ -120,10 +130,10 @@
     .pagination {
       display: flex;
       gap: 3px;
+
       align-items: center;
       justify-content: center;
-      margin: 0 auto;
-      // rgb(2, 247, 153)
+      margin: 0 auto
     }
   }
 }
