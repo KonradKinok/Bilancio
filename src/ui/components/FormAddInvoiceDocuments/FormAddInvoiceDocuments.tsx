@@ -134,43 +134,40 @@ export const FormAddInvoiceDocuments: React.FC<
   };
   //Dane tabel pobrane z hooka
   //dictionaryDocumentTable
-  const {
-    data: dictionaryDocumentTable,
-    loading: loadingDictionaryDocumentTable,
-    error: errorDictionaryDocumentTable,
-  } = useConnectedTableDictionary<DictionaryDocuments>(
-    DbTables.DictionaryDocuments
-  );
+  const dictionaryDocumentTable = useMemo(() => {
+    if (!dataAllDocumentsName) return [];
+    return getDictionaryDocumentsTable(dataAllDocumentsName);
+  }, [dataAllDocumentsName]);
+
   //dictionaryMainTypeTable
-  const {
-    data: dictionaryMainTypeTable,
-    loading: loadingDictionaryMainTypeTable,
-    error: errorDictionaryMainTypeTable,
-  } = useConnectedTableDictionary<DictionaryMainType>(
-    DbTables.DictionaryMainType,
-    selectedDocument?.value
-  );
+  const dictionaryMainTypeTable = useMemo(() => {
+    if (!dataAllDocumentsName) return [];
+    return getDictionaryMainTypeTable(
+      dataAllDocumentsName,
+      selectedDocument?.value
+    );
+  }, [dataAllDocumentsName, selectedDocument]);
+
   //dictionaryTypeTable
-  const {
-    data: dictionaryTypeTable,
-    loading: loadingDictionaryTypeTable,
-    error: errorDictionaryTypeTable,
-  } = useConnectedTableDictionary<DictionaryType>(
-    DbTables.DictionaryType,
-    selectedDocument?.value,
-    selectedMainType?.value
-  );
+  const dictionaryTypeTable = useMemo(() => {
+    if (!dataAllDocumentsName || !selectedDocument?.value) return [];
+    return getDictionaryTypeTable(
+      dataAllDocumentsName,
+      selectedDocument.value,
+      selectedMainType?.value ?? null
+    );
+  }, [dataAllDocumentsName, selectedDocument, selectedMainType]);
+
   //dictionarySubtypeTable
-  const {
-    data: dictionarySubtypeTable,
-    loading: loadingDictionarySubtypeTable,
-    error: errorDictionarySubtypeTable,
-  } = useConnectedTableDictionary<DictionarySubtype>(
-    DbTables.DictionarySubtype,
-    selectedDocument?.value,
-    selectedMainType?.value,
-    selectedType?.value
-  );
+  const dictionarySubtypeTable = useMemo(() => {
+    if (!dataAllDocumentsName || !selectedDocument?.value) return [];
+    return getDictionarySubtypeTable(
+      dataAllDocumentsName,
+      selectedDocument.value,
+      selectedMainType?.value ?? null,
+      selectedType?.value ?? null
+    );
+  }, [dataAllDocumentsName, selectedDocument, selectedMainType, selectedType]);
 
   //dane do combobox
   //dictionaryDocumentTable
@@ -214,12 +211,30 @@ export const FormAddInvoiceDocuments: React.FC<
     }));
   }, [dictionarySubtypeTable]);
 
-  //set single item in combobox
   const getSingleDefaultOption = <T extends ComboBoxOption>(
     options: T[]
   ): T | undefined => {
     return options.length === 1 ? options[0] : undefined;
   };
+  //removing elements from the combobox when changing
+  useEffect(() => {
+    setSelectedMainType(null);
+    setSelectedType(null);
+    setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
+  }, [selectedDocument]);
+  useEffect(() => {
+    setSelectedType(null);
+    setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
+  }, [selectedMainType]);
+  useEffect(() => {
+    setSelectedSubtype(null);
+    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
+  }, [selectedType]);
+
+  //set single item in combobox
+
   useEffect(() => {
     const defaultMainType = getSingleDefaultOption(
       optionsDictionaryMainTypeTable
@@ -240,27 +255,15 @@ export const FormAddInvoiceDocuments: React.FC<
     const defaultSubtype = getSingleDefaultOption(
       optionsDictionarySubtypeTable
     );
+
     if (defaultSubtype && !selectedSubtype) {
+      console.log(
+        "const defaultSubtype = getSingleDefaultOption",
+        defaultSubtype
+      );
       setSelectedSubtype(defaultSubtype);
     }
   }, [optionsDictionarySubtypeTable, selectedSubtype]);
-
-  //removing elements from the combobox when changing
-  useEffect(() => {
-    setSelectedMainType(null);
-    setSelectedType(null);
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
-  }, [selectedDocument]);
-  useEffect(() => {
-    setSelectedType(null);
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
-  }, [selectedMainType]);
-  useEffect(() => {
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
-  }, [selectedType]);
 
   //Setting the price and checking the existence of types
   useEffect(() => {
@@ -414,7 +417,7 @@ export const FormAddInvoiceDocuments: React.FC<
         {isSubtypeExistsBool && (
           <Select<ComboBoxOption> //Subtype Combobox
             value={selectedSubtype}
-            defaultValue={getSingleDefaultOption(optionsDictionarySubtypeTable)}
+            // defaultValue={getSingleDefaultOption(optionsDictionarySubtypeTable)}
             onChange={(option) => setSelectedSubtype(option as ComboBoxOption)}
             options={optionsDictionarySubtypeTable} // Użyj danych z hooka
             isSearchable={false}
@@ -562,3 +565,93 @@ function checkComboBoxExistence(
     optionsTable.length > 0
   );
 }
+
+function getDictionaryDocumentsTable(
+  data: AllDocumentsName[]
+): DictionaryDocuments[] {
+  const uniqueDocuments = new Map<number, string>();
+
+  data.forEach((doc) => {
+    if (!uniqueDocuments.has(doc.DocumentId)) {
+      uniqueDocuments.set(doc.DocumentId, doc.DocumentName);
+    }
+  });
+
+  return Array.from(uniqueDocuments, ([DocumentId, DocumentName]) => ({
+    DocumentId,
+    DocumentName,
+  }));
+}
+
+const getDictionaryMainTypeTable = (
+  data: AllDocumentsName[],
+  documentId?: number
+): DictionaryMainType[] => {
+  if (!documentId) return [];
+  const uniqueMainTypes = new Map<number, string>();
+
+  data.forEach((doc) => {
+    if (
+      doc.DocumentId === documentId &&
+      doc.MainTypeId !== null &&
+      !uniqueMainTypes.has(doc.MainTypeId)
+    ) {
+      uniqueMainTypes.set(doc.MainTypeId, doc.MainTypeName);
+    }
+  });
+
+  return Array.from(uniqueMainTypes, ([MainTypeId, MainTypeName]) => ({
+    MainTypeId,
+    MainTypeName,
+  }));
+};
+
+const getDictionaryTypeTable = (
+  data: AllDocumentsName[],
+  documentId: number,
+  mainTypeId: number | null
+): DictionaryType[] => {
+  const uniqueTypes = new Map<number, string>();
+
+  data.forEach((doc) => {
+    if (
+      doc.DocumentId === documentId &&
+      doc.MainTypeId === mainTypeId &&
+      doc.TypeId !== null &&
+      !uniqueTypes.has(doc.TypeId)
+    ) {
+      uniqueTypes.set(doc.TypeId, doc.TypeName);
+    }
+  });
+
+  return Array.from(uniqueTypes, ([TypeId, TypeName]) => ({
+    TypeId,
+    TypeName,
+  }));
+};
+
+const getDictionarySubtypeTable = (
+  data: AllDocumentsName[],
+  documentId: number,
+  mainTypeId: number | null,
+  typeId: number | null
+): DictionarySubtype[] => {
+  const uniqueSubtypes = new Map<number, string>();
+
+  data.forEach((doc) => {
+    if (
+      doc.DocumentId === documentId &&
+      doc.MainTypeId === mainTypeId &&
+      doc.TypeId === typeId &&
+      doc.SubtypeId !== null &&
+      !uniqueSubtypes.has(doc.SubtypeId)
+    ) {
+      uniqueSubtypes.set(doc.SubtypeId, doc.SubtypeName);
+    }
+  });
+
+  return Array.from(uniqueSubtypes, ([SubtypeId, SubtypeName]) => ({
+    SubtypeId,
+    SubtypeName,
+  }));
+};

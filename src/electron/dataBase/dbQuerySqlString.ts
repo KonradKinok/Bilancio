@@ -61,7 +61,8 @@ FROM AllDocuments
 LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
 LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
 LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
-LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId;`;
+LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId
+WHERE AllDocuments.IsDeleted = 0;`;
 };
 
 // Pobierz ostatni wiersz z tabeli 
@@ -111,7 +112,7 @@ ORDER BY Invoices.ReceiptDate DESC;;
     return sql1
 }
 
-// Pobierz ostatni wiersz z tabeli 
+// Dodaj faktury do tabeli Invoices
 export function addInvoiceSqlString():string {
   return `INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
     VALUES (?, ?, ?, ?, ?)`;

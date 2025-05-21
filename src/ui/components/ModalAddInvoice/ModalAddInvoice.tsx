@@ -53,17 +53,10 @@ export function ModalAddInvoice({
     };
   }, [handleEsc]);
 
-  const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModalAddInvoice();
-    }
-  };
-
   return (
     <div
       className={`${scss["add-invoice-modal-container"]} 
       ${isModalAddInvoiceOpen ? scss["is-open"] : ""} `}
-      onClick={handleClickOutside}
     >
       <div className={scss["add-invoice-modal"]}>
         <div
