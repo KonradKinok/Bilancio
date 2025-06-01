@@ -10,6 +10,8 @@ import {
   currencyFormater,
 } from "../GlobalFunctions/GlobalFunctions";
 import Pagination from "../Pagination/Pagination";
+import { useToggle } from "../../hooks/useToggle";
+import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 
 interface PageState {
   firstPage: number;
@@ -29,7 +31,15 @@ export const MainTable: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(20);
   // Stan dla liczby wierszy na stronę
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-
+  // Stan dla modala edycji
+  const {
+    isOpenModal: isModalAddInvoiceOpen,
+    openModal: openModalAddInvoice,
+    closeModal: closeModalAddInvoice,
+  } = useToggle();
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceSave | null>(
+    null
+  );
   //Nazwy wszystkich dokumentów
   const { allDocumentsData } = useMainDataContext();
   const {
@@ -38,6 +48,41 @@ export const MainTable: React.FC = () => {
     error: errorAllDocumentsName,
   } = allDocumentsData;
 
+  //Edit Invoice
+  const handleEditInvoice = (invoice: AllInvoices) => {
+    const invoiceData: InvoiceSave = {
+      invoice: {
+        InvoiceId: invoice.InvoiceId,
+        InvoiceName: invoice.InvoiceName,
+        ReceiptDate: invoice.ReceiptDate,
+        DeadlineDate: invoice.DeadlineDate,
+        PaymentDate: invoice.PaymentDate,
+        IsDeleted: invoice.IsDeleted || 0,
+      },
+      details: invoice.DocumentNames.map((_: string, index: number) => ({
+        InvoiceId: invoice.InvoiceId,
+        DocumentId: parseInt(invoice.DocumentIds?.[index] || "0", 10),
+        MainTypeId: invoice.MainTypeIds?.[index]
+          ? parseInt(invoice.MainTypeIds[index], 10) || null
+          : null,
+        TypeId: invoice.TypeIds?.[index]
+          ? parseInt(invoice.TypeIds[index], 10) || null
+          : null,
+        SubtypeId: invoice.SubtypeIds?.[index]
+          ? parseInt(invoice.SubtypeIds[index], 10) || null
+          : null,
+        Quantity: parseInt(invoice.Quantities?.[index] || "0", 10),
+        Price: parseFloat(invoice.Prices?.[index] || "0"),
+        isMainTypeRequired: !!(
+          invoice.MainTypeIds && invoice.MainTypeIds[index]
+        ),
+        isTypeRequired: !!(invoice.TypeIds && invoice.TypeIds[index]),
+        isSubtypeRequired: !!(invoice.SubtypeIds && invoice.SubtypeIds[index]),
+      })),
+    };
+    setSelectedInvoice(invoiceData);
+    openModalAddInvoice();
+  };
   //Pagination
   const initialPage = 1;
   const [page, setPage] = useState<PageState>({
@@ -174,7 +219,12 @@ export const MainTable: React.FC = () => {
                         ))}
                     </td>
                     <td className={scss[""]}>
-                      <button className={scss["edit-button"]}>Edytuj</button>
+                      <button
+                        className={scss["edit-button"]}
+                        onClick={() => handleEditInvoice(invoice)}
+                      >
+                        Edytuj
+                      </button>
                     </td>
                     <td className={scss[""]}>
                       <button className={scss["delete-button"]}>Usuń</button>
@@ -208,6 +258,11 @@ export const MainTable: React.FC = () => {
           />
         </div>
       </div>
+      <ModalAddInvoice
+        isModalAddInvoiceOpen={isModalAddInvoiceOpen}
+        closeModalAddInvoice={closeModalAddInvoice}
+        selectedInvoice={selectedInvoice} // Przekazanie danych faktury
+      />
       <div>
         <button onClick={toastClick}>Refetch</button>
         <h2>Dokumenty</h2>

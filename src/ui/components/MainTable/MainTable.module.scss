@@ -115,7 +115,9 @@
 
       .select {
         padding: 5px;
-        border: 1px solid #4caf50;
+        border: 1px solid rgb(2, 247, 153);
+        color: rgb(2, 247, 153);
+        background-color: var(--th-background-color);
         border-radius: 4px;
         font-size: 14px;
         cursor: pointer;

@@ -91,9 +91,13 @@ const sql1=`SELECT
     Invoices.DeadlineDate,
     Invoices.PaymentDate,
     Invoices.IsDeleted,
+     GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentId, ''), ';') AS DocumentIds,
     GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentName, ''), ';') AS DocumentNames,
+    GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeId, ''), ';') AS MainTypeIds,
     GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeName, ''), ';') AS MainTypeNames,
+    GROUP_CONCAT(IFNULL(DictionaryType.TypeId, ''), ';') AS TypeIds,
     GROUP_CONCAT(IFNULL(DictionaryType.TypeName, ''), ';') AS TypeNames,
+    GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeId, ''), ';') AS SubtypeIds,
     GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeName, ''), ';') AS SubtypeNames,
     GROUP_CONCAT(IFNULL(InvoiceDetails.Quantity, ''), ';') AS Quantities,
     GROUP_CONCAT(IFNULL(InvoiceDetails.Price, ''), ';') AS Prices

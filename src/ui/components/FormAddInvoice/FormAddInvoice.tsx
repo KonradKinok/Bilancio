@@ -18,12 +18,15 @@ import { useMainDataContext } from "../Context/useOptionsImage";
 import { useAddInvoice } from "../../hooks/useAddInvoice";
 import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
+import { useUpdateInvoice } from "../../hooks/useUpdateInvoice";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
+  selectedInvoice?: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   closeModalAddInvoice: () => void;
   modalContentRef?: React.RefObject<HTMLDivElement | null>;
+  isEditMode: boolean; // Nowy prop
 }
 
 export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
@@ -31,6 +34,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   setAddInvoiceData,
   closeModalAddInvoice,
   modalContentRef,
+  selectedInvoice,
+  isEditMode,
 }) => {
   const {
     isOpenModal: isOpenModalConfirmationSave,
@@ -68,7 +73,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     loading: saveInvoiceLoading,
     error: saveInvoiceError,
   } = useAddInvoice();
-
+  const {
+    updateInvoice,
+    data: updateInvoiceData,
+    loading: updateInvoiceLoading,
+    error: updateInvoiceError,
+  } = useUpdateInvoice();
   // Przechowywanie początkowego stanu dla wykrywania zmian
   const [initialState] = useState({
     addInvoiceData: JSON.stringify(addInvoiceData),
@@ -145,6 +155,29 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     dateTimePickerPaymentDate,
     setAddInvoiceData,
   ]);
+
+  // Wypełnianie formularza danymi z addInvoiceData
+  useEffect(() => {
+    if (selectedInvoice) {
+      setInputInvoiceName(selectedInvoice.invoice.InvoiceName);
+      setDateTimePickerReceiptDate(
+        selectedInvoice.invoice.ReceiptDate
+          ? new Date(selectedInvoice.invoice.ReceiptDate)
+          : null
+      );
+      setDateTimePickerDeadlineDate(
+        selectedInvoice.invoice.DeadlineDate
+          ? new Date(selectedInvoice.invoice.DeadlineDate)
+          : null
+      );
+      setDateTimePickerPaymentDate(
+        selectedInvoice.invoice.PaymentDate
+          ? new Date(selectedInvoice.invoice.PaymentDate)
+          : null
+      );
+      setDocumentComponents(selectedInvoice.details.map(() => nanoid()));
+    }
+  }, [selectedInvoice]);
 
   const validateForm = useCallback((): boolean => {
     const isInvoiceNameValid = inputInvoiceName.trim() !== "";
@@ -272,8 +305,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     });
   };
   const handleConfirmSave = async () => {
-    const toastErrorMessage = `Nie udało się dodać faktury. Sprawdź dane i spróbuj ponownie.`;
-    const toastSuccessMessage = `Faktura została pomyślnie dodana!`;
+    const toastErrorMessage = `Nie udało się ${
+      isEditMode ? "zaktualizować" : "dodać"
+    } faktury. Sprawdź dane i spróbuj ponownie.`;
+    const toastSuccessMessage = `Faktura została pomyślnie ${
+      isEditMode ? "zaktualizowana" : "dodana"
+    }!`;
     try {
       // Walidacja formularza
       if (!validateForm()) {
@@ -284,6 +321,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       }
 
       const invoice: InvoiceTable = {
+        InvoiceId: selectedInvoice?.invoice.InvoiceId, // Ważne dla update
         InvoiceName: addInvoiceData.invoice.InvoiceName,
         ReceiptDate: addInvoiceData.invoice.ReceiptDate,
         DeadlineDate: addInvoiceData.invoice.DeadlineDate,
@@ -293,6 +331,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 
       const invoiceDetails: InvoiceDetailsTable[] = addInvoiceData.details.map(
         (detail) => ({
+          InvoiceId: selectedInvoice?.invoice.InvoiceId, // Ważne dla update
           DocumentId: detail.DocumentId,
           MainTypeId: detail.MainTypeId,
           TypeId: detail.TypeId,
@@ -429,11 +468,11 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       <div className={scss["form-add-invoice-container"]}>
         <div className={scss["form-add-invoice-title-container"]}>
           <h3 className={scss["form-add-invoice-title"]}>
-            Dodaj nową fakturę:
+            {isEditMode ? "Edytuj fakturę:" : "Dodaj nową fakturę:"}
           </h3>
           <IconInfo
             tooltipId="tooltip-formAddInvoice"
-            tooltipInfoTextHtml={tooltipInfoFormAddInvoice()}
+            tooltipInfoTextHtml={tooltipInfoFormAddInvoice(isEditMode)}
           />
         </div>
         <div className={scss["form-invoice-data"]}>
@@ -490,6 +529,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             isOnly={documentComponents.length === 1}
             index={index}
             modalContentRef={modalContentRef}
+            detail={selectedInvoice?.details[index]} // Przekazujemy dane szczegółów
           />
         ))}
 
@@ -500,7 +540,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           <div className={scss["form-add-invoice-button-save-container"]}>
             <ButtonUniversal
               buttonName="saveInvoice"
-              buttonText="Zapisz fakturę"
+              buttonText={isEditMode ? "Zapisz zmiany" : "Zapisz fakturę"}
               buttonClick={openModalConfirmationSave}
               buttonDisabled={!isSaveButtonEnabled}
               buttonIcon={<RiSave3Fill />}
@@ -539,8 +579,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   );
 };
 
-function tooltipInfoFormAddInvoice() {
-  const text = `Formularz dodania nowej faktury.
+function tooltipInfoFormAddInvoice(isEditMode: boolean) {
+  const text = `Formularz ${isEditMode ? "edycji" : "dodania nowej"} faktury.
   Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
   Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
   Pole "Termin płatności" (opcjonalne) umożliwia wybranie daty terminu płatności za fakturę

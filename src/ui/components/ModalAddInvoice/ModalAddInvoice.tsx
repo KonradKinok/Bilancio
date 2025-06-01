@@ -5,11 +5,13 @@ import scss from "./ModalAddInvoice.module.scss";
 interface ModalAddInvoiceProps {
   closeModalAddInvoice: () => void;
   isModalAddInvoiceOpen: boolean;
+  selectedInvoice?: InvoiceSave;
 }
 
 export function ModalAddInvoice({
   closeModalAddInvoice,
   isModalAddInvoiceOpen,
+  selectedInvoice,
 }: ModalAddInvoiceProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
@@ -32,7 +34,6 @@ export function ModalAddInvoice({
       },
     ],
   });
-
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   const handleEsc = useCallback(
@@ -52,7 +53,12 @@ export function ModalAddInvoice({
       window.removeEventListener("keydown", handleEsc);
     };
   }, [handleEsc]);
-
+  // Aktualizacja addInvoiceData, gdy selectedInvoice się zmienia
+  useEffect(() => {
+    if (selectedInvoice) {
+      setAddInvoiceData(selectedInvoice);
+    }
+  }, [selectedInvoice]);
   return (
     <div
       className={`${scss["add-invoice-modal-container"]} 
@@ -68,6 +74,8 @@ export function ModalAddInvoice({
             setAddInvoiceData={setAddInvoiceData}
             closeModalAddInvoice={closeModalAddInvoice}
             modalContentRef={modalContentRef}
+            selectedInvoice={selectedInvoice}
+            isEditMode={!!selectedInvoice} // Przekazujemy informację o trybie edycji
           />
         </div>
       </div>

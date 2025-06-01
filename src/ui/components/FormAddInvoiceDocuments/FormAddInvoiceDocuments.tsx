@@ -22,6 +22,7 @@ interface FormAddInvoiceDocumentsProps {
   isOnly: boolean;
   index: number;
   modalContentRef?: React.RefObject<HTMLDivElement | null>;
+  detail?: InvoiceDetailsTable; // Dodajemy prop dla szczegółów dokumentu
 }
 export const FormAddInvoiceDocuments: React.FC<
   FormAddInvoiceDocumentsProps
@@ -34,6 +35,7 @@ export const FormAddInvoiceDocuments: React.FC<
   isOnly,
   index,
   modalContentRef,
+  detail,
 }) => {
   //useState combobox
   const [selectedDocument, setSelectedDocument] =
@@ -66,6 +68,55 @@ export const FormAddInvoiceDocuments: React.FC<
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
   } = allDocumentsData;
+  // Inicjalizacja wybranych opcji na podstawie detail
+  useEffect(() => {
+    if (detail) {
+      if (detail.DocumentId) {
+        const document = dataAllDocumentsName?.find(
+          (doc) => doc.DocumentId === detail.DocumentId
+        );
+        if (document) {
+          setSelectedDocument({
+            value: document.DocumentId,
+            label: document.DocumentName,
+          });
+        }
+      }
+      if (detail.MainTypeId) {
+        const mainType = dataAllDocumentsName?.find(
+          (doc) => doc.MainTypeId === detail.MainTypeId
+        );
+        if (mainType) {
+          setSelectedMainType({
+            value: mainType.MainTypeId || -1,
+            label: mainType.MainTypeName,
+          });
+        }
+      }
+      if (detail.TypeId) {
+        const type = dataAllDocumentsName?.find(
+          (doc) => doc.TypeId === detail.TypeId
+        );
+        if (type) {
+          setSelectedType({
+            value: type.TypeId || -1,
+            label: type.TypeName,
+          });
+        }
+      }
+      if (detail.SubtypeId) {
+        const subtype = dataAllDocumentsName?.find(
+          (doc) => doc.SubtypeId === detail.SubtypeId
+        );
+        if (subtype) {
+          setSelectedSubtype({
+            value: subtype.SubtypeId || -1,
+            label: subtype.SubtypeName,
+          });
+        }
+      }
+    }
+  }, [detail, dataAllDocumentsName]);
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>

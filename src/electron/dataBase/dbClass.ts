@@ -4,7 +4,7 @@ import { open } from 'sqlite';
 import { getDBPath1 } from '../pathResolver.js';
 const dbPath=getDBPath1();
 // Definicja typu parametrów zapytań
-type QueryParams = Array<string | number | boolean | null>;
+export type QueryParams = Array<string | number | boolean | null>;
 
 class Database {
   private db: sqlite3.Database;

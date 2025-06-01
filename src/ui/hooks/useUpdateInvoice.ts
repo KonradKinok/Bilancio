@@ -1,34 +1,34 @@
 import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
-export function useAddInvoice() {
+export function useUpdateInvoice() {
   const [data, setData] = useState<ReturnInvoiceSave | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const addInvoice = async (invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]): Promise<DataBaseResponse<ReturnInvoiceSave>> => {
+  const updateInvoice = async (invoice: InvoiceTable, invoiceDetails: InvoiceDetailsTable[]): Promise<DataBaseResponse<ReturnInvoiceSave>> => {
     setLoading(true);
     setError(null);
     setData(null);
 
     try {
-      const result: DataBaseResponse<ReturnInvoiceSave> = await window.electron.addInvoiceDetails(
+      const result: DataBaseResponse<ReturnInvoiceSave> = await window.electron.updateInvoice(
         invoice,
         invoiceDetails
       );
-      console.log("useAddInvoice", result);
+      console.log("useUpdateInvoice", result);
 
       if (result.status === STATUS.Success ) {
         setData(result.data);
-        console.log("useAddInvoice result.data", result.data);
+        console.log("useUpdateInvoice result.data", result.data);
         setError(null);
       } else {
-        setError(result.message || "Błąd podczas zapisywania faktury");
+        setError(result.message || "useUpdateInvoice Błąd podczas zapisywania faktury");
       }
       return result;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Nieznany błąd");
-      const errorMessage = err instanceof Error ? err.message : "Nieznany błąd";
+      setError(err instanceof Error ? err.message : "useUpdateInvoice Nieznany błąd");
+      const errorMessage = err instanceof Error ? err.message : "useUpdateInvoice Nieznany błąd";
       setError(errorMessage);
       return {
         status: STATUS.Error,
@@ -39,5 +39,5 @@ export function useAddInvoice() {
     }
   };
 
-  return { data, loading, error, addInvoice };
+  return { data, loading, error, updateInvoice };
 }

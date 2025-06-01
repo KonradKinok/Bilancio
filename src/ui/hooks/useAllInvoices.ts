@@ -1,53 +1,3 @@
-// import { useState, useEffect } from "react";
-
-// export function useAllInvoices() {
-//   const [dataAllInvoices, setDataAllInvoices] = useState<AllInvoices[] | null>(null);
-//   const [data, setData] = useState<AllInvoices[]>([]);
-//   const [loading, setLoading] = useState<boolean>(true);
-//   const [error, setError] = useState<Error | null>(null);
-//   useEffect(() => {
-//     const fetchData = async () => {
-//       try {
-//         const result = await window.electron.getAllInvoices();
-//         setDataAllInvoices(result);
-//       } catch (err) {
-//         setError(err as Error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchData();
-//   }, []);
-
-// useEffect(() => {
-//   const fieldsToSplit = [
-//     "DocumentNames",
-//     "MainTypeNames",
-//     "TypeNames",
-//     "SubtypeNames",
-//     "Quantities",
-//     "Prices",
-//   ];
-//   if (dataAllInvoices) {
-//     const transformedData = dataAllInvoices.map((invoice) => {
-//       const transformedInvoice = { ...invoice };
-//       fieldsToSplit.forEach((field) => {
-//         const fieldValue = transformedInvoice[field] as unknown as string;
-//         if (fieldValue) {
-//           transformedInvoice[field] = fieldValue.includes(";")
-//             ? fieldValue.split(";")
-//             : [fieldValue];
-//         }
-//       });
-//       return transformedInvoice;
-//     });
-//     setData(transformedData);
-//   }
-// }, [dataAllInvoices]);
-
-//   return { data, loading, error };
-// }
 
 import { useState, useEffect, useCallback } from "react";
 import { useMainDataContext } from "../components/Context/useOptionsImage";
@@ -58,24 +8,12 @@ export function useAllInvoices(formValuesHomePage: FormValuesHomePage) {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // Funkcja pobierająca dane
-  // const fetchData = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const result = await window.electron.getAllInvoices(formValuesHomePage);
-  //     console.log("useAllInvoices()", result)
-  //     setDataAllInvoices(result);
-  //   } catch (err) {
-  //     setError(err as Error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 const fetchData = useCallback(async () => {
   try {
     setLoading(true);
     console.log("useAllInvoices()", {formValuesHomePage})
     const result = await window.electron.getAllInvoices(formValuesHomePage);
+
     setDataAllInvoices(result);
   } catch (err) {
     setError(err as Error);
@@ -90,10 +28,14 @@ const fetchData = useCallback(async () => {
 
   useEffect(() => {
     const fieldsToSplit = [
+      "DocumentIds",
       "DocumentNames",
+      "MainTypeIds",
       "MainTypeNames",
+      "TypeIds",
       "TypeNames",
       "SubtypeNames",
+      "SubtypeIds",
       "Quantities",
       "Prices",
     ];
@@ -108,12 +50,14 @@ const fetchData = useCallback(async () => {
               : [fieldValue];
           }
         });
+        
         return transformedInvoice;
       });
+      console.log("useAllInvoices() transformedData",transformedData)
       setData(transformedData);
     }
   }, [dataAllInvoices]);
-
+  console.log("useAllInvoices() transformedData data",data)
   // Zwracamy także funkcję refetch
   return { data, loading, error, refetch: fetchData };
 }

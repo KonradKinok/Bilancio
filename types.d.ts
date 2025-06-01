@@ -46,6 +46,27 @@ declare global {
     SubtypeId: number;
     SubtypeName: string;
   }
+
+type AllInvoices = {
+    InvoiceId: number;
+    InvoiceName: string;
+    ReceiptDate: string;
+    DeadlineDate: string | null;
+    PaymentDate: string;
+    IsDeleted: 0 | 1;
+    DocumentIds: string[];
+    DocumentNames: string[];
+    MainTypeIds: string[];
+    MainTypeNames: string[];
+    TypeIds: string[];
+    TypeNames: string[];
+    SubtypeIds: string[];
+    SubtypeNames: string[];
+    Quantities: string[];
+    Prices: string[];
+    [key: string]: string[] | null;
+  }
+
   type InvoiceTable = {
     InvoiceId?: number;
     InvoiceName: string;
@@ -122,21 +143,7 @@ declare global {
     [key: string]: string[] | null;
   }
 
-  type AllInvoices = {
-    InvoiceId: number;
-    InvoiceName: string;
-    ReceiptDate: string;
-    DeadlineDate: string | null;
-    PaymentDate: string;
-    IsDeleted: 0 | 1;
-    DocumentNames: string[];
-    MainTypeNames: string[];
-    TypeNames: string[];
-    SubtypeNames: string[];
-    Quantities: string[];
-    Prices: string[];
-    [key: string]: string[] | null;
-  }
+  
 
   type LastRowInvoice = {
     InvoiceId: number;
@@ -182,6 +189,7 @@ declare global {
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
     // addInvoice: unknown;
     addInvoice: DataBaseResponse<ReturnInvoiceSave>;
+    updateInvoice: DataBaseResponse<ReturnInvoiceSave>;
     addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
@@ -202,6 +210,7 @@ declare global {
       getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
       getAllInvoices: (payload) => Promise<AllInvoices[]>;
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
+      updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;

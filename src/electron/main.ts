@@ -5,7 +5,7 @@ import { getStaticData, pollResources } from "./resourceManager.js";
 import {getAssetPath, getDBPath, getPreloadPath, getUIPath} from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
-import { addInvoice, addInvoiceDetails, getAllDocumentsName, getAllInvoices, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, getAllDocumentsName, getAllInvoices, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, updateInvoice } from "./dataBase/dbFunction.js";
 export type DictionaryDocuments = {
   DocumentId: number;
   DocumentName: string;
@@ -53,6 +53,9 @@ app.on("ready", () => {
   });
   ipcMainHandle2('addInvoice',  (payload) => {
     return addInvoice(payload);
+  });
+  ipcMainHandle2('updateInvoice',  (invoice, invoiceDetails) => {
+    return updateInvoice(invoice , invoiceDetails);
   });
   ipcMainHandle2('addInvoiceDetails',  (invoice, invoiceDetails) => {
     return addInvoiceDetails(invoice , invoiceDetails);

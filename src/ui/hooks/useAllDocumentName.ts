@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import  { STATUS, DataBaseResponse, isSuccess } from '../../electron/sharedTypes/status';
+import { STATUS, DataBaseResponse, isSuccess } from '../../electron/sharedTypes/status';
+
 export function useAllDocumentsName() {
   const [data, setData] = useState<AllDocumentsName[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
