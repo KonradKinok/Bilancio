@@ -10,7 +10,12 @@ import { FaInfoCircle } from "react-icons/fa";
 import { RiSave3Fill } from "react-icons/ri";
 import { ImExit } from "react-icons/im";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
-import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
+import {
+  calculateTotalAmount,
+  compareInvoices,
+  compareInvoices2,
+  formatDocumentDetailsFunctionChanges,
+} from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
 import { useToggle } from "../../hooks/useToggle";
 import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
@@ -79,6 +84,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     loading: updateInvoiceLoading,
     error: updateInvoiceError,
   } = useUpdateInvoice();
+
   // Przechowywanie początkowego stanu dla wykrywania zmian
   const [initialState] = useState({
     addInvoiceData: JSON.stringify(addInvoiceData),
@@ -105,39 +111,18 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`; // YYYY-MM-DD
   };
+  // Porównanie wybranej faktury z danymi do dodania
+  // const differences = compareInvoices(selectedInvoice, addInvoiceData);
+  const differences = compareInvoices2(selectedInvoice, addInvoiceData);
+  console.log("FormAddInvoice: selectedInvoice:", selectedInvoice);
+  console.log("FormAddInvoice: addInvoiceData:", addInvoiceData);
+  console.log("FormAddInvoice: differences:", differences);
+  const formatDifferences =
+    formatDocumentDetailsFunctionChanges(dataAllDocumentsName);
+  const differencesWithName = formatDifferences(differences);
   // Funkcja do formatowania szczegółów dokumentu
-  const formatDocumentDetails = (detail: InvoiceDetailsTable) => {
-    const document = dataAllDocumentsName?.find(
-      (doc) => doc.DocumentId === detail.DocumentId
-    );
-    const mainType = detail.MainTypeId
-      ? dataAllDocumentsName?.find(
-          (doc) => doc.MainTypeId === detail.MainTypeId
-        )
-      : null;
-    const type = detail.TypeId
-      ? dataAllDocumentsName?.find((doc) => doc.TypeId === detail.TypeId)
-      : null;
-    const subtype = detail.SubtypeId
-      ? dataAllDocumentsName?.find((doc) => doc.SubtypeId === detail.SubtypeId)
-      : null;
-
-    return {
-      documentName:
-        document?.DocumentName || `Dokument ID: ${detail.DocumentId}`,
-      mainTypeName:
-        mainType?.MainTypeName ||
-        (detail.MainTypeId ? `Typ główny ID: ${detail.MainTypeId}` : ""),
-      typeName:
-        type?.TypeName || (detail.TypeId ? `Typ ID: ${detail.TypeId}` : ""),
-      subtypeName:
-        subtype?.SubtypeName ||
-        (detail.SubtypeId ? `Podtyp ID: ${detail.SubtypeId}` : ""),
-      quantity: detail.Quantity,
-      price: detail.Price.toFixed(2),
-      total: (detail.Quantity * detail.Price).toFixed(2),
-    };
-  };
+  const formatDocumentDetails =
+    formatDocumentDetailsFunction(dataAllDocumentsName);
   // Aktualizacja dat w addInvoiceData
   useEffect(() => {
     setAddInvoiceData((prev) => ({
@@ -532,7 +517,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             detail={selectedInvoice?.details[index]} // Przekazujemy dane szczegółów
           />
         ))}
-
         <div className={scss["form-add-invoice-save-container"]}>
           <p>
             <strong>Całkowita kwota:</strong> {totalAmount}
@@ -555,8 +539,22 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
+        <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
+        <p>Inna faktura: {JSON.stringify(addInvoiceData)}</p>
+        <p>Różnice w fakturach: {JSON.stringify(differencesWithName)}</p>
+        <h2>Różnice w fakturach</h2>
+        <ul>
+          {differencesWithName.map((diff, index) => (
+            <li key={index}>
+              <strong>{diff.key}</strong>:
+              <br />
+              Stara wartość: {JSON.stringify(diff.oldValue)}
+              <br />
+              Nowa wartość: {JSON.stringify(diff.newValue)}
+            </li>
+          ))}
+        </ul>
       </div>
-
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}
         totalAmount={totalAmount}
@@ -567,7 +565,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         loadingDocuments={loadingAllDocumentsName}
         errorDocuments={errorAllDocumentsName}
       />
-
       <ModalSelectionWindow
         closeModalAddInvoice={closeModalAddInvoice}
         closeModalSelectionWindow={closeModalSelectionWindow}
@@ -578,6 +575,43 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     </form>
   );
 };
+
+function formatDocumentDetailsFunction(
+  dataAllDocumentsName: AllDocumentsName[] | null
+) {
+  return (detail: InvoiceDetailsTable) => {
+    const document = dataAllDocumentsName?.find(
+      (doc) => doc.DocumentId === detail.DocumentId
+    );
+    const mainType = detail.MainTypeId
+      ? dataAllDocumentsName?.find(
+          (doc) => doc.MainTypeId === detail.MainTypeId
+        )
+      : null;
+    const type = detail.TypeId
+      ? dataAllDocumentsName?.find((doc) => doc.TypeId === detail.TypeId)
+      : null;
+    const subtype = detail.SubtypeId
+      ? dataAllDocumentsName?.find((doc) => doc.SubtypeId === detail.SubtypeId)
+      : null;
+
+    return {
+      documentName:
+        document?.DocumentName || `Dokument ID: ${detail.DocumentId}`,
+      mainTypeName:
+        mainType?.MainTypeName ||
+        (detail.MainTypeId ? `Typ główny ID: ${detail.MainTypeId}` : ""),
+      typeName:
+        type?.TypeName || (detail.TypeId ? `Typ ID: ${detail.TypeId}` : ""),
+      subtypeName:
+        subtype?.SubtypeName ||
+        (detail.SubtypeId ? `Podtyp ID: ${detail.SubtypeId}` : ""),
+      quantity: detail.Quantity,
+      price: detail.Price.toFixed(2),
+      total: (detail.Quantity * detail.Price).toFixed(2),
+    };
+  };
+}
 
 function tooltipInfoFormAddInvoice(isEditMode: boolean) {
   const text = `Formularz ${isEditMode ? "edycji" : "dodania nowej"} faktury.

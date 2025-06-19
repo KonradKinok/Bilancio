@@ -37,6 +37,7 @@ export const FormAddInvoiceDocuments: React.FC<
   modalContentRef,
   detail,
 }) => {
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   //useState combobox
   const [selectedDocument, setSelectedDocument] =
     useState<ComboBoxOption | null>(null);
@@ -53,10 +54,14 @@ export const FormAddInvoiceDocuments: React.FC<
     useState<boolean>(false);
 
   //useState textbox
-  const [inputInvoiceQuantity, setInputInvoiceQuantity] = useState<string>("");
+  const [inputInvoiceQuantity, setInputInvoiceQuantity] = useState<string>(
+    detail?.Quantity?.toString() || ""
+  );
   const [inputInvoiceQuantityError, setInputInvoiceQuantityError] =
     useState<string>("");
-  const [inputInvoicePrice, setInputInvoicePrice] = useState<string>("");
+  const [inputInvoicePrice, setInputInvoicePrice] = useState<string>(
+    detail?.Price?.toString() || ""
+  );
   const [inputInvoicePriceError, setInputInvoicePriceError] =
     useState<string>("");
   const [isPriceManuallyEdited, setIsPriceManuallyEdited] =
@@ -68,9 +73,10 @@ export const FormAddInvoiceDocuments: React.FC<
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
   } = allDocumentsData;
+
   // Inicjalizacja wybranych opcji na podstawie detail
   useEffect(() => {
-    if (detail) {
+    if (detail && !isInitialized) {
       if (detail.DocumentId) {
         const document = dataAllDocumentsName?.find(
           (doc) => doc.DocumentId === detail.DocumentId
@@ -86,6 +92,7 @@ export const FormAddInvoiceDocuments: React.FC<
         const mainType = dataAllDocumentsName?.find(
           (doc) => doc.MainTypeId === detail.MainTypeId
         );
+
         if (mainType) {
           setSelectedMainType({
             value: mainType.MainTypeId || -1,
@@ -116,7 +123,29 @@ export const FormAddInvoiceDocuments: React.FC<
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, dataAllDocumentsName]);
+
+  // Funkcje obsługujące zmiany w comboboxach
+  const handleDocumentChange = (option: ComboBoxOption | null) => {
+    setSelectedDocument(option);
+    setIsInitialized(true);
+  };
+
+  const handleMainTypeChange = (option: ComboBoxOption | null) => {
+    setSelectedMainType(option);
+    setIsInitialized(true);
+  };
+
+  const handleTypeChange = (option: ComboBoxOption | null) => {
+    setSelectedType(option);
+    setIsInitialized(true);
+  };
+
+  const handleSubtypeChange = (option: ComboBoxOption | null) => {
+    setSelectedSubtype(option);
+    setIsInitialized(true);
+  };
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -268,22 +297,48 @@ export const FormAddInvoiceDocuments: React.FC<
     return options.length === 1 ? options[0] : undefined;
   };
   //removing elements from the combobox when changing
+  // useEffect(() => {
+  //   setSelectedMainType(null);
+  //   setSelectedType(null);
+  //   setSelectedSubtype(null);
+  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
+  // }, [selectedDocument]);
+  // useEffect(() => {
+  //   setSelectedType(null);
+  //   setSelectedSubtype(null);
+  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
+  // }, [selectedMainType]);
+  // useEffect(() => {
+  //   setSelectedSubtype(null);
+  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
+  // }, [selectedType]);
+  // Resetowanie pól tylko po zakończeniu inicjalizacji
   useEffect(() => {
-    setSelectedMainType(null);
-    setSelectedType(null);
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
+    if (isInitialized) {
+      setSelectedMainType(null);
+      setSelectedType(null);
+      setSelectedSubtype(null);
+      setIsPriceManuallyEdited(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDocument]);
-  useEffect(() => {
-    setSelectedType(null);
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
-  }, [selectedMainType]);
-  useEffect(() => {
-    setSelectedSubtype(null);
-    setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
-  }, [selectedType]);
 
+  useEffect(() => {
+    if (isInitialized) {
+      setSelectedType(null);
+      setSelectedSubtype(null);
+      setIsPriceManuallyEdited(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMainType]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      setSelectedSubtype(null);
+      setIsPriceManuallyEdited(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedType]);
   //set single item in combobox
 
   useEffect(() => {
@@ -350,7 +405,6 @@ export const FormAddInvoiceDocuments: React.FC<
       setInputInvoicePrice(price);
     }
 
-    // Aktualizacja addInvoiceData.details
     setAddInvoiceData((prev) => {
       const newDetails = [...prev.details];
       newDetails[index] = {
@@ -361,9 +415,9 @@ export const FormAddInvoiceDocuments: React.FC<
         SubtypeId: selectedSubtype?.value ?? null,
         Quantity: inputInvoiceQuantity ? parseInt(inputInvoiceQuantity) : 0,
         Price: inputInvoicePrice ? parseFloat(inputInvoicePrice) : 0,
-        isMainTypeRequired: isMainTypeExists, // Nowe pole
-        isTypeRequired: isTypeExists, // Nowe pole
-        isSubtypeRequired: isSubtypeExists, // Nowe pole
+        isMainTypeRequired: isMainTypeExists,
+        isTypeRequired: isTypeExists,
+        isSubtypeRequired: isSubtypeExists,
       };
       return { ...prev, details: newDetails };
     });
@@ -381,6 +435,7 @@ export const FormAddInvoiceDocuments: React.FC<
     isPriceManuallyEdited,
     index,
     setAddInvoiceData,
+    detail,
   ]);
 
   const areFieldsFilled = () => {
@@ -422,7 +477,7 @@ export const FormAddInvoiceDocuments: React.FC<
         <Select<ComboBoxOption> //Dokument Combobox
           value={selectedDocument} // <-- zamiast tylko defaultValue
           defaultValue={getSingleDefaultOption(optionsDictionaryDocumentTable)}
-          onChange={(option) => setSelectedDocument(option as ComboBoxOption)}
+          onChange={(option) => handleDocumentChange(option as ComboBoxOption)}
           options={optionsDictionaryDocumentTable} // Użyj danych z hooka
           isSearchable={true}
           placeholder="Wybierz..."
@@ -439,7 +494,9 @@ export const FormAddInvoiceDocuments: React.FC<
             defaultValue={getSingleDefaultOption(
               optionsDictionaryMainTypeTable
             )}
-            onChange={(option) => setSelectedMainType(option as ComboBoxOption)}
+            onChange={(option) =>
+              handleMainTypeChange(option as ComboBoxOption)
+            }
             options={optionsDictionaryMainTypeTable} // Użyj danych z hooka
             isSearchable={true}
             placeholder="Wybierz..."
@@ -450,11 +507,12 @@ export const FormAddInvoiceDocuments: React.FC<
             className={scss["select-maintype-container"]}
           />
         )}
+
         {isTypeExistsBool && (
           <Select<ComboBoxOption> //Type Combobox
             value={selectedType}
             defaultValue={getSingleDefaultOption(optionsDictionaryTypeTable)}
-            onChange={(option) => setSelectedType(option as ComboBoxOption)}
+            onChange={(option) => handleTypeChange(option as ComboBoxOption)}
             options={optionsDictionaryTypeTable} // Użyj danych z hooka
             isSearchable={true}
             placeholder="Wybierz..."
@@ -465,11 +523,12 @@ export const FormAddInvoiceDocuments: React.FC<
             className={scss["select-type-container"]}
           />
         )}
+
         {isSubtypeExistsBool && (
           <Select<ComboBoxOption> //Subtype Combobox
             value={selectedSubtype}
             // defaultValue={getSingleDefaultOption(optionsDictionarySubtypeTable)}
-            onChange={(option) => setSelectedSubtype(option as ComboBoxOption)}
+            onChange={(option) => handleSubtypeChange(option as ComboBoxOption)}
             options={optionsDictionarySubtypeTable} // Użyj danych z hooka
             isSearchable={false}
             placeholder="Wybierz..."
