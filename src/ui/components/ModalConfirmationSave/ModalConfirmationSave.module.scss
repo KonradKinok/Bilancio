@@ -75,6 +75,11 @@
       border: 1px solid #00ff0d;
       padding: 8px;
       text-align: left;
+
+      .modal-table-deleted-data {
+        text-decoration: line-through;
+        color: #ff0000;
+      }
     }
 
     th {

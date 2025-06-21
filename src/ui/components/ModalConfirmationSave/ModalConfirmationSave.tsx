@@ -6,9 +6,12 @@ import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import scss from "./ModalConfirmationSave.module.scss";
 import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
+import { TableInvoiceModalConfirmationSave } from "./TableInvoiceModalConfirmationSave/TableInvoiceModalConfirmationSave";
+import { TableDetailsInvoiceModalConfirmationSave } from "./TableDetailsInvoiceModalConfirmationSave/TableDetailsInvoiceModalConfirmationSave";
 
 interface ModalConfirmationSaveProps {
   addInvoiceData: InvoiceSave;
+  selectedInvoice?: InvoiceSave;
   totalAmount: string;
   formatDocumentDetails: (detail: InvoiceDetailsTable) => {
     documentName: string;
@@ -24,10 +27,12 @@ interface ModalConfirmationSaveProps {
   onCancel: () => void;
   loadingDocuments: boolean;
   errorDocuments: unknown;
+  isEditMode: boolean;
 }
 
 export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
   addInvoiceData,
+  selectedInvoice,
   totalAmount,
   formatDocumentDetails,
   isOpenModalConfirmationSave,
@@ -35,6 +40,7 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
   onCancel,
   loadingDocuments,
   errorDocuments,
+  isEditMode,
 }) => {
   return (
     <div
@@ -43,7 +49,11 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
     >
       <div className={`${scss["modal"]}`}>
         <div className={scss["modal-title-container"]}>
-          <h3 className={scss["modal-title"]}>Potwierdź zapis faktury</h3>
+          <h3 className={scss["modal-title"]}>
+            {isEditMode
+              ? "Potwierdź edycję faktury"
+              : "Potwierdź zapis faktury"}
+          </h3>
           <RiSave3Fill className={scss["modal-title-icon"]} />
           <IconInfo
             tooltipId="tooltip-modalConfirmationSave"
@@ -52,26 +62,13 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
         </div>
         <div className={scss["modal-content"]}>
           <h4>Dane faktury:</h4>
-          <table className={scss["modal-table"]}>
-            <thead>
-              <tr>
-                <th>Nazwa faktury</th>
-                <th>Data wpływu</th>
-                <th>Termin płatności</th>
-                <th>Data płatności</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{addInvoiceData.invoice.InvoiceName || "-"}</td>
-                <td>{addInvoiceData.invoice.ReceiptDate || "-"}</td>
-                <td>{addInvoiceData.invoice.DeadlineDate || "-"}</td>
-                <td>{addInvoiceData.invoice.PaymentDate || "-"}</td>
-              </tr>
-            </tbody>
-          </table>
+          <TableInvoiceModalConfirmationSave
+            addInvoiceData={addInvoiceData}
+            selectedInvoice={selectedInvoice}
+            isEditMode={isEditMode}
+          />
           <h4>Szczegóły dokumentów:</h4>
-          {loadingDocuments ? (
+          {/* {loadingDocuments ? (
             <p>Ładowanie danych dokumentów...</p>
           ) : errorDocuments ? (
             <p className={scss["error-message"]}>
@@ -111,6 +108,22 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
                 })}
               </tbody>
             </table>
+          )} */}
+          {loadingDocuments ? (
+            <p>Ładowanie danych dokumentów...</p>
+          ) : errorDocuments ? (
+            <p className={scss["error-message"]}>
+              Błąd ładowania danych dokumentów. Wyświetlane są ID.
+            </p>
+          ) : addInvoiceData.details.length === 0 ? (
+            <p>Brak dokumentów do wyświetlenia.</p>
+          ) : (
+            <TableDetailsInvoiceModalConfirmationSave
+              addInvoiceData={addInvoiceData}
+              selectedInvoice={selectedInvoice}
+              isEditMode={isEditMode}
+              formatDocumentDetails={formatDocumentDetails}
+            />
           )}
           <p>
             <strong>Całkowita kwota:</strong> {totalAmount}

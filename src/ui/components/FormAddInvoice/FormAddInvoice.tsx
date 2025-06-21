@@ -12,7 +12,6 @@ import { ImExit } from "react-icons/im";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import {
   calculateTotalAmount,
-  compareInvoices,
   compareInvoices2,
   formatDocumentDetailsFunctionChanges,
 } from "../GlobalFunctions/GlobalFunctions";
@@ -557,6 +556,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       </div>
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}
+        selectedInvoice={selectedInvoice}
         totalAmount={totalAmount}
         formatDocumentDetails={formatDocumentDetails}
         isOpenModalConfirmationSave={isOpenModalConfirmationSave}
@@ -564,6 +564,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         onCancel={closeModalConfirmationSave}
         loadingDocuments={loadingAllDocumentsName}
         errorDocuments={errorAllDocumentsName}
+        isEditMode={isEditMode}
       />
       <ModalSelectionWindow
         closeModalAddInvoice={closeModalAddInvoice}

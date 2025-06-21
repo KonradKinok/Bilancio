@@ -61,57 +61,57 @@ type Difference = {
   newValue: unknown;
 };
 
-export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
-  const differences: Difference[] = [];
-  if (!oldInvoice || !newInvoice) {
-    return differences; // lub inne domyślne zachowanie
-  }
-  // Compare top-level invoice properties
-  const invoiceKeys = Object.keys(oldInvoice.invoice) as (keyof InvoiceTable)[];
-  for (const key of invoiceKeys) {
-    if (oldInvoice.invoice[key] !== newInvoice.invoice[key]) {
-      differences.push({
-        key: `invoice.${key}`,
-        oldValue: oldInvoice.invoice[key],
-        newValue: newInvoice.invoice[key],
-      });
-    }
-  }
+// export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
+//   const differences: Difference[] = [];
+//   if (!oldInvoice || !newInvoice) {
+//     return differences; // lub inne domyślne zachowanie
+//   }
+//   // Compare top-level invoice properties
+//   const invoiceKeys = Object.keys(oldInvoice.invoice) as (keyof InvoiceTable)[];
+//   for (const key of invoiceKeys) {
+//     if (oldInvoice.invoice[key] !== newInvoice.invoice[key]) {
+//       differences.push({
+//         key: `invoice.${key}`,
+//         oldValue: oldInvoice.invoice[key],
+//         newValue: newInvoice.invoice[key],
+//       });
+//     }
+//   }
 
-  // Compare details arrays
-  const maxLength = Math.max(oldInvoice.details.length, newInvoice.details.length);
-  for (let i = 0; i < maxLength; i++) {
-    if (i >= oldInvoice.details.length) {
-      // New details entry added
-      differences.push({
-        key: `details[${i}]`,
-        oldValue: null,
-        newValue: newInvoice.details[i],
-      });
-    } else if (i >= newInvoice.details.length) {
-      // Old details entry removed
-      differences.push({
-        key: `details[${i}]`,
-        oldValue: oldInvoice.details[i],
-        newValue: null,
-      });
-    } else {
-      // Compare properties of details entries
-      const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
-      for (const key of detailKeys) {
-        if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
-          differences.push({
-            key: `details[${i}].${key}`,
-            oldValue: oldInvoice.details[i][key],
-            newValue: newInvoice.details[i][key],
-          });
-        }
-      }
-    }
-  }
+//   // Compare details arrays
+//   const maxLength = Math.max(oldInvoice.details.length, newInvoice.details.length);
+//   for (let i = 0; i < maxLength; i++) {
+//     if (i >= oldInvoice.details.length) {
+//       // New details entry added
+//       differences.push({
+//         key: `details[${i}]`,
+//         oldValue: null,
+//         newValue: newInvoice.details[i],
+//       });
+//     } else if (i >= newInvoice.details.length) {
+//       // Old details entry removed
+//       differences.push({
+//         key: `details[${i}]`,
+//         oldValue: oldInvoice.details[i],
+//         newValue: null,
+//       });
+//     } else {
+//       // Compare properties of details entries
+//       const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
+//       for (const key of detailKeys) {
+//         if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
+//           differences.push({
+//             key: `details[${i}].${key}`,
+//             oldValue: oldInvoice.details[i][key],
+//             newValue: newInvoice.details[i][key],
+//           });
+//         }
+//       }
+//     }
+//   }
 
-  return differences;
-}
+//   return differences;
+// }
 export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
   const differences: Difference[] = [];
   if (!oldInvoice || !newInvoice) {
@@ -161,7 +161,7 @@ export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice
       }
     }
   }
-
+  
   return differences;
 }
 type FormattedDetail = {
@@ -181,16 +181,11 @@ type FormattedDifference = {
 
 export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDocumentsName[] | null) {
   // Helper function to format a single InvoiceDetailsTable object
-  console.log('function formatDocumentDetailsFunctionChanges - start');
   const formatDetail = (detail: InvoiceDetailsTable | null): FormattedDetail | null => {
     if (!detail || typeof detail !== 'object' || !('DocumentId' in detail) || !('Quantity' in detail) || !('Price' in detail)) {
-      console.log('formatDetail: Invalid detail object', detail);
+      console.error('formatDetail: Invalid detail object', detail);
       return null;
     }
-
-    // Log input data for debugging
-    console.log('formatDetail: Processing detail', detail);
-    console.log('formatDetail: dataAllDocumentsName', dataAllDocumentsName);
 
     // If dataAllDocumentsName is null or empty, use fallbacks
     if (!dataAllDocumentsName || dataAllDocumentsName.length === 0) {
@@ -218,12 +213,6 @@ export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDo
     const subtype = detail.SubtypeId
       ? dataAllDocumentsName.find((doc) => doc.SubtypeId === detail.SubtypeId)
       : null;
-
-    // Log found records for debugging
-    console.log('formatDetail: Found document', document);
-    console.log('formatDetail: Found mainType', mainType);
-    console.log('formatDetail: Found type', type);
-    console.log('formatDetail: Found subtype', subtype);
 
     return {
       documentName: document?.DocumentName ?? `Document ID: ${detail.DocumentId}`,
