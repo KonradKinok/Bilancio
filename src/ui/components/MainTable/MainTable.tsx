@@ -12,6 +12,9 @@ import {
 import Pagination from "../Pagination/Pagination";
 import { useToggle } from "../../hooks/useToggle";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
+import { useDeleteInvoice } from "../../hooks/useDeleteInvoice";
+import { STATUS } from "../../../electron/sharedTypes/status";
+import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 
 interface PageState {
   firstPage: number;
@@ -37,9 +40,15 @@ export const MainTable: React.FC = () => {
     openModal: openModalAddInvoice,
     closeModal: closeModalAddInvoice,
   } = useToggle();
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceSave | null>(
-    null
-  );
+  const {
+    isOpenModal: isModalDeleteConfirmOpen,
+    openModal: openModalDeleteConfirm,
+    closeModal: closeModalDeleteConfirm,
+  } = useToggle();
+  const [selectedInvoice, setSelectedInvoice] = useState<
+    InvoiceSave | undefined
+  >(undefined);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<number | null>(null);
   //Nazwy wszystkich dokumentów
   const { allDocumentsData } = useMainDataContext();
   const {
@@ -47,7 +56,36 @@ export const MainTable: React.FC = () => {
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
   } = allDocumentsData;
+  const {
+    deleteInvoice,
+    loading: deleteLoading,
+    error: deleteError,
+  } = useDeleteInvoice();
+  //Delete Invoice
+  const handleDeleteInvoice = (invoiceId: number) => {
+    setInvoiceToDelete(invoiceId);
+    openModalDeleteConfirm();
+  };
 
+  const confirmDeleteInvoice = async () => {
+    if (!invoiceToDelete) return;
+
+    try {
+      const result = await toast.promise(deleteInvoice(invoiceToDelete), {
+        loading: "Usuwanie faktury...",
+        success: "Faktura została pomyślnie usunięta!",
+        error: deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.",
+      });
+
+      if (result.status === STATUS.Success) {
+        refetch(); // Odśwież listę faktur
+        closeModalDeleteConfirm();
+        setInvoiceToDelete(null);
+      }
+    } catch (err) {
+      console.error("Błąd podczas usuwania faktury:", err);
+    }
+  };
   //Edit Invoice
   const handleEditInvoice = (invoice: AllInvoices) => {
     const invoiceData: InvoiceSave = {
@@ -227,7 +265,12 @@ export const MainTable: React.FC = () => {
                       </button>
                     </td>
                     <td className={scss[""]}>
-                      <button className={scss["delete-button"]}>Usuń</button>
+                      <button
+                        className={scss["delete-button"]}
+                        onClick={() => handleDeleteInvoice(invoice.InvoiceId)}
+                      >
+                        Usuń
+                      </button>
                     </td>
                   </tr>
                 );
@@ -262,6 +305,14 @@ export const MainTable: React.FC = () => {
         isModalAddInvoiceOpen={isModalAddInvoiceOpen}
         closeModalAddInvoice={closeModalAddInvoice}
         selectedInvoice={selectedInvoice} // Przekazanie danych faktury
+      />
+      <ModalSelectionWindow
+        closeModalSelectionWindow={closeModalDeleteConfirm}
+        closeModalAddInvoice={closeModalDeleteConfirm}
+        resetFormAddInvoice={() => {}}
+        isModalSelectionWindowOpen={isModalDeleteConfirmOpen}
+        titleModalSelectionWindow="Czy na pewno chcesz usunąć fakturę?"
+        confirmDeleteInvoice={confirmDeleteInvoice}
       />
       <div>
         <button onClick={toastClick}>Refetch</button>

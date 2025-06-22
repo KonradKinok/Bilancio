@@ -150,6 +150,7 @@ export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice
       // Compare properties of details entries
       const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
       for (const key of detailKeys) {
+        if (key === "InvoiceId") continue; // Skip DocumentId comparison
         if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
           differences.push({
             key: `details[${i}]`,

@@ -21,6 +21,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   addInvoice: (payload) => ipcInvoke2('addInvoice', payload),
   updateInvoice: (invoice, invoiceDetails) => ipcInvoke2('updateInvoice', invoice, invoiceDetails),
   addInvoiceDetails: (invoice, invoiceDetails) => ipcInvoke2('addInvoiceDetails', invoice, invoiceDetails),
+  deleteInvoice: (invoiceId) => ipcInvoke2('deleteInvoice', invoiceId),
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
   przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),

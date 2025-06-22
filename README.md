@@ -54,6 +54,7 @@ export default tseslint.config({
 
 
 
+
 ```
 Bilancio
 ├─ backup
@@ -137,13 +138,24 @@ Bilancio
 │     │  │  └─ ModalAddInvoice.tsx
 │     │  ├─ ModalConfirmationSave
 │     │  │  ├─ ModalConfirmationSave.module.scss
-│     │  │  └─ ModalConfirmationSave.tsx
+│     │  │  ├─ ModalConfirmationSave.tsx
+│     │  │  ├─ TableDetailsInvoiceModalConfirmationSave
+│     │  │  │  ├─ TableDetailsInvoiceModalConfirmationSave.module.scss
+│     │  │  │  └─ TableDetailsInvoiceModalConfirmationSave.tsx
+│     │  │  └─ TableInvoiceModalConfirmationSave
+│     │  │     ├─ TableInvoiceModalConfirmationSave.module.scss
+│     │  │     └─ TableInvoiceModalConfirmationSave.tsx
 │     │  ├─ ModalSelectionWindow
 │     │  │  ├─ ModalSelectionWindow.module.scss
 │     │  │  └─ ModalSelectionWindow.tsx
 │     │  ├─ Navigation
 │     │  │  ├─ Navigation.module.scss
 │     │  │  └─ Navigation.tsx
+│     │  ├─ Pagination
+│     │  │  ├─ Pagination.module.scss
+│     │  │  ├─ pagination.scss
+│     │  │  ├─ Pagination.tsx
+│     │  │  └─ usePagination.ts
 │     │  ├─ SingleInput
 │     │  │  ├─ SingleInput.module.scss
 │     │  │  └─ SingleInput.tsx
@@ -157,7 +169,8 @@ Bilancio
 │     │  ├─ useConnectedTableDictionary.ts
 │     │  ├─ useLocalStorage.ts
 │     │  ├─ useTableDictionaryDocuments.ts
-│     │  └─ useToggle.ts
+│     │  ├─ useToggle.ts
+│     │  └─ useUpdateInvoice.ts
 │     ├─ index.css
 │     ├─ main.tsx
 │     ├─ pages

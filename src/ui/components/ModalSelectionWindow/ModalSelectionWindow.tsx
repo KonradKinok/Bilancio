@@ -10,6 +10,7 @@ interface ModalSelectionWindowProps {
   resetFormAddInvoice: () => void;
   isModalSelectionWindowOpen: boolean;
   titleModalSelectionWindow: string;
+  confirmDeleteInvoice?: () => void; // Opcjonalna własna funkcja potwierdzenia
 }
 
 export function ModalSelectionWindow({
@@ -18,6 +19,7 @@ export function ModalSelectionWindow({
   resetFormAddInvoice,
   isModalSelectionWindowOpen,
   titleModalSelectionWindow,
+  confirmDeleteInvoice,
 }: ModalSelectionWindowProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
@@ -65,15 +67,24 @@ export function ModalSelectionWindow({
     }
   };
 
+  // const handleConfirm = () => {
+  //   console.log("Zamknij");
+  //   // Add your save logic here
+
+  //   closeModalSelectionWindow();
+  //   closeModalAddInvoice();
+  //   resetFormAddInvoice();
+  // };
   const handleConfirm = () => {
     console.log("Zamknij");
-    // Add your save logic here
-
-    closeModalSelectionWindow();
-    closeModalAddInvoice();
-    resetFormAddInvoice();
+    if (confirmDeleteInvoice) {
+      confirmDeleteInvoice(); // Wywołaj własną funkcję, jeśli istnieje
+    } else {
+      closeModalSelectionWindow();
+      closeModalAddInvoice();
+      resetFormAddInvoice();
+    }
   };
-
   const handleClose = () => {
     console.log("Anuluj");
     closeModalSelectionWindow();
@@ -89,7 +100,7 @@ export function ModalSelectionWindow({
         <div className={scss["modal-buttons"]}>
           <ButtonUniversal
             buttonName="closeWindow"
-            buttonText="Zamknij okno"
+            buttonText={confirmDeleteInvoice ? "Tak" : "Zamknij okno"}
             buttonClick={handleConfirm}
             buttonIcon={<GiConfirmed />}
             classNameButtonContainer={scss["modal-button-confirm"]}

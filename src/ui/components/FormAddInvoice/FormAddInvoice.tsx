@@ -164,6 +164,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   }, [selectedInvoice]);
 
   const validateForm = useCallback((): boolean => {
+    if (isEditMode && differences.length === 0) return false; // Jeśli jest tryb edycji i są różnice, nie pozwalamy na zapis
     const isInvoiceNameValid = inputInvoiceName.trim() !== "";
     const isReceiptDateValid = !!dateTimePickerReceiptDate;
     const areDetailsValid = addInvoiceData.details.every((detail) => {
@@ -191,7 +192,13 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     // );
     // const uniqueDocuments = new Set(documentKeys).size === documentKeys.length;
     return isInvoiceNameValid && isReceiptDateValid && areDetailsValid;
-  }, [inputInvoiceName, dateTimePickerReceiptDate, addInvoiceData.details]);
+  }, [
+    inputInvoiceName,
+    dateTimePickerReceiptDate,
+    addInvoiceData.details,
+    differences,
+    isEditMode,
+  ]);
 
   useEffect(() => {
     setIsSaveButtonEnabled(validateForm());
@@ -329,20 +336,25 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       );
 
       console.log("handleConfirmSave: Rozpoczynanie zapisu faktury...");
-      const result = await toast.promise(addInvoice(invoice, invoiceDetails), {
-        loading: "Zapisywanie faktury...",
-        success: (res: DataBaseResponse<ReturnInvoiceSave>) => {
-          console.log("toast.promise sukces:", res);
-          if (res.status === STATUS.Success && res.data?.lastID) {
-            return toastSuccessMessage;
-          }
-          throw new Error(toastErrorMessage);
-        },
-        error: (err: Error) => {
-          console.log("toast.promise błąd:", err);
-          return err.message || toastErrorMessage;
-        },
-      });
+      const result = await toast.promise(
+        isEditMode
+          ? updateInvoice(invoice, invoiceDetails)
+          : addInvoice(invoice, invoiceDetails),
+        {
+          loading: "Zapisywanie faktury...",
+          success: (res: DataBaseResponse<ReturnInvoiceSave>) => {
+            console.log("toast.promise sukces:", res);
+            if (res.status === STATUS.Success && res.data?.lastID) {
+              return toastSuccessMessage;
+            }
+            throw new Error(toastErrorMessage);
+          },
+          error: (err: Error) => {
+            console.log("toast.promise błąd:", err);
+            return err.message || toastErrorMessage;
+          },
+        }
+      );
 
       console.log("handleConfirmSave: Wynik addInvoice:", result);
       if (result.status === STATUS.Success && result.data?.lastID) {

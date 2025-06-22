@@ -187,10 +187,11 @@ type AllInvoices = {
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
-    // addInvoice: unknown;
+    
     addInvoice: DataBaseResponse<ReturnInvoiceSave>;
     updateInvoice: DataBaseResponse<ReturnInvoiceSave>;
     addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
+    deleteInvoice: DataBaseResponse<ReturnInvoiceSave>;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -212,6 +213,7 @@ type AllInvoices = {
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
+      deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
