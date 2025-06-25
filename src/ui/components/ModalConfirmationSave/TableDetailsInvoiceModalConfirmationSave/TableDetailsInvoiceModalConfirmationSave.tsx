@@ -57,11 +57,7 @@ export const TableDetailsInvoiceModalConfirmationSave: React.FC<
               detail.MainTypeId !== selectedDetail.MainTypeId ||
               detail.TypeId !== selectedDetail.TypeId ||
               detail.SubtypeId !== selectedDetail.SubtypeId);
-          console.log(
-            "ModalConfirmationSave: isDocumentDifferent",
-            isDocumentDifferent
-          );
-          console.log("ModalConfirmationSave: detail", detail, selectedDetail);
+
           const isQuantityDifferent =
             isEditMode &&
             detail &&

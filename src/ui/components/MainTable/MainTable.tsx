@@ -72,19 +72,24 @@ export const MainTable: React.FC = () => {
   };
 
   const confirmDeleteInvoice = async () => {
-    if (!invoiceToDelete) return;
+    if (!selectedInvoice?.invoice.InvoiceId) return;
 
     try {
-      const result = await toast.promise(deleteInvoice(invoiceToDelete), {
-        loading: "Usuwanie faktury...",
-        success: "Faktura została pomyślnie usunięta!",
-        error: deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.",
-      });
+      const result = await toast.promise(
+        deleteInvoice(selectedInvoice?.invoice.InvoiceId),
+        {
+          loading: "Usuwanie faktury...",
+          success: "Faktura została pomyślnie usunięta!",
+          error:
+            deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.",
+        }
+      );
 
       if (result.status === STATUS.Success) {
         refetch(); // Odśwież listę faktur
         closeModalDeleteConfirm();
-        setInvoiceToDelete(null);
+        setSelectedInvoice(undefined);
+        // setInvoiceToDelete(null);
         console.log("confirmDeleteInvoice: Faktura usunięta:", result.data);
         console.log(
           "confirmDeleteInvoice deleteData: Faktura usunięta:",
@@ -98,36 +103,7 @@ export const MainTable: React.FC = () => {
 
   //Edit Invoice
   const handleEditInvoice = (invoice: AllInvoices) => {
-    const invoiceData: InvoiceSave = {
-      invoice: {
-        InvoiceId: invoice.InvoiceId,
-        InvoiceName: invoice.InvoiceName,
-        ReceiptDate: invoice.ReceiptDate,
-        DeadlineDate: invoice.DeadlineDate,
-        PaymentDate: invoice.PaymentDate,
-        IsDeleted: invoice.IsDeleted || 0,
-      },
-      details: invoice.DocumentNames.map((_: string, index: number) => ({
-        InvoiceId: invoice.InvoiceId,
-        DocumentId: parseInt(invoice.DocumentIds?.[index] || "0", 10),
-        MainTypeId: invoice.MainTypeIds?.[index]
-          ? parseInt(invoice.MainTypeIds[index], 10) || null
-          : null,
-        TypeId: invoice.TypeIds?.[index]
-          ? parseInt(invoice.TypeIds[index], 10) || null
-          : null,
-        SubtypeId: invoice.SubtypeIds?.[index]
-          ? parseInt(invoice.SubtypeIds[index], 10) || null
-          : null,
-        Quantity: parseInt(invoice.Quantities?.[index] || "0", 10),
-        Price: parseFloat(invoice.Prices?.[index] || "0"),
-        isMainTypeRequired: !!(
-          invoice.MainTypeIds && invoice.MainTypeIds[index]
-        ),
-        isTypeRequired: !!(invoice.TypeIds && invoice.TypeIds[index]),
-        isSubtypeRequired: !!(invoice.SubtypeIds && invoice.SubtypeIds[index]),
-      })),
-    };
+    const invoiceData = selectedInvoiceData(invoice);
     setSelectedInvoice(invoiceData);
     openModalAddInvoice();
   };
@@ -140,7 +116,6 @@ export const MainTable: React.FC = () => {
   });
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
-  console.log("MainTable() useMainDataContext", formValuesHomePage);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -288,7 +263,7 @@ export const MainTable: React.FC = () => {
                     ) : (
                       <td className={scss[""]}>
                         <button
-                          className={scss["undelete-button"]}
+                          className={scss["delete-button"]}
                           onClick={() => handleDeleteInvoice(invoice)}
                         >
                           Przywróć
