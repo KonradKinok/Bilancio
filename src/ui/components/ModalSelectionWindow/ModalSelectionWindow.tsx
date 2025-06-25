@@ -11,6 +11,7 @@ interface ModalSelectionWindowProps {
   isModalSelectionWindowOpen: boolean;
   titleModalSelectionWindow: string;
   confirmDeleteInvoice?: () => void; // Opcjonalna własna funkcja potwierdzenia
+  selectedInvoice?: InvoiceSave;
 }
 
 export function ModalSelectionWindow({
@@ -20,6 +21,7 @@ export function ModalSelectionWindow({
   isModalSelectionWindowOpen,
   titleModalSelectionWindow,
   confirmDeleteInvoice,
+  selectedInvoice,
 }: ModalSelectionWindowProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
@@ -97,6 +99,12 @@ export function ModalSelectionWindow({
     >
       <div className={scss["modalSelectionWindow-container"]}>
         <h3>{titleModalSelectionWindow}</h3>
+        {selectedInvoice && (
+          <p>
+            {selectedInvoice.invoice.InvoiceName} z{" "}
+            {selectedInvoice.invoice.ReceiptDate}
+          </p>
+        )}
         <div className={scss["modal-buttons"]}>
           <ButtonUniversal
             buttonName="closeWindow"

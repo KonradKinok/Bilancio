@@ -58,12 +58,16 @@ export const MainTable: React.FC = () => {
   } = allDocumentsData;
   const {
     deleteInvoice,
+    data: deleteData,
     loading: deleteLoading,
     error: deleteError,
   } = useDeleteInvoice();
+
   //Delete Invoice
-  const handleDeleteInvoice = (invoiceId: number) => {
-    setInvoiceToDelete(invoiceId);
+  const handleDeleteInvoice = (invoice: AllInvoices) => {
+    setInvoiceToDelete(invoice.InvoiceId);
+    const invoiceData = selectedInvoiceData(invoice);
+    setSelectedInvoice(invoiceData);
     openModalDeleteConfirm();
   };
 
@@ -81,11 +85,17 @@ export const MainTable: React.FC = () => {
         refetch(); // Odśwież listę faktur
         closeModalDeleteConfirm();
         setInvoiceToDelete(null);
+        console.log("confirmDeleteInvoice: Faktura usunięta:", result.data);
+        console.log(
+          "confirmDeleteInvoice deleteData: Faktura usunięta:",
+          deleteData
+        );
       }
     } catch (err) {
       console.error("Błąd podczas usuwania faktury:", err);
     }
   };
+
   //Edit Invoice
   const handleEditInvoice = (invoice: AllInvoices) => {
     const invoiceData: InvoiceSave = {
@@ -256,22 +266,35 @@ export const MainTable: React.FC = () => {
                           <div key={i}>{currencyFormater(price)}</div>
                         ))}
                     </td>
-                    <td className={scss[""]}>
-                      <button
-                        className={scss["edit-button"]}
-                        onClick={() => handleEditInvoice(invoice)}
-                      >
-                        Edytuj
-                      </button>
-                    </td>
-                    <td className={scss[""]}>
-                      <button
-                        className={scss["delete-button"]}
-                        onClick={() => handleDeleteInvoice(invoice.InvoiceId)}
-                      >
-                        Usuń
-                      </button>
-                    </td>
+                    {invoice.IsDeleted === 0 ? (
+                      <>
+                        <td className={scss[""]}>
+                          <button
+                            className={scss["edit-button"]}
+                            onClick={() => handleEditInvoice(invoice)}
+                          >
+                            Edytuj
+                          </button>
+                        </td>
+                        <td className={scss[""]}>
+                          <button
+                            className={scss["delete-button"]}
+                            onClick={() => handleDeleteInvoice(invoice)}
+                          >
+                            Usuń
+                          </button>
+                        </td>
+                      </>
+                    ) : (
+                      <td className={scss[""]}>
+                        <button
+                          className={scss["undelete-button"]}
+                          onClick={() => handleDeleteInvoice(invoice)}
+                        >
+                          Przywróć
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 );
               })}
@@ -310,6 +333,7 @@ export const MainTable: React.FC = () => {
         closeModalSelectionWindow={closeModalDeleteConfirm}
         closeModalAddInvoice={closeModalDeleteConfirm}
         resetFormAddInvoice={() => {}}
+        selectedInvoice={selectedInvoice} // Przekazanie danych faktury
         isModalSelectionWindowOpen={isModalDeleteConfirmOpen}
         titleModalSelectionWindow="Czy na pewno chcesz usunąć fakturę?"
         confirmDeleteInvoice={confirmDeleteInvoice}
@@ -359,4 +383,37 @@ export const MainTable: React.FC = () => {
       </ul>
     </div>
   );
+};
+
+//Wypełnienie danych wybranej faktury
+const selectedInvoiceData = (invoice: AllInvoices) => {
+  const invoiceData: InvoiceSave = {
+    invoice: {
+      InvoiceId: invoice.InvoiceId,
+      InvoiceName: invoice.InvoiceName,
+      ReceiptDate: invoice.ReceiptDate,
+      DeadlineDate: invoice.DeadlineDate,
+      PaymentDate: invoice.PaymentDate,
+      IsDeleted: invoice.IsDeleted || 0,
+    },
+    details: invoice.DocumentNames.map((_: string, index: number) => ({
+      InvoiceId: invoice.InvoiceId,
+      DocumentId: parseInt(invoice.DocumentIds?.[index] || "0", 10),
+      MainTypeId: invoice.MainTypeIds?.[index]
+        ? parseInt(invoice.MainTypeIds[index], 10) || null
+        : null,
+      TypeId: invoice.TypeIds?.[index]
+        ? parseInt(invoice.TypeIds[index], 10) || null
+        : null,
+      SubtypeId: invoice.SubtypeIds?.[index]
+        ? parseInt(invoice.SubtypeIds[index], 10) || null
+        : null,
+      Quantity: parseInt(invoice.Quantities?.[index] || "0", 10),
+      Price: parseFloat(invoice.Prices?.[index] || "0"),
+      isMainTypeRequired: !!(invoice.MainTypeIds && invoice.MainTypeIds[index]),
+      isTypeRequired: !!(invoice.TypeIds && invoice.TypeIds[index]),
+      isSubtypeRequired: !!(invoice.SubtypeIds && invoice.SubtypeIds[index]),
+    })),
+  };
+  return invoiceData;
 };
