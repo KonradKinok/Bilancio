@@ -234,7 +234,10 @@ export const MainTable: React.FC<MainTableProps> = ({
                   invoice.Prices
                 );
                 return (
-                  <tr key={invoice.InvoiceId}>
+                  <tr
+                    key={invoice.InvoiceId}
+                    onDoubleClick={() => handleEditInvoice(invoice)}
+                  >
                     <td>{index + 1}.</td>
                     <td>{totalAmount}</td>
                     <td>{invoice.InvoiceName}</td>
