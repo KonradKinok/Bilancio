@@ -55,6 +55,7 @@ const fetchData = useCallback(async () => {
       });
       console.log("useAllInvoices() transformedData",transformedData)
       setData(transformedData);
+      console.log("useAllInvoices(): data set to", transformedData);
     }
   }, [dataAllInvoices]);
   console.log("useAllInvoices() transformedData data",data)

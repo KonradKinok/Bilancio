@@ -2,7 +2,6 @@ import { use, useEffect, useState } from "react";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import toast from "react-hot-toast";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
-// import { type FormValuesHomePage } from "../Context/ElectronProvider";
 import scss from "./MainTable.module.scss";
 import { useMainDataContext } from "../Context/useOptionsImage";
 import {
@@ -15,6 +14,16 @@ import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { useDeleteInvoice } from "../../hooks/useDeleteInvoice";
 import { STATUS } from "../../../electron/sharedTypes/status";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
+import { useRestoreInvoice } from "../../hooks/useRestoreInvoice";
+
+interface MainTableProps {
+  formValuesHomePage: FormValuesHomePage;
+  setFormValuesHomePage: React.Dispatch<
+    React.SetStateAction<FormValuesHomePage>
+  >;
+  dataAllInvoices: AllInvoices[] | null;
+  refetchAllInvoices: () => void;
+}
 
 interface PageState {
   firstPage: number;
@@ -22,15 +31,12 @@ interface PageState {
   paginationPage: number;
 }
 
-interface MainTable {
-  formValuesHomePage: FormValuesHomePage;
-  setFormValuesHomePage: React.Dispatch<
-    React.SetStateAction<FormValuesHomePage>
-  >;
-}
-export const MainTable: React.FC = () => {
-  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
-  const { data: dataAllInvoices, refetch } = useAllInvoices(formValuesHomePage);
+export const MainTable: React.FC<MainTableProps> = ({
+  formValuesHomePage,
+  setFormValuesHomePage,
+  dataAllInvoices,
+  refetchAllInvoices,
+}) => {
   const [totalPages, setTotalPages] = useState<number>(20);
   // Stan dla liczby wierszy na stronę
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -62,31 +68,52 @@ export const MainTable: React.FC = () => {
     loading: deleteLoading,
     error: deleteError,
   } = useDeleteInvoice();
+  const {
+    restoreInvoice,
+    data: restoreData,
+    loading: restoreLoading,
+    error: restoreError,
+  } = useRestoreInvoice();
 
   //Delete Invoice
-  const handleDeleteInvoice = (invoice: AllInvoices) => {
-    setInvoiceToDelete(invoice.InvoiceId);
+  const handleDeleteRestoreInvoice = (invoice: AllInvoices) => {
+    // setInvoiceToDelete(invoice.InvoiceId);
     const invoiceData = selectedInvoiceData(invoice);
     setSelectedInvoice(invoiceData);
     openModalDeleteConfirm();
   };
 
-  const confirmDeleteInvoice = async () => {
+  const confirmDeleteRestoreInvoice = async () => {
     if (!selectedInvoice?.invoice.InvoiceId) return;
 
+    let loadingText = "",
+      successText = "",
+      errorText = "";
+    if (selectedInvoice?.invoice.IsDeleted === 0) {
+      loadingText = "Usuwanie faktury...";
+      successText = "Faktura została pomyślnie usunięta!";
+      errorText =
+        deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.";
+    } else {
+      loadingText = "Przywracanie faktury...";
+      successText = "Faktura została pomyślnie przywrócona!";
+      errorText =
+        restoreError || "Nie udało się przywrócić faktury. Spróbuj ponownie.";
+    }
     try {
       const result = await toast.promise(
-        deleteInvoice(selectedInvoice?.invoice.InvoiceId),
+        selectedInvoice?.invoice.IsDeleted == 0
+          ? deleteInvoice(selectedInvoice?.invoice.InvoiceId)
+          : restoreInvoice(selectedInvoice?.invoice.InvoiceId),
         {
-          loading: "Usuwanie faktury...",
-          success: "Faktura została pomyślnie usunięta!",
-          error:
-            deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.",
+          loading: `${loadingText}`,
+          success: `${successText}`,
+          error: `${errorText}`,
         }
       );
 
       if (result.status === STATUS.Success) {
-        refetch(); // Odśwież listę faktur
+        refetchAllInvoices(); // Odśwież listę faktur
         closeModalDeleteConfirm();
         setSelectedInvoice(undefined);
         // setInvoiceToDelete(null);
@@ -97,10 +124,9 @@ export const MainTable: React.FC = () => {
         );
       }
     } catch (err) {
-      console.error("Błąd podczas usuwania faktury:", err);
+      console.error("Błąd podczas usuwania/przywracania faktury:", err);
     }
   };
-
   //Edit Invoice
   const handleEditInvoice = (invoice: AllInvoices) => {
     const invoiceData = selectedInvoiceData(invoice);
@@ -161,7 +187,10 @@ export const MainTable: React.FC = () => {
   ) => {
     setRowsPerPage(Number(event.target.value));
   };
-
+  const sprawdzenieFunkcji = () => {
+    console.log("Funkcja sprawdzająca działa!");
+    refetchAllInvoices();
+  };
   // Przycięcie danych na podstawie liczby wierszy
   const displayedInvoices = dataAllInvoices
     ? dataAllInvoices.slice(0, rowsPerPage)
@@ -254,7 +283,7 @@ export const MainTable: React.FC = () => {
                         <td className={scss[""]}>
                           <button
                             className={scss["delete-button"]}
-                            onClick={() => handleDeleteInvoice(invoice)}
+                            onClick={() => handleDeleteRestoreInvoice(invoice)}
                           >
                             Usuń
                           </button>
@@ -264,7 +293,7 @@ export const MainTable: React.FC = () => {
                       <td className={scss[""]}>
                         <button
                           className={scss["delete-button"]}
-                          onClick={() => handleDeleteInvoice(invoice)}
+                          onClick={() => handleDeleteRestoreInvoice(invoice)}
                         >
                           Przywróć
                         </button>
@@ -303,6 +332,7 @@ export const MainTable: React.FC = () => {
         isModalAddInvoiceOpen={isModalAddInvoiceOpen}
         closeModalAddInvoice={closeModalAddInvoice}
         selectedInvoice={selectedInvoice} // Przekazanie danych faktury
+        refetchAllInvoices={refetchAllInvoices} // Funkcja do odświeżenia listy faktur
       />
       <ModalSelectionWindow
         closeModalSelectionWindow={closeModalDeleteConfirm}
@@ -310,11 +340,15 @@ export const MainTable: React.FC = () => {
         resetFormAddInvoice={() => {}}
         selectedInvoice={selectedInvoice} // Przekazanie danych faktury
         isModalSelectionWindowOpen={isModalDeleteConfirmOpen}
-        titleModalSelectionWindow="Czy na pewno chcesz usunąć fakturę?"
-        confirmDeleteInvoice={confirmDeleteInvoice}
+        titleModalSelectionWindow={`Czy na pewno chcesz ${
+          selectedInvoice?.invoice.IsDeleted == 0 ? "usunąć" : "przywrócić"
+        } fakturę\n\r ${selectedInvoice?.invoice.InvoiceName} z dnia ${
+          selectedInvoice?.invoice.ReceiptDate
+        }?`}
+        confirmDeleteInvoice={confirmDeleteRestoreInvoice}
       />
       <div>
-        <button onClick={toastClick}>Refetch</button>
+        <button onClick={sprawdzenieFunkcji}>Refetch</button>
         <h2>Dokumenty</h2>
         {dataAllDocumentsName &&
           dataAllDocumentsName.length > 0 &&

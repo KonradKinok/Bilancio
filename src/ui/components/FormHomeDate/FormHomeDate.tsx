@@ -8,15 +8,23 @@ import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { Tooltip } from "react-tooltip";
 import { IconInfo } from "../IconInfo/IconInfo";
+import { useAllInvoices } from "../../hooks/useAllInvoices";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >;
+  dataAllInvoices: AllInvoices[] | null;
+  refetchAllInvoices: () => void;
 }
 
-export const FormHomeDate: React.FC = () => {
+export const FormHomeDate: React.FC<FormHomeDate> = ({
+  formValuesHomePage,
+  setFormValuesHomePage,
+  dataAllInvoices,
+  refetchAllInvoices,
+}) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const {
     isOpenModal: isModalAddInvoiceOpen,
@@ -29,7 +37,8 @@ export const FormHomeDate: React.FC = () => {
     useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
   const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(0);
   const { options, setOptions } = useMainDataContext();
-  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
+  // const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (
@@ -131,6 +140,7 @@ export const FormHomeDate: React.FC = () => {
       <ModalAddInvoice
         closeModalAddInvoice={closeModalAddInvoice}
         isModalAddInvoiceOpen={isModalAddInvoiceOpen}
+        refetchAllInvoices={refetchAllInvoices}
       />
     </div>
   );

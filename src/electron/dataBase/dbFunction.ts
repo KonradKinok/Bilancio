@@ -419,6 +419,66 @@ export async function deleteInvoice(
   }
 }
 
+//restore invoice
+export async function restoreInvoice(
+  invoiceId: number
+): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+  // Walidacja InvoiceId
+  if (!invoiceId || invoiceId <= 0) {
+    return {
+      status: STATUS.Error,
+      message: "Nieprawidłowy identyfikator faktury.",
+    };
+  }
+
+  // SQL do ustawienia IsDeleted na 0
+  const restoreInvoiceSql = `
+    UPDATE Invoices 
+    SET IsDeleted = 0
+    WHERE InvoiceId = ?
+  `;
+  const restoreInvoiceParams: QueryParams = [invoiceId];
+
+  try {
+    await db.beginTransaction();
+
+    // Sprawdzenie, czy faktura istnieje i jest oznaczona jako usunięta
+    const existingInvoice = await db.get<{ InvoiceId: number }>(
+      `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ? AND IsDeleted = 1`,
+      [invoiceId]
+    );
+    if (!existingInvoice) {
+      await db.rollback();
+      return {
+        status: STATUS.Error,
+        message: `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`,
+      };
+    }
+
+    // Aktualizacja flagi IsDeleted
+    const restoreResult = await db.run(restoreInvoiceSql, restoreInvoiceParams);
+    if (!restoreResult.changes) {
+      await db.rollback();
+      return {
+        status: STATUS.Error,
+        message: "Nie udało się przywrócić faktury.",
+      };
+    }
+
+    await db.commit();
+    return {
+      status: STATUS.Success,
+      data: { lastID: invoiceId, changes: restoreResult.changes },
+    };
+  } catch (err) {
+    await db.rollback();
+    console.error("Błąd podczas przywracania faktury:", err);
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : "Nieznany błąd podczas przywracania faktury.",
+    };
+  }
+}
 // Przykładowa funkcja, która zwraca obiekt
 export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {
   try {

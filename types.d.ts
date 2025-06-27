@@ -192,6 +192,7 @@ type AllInvoices = {
     updateInvoice: DataBaseResponse<ReturnInvoiceSave>;
     addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
     deleteInvoice: DataBaseResponse<ReturnInvoiceSave>;
+    restoreInvoice: DataBaseResponse<ReturnInvoiceSave>;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -214,6 +215,7 @@ type AllInvoices = {
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
+      restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;

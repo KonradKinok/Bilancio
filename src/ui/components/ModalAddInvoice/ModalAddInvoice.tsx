@@ -6,12 +6,14 @@ interface ModalAddInvoiceProps {
   closeModalAddInvoice: () => void;
   isModalAddInvoiceOpen: boolean;
   selectedInvoice?: InvoiceSave;
+  refetchAllInvoices: () => void;
 }
 
 export function ModalAddInvoice({
   closeModalAddInvoice,
   isModalAddInvoiceOpen,
   selectedInvoice,
+  refetchAllInvoices,
 }: ModalAddInvoiceProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
@@ -76,6 +78,7 @@ export function ModalAddInvoice({
             modalContentRef={modalContentRef}
             selectedInvoice={selectedInvoice}
             isEditMode={!!selectedInvoice} // Przekazujemy informację o trybie edycji
+            refetchAllInvoices={refetchAllInvoices}
           />
         </div>
       </div>

@@ -31,6 +31,7 @@ interface FormAddInvoiceProps {
   closeModalAddInvoice: () => void;
   modalContentRef?: React.RefObject<HTMLDivElement | null>;
   isEditMode: boolean; // Nowy prop
+  refetchAllInvoices: () => void;
 }
 
 export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
@@ -40,6 +41,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   modalContentRef,
   selectedInvoice,
   isEditMode,
+  refetchAllInvoices,
 }) => {
   const {
     isOpenModal: isOpenModalConfirmationSave,
@@ -359,9 +361,14 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       console.log("handleConfirmSave: Wynik addInvoice:", result);
       if (result.status === STATUS.Success && result.data?.lastID) {
         console.log("handleConfirmSave: Zapis udany, zamykanie modali.");
+        console.log(
+          "handleConfirmSave: refetchAllInvoices:",
+          refetchAllInvoices
+        );
         resetForm();
         closeModalConfirmationSave();
         closeModalAddInvoice();
+        refetchAllInvoices();
       } else {
         console.log("handleConfirmSave: Zapis nieudany, wynik:", result);
         throw new Error("Nie udało się dodać faktury.");
