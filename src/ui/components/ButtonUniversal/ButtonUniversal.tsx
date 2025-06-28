@@ -1,3 +1,4 @@
+import { Tooltip } from "react-tooltip";
 import scss from "./ButtonUniversal.module.scss";
 import { RiDeleteBin6Line } from "react-icons/ri";
 
@@ -11,6 +12,9 @@ interface ButtonUniversalProps {
   buttonDisabled?: boolean;
   buttonClick: React.MouseEventHandler<HTMLButtonElement>;
   classNameButtonContainer?: string;
+  toolTipId?: string;
+  toolTipContent?: string;
+  toolTipClassName?: string;
 }
 
 export const ButtonUniversal: React.FC<ButtonUniversalProps> = ({
@@ -21,6 +25,9 @@ export const ButtonUniversal: React.FC<ButtonUniversalProps> = ({
   buttonDisabled = false,
   buttonClick,
   classNameButtonContainer = "",
+  toolTipId,
+  toolTipContent,
+  toolTipClassName,
 }) => {
   const containerClassName =
     `${classNameButtonContainer} ${scss["button-6"]}`.trim();
@@ -33,9 +40,16 @@ export const ButtonUniversal: React.FC<ButtonUniversalProps> = ({
       type={buttonType}
       onClick={buttonClick}
       disabled={buttonDisabled}
+      data-tooltip-id={toolTipId}
+      data-tooltip-html={toolTipContent ? toolTipContent : undefined}
     >
       <span className={scss["text"]}>{buttonText}</span>
       <span className={scss["icon-container"]}>{buttonIcon}</span>
+      <Tooltip
+        id={toolTipId}
+        // className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
+        className={toolTipClassName}
+      />
     </button>
   );
 };

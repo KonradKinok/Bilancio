@@ -5,7 +5,7 @@ import { getStaticData, pollResources } from "./resourceManager.js";
 import {getAssetPath, getDBPath, getPreloadPath, getUIPath} from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
-import { addInvoice, addInvoiceDetails, deleteInvoice, getAllDocumentsName, getAllInvoices, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, restoreInvoice, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, restoreInvoice, updateInvoice } from "./dataBase/dbFunction.js";
 export type DictionaryDocuments = {
   DocumentId: number;
   DocumentName: string;
@@ -48,8 +48,11 @@ app.on("ready", () => {
   ipcMainHandle('getAllDocumentName',  () => {
     return getAllDocumentsName();
   });
-  ipcMainHandle2('getAllInvoices',  (payload) => {
-    return getAllInvoices(payload);
+  // ipcMainHandle2('getAllInvoices',  (payload) => {
+  //   return getAllInvoices(payload);
+  // });
+  ipcMainHandle2('getAllInvoices', (payload, page, rowsPerPage) => {
+    return getAllInvoices(payload, page, rowsPerPage);
   });
   ipcMainHandle2('addInvoice',  (payload) => {
     return addInvoice(payload);
@@ -65,6 +68,9 @@ app.on("ready", () => {
   });
   ipcMainHandle2('restoreInvoice', (invoiceId) => {
     return restoreInvoice(invoiceId);
+  });
+  ipcMainHandle2('countInvoices', (payload) => {
+    return countInvoices(payload);
   });
   ipcMainHandle2('przykladowaFunkcja',  (payload, jakisNumer) => {
     return przykladowaFunkcja(payload , jakisNumer);

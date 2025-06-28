@@ -10,8 +10,20 @@ import { useAllInvoices } from "../../hooks/useAllInvoices";
 
 const HomePage: React.FC = () => {
   const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
-  const { data: dataAllInvoices, refetch: refetchAllInvoices } =
-    useAllInvoices(formValuesHomePage);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  const [page, setPage] = useState<PageState>({
+    paginationPage: 1,
+    firstPage: 1,
+    lastPage: 2,
+  });
+  // Używamy hooka useAllInvoices z paginacją
+  const {
+    data: dataAllInvoices,
+    totalCount,
+    loading,
+    error,
+    refetch: refetchAllInvoices,
+  } = useAllInvoices(formValuesHomePage, page.paginationPage, rowsPerPage);
   return (
     <div className={scss["homepage-main-container"]}>
       <FormHomeDate
@@ -25,6 +37,11 @@ const HomePage: React.FC = () => {
         setFormValuesHomePage={setFormValuesHomePage}
         dataAllInvoices={dataAllInvoices}
         refetchAllInvoices={refetchAllInvoices}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        page={page}
+        setPage={setPage}
+        totalCount={totalCount}
       />
     </div>
   );

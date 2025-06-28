@@ -133,18 +133,52 @@ export async function getAllDocumentsName() {
     };
   }
 };
-
-// Pobierz wszystkie faktury
-export async function getAllInvoices(formValuesHomePage: FormValuesHomePage) {
+export async function getAllInvoices(
+  formValuesHomePage: FormValuesHomePage,
+  page: number = 1,
+  rowsPerPage: number = 10
+): Promise<DataBaseResponse<AllInvoices[]>> {
   try {
-    const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage));
-    return rows || [];
+    let query = sqlString.getAllInvoicesSqlString(formValuesHomePage);
+    const params: QueryParams = [];
 
+    if (formValuesHomePage.firstDate) {
+      params.push(formValuesHomePage.firstDate.toISOString().split("T")[0]);
+    }
+    if (formValuesHomePage.secondDate) {
+      params.push(formValuesHomePage.secondDate.toISOString().split("T")[0]);
+    }
+    params.push(formValuesHomePage.isDeleted ?? 0); // Domyślna wartość isDeleted
+
+    // Dodajemy paginację
+    const offset = (page - 1) * rowsPerPage;
+    query += ` LIMIT ? OFFSET ?`;
+    params.push(rowsPerPage, offset);
+
+    const rows = await db.all<AllInvoices>(query, params);
+    return {
+      status: STATUS.Success,
+      data: rows ?? [],
+    };
   } catch (err) {
-    console.error('getAllInvoices() Błąd podczas pobierania faktur:', err);
-    return [];
+    console.error("getAllInvoices() Błąd podczas pobierania faktur:", err);
+    return {
+      status: STATUS.Error,
+      message: "Błąd podczas pobierania faktur z bazy danych.",
+    };
   }
-};
+}
+// Pobierz wszystkie faktury
+// export async function getAllInvoices(formValuesHomePage: FormValuesHomePage) {
+//   try {
+//     const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage));
+//     return rows || [];
+
+//   } catch (err) {
+//     console.error('getAllInvoices() Błąd podczas pobierania faktur:', err);
+//     return [];
+//   }
+// };
 
 // Pobierz ostatni wiersz z tabeli
 export async function getLastRowFromTable(tableName: DbTables, tableNameId: InvoicesTable) {
@@ -479,6 +513,43 @@ export async function restoreInvoice(
     };
   }
 }
+
+
+// Funkcja zliczająca faktury
+export async function countInvoices(formValuesHomePage: FormValuesHomePage): Promise<DataBaseResponse<number>> {
+  try {
+    let query = `SELECT COUNT(*) as total FROM Invoices WHERE 1=1`;
+    const params: QueryParams = [];
+
+    if (formValuesHomePage.firstDate) {
+      query += ` AND ReceiptDate >= ?`;
+      params.push(formValuesHomePage.firstDate.toISOString().split("T")[0]);
+    }
+    if (formValuesHomePage.secondDate) {
+      query += ` AND ReceiptDate <= ?`;
+      params.push(formValuesHomePage.secondDate.toISOString().split("T")[0]);
+    }
+    if (formValuesHomePage.isDeleted !== undefined) {
+      query += ` AND IsDeleted = ?`;
+      params.push(formValuesHomePage.isDeleted);
+    }
+
+    const result = await db.get<{ total: number }>(query, params);
+    return {
+      status: STATUS.Success,
+      data: result?.total ?? 0,
+    };
+  } catch (err) {
+    console.error("countInvoices() Błąd podczas zliczania faktur:", err);
+    return {
+      status: STATUS.Error,
+      message: "Błąd podczas zliczania faktur z bazy danych.",
+    };
+  }
+}
+
+
+
 // Przykładowa funkcja, która zwraca obiekt
 export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {
   try {

@@ -23,12 +23,11 @@ interface MainTableProps {
   >;
   dataAllInvoices: AllInvoices[] | null;
   refetchAllInvoices: () => void;
-}
-
-interface PageState {
-  firstPage: number;
-  lastPage: number;
-  paginationPage: number;
+  rowsPerPage: number;
+  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
+  page: PageState;
+  setPage: React.Dispatch<React.SetStateAction<PageState>>;
+  totalCount: number; // Opcjonalne, jeśli potrzebujesz liczby wszystkich faktur
 }
 
 export const MainTable: React.FC<MainTableProps> = ({
@@ -36,10 +35,29 @@ export const MainTable: React.FC<MainTableProps> = ({
   setFormValuesHomePage,
   dataAllInvoices,
   refetchAllInvoices,
+  rowsPerPage,
+  setRowsPerPage,
+  page,
+  setPage,
+  totalCount,
 }) => {
-  const [totalPages, setTotalPages] = useState<number>(20);
+  const [totalCount1, setTotalCount1] = useState<number>(0);
+  // const [totalPages, setTotalPages] = useState<number>(20);
   // Stan dla liczby wierszy na stronę
-  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  // const [rowsPerPage, setRowsPerPage] = useState<number>(10);
+  // const [page, setPage] = useState<PageState>({
+  //   paginationPage: 1,
+  //   firstPage: 1,
+  //   lastPage: 2,
+  // });
+  // // Używamy hooka useAllInvoices z paginacją
+  // const {
+  //   data: dataAllInvoices,
+  //   totalCount,
+  //   loading,
+  //   error,
+  //   refetch,
+  // } = useAllInvoices(formValuesHomePage, page.paginationPage, rowsPerPage);
   // Stan dla modala edycji
   const {
     isOpenModal: isModalAddInvoiceOpen,
@@ -134,12 +152,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     openModalAddInvoice();
   };
   //Pagination
-  const initialPage = 1;
-  const [page, setPage] = useState<PageState>({
-    paginationPage: initialPage,
-    firstPage: 2 * initialPage - 1,
-    lastPage: 2 * initialPage,
-  });
+
   const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
   const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
   useEffect(() => {
@@ -178,35 +191,76 @@ export const MainTable: React.FC<MainTableProps> = ({
 
     fetchData();
   }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await window.electron.countInvoices(formValuesHomePage);
+        if (result.status === STATUS.Success) setTotalCount1(result.data);
+      } catch (err) {
+        console.error(
+          "MainTable countInvoices Błąd podczas pobierania danych:",
+          err
+        );
+      }
+    };
+
+    fetchData();
+  }, [formValuesHomePage]);
   const toastClick = () => {
     toast.success("Successfully created!");
   };
+  // Obsługa zmiany liczby wierszy na stronę
+  // const handleRowsPerPageChange = (
+  //   event: React.ChangeEvent<HTMLSelectElement>
+  // ) => {
+  //   setRowsPerPage(Number(event.target.value));
+  // };
   // Obsługa zmiany liczby wierszy na stronę
   const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setRowsPerPage(Number(event.target.value));
+    setPage((prev) => ({ ...prev, paginationPage: 1 })); // Resetuj stronę do 1 po zmianie liczby wierszy
   };
+
+  // Obsługa zmiany strony
+  const onPageChange = (newPage: number) => {
+    setPage((prev) => ({
+      ...prev,
+      paginationPage: newPage,
+      firstPage: 2 * newPage - 1,
+      lastPage: 2 * newPage,
+    }));
+  };
+
+  // Obliczanie liczby stron
+  const totalPages = Math.ceil(totalCount / rowsPerPage);
   const sprawdzenieFunkcji = () => {
     console.log("Funkcja sprawdzająca działa!");
     refetchAllInvoices();
   };
+
+  // Obliczanie globalnego numeru porządkowego
+  const getGlobalIndex = (index: number) => {
+    return (page.paginationPage - 1) * rowsPerPage + index + 1;
+  };
   // Przycięcie danych na podstawie liczby wierszy
-  const displayedInvoices = dataAllInvoices
-    ? dataAllInvoices.slice(0, rowsPerPage)
-    : [];
+  // const displayedInvoices = dataAllInvoices
+  //   ? dataAllInvoices.slice(0, rowsPerPage)
+  //   : [];
 
   //Pagination
-  const onPageChange = (newPage: number) => {
-    const newFirstPage = 2 * newPage - 1;
-    const newLastPage = newFirstPage + 1;
+  // const onPageChange = (newPage: number) => {
+  //   const newFirstPage = 2 * newPage - 1;
+  //   const newLastPage = newFirstPage + 1;
 
-    setPage({
-      paginationPage: newPage,
-      firstPage: newFirstPage,
-      lastPage: newLastPage,
-    });
-  };
+  //   setPage({
+  //     paginationPage: newPage,
+  //     firstPage: newFirstPage,
+  //     lastPage: newLastPage,
+  //   });
+  // };
+
   return (
     <div className={scss["mainTable-main-container"]}>
       <div>
@@ -226,9 +280,9 @@ export const MainTable: React.FC<MainTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {displayedInvoices &&
-              displayedInvoices.length > 0 &&
-              displayedInvoices.map((invoice, index) => {
+            {dataAllInvoices &&
+              dataAllInvoices.length > 0 &&
+              dataAllInvoices.map((invoice, index) => {
                 const totalAmount = calculateTotalAmount(
                   invoice.Quantities,
                   invoice.Prices
@@ -236,9 +290,11 @@ export const MainTable: React.FC<MainTableProps> = ({
                 return (
                   <tr
                     key={invoice.InvoiceId}
-                    onDoubleClick={() => handleEditInvoice(invoice)}
+                    onDoubleClick={() =>
+                      invoice.IsDeleted === 0 && handleEditInvoice(invoice)
+                    }
                   >
-                    <td>{index + 1}.</td>
+                    <td>{getGlobalIndex(index)}.</td>
                     <td>{totalAmount}</td>
                     <td>{invoice.InvoiceName}</td>
                     <td>{invoice.ReceiptDate}</td>
@@ -352,6 +408,7 @@ export const MainTable: React.FC<MainTableProps> = ({
       />
       <div>
         <button onClick={sprawdzenieFunkcji}>Refetch</button>
+        <p>Liczba faktur: {totalCount1}</p>
         <h2>Dokumenty</h2>
         {dataAllDocumentsName &&
           dataAllDocumentsName.length > 0 &&

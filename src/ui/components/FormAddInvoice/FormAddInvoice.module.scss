@@ -61,7 +61,16 @@
         --background-hover-color: rgb(25 255 0);
       }
     }
+
+    .tooltip {
+      z-index: 2;
+    }
+
+    .tooltip-error {
+      background-color: var(--tooltip-error-background);
+    }
   }
+
 
 
   .custom-input-container {

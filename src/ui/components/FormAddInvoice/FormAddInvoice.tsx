@@ -383,20 +383,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   };
   //ModalSelectionWindow
   const handleCloseModalAddInvoice = () => {
-    // Porównanie bieżącego stanu z początkowym
-    const hasChanges =
-      inputInvoiceName !== initialState.inputInvoiceName ||
-      dateTimePickerReceiptDate !== initialState.dateTimePickerReceiptDate ||
-      dateTimePickerDeadlineDate !== initialState.dateTimePickerDeadlineDate ||
-      dateTimePickerPaymentDate !== initialState.dateTimePickerPaymentDate;
-
-    const temp =
-      JSON.stringify(documentComponents) !==
-      JSON.stringify(initialState.documentComponents);
-    console.log("handleCloseModalAddInvoice: addInvoiceData:", temp.toString());
     if (isOpenModalSelectionWindow) {
       closeModalSelectionWindow();
-    } else if (hasChanges) {
+    } else if (differences.length > 0) {
       openModalSelectionWindow();
     } else {
       closeModalAddInvoice();
@@ -547,6 +536,13 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
               buttonDisabled={!isSaveButtonEnabled}
               buttonIcon={<RiSave3Fill />}
               classNameButtonContainer={scss["button-save-document"]}
+              toolTipId="tooltipButtonSaveInvoiceFormAddInvoice"
+              toolTipContent={
+                !isSaveButtonEnabled
+                  ? tooltipButtonSaveInvoiceFormAddInvoice(isEditMode)
+                  : undefined
+              }
+              toolTipClassName={`${scss["tooltip"]} `}
             />
             <ButtonUniversal
               buttonName="closeInvoice"
@@ -655,6 +651,14 @@ function tooltipInfoFormAddDocument() {
   Przycisk "Usuń dokument" umożliwia usunięcie dokumentu z formularza.
   Jeżeli jest to jedyny dokument, nie można go usunąć.
   Przycisk "Zapisz fakturę" staje się aktywny po prawidłowym uzupełnieniu pól formularza.
-  Po kliknięciu przycisku "Zapisz fakturę" faktura zostaje zapisana w bazie danych.`;
+  Po kliknięciu przycisku "Zapisz fakturę" pojawi się okno potwierdzenia zapisu.`;
+  return text.replace(/\n/g, "<br/>");
+}
+
+function tooltipButtonSaveInvoiceFormAddInvoice(isEditMode: boolean) {
+  const text = `Przycisk zapisu faktury zostanie uaktywniony
+  po prawidłowym uzupełnieniu pól formularza ${
+    isEditMode ? " i wykryciu zmian w fakturze" : ""
+  }`;
   return text.replace(/\n/g, "<br/>");
 }

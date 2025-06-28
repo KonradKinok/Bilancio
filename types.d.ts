@@ -17,7 +17,11 @@ declare global {
     secondDate: Date | null;
     isDeleted?: 0 | 1;
   }
-
+  export interface PageState {
+  firstPage: number;
+  lastPage: number;
+  paginationPage: number;
+}
   type Statistics = {
     cpuUsage: number;
     ramUsage: number;
@@ -183,7 +187,8 @@ type AllInvoices = {
     getConnectedTableDictionary:DataBaseResponse<T[]>;
     queryToDB: unknown[];
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
-    getAllInvoices: AllInvoices[];
+    // getAllInvoices: AllInvoices[];
+    getAllInvoices: DataBaseResponse<AllInvoices[]>;
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
@@ -193,6 +198,7 @@ type AllInvoices = {
     addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
     deleteInvoice: DataBaseResponse<ReturnInvoiceSave>;
     restoreInvoice: DataBaseResponse<ReturnInvoiceSave>;
+    countInvoices: DataBaseResponse<number>;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -210,12 +216,14 @@ type AllInvoices = {
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
-      getAllInvoices: (payload) => Promise<AllInvoices[]>;
+      // getAllInvoices: (payload) => Promise<AllInvoices[]>;
+      getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
+      countInvoices: (payload) => Promise<DataBaseResponse<number>>;
       getLastRowFromTable: () => Promise<unknown>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;

@@ -363,10 +363,6 @@ export const FormAddInvoiceDocuments: React.FC<
     );
 
     if (defaultSubtype && !selectedSubtype) {
-      console.log(
-        "const defaultSubtype = getSingleDefaultOption",
-        defaultSubtype
-      );
       setSelectedSubtype(defaultSubtype);
     }
   }, [optionsDictionarySubtypeTable, selectedSubtype]);
@@ -585,6 +581,13 @@ export const FormAddInvoiceDocuments: React.FC<
           buttonText={"Usuń dokument"}
           buttonClick={onRemoveDocument}
           buttonDisabled={isOnly}
+          toolTipId="tooltipButtonDeleteDocumentFormAddInvoiceDocuments"
+          toolTipContent={
+            isOnly
+              ? tooltipButtonDeleteDocumentFormAddInvoiceDocuments()
+              : undefined
+          }
+          toolTipClassName={`${scss["tooltip"]} `}
         />
       </div>
       <div className={scss["button-container"]}>
@@ -765,3 +768,9 @@ const getDictionarySubtypeTable = (
     SubtypeName,
   }));
 };
+
+function tooltipButtonDeleteDocumentFormAddInvoiceDocuments() {
+  const text = `Przycisk usunięcia dokumentu zostanie uaktywniony
+  po dodaniu nowego dokumentu.`;
+  return text.replace(/\n/g, "<br/>");
+}

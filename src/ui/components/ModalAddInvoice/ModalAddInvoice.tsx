@@ -77,7 +77,7 @@ export function ModalAddInvoice({
             closeModalAddInvoice={closeModalAddInvoice}
             modalContentRef={modalContentRef}
             selectedInvoice={selectedInvoice}
-            isEditMode={!!selectedInvoice} // Przekazujemy informację o trybie edycji
+            isEditMode={!!selectedInvoice?.invoice.InvoiceId} // Przekazujemy informację o trybie edycji
             refetchAllInvoices={refetchAllInvoices}
           />
         </div>

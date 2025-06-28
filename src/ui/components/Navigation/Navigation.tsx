@@ -5,19 +5,21 @@ import scss from "./Navigation.module.scss";
 export const Navigation: React.FC = () => {
   return (
     <nav className={scss["nav-navigation"]}>
-      <NavLink
-        to="/"
-        className={({ isActive }) => (isActive ? scss.active : "")}
-      >
-        Home
-      </NavLink>
+      <div>
+        <NavLink
+          to="/"
+          className={({ isActive }) => (isActive ? scss.active : "")}
+        >
+          Wykresy
+        </NavLink>
 
-      <NavLink
-        to="reportDataPage"
-        className={({ isActive }) => (isActive ? scss.active : "")}
-      >
-        Wykresy
-      </NavLink>
+        <NavLink
+          to="reportDataPage"
+          className={({ isActive }) => (isActive ? scss.active : "")}
+        >
+          Raporty
+        </NavLink>
+      </div>
     </nav>
   );
 };

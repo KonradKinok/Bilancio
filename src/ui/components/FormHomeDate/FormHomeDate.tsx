@@ -141,6 +141,7 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
         closeModalAddInvoice={closeModalAddInvoice}
         isModalAddInvoiceOpen={isModalAddInvoiceOpen}
         refetchAllInvoices={refetchAllInvoices}
+        selectedInvoice={emptyInvoiceData()} // Przekazanie danych faktury
       />
     </div>
   );
@@ -159,3 +160,29 @@ function tooltipErrorDateFormHomeDateTekst() {
   const text = `Data początkowa nie może być późniejsza niż data końcowa.`;
   return text.replace(/\n/g, "<br/>");
 }
+
+const emptyInvoiceData = (): InvoiceSave => {
+  const invoiceData: InvoiceSave = {
+    invoice: {
+      InvoiceName: "",
+      ReceiptDate: "",
+      DeadlineDate: null,
+      PaymentDate: null,
+      IsDeleted: 0,
+    },
+    details: [
+      {
+        DocumentId: 0,
+        MainTypeId: null,
+        TypeId: null,
+        SubtypeId: null,
+        Quantity: 0,
+        Price: 0,
+        isMainTypeRequired: false,
+        isTypeRequired: false,
+        isSubtypeRequired: false,
+      },
+    ],
+  };
+  return invoiceData;
+};
