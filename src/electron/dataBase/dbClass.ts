@@ -1,8 +1,8 @@
 import sqlite3 from 'sqlite3';
 const { Database: SQLiteDatabase, OPEN_READWRITE, OPEN_CREATE } = sqlite3;
 import { open } from 'sqlite';
-import { getDBPath1 } from '../pathResolver.js';
-const dbPath=getDBPath1();
+import { getDBbBilancioPath } from '../pathResolver.js';
+const dbPath=getDBbBilancioPath();
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 

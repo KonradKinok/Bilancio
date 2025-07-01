@@ -10,7 +10,7 @@ export const Navigation: React.FC = () => {
           to="/"
           className={({ isActive }) => (isActive ? scss.active : "")}
         >
-          Wykresy
+          Faktury
         </NavLink>
 
         <NavLink
@@ -18,6 +18,14 @@ export const Navigation: React.FC = () => {
           className={({ isActive }) => (isActive ? scss.active : "")}
         >
           Raporty
+        </NavLink>
+      </div>
+      <div>
+        <NavLink
+          to="settingsPage"
+          className={({ isActive }) => (isActive ? scss.active : "")}
+        >
+          Ustawienia
         </NavLink>
       </div>
     </nav>

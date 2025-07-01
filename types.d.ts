@@ -199,6 +199,7 @@ type AllInvoices = {
     deleteInvoice: DataBaseResponse<ReturnInvoiceSave>;
     restoreInvoice: DataBaseResponse<ReturnInvoiceSave>;
     countInvoices: DataBaseResponse<number>;
+    getDBbBilancioPath: string;
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -225,8 +226,10 @@ type AllInvoices = {
       restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
       getLastRowFromTable: () => Promise<unknown>;
+      getDBbBilancioPath: () => Promise<string>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
+      
     };
   }
 }

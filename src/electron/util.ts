@@ -1,7 +1,7 @@
 import { ipcMain, WebContents, WebFrameMain } from "electron";
 import { getUIPath } from "./pathResolver.js";
 import { pathToFileURL } from "url";
-
+import log from "electron-log";
 export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
@@ -69,6 +69,9 @@ export function validateEventFrame(frame: WebFrameMain) {
     return;
   }
   if (frame.url !== pathToFileURL(getUIPath()).toString()) {
-    throw new Error('Malicious event');
+    // throw new Error('Malicious event');
+    log.error('validateEventFrame frame.url:', frame.url);
+    log.error('validateEventFrame pathToFileURL(getUIPath()):', pathToFileURL(getUIPath()).toString());
+    return;
   }
 }

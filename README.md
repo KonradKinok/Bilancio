@@ -55,7 +55,7 @@ export default tseslint.config({
 
 
 
-```
+
 Bilancio
 ├─ backup
 │  ├─ ai.docx
@@ -151,6 +151,9 @@ Bilancio
 │     │  ├─ Navigation
 │     │  │  ├─ Navigation.module.scss
 │     │  │  └─ Navigation.tsx
+│     │  ├─ NavigationSettings
+│     │  │  ├─ NavigationSettings.module.scss
+│     │  │  └─ NavigationSettings.tsx
 │     │  ├─ Pagination
 │     │  │  ├─ Pagination.module.scss
 │     │  │  ├─ pagination.scss
@@ -167,7 +170,9 @@ Bilancio
 │     │  ├─ useAllDocumentName.ts
 │     │  ├─ useAllInvoices.ts
 │     │  ├─ useConnectedTableDictionary.ts
+│     │  ├─ useDeleteInvoice.ts
 │     │  ├─ useLocalStorage.ts
+│     │  ├─ useRestoreInvoice.ts
 │     │  ├─ useTableDictionaryDocuments.ts
 │     │  ├─ useToggle.ts
 │     │  └─ useUpdateInvoice.ts
@@ -180,8 +185,20 @@ Bilancio
 │     │  ├─ LayoutPage
 │     │  │  ├─ LayoutPage.module.scss
 │     │  │  └─ LayoutPage.tsx
-│     │  └─ ReportDataPage
-│     │     └─ ReportDataPage.tsx
+│     │  ├─ ReportDataPage
+│     │  │  └─ ReportDataPage.tsx
+│     │  └─ SettingsPage
+│     │     ├─ DocumentsPage
+│     │     │  ├─ DocumentsPage.module.scss
+│     │     │  └─ DocumentsPage.tsx
+│     │     ├─ FilesPage
+│     │     │  ├─ FilesPage.module.scss
+│     │     │  └─ FilesPage.tsx
+│     │     ├─ SettingsPage.module.scss
+│     │     ├─ SettingsPage.tsx
+│     │     └─ UsersPage
+│     │        ├─ UsersPage.module.scss
+│     │        └─ UsersPage.tsx
 │     ├─ TempStart
 │     │  ├─ TempStart.css
 │     │  └─ TempStart.tsx
@@ -191,5 +208,3 @@ Bilancio
 ├─ tsconfig.node.json
 ├─ types.d.ts
 └─ vite.config.ts
-
-```

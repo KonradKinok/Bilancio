@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import "./TempStart.css";
 import { useStatistics } from "../useStatistics";
 import { Chart } from "../Chart";
-function App() {
+export function TempStart() {
   const [text, setText] = useState<string | null>(null);
   const [documents, setDocuments] = useState<DictionaryDocuments[] | null>(
     null
@@ -28,21 +28,21 @@ function App() {
   //   fetchData();
   // }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await window.electron.getAllDocumentsName();
-        console.log("getAllDocumentName: Odpowiedź z serwera:", response);
-      } catch (error) {
-        console.error(
-          "getAllDocumentName: Błąd podczas pobierania danych:",
-          error
-        );
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await window.electron.getAllDocumentsName();
+  //       console.log("getAllDocumentName: Odpowiedź z serwera:", response);
+  //     } catch (error) {
+  //       console.error(
+  //         "getAllDocumentName: Błąd podczas pobierania danych:",
+  //         error
+  //       );
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const [count, setCount] = useState(0);
   const statistics = useStatistics(10);
@@ -101,7 +101,7 @@ function App() {
   );
 }
 
-export default App;
+export default TempStart;
 
 function Header() {
   return (

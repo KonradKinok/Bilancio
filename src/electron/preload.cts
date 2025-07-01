@@ -1,5 +1,7 @@
-const electron = require('electron');
+import { ipcRenderer } from "electron";
 
+const electron = require('electron');
+// console.log('Ładowanie preload.cts w trybie', process.env.NODE_ENV);
 
 electron.contextBridge.exposeInMainWorld('electron', {
   subscribeStatistics: (callback) => {
@@ -16,6 +18,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getTableDictionaryDocuments: (payload) => ipcInvoke2('getTableDictionaryDocuments', payload),
   getConnectedTableDictionary: (tableName, documentId, mainTypeId, typeId, subTypeId) => ipcInvoke2('getConnectedTableDictionary', tableName, documentId, mainTypeId, typeId, subTypeId),
   queryToDB: () => ipcInvoke('queryToDB'),
+  getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
   getAllDocumentsName: () => ipcInvoke('getAllDocumentName'),
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
   getAllInvoices: (payload, page, rowsPerPage) =>
@@ -28,9 +31,12 @@ electron.contextBridge.exposeInMainWorld('electron', {
   countInvoices: (payload) => ipcInvoke2('countInvoices', payload),
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
-  przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
+  // przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
+  przykladowaFunkcja: (tekst2: string, jakisNumer: number) =>
+    ipcRenderer.invoke('przykladowaFunkcja', tekst2, jakisNumer),
   przykladowaFunkcja2: (payload, numer) => ipcInvoke2('przykladowaFunkcja2', payload, numer),
   // addInvoice: (payload) => ipcInvoke('addInvoice'),
+  
 } satisfies Window["electron"]);
 
 
@@ -38,6 +44,7 @@ function ipcInvoke<Key extends keyof EventPayloadMapping>(
   key: Key
   
 ): Promise<EventPayloadMapping[Key]> {
+  console.log(`Wywołano ipcInvoke dla klucza: ${key}`);
   return electron.ipcRenderer.invoke(key );
 }
 function ipcInvoke2<Key extends keyof EventPayloadMapping>(
