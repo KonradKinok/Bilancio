@@ -187,35 +187,6 @@ const FilesPage: React.FC = () => {
   }, [dbPathBilancio]);
   return (
     <div className={scss["files-page"]}>
-      <h2>Settings - Files</h2>
-      <h3>Tu powinien być tekst: {JSON.stringify(someTemp)}</h3>
-      <h3>error: {someTemperror}</h3>
-      <h3>Tu powinien być status: {someTemp1?.status}</h3>
-      {someTemp1?.status === "sukces" ? (
-        <h3>
-          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
-          {someTemp1.dane.jakisNumer}
-        </h3>
-      ) : (
-        <h3>Błąd: {someTemp1?.komunikat}</h3>
-      )}
-      <div>
-        <p>{JSON.stringify(config1)}</p>
-        <p>Error: {error1}</p>
-      </div>
-      <div>
-        <p>dbPathBilancio {JSON.stringify(dbPathBilancio)}</p>
-        <p>dbPathBilancio Error: {dbPathBilancioError}</p>
-      </div>
-      <div>
-        <p>checkDatabaseExists {JSON.stringify(checkDatabase)}</p>
-        <p>checkDatabaseExists Error: {checkDatabaseError}</p>
-      </div>
-
-      <div>
-        <p>{JSON.stringify(config2)}</p>
-        <p>Error: {error2}</p>
-      </div>
       {loading && <p>Ładowanie...</p>}
       {error && <p className={scss.error}>Błąd: {error}</p>}
       {config && (
@@ -246,9 +217,30 @@ const FilesPage: React.FC = () => {
           </div>
         </div>
       )}
-      <Suspense fallback={<div>Ładowanie podstrony...</div>}>
-        <Outlet />
-      </Suspense>
+      <h2>Settings - Files</h2>
+      <h3>Tu powinien być tekst: {JSON.stringify(someTemp)}</h3>
+      <h3>error: {someTemperror}</h3>
+      <h3>Tu powinien być status: {someTemp1?.status}</h3>
+      {someTemp1?.status === "sukces" ? (
+        <h3>
+          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
+          {someTemp1.dane.jakisNumer}
+        </h3>
+      ) : (
+        <h3>Błąd: {someTemp1?.komunikat}</h3>
+      )}
+      <div>
+        <p>{JSON.stringify(config1)}</p>
+        <p>Error: {error1}</p>
+      </div>
+      <div>
+        <p>dbPathBilancio {JSON.stringify(dbPathBilancio)}</p>
+        <p>dbPathBilancio Error: {dbPathBilancioError}</p>
+      </div>
+      <div>
+        <p>checkDatabaseExists {JSON.stringify(checkDatabase)}</p>
+        <p>checkDatabaseExists Error: {checkDatabaseError}</p>
+      </div>
     </div>
   );
 };

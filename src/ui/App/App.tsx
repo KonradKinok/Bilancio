@@ -1,5 +1,5 @@
 import React, { lazy } from "react";
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { LayoutPage } from "../pages/LayoutPage/LayoutPage";
 
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
@@ -24,6 +24,7 @@ const App: React.FC = () => {
         <Route index element={<HomePage />} />
         <Route path="reportDataPage" element={<ReportDataPage />} />
         <Route path="settingsPage" element={<SettingsPage />}>
+          <Route index element={<Navigate to="filesPage" replace />} />
           <Route path="filesPage" element={<FilesPage />} />
           <Route path="documentsPage" element={<DocumentsPage />} />
           <Route path="usersPage" element={<UsersPage />} />

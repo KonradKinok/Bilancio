@@ -41,7 +41,7 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
-  const [totalCount1, setTotalCount1] = useState<number>(0);
+  const [totalInvoices, setTotalInvoices] = useState<number>(0);
   // const [totalPages, setTotalPages] = useState<number>(20);
   // Stan dla liczby wierszy na stronę
   // const [rowsPerPage, setRowsPerPage] = useState<number>(10);
@@ -195,7 +195,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     const fetchData = async () => {
       try {
         const result = await window.electron.countInvoices(formValuesHomePage);
-        if (result.status === STATUS.Success) setTotalCount1(result.data);
+        if (result.status === STATUS.Success) setTotalInvoices(result.data);
       } catch (err) {
         console.error(
           "MainTable countInvoices Błąd podczas pobierania danych:",
@@ -363,22 +363,28 @@ export const MainTable: React.FC<MainTableProps> = ({
               })}
           </tbody>
         </table>
-        <div className={scss["maintable-controls-container"]}>
-          <div className={scss["controls"]}>
-            <label className={scss["label"]} htmlFor="rowsPerPage">
-              Wiersze na stronę:{" "}
-            </label>
-            <select
-              id="rowsPerPage"
-              value={rowsPerPage}
-              onChange={handleRowsPerPageChange}
-              className={scss["select"]}
-            >
-              <option value={10}>10</option>
-              <option value={20}>20</option>
-              <option value={50}>50</option>
-            </select>
+        <div className={scss["maintable-footer-container"]}>
+          <div className={scss["maintable-controls-container"]}>
+            <div className={scss["controls"]}>
+              <label className={scss["label"]} htmlFor="rowsPerPage">
+                Wiersze na stronę:{" "}
+              </label>
+              <select
+                id="rowsPerPage"
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+                className={scss["select"]}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
+            <div className={scss["total-invoices"]}>
+              <p>Liczba faktur: {totalInvoices}</p>
+            </div>
           </div>
+
           <Pagination
             className={scss.pagination}
             currentPage={page.paginationPage}
@@ -408,7 +414,7 @@ export const MainTable: React.FC<MainTableProps> = ({
       />
       <div>
         <button onClick={sprawdzenieFunkcji}>Refetch</button>
-        <p>Liczba faktur: {totalCount1}</p>
+
         <h2>Dokumenty</h2>
         {dataAllDocumentsName &&
           dataAllDocumentsName.length > 0 &&

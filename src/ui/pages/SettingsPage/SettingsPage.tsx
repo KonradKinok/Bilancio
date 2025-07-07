@@ -12,7 +12,7 @@ const SettingsPage: React.FC = () => {
         <div>
           <NavigationSettings />
         </div>
-        <div>
+        <div className={scss["settings-outlet-container"]}>
           <Suspense fallback={"<Loader />"}>
             <Outlet />
           </Suspense>
