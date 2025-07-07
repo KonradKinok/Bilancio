@@ -31,12 +31,17 @@ electron.contextBridge.exposeInMainWorld('electron', {
   countInvoices: (payload) => ipcInvoke2('countInvoices', payload),
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
-  // przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
-  przykladowaFunkcja: (tekst2: string, jakisNumer: number) =>
-    ipcRenderer.invoke('przykladowaFunkcja', tekst2, jakisNumer),
+  przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
   przykladowaFunkcja2: (payload, numer) => ipcInvoke2('przykladowaFunkcja2', payload, numer),
   // addInvoice: (payload) => ipcInvoke('addInvoice'),
+  getConfigBilancio: () => ipcInvoke('getConfigBilancio'),
   
+  saveConfig: (config) => ipcInvoke2('saveConfig', config),
+  openDBDialog: () => ipcInvoke('openDBDialog'),
+  openTemplatesDialog: () => ipcInvoke('openTemplatesDialog'),
+  openSavedDocumentsDialog: () => ipcInvoke('openSavedDocumentsDialog'),
+  checkDatabaseExists: (dbPath) => ipcInvoke2('checkDatabaseExists', dbPath),
+  getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),
 } satisfies Window["electron"]);
 
 
@@ -51,6 +56,7 @@ function ipcInvoke2<Key extends keyof EventPayloadMapping>(
   key: Key,
   ...params: any[]
 ): Promise<EventPayloadMapping[Key]> {
+  console.log(`Wywołano ipcInvoke2 dla klucza: ${key}`);
   return electron.ipcRenderer.invoke(key, ...params);
 }
 function ipcOn<Key extends keyof EventPayloadMapping>(

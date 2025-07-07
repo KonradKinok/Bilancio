@@ -7,6 +7,7 @@
     // tell TypeScript to require ESM Syntax as input (including .js file imports)
     "module": "NodeNext",
     // define where to put generated JS
+    "rootDir": "./",
     "outDir": "../../dist-electron",
     // ignore errors from dependencies
     "skipLibCheck": true,
@@ -15,3 +16,18 @@
   }
 }
 
+// {
+//   "compilerOptions": {
+//     "strict": true,
+//     "target": "es6",
+//     "module": "commonjs",
+//     "moduleResolution": "node",
+//     "outDir": "../../dist-electron",
+//     "skipLibCheck": true,
+//     "allowSyntheticDefaultImports": true,
+//     "esModuleInterop": true,
+//     "types": ["../../types"]
+//   },
+//   "include": ["**/*"],
+//   "exclude": ["node_modules"]
+// }

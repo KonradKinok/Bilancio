@@ -64,14 +64,34 @@ export function ipcWebContentsSend<Key extends keyof EventPayloadMapping>(
   webContents.send(key, payload);
 }
 
+// export function validateEventFrame(frame: WebFrameMain) {
+//   if (isDev() && new URL(frame.url).host === 'localhost:5123') {
+//     return;
+//   }
+//   if (frame.url !== pathToFileURL(getUIPath()).toString()) {
+//     // throw new Error('Malicious event');
+//     log.error('validateEventFrame frame.url:', frame.url);
+//     log.error('validateEventFrame pathToFileURL(getUIPath()):', pathToFileURL(getUIPath()).toString());
+//     return;
+//   }
+// }
+
 export function validateEventFrame(frame: WebFrameMain) {
   if (isDev() && new URL(frame.url).host === 'localhost:5123') {
     return;
   }
-  if (frame.url !== pathToFileURL(getUIPath()).toString()) {
-    // throw new Error('Malicious event');
+  // Porównaj tylko część ścieżki przed fragmentem (#)
+  const frameUrlBase = frame.url.split('#')[0];
+  const uiPathUrl = pathToFileURL(getUIPath()).toString().split('#')[0];
+  if (frameUrlBase !== uiPathUrl) {
     log.error('validateEventFrame frame.url:', frame.url);
     log.error('validateEventFrame pathToFileURL(getUIPath()):', pathToFileURL(getUIPath()).toString());
     return;
   }
+//   const uiPathUrl = pathToFileURL(getUIPath()).toString();
+// if (!frame.url.startsWith(uiPathUrl)) {
+//   log.error('validateEventFrame frame.url:', frame.url);
+//   log.error('validateEventFrame pathToFileURL(getUIPath()):', uiPathUrl);
+//   return;
+// }
 }

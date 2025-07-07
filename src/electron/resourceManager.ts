@@ -47,3 +47,5 @@ function getStorageData() {
     usage: 1 - free / total,
   };
 }
+
+

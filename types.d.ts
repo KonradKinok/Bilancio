@@ -50,7 +50,11 @@ declare global {
     SubtypeId: number;
     SubtypeName: string;
   }
-
+  type Config = {
+    dbPath: string;
+    documentTemplatesPath: string;
+    savedDocumentsPath: string;
+  };
 type AllInvoices = {
     InvoiceId: number;
     InvoiceName: string;
@@ -200,6 +204,13 @@ type AllInvoices = {
     restoreInvoice: DataBaseResponse<ReturnInvoiceSave>;
     countInvoices: DataBaseResponse<number>;
     getDBbBilancioPath: string;
+    getConfigBilancio: Config;
+    saveConfig: Config;
+    openDBDialog: { success: boolean; path: string | null };
+    openTemplatesDialog: { success: boolean; path: string | null };
+    openSavedDocumentsDialog: { success: boolean; path: string | null };
+    checkDatabaseExists: boolean;
+    getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -229,7 +240,13 @@ type AllInvoices = {
       getDBbBilancioPath: () => Promise<string>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
       przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
-      
+      getConfigBilancio: () => Promise<Config>;
+      saveConfig: (config: Config) => Promise<Config>;
+      openDBDialog: () => Promise<{ success: boolean; path: string | null }>;
+      openTemplatesDialog: () => Promise<{ success: boolean; path: string | null }>;
+      openSavedDocumentsDialog: () => Promise<{ success: boolean; path: string | null }>;
+      checkDatabaseExists: (path: string) => Promise<boolean>;
+      getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
     };
   }
 }

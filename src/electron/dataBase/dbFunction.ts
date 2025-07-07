@@ -553,7 +553,7 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
 // Przykładowa funkcja, która zwraca obiekt
 export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {
   try {
-    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer };
+    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer};
     return obiekt;
   }
   catch (err) {
@@ -602,6 +602,12 @@ export const queryToDB = {
   }
 };
 
+export async function getConfigBilancio1(tekst: string): Promise<string> { 
+  console.log("getConfigBilancio1 called with text:", tekst);
+  
+
+  return Promise.resolve("getConfigBilancio text");
+}
 // import { app } from 'electron';
 // app.on('before-quit', async () => {
 //   try {
