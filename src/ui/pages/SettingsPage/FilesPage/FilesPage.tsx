@@ -186,38 +186,67 @@ const FilesPage: React.FC = () => {
     fetchData();
   }, [dbPathBilancio]);
   return (
-    <div className={scss["files-page"]}>
-      {loading && <p>Ładowanie...</p>}
+    <div className={scss["files-page-container"]}>
       {error && <p className={scss.error}>Błąd: {error}</p>}
       {config && (
-        <div>
-          <div className={scss.path}>
-            <p>
-              Ścieżka do bazy danych: {config.dbPath}
-              <span
+        <>
+          <div className={scss["path-container"]}>
+            <button
+              className={scss["button-show-dialog"]}
+              onClick={handleSelectDB}
+            >
+              Wybierz bazę danych
+            </button>
+            <p className={scss["path"]}>
+              {config.dbPath}
+              {/* <span
                 className={scss.status}
                 style={{ backgroundColor: dbExists ? "green" : "red" }}
-              ></span>
+              ></span> */}
             </p>
-            <button onClick={handleSelectDB}>Wybierz bazę danych</button>
           </div>
-          <div className={scss.path}>
-            <p>
-              Ścieżka do szablonów dokumentów: {config.documentTemplatesPath}
-            </p>
-            <button onClick={handleSelectTemplates}>
+          <div className={scss["path-container"]}>
+            <button
+              className={scss["button-show-dialog"]}
+              onClick={handleSelectTemplates}
+            >
               Wybierz katalog szablonów
             </button>
+            <p className={scss["path"]}>{config.documentTemplatesPath}</p>
           </div>
-          <div className={scss.path}>
-            <p>Ścieżka do zapisanych dokumentów: {config.savedDocumentsPath}</p>
-            <button onClick={handleSelectSavedDocuments}>
+          <div className={scss["path-container"]}>
+            <button
+              className={scss["button-show-dialog"]}
+              onClick={handleSelectSavedDocuments}
+            >
               Wybierz katalog zapisanych dokumentów
             </button>
+            <p className={scss["path"]}>{config.savedDocumentsPath}</p>
           </div>
-        </div>
+          <div className={scss["path-container"]}>
+            <button
+              className={scss["button-show-dialog"]}
+              onClick={handleSelectSavedDocuments}
+            >
+              Wybierz katalog testowych dokumentów
+            </button>
+
+            <p className={scss["path"]}>
+              Files Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              Fugit, quis nam illum totam et praesentium dignissimos similique
+              ducimus iure, Lorem ipsum dolor sit amet, consectetur adipisicing
+              elit. Fugit, quis nam illum totam et praesentium dignissimos
+              similique ducimus iure, dolorum qui
+            </p>
+          </div>
+        </>
       )}
-      <h2>Settings - Files</h2>
+      <h2>
+        Settings - Files Lorem ipsum dolor sit amet, consectetur adipisicing
+        elit. Fugit, quis nam illum totam et praesentium dignissimos similique
+        ducimus iure, dolorum qui non reiciendis eius aliquam, eaque itaque
+        dicta nobis minima. lorem
+      </h2>
       <h3>Tu powinien być tekst: {JSON.stringify(someTemp)}</h3>
       <h3>error: {someTemperror}</h3>
       <h3>Tu powinien być status: {someTemp1?.status}</h3>

@@ -1,0 +1,95 @@
+.files-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2rem;
+
+
+
+  .path-container {
+
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    gap: 1rem;
+
+    // padding: 1rem;
+    // box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    // border-radius: 1rem;
+
+
+    .path {
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+      border-radius: 1rem;
+      padding: 0.5rem;
+    }
+
+    .status {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-left: 0.5rem;
+    }
+  }
+
+  .container-button {
+    z-index: 1;
+    display: flex;
+    align-items: end;
+
+  }
+
+  .button-show-dialog {
+    --button-gradient-first-color: rgb(17 145 15);
+    --button-gradient-second-color: rgb(17, 207, 11);
+    flex-shrink: 0;
+    width: 384px;
+    // margin: 10px;
+    padding: 15px 30px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;
+    border-radius: 10px;
+    display: block;
+    border: 0px;
+    font-weight: 700;
+    box-shadow: 0px 0px 14px -7px var(--button-gradient-second-color);
+    background-image: linear-gradient(45deg, var(--button-gradient-first-color) 0%, var(--button-gradient-second-color) 51%, var(--button-gradient-first-color) 100%);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+
+  .button-show-dialog:hover {
+    background-position: right center;
+    /* change the direction of the change here */
+    color: #fff;
+    text-decoration: none;
+  }
+
+  // .button:active {
+  //   transform: scale(0.95);
+  // }
+
+  .button-show-dialog:not(:disabled):focus,
+  .button-show-dialog:not(:disabled):hover {
+    background-position: right center;
+    /* change the direction of the change here */
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+  }
+
+  .button-show-dialog:not(:disabled):active {
+    transform: scale(0.95);
+  }
+
+  .button-show-dialog:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+}
