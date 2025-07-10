@@ -40,7 +40,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   openDBDialog: () => ipcInvoke('openDBDialog'),
   openTemplatesDialog: () => ipcInvoke('openTemplatesDialog'),
   openSavedDocumentsDialog: () => ipcInvoke('openSavedDocumentsDialog'),
-  checkDatabaseExists: (dbPath) => ipcInvoke2('checkDatabaseExists', dbPath),
+  checkDatabaseExists: () => ipcInvoke('checkDatabaseExists'),
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),
 } satisfies Window["electron"]);
 

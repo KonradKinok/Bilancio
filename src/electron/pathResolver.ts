@@ -3,6 +3,7 @@ import { app } from "electron";
 import { isDev } from "./util.js";
 import fs from "fs";
 import log from "electron-log";
+import { isDatabaseExists } from "./dataBase/dbClass.js";
 
 // Funkcja do pobierania ścieżki do pliku preload
 export function getPreloadPath() {
@@ -123,6 +124,6 @@ export function getDBbBilancioPath() {
 }
 
 // Funkcja do sprawdzania istnienia bazy danych
-export function checkDatabaseExists(dbPath: string): boolean {
-  return fs.existsSync(dbPath);
+export function checkDatabaseExists(): DatabaseExists {
+  return isDatabaseExists;
 }

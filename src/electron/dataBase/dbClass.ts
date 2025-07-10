@@ -7,6 +7,7 @@ import { getDBbBilancioPath } from '../pathResolver.js';
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 
+export const isDatabaseExists:DatabaseExists = {status: false, message: ''};
 class Database {
   private db: sqlite3.Database;
 
@@ -16,10 +17,13 @@ class Database {
     // Inicjalizujemy połączenie z bazą danych
     this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE | OPEN_CREATE, (err: Error | null) => {
       if (err) {
-        console.error('Błąd połączenia z bazą danych:', err.message);
+        log.error('Błąd połączenia z bazą danych:', err.message);
+        isDatabaseExists.status = false;
+        isDatabaseExists.message = `Błąd połączenia z bazą danych: ${err.message}`;
       } else {
-
-        console.log('Polaczono z baza danych.', dbPath);
+        isDatabaseExists.status = true;
+        isDatabaseExists.message = `Połączono z bazą danych: ${dbPath}`;
+        log.info('Połączono z bazą danych.', dbPath);
       }
     });
   }

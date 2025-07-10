@@ -138,8 +138,8 @@ app.on("ready", () => {
     return openSavedDocumentsDialog();
   });
 
-  ipcMainHandle2('checkDatabaseExists', (dbPath) => {
-    return checkDatabaseExists(dbPath);
+  ipcMainHandle('checkDatabaseExists', () => {
+    return checkDatabaseExists();
   });
   ipcMainHandle2('przykladowaFunkcja', (payload, jakisNumer) => {
     log.info('FilesPage: przykladowaFunkcja zarejestrowana i wywołana', payload, jakisNumer);

@@ -161,14 +161,12 @@ const FilesPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const [checkDatabase, setcheckDatabase] = useState<boolean>();
+  const [checkDatabase, setcheckDatabase] = useState<DatabaseExists>();
   const [checkDatabaseError, setcheckDatabaseError] = useState<string | null>();
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await window.electron.checkDatabaseExists(
-          dbPathBilancio || ""
-        );
+        const result = await window.electron.checkDatabaseExists();
         setcheckDatabase(result);
       } catch (err) {
         console.error(
@@ -199,10 +197,10 @@ const FilesPage: React.FC = () => {
             </button>
             <p className={scss["path"]}>
               {config.dbPath}
-              {/* <span
+              <span
                 className={scss.status}
                 style={{ backgroundColor: dbExists ? "green" : "red" }}
-              ></span> */}
+              ></span>
             </p>
           </div>
           <div className={scss["path-container"]}>
@@ -232,44 +230,15 @@ const FilesPage: React.FC = () => {
             </button>
 
             <p className={scss["path"]}>
-              Files Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+              {`${dbExists?.status} ${dbExists?.message} Files Lorem ipsum dolor sit amet, consectetur adipisicing elit.
               Fugit, quis nam illum totam et praesentium dignissimos similique
               ducimus iure, Lorem ipsum dolor sit amet, consectetur adipisicing
               elit. Fugit, quis nam illum totam et praesentium dignissimos
-              similique ducimus iure, dolorum qui
+              similique ducimus iure, dolorum qui`}
             </p>
           </div>
         </>
       )}
-      <h2>
-        Settings - Files Lorem ipsum dolor sit amet, consectetur adipisicing
-        elit. Fugit, quis nam illum totam et praesentium dignissimos similique
-        ducimus iure, dolorum qui non reiciendis eius aliquam, eaque itaque
-        dicta nobis minima. lorem
-      </h2>
-      <h3>Tu powinien być tekst: {JSON.stringify(someTemp)}</h3>
-      <h3>error: {someTemperror}</h3>
-      <h3>Tu powinien być status: {someTemp1?.status}</h3>
-      {someTemp1?.status === "sukces" ? (
-        <h3>
-          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
-          {someTemp1.dane.jakisNumer}
-        </h3>
-      ) : (
-        <h3>Błąd: {someTemp1?.komunikat}</h3>
-      )}
-      <div>
-        <p>{JSON.stringify(config1)}</p>
-        <p>Error: {error1}</p>
-      </div>
-      <div>
-        <p>dbPathBilancio {JSON.stringify(dbPathBilancio)}</p>
-        <p>dbPathBilancio Error: {dbPathBilancioError}</p>
-      </div>
-      <div>
-        <p>checkDatabaseExists {JSON.stringify(checkDatabase)}</p>
-        <p>checkDatabaseExists Error: {checkDatabaseError}</p>
-      </div>
     </div>
   );
 };
