@@ -2,6 +2,7 @@ import Database, { QueryParams} from './dbClass.js';
 import * as sqlString from "./dbQuerySqlString.js";
 import { DbTables, InvoicesTable } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
+import log from "electron-log"; // Dodaj import
 
 // Tworzymy instancję bazy danych
 const db = new Database();
@@ -278,9 +279,6 @@ export async function addInvoiceDetails(
   }
 }
 
-
-
-
 export async function updateInvoice(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
@@ -548,7 +546,16 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
   }
 }
 
-
+export async function reinitializeDatabase (dbPath: string):Promise<ReturnStatusMessage> {
+  try {
+    await db.reinitialize(dbPath);
+    log.info('Baza danych została pomyślnie zreinicjalizowana:', dbPath);
+    return { status: true, message: 'Baza danych została pomyślnie zreinicjalizowana.' };
+  } catch (err) {
+    log.error('Błąd podczas reinicjalizacji bazy danych:', err);
+    return { status: false, message: err instanceof Error ? err.message : 'Nieznany błąd podczas reinicjalizacji bazy danych.' };
+  }
+};
 
 // Przykładowa funkcja, która zwraca obiekt
 export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {

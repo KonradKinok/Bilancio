@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { STATUS, DataBaseResponse, isSuccess } from '../../electron/sharedTypes/status';
 
 export function useAllDocumentsName() {
@@ -6,25 +6,34 @@ export function useAllDocumentsName() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await window.electron.getAllDocumentsName();
-        if (result.status === STATUS.Success) {
-                setData(result.data);
-                setError(null);
-              } else {
-                setError(result.message || "Błąd podczas pobierania danych");
-              }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Nieznany błąd");
-      } finally {
-        setLoading(false);
-      }
-    };
+ // Funkcja do pobierania danych z użyciem useCallback
+ const fetchData = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const result = await window.electron.getAllDocumentsName();
+    if (result.status === STATUS.Success) {
+      setData(result.data);
+      setError(null);
+    } else {
+      setError(result.message || "Błąd podczas pobierania danych");
+    }
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Nieznany błąd");
+  } finally {
+    setLoading(false);
+  }
+}, []); // Pusta tablica zależności, bo fetchData nie zależy od żadnych zewnętrznych zmiennych
 
-    fetchData();
-  }, []);
+// Efekt początkowego pobierania danych
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
 
-  return { data, loading, error };
+// Funkcja do ponownego pobierania dokumentów
+const getAllDocuments = async () => {
+  await fetchData();
+};
+
+  return { data, loading, error, getAllDocuments };
 }

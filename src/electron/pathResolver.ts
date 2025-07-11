@@ -124,6 +124,6 @@ export function getDBbBilancioPath() {
 }
 
 // Funkcja do sprawdzania istnienia bazy danych
-export function checkDatabaseExists(): DatabaseExists {
+export function checkDatabaseExists(): ReturnStatusMessage {
   return isDatabaseExists;
 }

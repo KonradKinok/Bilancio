@@ -22,7 +22,7 @@ declare global {
   lastPage: number;
   paginationPage: number;
   }
-  export interface DatabaseExists {
+  export interface ReturnStatusMessage {
     status: boolean;
     message: string;
   }
@@ -213,7 +213,8 @@ type AllInvoices = {
     openDBDialog: { success: boolean; path: string | null };
     openTemplatesDialog: { success: boolean; path: string | null };
     openSavedDocumentsDialog: { success: boolean; path: string | null };
-    checkDatabaseExists: DatabaseExists;
+    checkDatabaseExists: ReturnStatusMessage;
+    reinitializeDatabase: ReturnStatusMessage;
     getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
@@ -249,7 +250,8 @@ type AllInvoices = {
       openDBDialog: () => Promise<{ success: boolean; path: string | null }>;
       openTemplatesDialog: () => Promise<{ success: boolean; path: string | null }>;
       openSavedDocumentsDialog: () => Promise<{ success: boolean; path: string | null }>;
-      checkDatabaseExists: () => Promise<DatabaseExists>;
+      checkDatabaseExists: () => Promise<ReturnStatusMessage>;
+      reinitializeDatabase: (dbPath: string) => Promise<ReturnStatusMessage>;
       getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
     };
   }

@@ -62,7 +62,8 @@ LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.D
 LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
 LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
 LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId
-WHERE AllDocuments.IsDeleted = 0;`;
+WHERE AllDocuments.IsDeleted = 0
+ORDER BY DictionaryDocuments.DocumentName ASC;`;
 };
 
 // Pobierz ostatni wiersz z tabeli 

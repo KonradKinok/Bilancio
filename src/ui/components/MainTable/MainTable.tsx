@@ -42,23 +42,6 @@ export const MainTable: React.FC<MainTableProps> = ({
   totalCount,
 }) => {
   const [totalInvoices, setTotalInvoices] = useState<number>(0);
-  // const [totalPages, setTotalPages] = useState<number>(20);
-  // Stan dla liczby wierszy na stronę
-  // const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  // const [page, setPage] = useState<PageState>({
-  //   paginationPage: 1,
-  //   firstPage: 1,
-  //   lastPage: 2,
-  // });
-  // // Używamy hooka useAllInvoices z paginacją
-  // const {
-  //   data: dataAllInvoices,
-  //   totalCount,
-  //   loading,
-  //   error,
-  //   refetch,
-  // } = useAllInvoices(formValuesHomePage, page.paginationPage, rowsPerPage);
-  // Stan dla modala edycji
   const {
     isOpenModal: isModalAddInvoiceOpen,
     openModal: openModalAddInvoice,
@@ -73,13 +56,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     InvoiceSave | undefined
   >(undefined);
   const [invoiceToDelete, setInvoiceToDelete] = useState<number | null>(null);
-  //Nazwy wszystkich dokumentów
-  const { allDocumentsData } = useMainDataContext();
-  const {
-    data: dataAllDocumentsName,
-    loading: loadingAllDocumentsName,
-    error: errorAllDocumentsName,
-  } = allDocumentsData;
+
   const {
     deleteInvoice,
     data: deleteData,
@@ -416,17 +393,6 @@ export const MainTable: React.FC<MainTableProps> = ({
         <button onClick={sprawdzenieFunkcji}>Refetch</button>
 
         <h2>Dokumenty</h2>
-        {dataAllDocumentsName &&
-          dataAllDocumentsName.length > 0 &&
-          dataAllDocumentsName.map((document, index) => (
-            <p key={index}>
-              {index + 1}. {document.DocumentName}
-              {document.DocumentId} {document.MainTypeName}
-              {document.MainTypeId} {document.TypeName}
-              {document.TypeId} {document.SubtypeName}
-              {document.SubtypeId} {currencyFormater(document.Price)}
-            </p>
-          ))}
       </div>
       <h2>Main Table temp</h2>
       <h3>

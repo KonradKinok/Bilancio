@@ -7,7 +7,7 @@ import {checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig,
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, restoreInvoice, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, updateInvoice } from "./dataBase/dbFunction.js";
 import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
 
 
@@ -140,6 +140,9 @@ app.on("ready", () => {
 
   ipcMainHandle('checkDatabaseExists', () => {
     return checkDatabaseExists();
+  });
+  ipcMainHandle2('reinitializeDatabase', (dbPath) => {
+    return reinitializeDatabase(dbPath);
   });
   ipcMainHandle2('przykladowaFunkcja', (payload, jakisNumer) => {
     log.info('FilesPage: przykladowaFunkcja zarejestrowana i wywołana', payload, jakisNumer);

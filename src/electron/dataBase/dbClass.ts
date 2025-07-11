@@ -7,7 +7,7 @@ import { getDBbBilancioPath } from '../pathResolver.js';
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 
-export const isDatabaseExists:DatabaseExists = {status: false, message: ''};
+export const isDatabaseExists:ReturnStatusMessage = {status: false, message: ''};
 class Database {
   private db: sqlite3.Database;
 

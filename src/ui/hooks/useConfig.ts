@@ -14,7 +14,7 @@ type DialogResponse = {
 
 export function useConfig() {
   const [config, setConfig] = useState<Config | null>(null);
-  const [dbExists, setDbExists] = useState<DatabaseExists>();
+  const [dbExists, setDbExists] = useState<ReturnStatusMessage>();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,6 +54,11 @@ export function useConfig() {
           ...currentConfig,
           dbPath: result.path,
         });
+        // Reinicjalizacja bazy danych
+        const reinitializeResult = await window.electron.reinitializeDatabase(result.path);
+        if (!reinitializeResult.status) {
+          throw new Error(reinitializeResult.message);
+        }
         setConfig(newConfig);
         const exists = await window.electron.checkDatabaseExists();
         setDbExists(exists);

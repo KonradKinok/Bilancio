@@ -4,19 +4,11 @@
   align-items: flex-start;
   gap: 2rem;
 
-
-
   .path-container {
-
     display: flex;
     align-items: center;
     flex-flow: row nowrap;
     gap: 1rem;
-
-    // padding: 1rem;
-    // box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
-    // border-radius: 1rem;
-
 
     .path {
       box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
@@ -24,20 +16,9 @@
       padding: 0.5rem;
     }
 
-    .status {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      margin-left: 0.5rem;
+    .database-status {
+      background-color: rgb(255, 0, 0);
     }
-  }
-
-  .container-button {
-    z-index: 1;
-    display: flex;
-    align-items: end;
-
   }
 
   .button-show-dialog {
