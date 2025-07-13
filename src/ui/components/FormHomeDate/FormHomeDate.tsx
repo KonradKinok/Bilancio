@@ -143,6 +143,14 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
         refetchAllInvoices={refetchAllInvoices}
         selectedInvoice={emptyInvoiceData()} // Przekazanie danych faktury
       />
+      {/* {isModalAddInvoiceOpen && (
+        <ModalAddInvoice
+          closeModalAddInvoice={closeModalAddInvoice}
+          isModalAddInvoiceOpen={isModalAddInvoiceOpen}
+          refetchAllInvoices={refetchAllInvoices}
+          selectedInvoice={emptyInvoiceData()} // Przekazanie danych faktury
+        />
+      )} */}
     </div>
   );
 };

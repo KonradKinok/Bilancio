@@ -119,21 +119,40 @@ export async function getConnectedTableDictionary<T>(tableName: DbTables, docume
   }
 };
 
-export async function getAllDocumentsName() {
+// export async function getAllDocumentsName() {
+//   try {
+//     const rows = await db.all<AllDocumentsName>(sqlString.getAllDocumentsNameSqlString());
+//     return {
+//       status: STATUS.Success,
+//       data: rows ?? [],
+//     };
+//   } catch (err) {
+//     console.error('getAllDocumentName() Błąd podczas pobierania dokumentów:', err);
+//     return {
+//       status: STATUS.Error,
+//       message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
+//     };
+//   }
+// };
+
+export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
   try {
-    const rows = await db.all<AllDocumentsName>(sqlString.getAllDocumentsNameSqlString());
-    return {
-      status: STATUS.Success,
-      data: rows ?? [],
-    };
+      const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
+      const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
+      const rows = await db.all<AllDocumentsName>(query, params);
+      return {
+          status: STATUS.Success,
+          data: rows ?? [],
+      };
   } catch (err) {
-    console.error('getAllDocumentName() Błąd podczas pobierania dokumentów:', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
-    };
+      log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
+      return {
+          status: STATUS.Error,
+          message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
+      };
   }
 };
+
 export async function getAllInvoices(
   formValuesHomePage: FormValuesHomePage,
   page: number = 1,

@@ -118,8 +118,13 @@ type AllInvoices = {
     SubtypeId: number | null;
     SubtypeName: string;
     Price: number;
+    IsDeleted: 0 | 1;
   }
-
+  type AllDocumentsNameHook = {
+    data: AllDocumentsName[] | null;
+    loading: boolean;
+    error: string | null;
+  };
   // type AllInvoicesDb1 = {
   //   InvoiceId: number;
   //   InvoiceName: string;
@@ -232,7 +237,7 @@ type AllInvoices = {
       getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       queryToDB: () => Promise<unknown[]>;
-      getAllDocumentsName: () => Promise<DataBaseResponse<AllDocumentsName[]>>;
+      getAllDocumentsName: (isDeleted?:number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 

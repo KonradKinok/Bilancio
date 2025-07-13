@@ -32,7 +32,7 @@ export interface ElectronContextType {
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >; // Funkcja zmiany opcji
-  allDocumentsData: AllDocumentsNameHook;
+  // allDocumentsData: AllDocumentsNameHook;
 }
 // Typ dla propsów w providerze
 interface ElectronProviderProps {
@@ -63,7 +63,7 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
     setOptions,
     formValuesHomePage,
     setFormValuesHomePage,
-    allDocumentsData,
+    // allDocumentsData,
   };
 
   return (

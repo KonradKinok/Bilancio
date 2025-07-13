@@ -1,5 +1,4 @@
 import { use, useEffect, useState } from "react";
-import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import toast from "react-hot-toast";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import scss from "./MainTable.module.scss";

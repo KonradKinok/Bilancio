@@ -11,12 +11,14 @@
     z-index: 1200;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.5s ease-in-out, visibility 0s 0.5s;
 
     &.is-open {
         visibility: visible;
         opacity: 1;
         transition: opacity 0.5s ease-in-out, visibility 0s;
+        pointer-events: auto;
         // cursor: url('../../images/videoModal/exit-sign-svgrepo-com.svg'), auto;
     }
 

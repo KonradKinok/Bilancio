@@ -23,6 +23,7 @@ import { useAddInvoice } from "../../hooks/useAddInvoice";
 import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 import { useUpdateInvoice } from "../../hooks/useUpdateInvoice";
+import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -53,7 +54,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     openModal: openModalSelectionWindow,
     closeModal: closeModalSelectionWindow,
   } = useToggle();
-  const { allDocumentsData } = useMainDataContext();
+  const allDocumentsData = useAllDocumentsName(0);
   const {
     data: dataAllDocumentsName,
     loading: loadingAllDocumentsName,
@@ -512,6 +513,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         </div>
         {documentComponents.map((id, index) => (
           <FormAddInvoiceDocuments
+            allDocumentsData={allDocumentsData}
             key={id}
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}

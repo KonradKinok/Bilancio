@@ -89,9 +89,8 @@ app.on("ready", () => {
   ipcMainHandle2('getConnectedTableDictionary',  (tableName, documentId, mainTypeId, typeId, subTypeId) => {
     return getConnectedTableDictionary(tableName, documentId, mainTypeId, typeId, subTypeId);
   });
-  ipcMainHandle('getAllDocumentName', () => {
-    log.info('FilesPage: getAllDocumentName zarejestrowana i wywołana');
-    return getAllDocumentsName();
+  ipcMainHandle2('getAllDocumentName', (isDeleted) => {
+    return getAllDocumentsName(isDeleted);
   });
   // ipcMainHandle2('getAllInvoices',  (payload) => {
   //   return getAllInvoices(payload);

@@ -45,27 +45,52 @@ AND DictionaryType.TypeId = ${typeId};
 `;
     return sql;
 };
+// // Pobierz wszystkie nazwy dokumentów 
+// export function getAllDocumentsNameSqlString():string {
+//   return `SELECT 
+//     AllDocuments.DocumentId, 
+//     AllDocuments.MainTypeId, 
+//     AllDocuments.TypeId, 
+//     AllDocuments.SubtypeId, 
+//     AllDocuments.Price,
+//     DictionaryDocuments.DocumentName,
+//     DictionaryMainType.MainTypeName,
+//     DictionaryType.TypeName,
+//     DictionarySubtype.SubtypeName
+// FROM AllDocuments
+// LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+// LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+// LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
+// LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId
+// WHERE AllDocuments.IsDeleted = 0
+// ORDER BY LOWER(DictionaryDocuments.DocumentName) ASC;`;
+// };
 // Pobierz wszystkie nazwy dokumentów 
-export function getAllDocumentsNameSqlString():string {
-  return `SELECT 
-    AllDocuments.DocumentId, 
-    AllDocuments.MainTypeId, 
-    AllDocuments.TypeId, 
-    AllDocuments.SubtypeId, 
-    AllDocuments.Price,
-    DictionaryDocuments.DocumentName,
-    DictionaryMainType.MainTypeName,
-    DictionaryType.TypeName,
-    DictionarySubtype.SubtypeName
+export function getAllDocumentsNameSqlString(isDeleted?: number): string {
+  let sql = `SELECT 
+  AllDocuments.DocumentId, 
+  AllDocuments.MainTypeId, 
+  AllDocuments.TypeId, 
+  AllDocuments.SubtypeId, 
+  AllDocuments.Price,
+  AllDocuments.IsDeleted,
+  DictionaryDocuments.DocumentName,
+  DictionaryMainType.MainTypeName,
+  DictionaryType.TypeName,
+  DictionarySubtype.SubtypeName
 FROM AllDocuments
 LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
 LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
 LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
-LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId
-WHERE AllDocuments.IsDeleted = 0
-ORDER BY DictionaryDocuments.DocumentName ASC;`;
+LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId`;
+  
+  if (isDeleted !== undefined) {
+      sql += ` WHERE AllDocuments.IsDeleted = ?`;
+  }
+  
+  sql += ` ORDER BY LOWER(DictionaryDocuments.DocumentName) ASC`;
+  return sql;
 };
-
 // Pobierz ostatni wiersz z tabeli 
 export function getLastRowFromTableSqlString(tableName:string, tableNameId:string):string {
   return `SELECT *

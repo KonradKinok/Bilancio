@@ -19,7 +19,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getConnectedTableDictionary: (tableName, documentId, mainTypeId, typeId, subTypeId) => ipcInvoke2('getConnectedTableDictionary', tableName, documentId, mainTypeId, typeId, subTypeId),
   queryToDB: () => ipcInvoke('queryToDB'),
   getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
-  getAllDocumentsName: () => ipcInvoke('getAllDocumentName'),
+  getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName',isDeleted),
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
   getAllInvoices: (payload, page, rowsPerPage) =>
     ipcInvoke2('getAllInvoices', payload, page, rowsPerPage),

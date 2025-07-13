@@ -61,6 +61,7 @@ export function ModalAddInvoice({
       setAddInvoiceData(selectedInvoice);
     }
   }, [selectedInvoice]);
+
   return (
     <div
       className={`${scss["add-invoice-modal-container"]} 

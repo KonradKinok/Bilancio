@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { STATUS, DataBaseResponse, isSuccess } from '../../electron/sharedTypes/status';
 
-export function useAllDocumentsName() {
+export function useAllDocumentsName(isDeleted?:number) {
   const [data, setData] = useState<AllDocumentsName[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,7 +11,7 @@ export function useAllDocumentsName() {
   setLoading(true);
   setError(null);
   try {
-    const result = await window.electron.getAllDocumentsName();
+    const result = await window.electron.getAllDocumentsName(isDeleted);
     if (result.status === STATUS.Success) {
       setData(result.data);
       setError(null);
@@ -23,7 +23,7 @@ export function useAllDocumentsName() {
   } finally {
     setLoading(false);
   }
-}, []); // Pusta tablica zależności, bo fetchData nie zależy od żadnych zewnętrznych zmiennych
+}, [isDeleted]); 
 
 // Efekt początkowego pobierania danych
 useEffect(() => {
