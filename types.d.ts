@@ -109,6 +109,7 @@ type AllInvoices = {
   }
   //ConnectedTable
   type AllDocumentsName = {
+    AllDocumentsId: number;
     DocumentId: number;
     DocumentName: string;
     MainTypeId: number | null;

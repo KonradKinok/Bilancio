@@ -13,7 +13,7 @@ interface TextInputInterface {
   handleKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   inputPlaceholder: string;
-  inputLabelText: string;
+  inputLabelText?: string;
   singleInputError?: string;
   handleSingleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   classNameInputContainer?: string;
@@ -42,9 +42,11 @@ export const TextInput: React.FC<TextInputInterface> = ({
   return (
     <>
       <div className={containerClassName}>
-        <label htmlFor={inputName} className={scss["input-label"]}>
-          {inputLabelText}
-        </label>
+        {inputLabelText && (
+          <label htmlFor={inputName} className={scss["input-label"]}>
+            {inputLabelText}
+          </label>
+        )}
         <input
           ref={inputRef}
           type={inputType}

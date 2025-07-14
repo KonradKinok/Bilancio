@@ -21,13 +21,9 @@
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
 
-    th,
-    td {
+    th {
       text-align: left;
       padding: 2px 5px;
-    }
-
-    th {
       border: 1px solid rgb(0 117 21);
       background-color: var(--th-background-color);
       color: var(--th-color);
@@ -36,14 +32,8 @@
       font-weight: 600;
     }
 
-    td {
-      border: 1px solid var(--th-background-color);
-      cursor: pointer;
-    }
-
     tr {
       color: black;
-
       transition: background-color 0.2s ease, color 0.2s ease;
 
       &:nth-child(even) {
@@ -53,7 +43,6 @@
       &:hover {
         color: var(--tr-hover-color);
         background-color: var(--tr-hover-background-color);
-
       }
     }
 
@@ -63,7 +52,6 @@
   .maintable-footer-container {
     display: flex;
     justify-content: space-around;
-
     gap: 10px;
     background-color: var(--th-background-color);
     box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
@@ -71,8 +59,5 @@
     border-bottom-right-radius: 0.5rem;
     padding: 0.5rem;
     color: rgb(2, 247, 153);
-
-
-
   }
 }

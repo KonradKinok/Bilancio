@@ -67,7 +67,8 @@ AND DictionaryType.TypeId = ${typeId};
 // };
 // Pobierz wszystkie nazwy dokumentów 
 export function getAllDocumentsNameSqlString(isDeleted?: number): string {
-  let sql = `SELECT 
+  let sql = `SELECT
+  AllDocuments.AllDocumentsId,
   AllDocuments.DocumentId, 
   AllDocuments.MainTypeId, 
   AllDocuments.TypeId, 

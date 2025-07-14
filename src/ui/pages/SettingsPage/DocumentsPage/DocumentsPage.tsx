@@ -69,7 +69,8 @@ const DocumentsPage: React.FC = () => {
     //   }
   };
   //Edit Invoice
-  const handleEditInvoice = (invoice: AllDocumentsName) => {
+  const handleEditDocument = (document: AllDocumentsName) => {
+    console.log("handleEditDocument: ", document);
     // const invoiceData = selectedInvoiceData(invoice);
     // setSelectedInvoice(invoiceData);
     // openModalAddInvoice();
@@ -109,10 +110,10 @@ const DocumentsPage: React.FC = () => {
               dataAllDocumentsName.map((document, index) => {
                 return (
                   <SeparateDocument
-                    key={document.DocumentId}
+                    key={document.AllDocumentsId}
                     document={document}
                     index={index}
-                    handleEditInvoice={handleEditInvoice}
+                    handleEditInvoice={handleEditDocument}
                     handleDeleteRestoreDocument={handleDeleteRestoreDocument}
                   />
                 );
