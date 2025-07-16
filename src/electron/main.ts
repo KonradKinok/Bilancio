@@ -7,7 +7,7 @@ import {checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig,
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
 import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
 
 
@@ -91,6 +91,9 @@ app.on("ready", () => {
   });
   ipcMainHandle2('getAllDocumentName', (isDeleted) => {
     return getAllDocumentsName(isDeleted);
+  });
+  ipcMainHandle2('updateDocumentDeletionStatus', (documentId, isDeleted) => {
+    return updateDocumentDeletionStatus(documentId, isDeleted);
   });
   // ipcMainHandle2('getAllInvoices',  (payload) => {
   //   return getAllInvoices(payload);

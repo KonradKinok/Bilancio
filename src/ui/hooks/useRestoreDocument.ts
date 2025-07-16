@@ -1,28 +1,27 @@
 import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
-export function useRestoreInvoice() {
+export function useRestoreDocument() {
   const [data, setData] = useState<ReturnMessageFromDb | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const restoreInvoice = async (
-    invoiceId: number
+  const restoreDocument = async (
+    documentId: number
   ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
     setLoading(true);
     setError(null);
     setData(null);
-
+    
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
-        await window.electron.restoreInvoice(invoiceId);
-      console.log("useRestoreInvoice", result);
+        await window.electron.updateDocumentDeletionStatus(documentId,0);
 
       if (result.status === STATUS.Success) {
         setData(result.data);
         setError(null);
       } else {
-        setError(result.message || "Błąd podczas przywracania faktury");
+        setError(result.message || "Błąd podczas przywracania dokumentu");
       }
       return result;
     } catch (err) {
@@ -38,5 +37,5 @@ export function useRestoreInvoice() {
     }
   };
 
-  return { data, loading, error, restoreInvoice };
+  return { data, loading, error, restoreDocument };
 }

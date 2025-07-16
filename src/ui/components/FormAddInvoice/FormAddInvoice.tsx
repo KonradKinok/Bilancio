@@ -345,7 +345,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           : addInvoice(invoice, invoiceDetails),
         {
           loading: "Zapisywanie faktury...",
-          success: (res: DataBaseResponse<ReturnInvoiceSave>) => {
+          success: (res: DataBaseResponse<ReturnMessageFromDb>) => {
             console.log("toast.promise sukces:", res);
             if (res.status === STATUS.Success && res.data?.lastID) {
               return toastSuccessMessage;

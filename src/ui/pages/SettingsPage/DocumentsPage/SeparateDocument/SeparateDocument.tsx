@@ -31,24 +31,24 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
   const [inputTypeNameError, setInputTypeNameError] = useState<string>("");
   const [inputSubtypeNameError, setInputSubtypeNameError] =
     useState<string>("");
+  const [inputPriceError, setInputPriceError] = useState<string>("");
 
-  const handleEditClick = () => {
+  const handleEditCancelClick = () => {
     if (editId === document.AllDocumentsId.toString()) {
       // editContact(editedContact);
       setEditId(null);
       // setEditId(document.AllDocumentsId.toString());
     } else {
       setEditId(document.AllDocumentsId.toString());
-      setOriginalDocument(document);
+      setEditedDocument(originalDokument);
     }
-    console.log("handleEditClick: ", { editId }, { document });
   };
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const currentName = event.target.name as keyof AllDocumentsName;
-    let currentValue: string | number = event.target.value;
+    const currentValue: string | number = event.target.value;
     let errorTextInput = "";
     if (currentName === "DocumentName") {
       if (!currentValue.trim()) {
@@ -57,38 +57,62 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       setInputDocumentNameError(errorTextInput);
     }
     if (currentName === "MainTypeName") {
-      if (!currentValue.trim()) {
-        errorTextInput = "Musisz wypełnić to pole";
+      if (!currentValue.trim() && editedDocument.TypeName != "") {
+        errorTextInput = "Musisz wypełnić pole MainTypeName";
+        setInputMainTypeNameError(errorTextInput);
+      } else {
+        setInputMainTypeNameError("");
       }
-      setInputMainTypeNameError(errorTextInput);
     }
     if (currentName === "TypeName") {
-      if (currentValue.trim() && editedDocument.MainTypeName === "") {
+      if (currentValue.trim() && editedDocument.MainTypeName == "") {
         errorTextInput = "Musisz wypełnić pole MainTypeName";
+        setInputMainTypeNameError(errorTextInput);
+      } else if (!currentValue.trim() && editedDocument.SubtypeName != "") {
+        errorTextInput = "Musisz wypełnić pole TypeName";
+        setInputTypeNameError(errorTextInput);
+      } else {
+        setInputMainTypeNameError("");
+        setInputTypeNameError("");
       }
-      setInputTypeNameError(errorTextInput);
     }
     if (currentName === "SubtypeName") {
-      if (!currentValue.trim()) {
-        errorTextInput = "Musisz wypełnić to pole";
+      if (currentValue.trim() && editedDocument.TypeName == "") {
+        errorTextInput = "Musisz wypełnić pole TypeName";
+        setInputTypeNameError(errorTextInput);
+      } else {
+        setInputTypeNameError("");
       }
-      setInputSubtypeNameError(errorTextInput);
     }
     if (currentName === "Price") {
-      currentValue = parseFloat(currentValue) || 0; // Konwersja na liczbę
+      const isValidPrice = /^\d*\.?\d*$/.test(currentValue); // Dopuszcza liczby zmiennoprzecinkowe
+      if (!currentValue) {
+        errorTextInput = "Musisz wypełnić to pole";
+      } else if (currentValue.includes(",")) {
+        errorTextInput = "Zamiast przecinka użyj kropki";
+      } else if (!isValidPrice) {
+        errorTextInput = "Wprowadź poprawną liczbę";
+      }
+      setInputPriceError(errorTextInput);
     }
+
     setEditedDocument((prevDokument) => ({
       ...prevDokument,
       [currentName]: currentValue,
     }));
-    console.log("handleInputChange: ", editedDocument);
+    console.log(
+      "handleInputChange: ",
+      currentValue,
+      editedDocument.MainTypeName,
+      inputMainTypeNameError
+    );
   };
   return (
     <>
       <tr
         key={document.AllDocumentsId}
         onDoubleClick={() =>
-          document.IsDeleted === 0 && handleEditInvoice(document)
+          document.IsDeleted === 0 && handleEditCancelClick()
         }
         className={scss["row-container"]}
       >
@@ -160,14 +184,39 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             document.IsDeleted === 1 && scss["cell-delete"]
           }`}
         >
-          {document.SubtypeName}
+          {editId === String(editedDocument.AllDocumentsId) ? (
+            <TextInput
+              inputName="SubtypeName"
+              singleInputValue={editedDocument.SubtypeName}
+              handleSingleInputChange={handleSingleInputChange}
+              inputPlaceholder="SubtypeName ..."
+              singleInputError={inputSubtypeNameError}
+              required={false}
+              classNameInputContainer={scss["custom-input-container"]}
+            />
+          ) : (
+            <>{document.SubtypeName}</>
+          )}
         </td>
+
         <td
           className={`${scss["cell"]} ${
             document.IsDeleted === 1 && scss["cell-delete"]
           }`}
         >
-          {document.Price}
+          {editId === String(editedDocument.AllDocumentsId) ? (
+            <TextInput
+              inputName="Price"
+              singleInputValue={editedDocument.Price.toString()}
+              handleSingleInputChange={handleSingleInputChange}
+              inputPlaceholder="Cena ..."
+              singleInputError={inputPriceError}
+              required={false}
+              classNameInputContainer={scss["custom-input-container"]}
+            />
+          ) : (
+            <>{document.Price}</>
+          )}
         </td>
 
         {document.IsDeleted === 0 ? (
@@ -176,14 +225,14 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
               {!editId ? (
                 <button
                   className={scss["edit-button"]}
-                  onClick={() => handleEditClick()}
+                  onClick={() => handleEditCancelClick()}
                 >
                   Edytuj
                 </button>
               ) : (
                 <button
                   className={scss["save-button"]}
-                  onClick={() => handleEditClick()}
+                  onClick={() => handleEditCancelClick()}
                 >
                   Zapisz
                 </button>
@@ -201,7 +250,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
               ) : (
                 <button
                   className={scss["cancel-button"]}
-                  onClick={() => handleEditClick()}
+                  onClick={() => handleEditCancelClick()}
                 >
                   Anuluj
                 </button>

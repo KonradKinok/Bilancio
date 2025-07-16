@@ -153,6 +153,81 @@ export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseR
   }
 };
 
+
+export async function updateDocumentDeletionStatus(
+  documentId: number,
+  isDeleted: 0 | 1
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  // Walidacja InvoiceId
+  if (!documentId || documentId <= 0) {
+    return {
+      status: STATUS.Error,
+      message: "Nieprawidłowy identyfikator dokumentu.",
+    };
+  }
+
+  // SQL do ustawienia IsDeleted
+  const updateSql = `
+    UPDATE AllDocuments 
+    SET IsDeleted = ?
+    WHERE AllDocumentsId = ?
+  `;
+  const updateParams: QueryParams = [isDeleted, documentId];
+
+  try {
+    await db.beginTransaction();
+
+    // Sprawdzenie, czy faktura istnieje i ma odpowiedni status IsDeleted
+    const existingDocument = await db.get<{ AllDocumentsId: number }>(
+      `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ? AND IsDeleted = ?`,
+      [documentId, isDeleted === 0 ? 1 : 0]
+    );
+    if (!existingDocument) {
+      await db.rollback();
+      return {
+        status: STATUS.Error,
+        message: `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${
+          isDeleted === 0 ? "przywrócona" : "usunięta"
+        }.`,
+      };
+    }
+
+    // Aktualizacja flagi IsDeleted
+    const updateResult = await db.run(updateSql, updateParams);
+    if (!updateResult.changes) {
+      await db.rollback();
+      return {
+        status: STATUS.Error,
+        message: `Nie udało się ${
+          isDeleted === 0 ? "przywrócić" : "usuwunąć"
+        } dokumentu.`,
+      };
+    }
+
+    await db.commit();
+    return {
+      status: STATUS.Success,
+      data: { lastID: documentId, changes: updateResult.changes },
+    };
+  } catch (err) {
+    await db.rollback();
+    console.error(
+      `Błąd podczas ${
+        isDeleted === 0 ? "przywracania" : "usuwania"
+      } dokumentu:`,
+      err
+    );
+    return {
+      status: STATUS.Error,
+      message:
+        err instanceof Error
+          ? err.message
+          : `Nieznany błąd podczas ${
+              isDeleted === 0 ? "przywracania" : "usuwania"
+            } dokumentu.`,
+    };
+  }
+}
 export async function getAllInvoices(
   formValuesHomePage: FormValuesHomePage,
   page: number = 1,
@@ -210,7 +285,7 @@ export async function getLastRowFromTable(tableName: DbTables, tableNameId: Invo
     return [];
   }
 };
-export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   const sql = `
     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
     VALUES (?, ?, ?, ?, ?)
@@ -246,7 +321,7 @@ export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseRespons
 export async function addInvoiceDetails(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
-): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   const sql = `
     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -301,7 +376,7 @@ export async function addInvoiceDetails(
 export async function updateInvoice(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
-): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   // Walidacja InvoiceId
   if (invoice.InvoiceId === undefined) {
     return {
@@ -412,7 +487,7 @@ export async function updateInvoice(
 
 export async function deleteInvoice(
   invoiceId: number
-): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   // Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
     return {
@@ -473,7 +548,7 @@ export async function deleteInvoice(
 //restore invoice
 export async function restoreInvoice(
   invoiceId: number
-): Promise<DataBaseResponse<ReturnInvoiceSave>> {
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   // Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
     return {

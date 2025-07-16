@@ -103,7 +103,7 @@ type AllInvoices = {
     invoice: InvoiceTable;
     details: InvoiceDetailsTable[];
   };
-  type ReturnInvoiceSave = {
+  type ReturnMessageFromDb = {
     lastID: number;
     changes: number;
   }
@@ -201,17 +201,18 @@ type AllInvoices = {
     getConnectedTableDictionary:DataBaseResponse<T[]>;
     queryToDB: unknown[];
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
+    updateDocumentDeletionStatus: DataBaseResponse<ReturnMessageFromDb>;
     // getAllInvoices: AllInvoices[];
     getAllInvoices: DataBaseResponse<AllInvoices[]>;
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
     
-    addInvoice: DataBaseResponse<ReturnInvoiceSave>;
-    updateInvoice: DataBaseResponse<ReturnInvoiceSave>;
-    addInvoiceDetails: DataBaseResponse<ReturnInvoiceSave>;
-    deleteInvoice: DataBaseResponse<ReturnInvoiceSave>;
-    restoreInvoice: DataBaseResponse<ReturnInvoiceSave>;
+    addInvoice: DataBaseResponse<ReturnMessageFromDb>;
+    updateInvoice: DataBaseResponse<ReturnMessageFromDb>;
+    addInvoiceDetails: DataBaseResponse<ReturnMessageFromDb>;
+    deleteInvoice: DataBaseResponse<ReturnMessageFromDb>;
+    restoreInvoice: DataBaseResponse<ReturnMessageFromDb>;
     countInvoices: DataBaseResponse<number>;
     getDBbBilancioPath: string;
     getConfigBilancio: Config;
@@ -238,14 +239,15 @@ type AllInvoices = {
       getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       queryToDB: () => Promise<unknown[]>;
-      getAllDocumentsName: (isDeleted?:number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
+      getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
+      updateDocumentDeletionStatus: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
-      addInvoice: (payload) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
-      updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>; 
-      addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
-      deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
-      restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnInvoiceSave>>;
+      addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>; 
+      updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>; 
+      addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
