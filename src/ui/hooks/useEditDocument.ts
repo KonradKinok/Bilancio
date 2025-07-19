@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
-export function useDeleteDocument() {
+export function useEditDocument() {
   const [data, setData] = useState<ReturnMessageFromDb | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const deleteDocument = async (
-    documentId: number
+  const editDocument = async (
+    editedDocument: AllDocumentsName
   ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
     setLoading(true);
     setError(null);
@@ -15,18 +15,17 @@ export function useDeleteDocument() {
     
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
-        await window.electron.updateDocumentDeletionStatus(documentId,1);
-
+        await window.electron.saveEditedDocument(editedDocument);
       if (result.status === STATUS.Success) {
         setData(result.data);
         setError(null);
       } else {
-        setError(result.message || "Błąd podczas usuwania dokumentu");
+        setError(result.message || "Błąd podczas edytowania dokumentu!!!!!!");
       }
       return result;
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Błąd podczas usuwania dokumentu";
+        err instanceof Error ? err.message : "Nieznany błąd";
       setError(errorMessage);
       return {
         status: STATUS.Error,
@@ -37,6 +36,5 @@ export function useDeleteDocument() {
     }
   };
 
-  return { data, loading, error, deleteDocument };
+  return { data, loading, error, editDocument };
 }
-

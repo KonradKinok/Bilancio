@@ -1,5 +1,8 @@
 import scss from "./DocumentsPage.module.scss";
-import { currencyFormater } from "../../../components/GlobalFunctions/GlobalFunctions";
+import {
+  currencyFormater,
+  displayErrorMessage,
+} from "../../../components/GlobalFunctions/GlobalFunctions";
 import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
 import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
 import { use, useEffect, useState } from "react";
@@ -7,8 +10,25 @@ import { useDeleteDocument } from "../../../hooks/useDeleteDocument";
 import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../../electron/sharedTypes/status";
+import { useEditDocument } from "../../../hooks/useEditDocument";
+
 const DocumentsPage: React.FC = () => {
-  //Nazwy wszystkich dokumentów
+  //Pusty dokument
+  const [newDocument, setNewDocument] = useState<AllDocumentsName>({
+    AllDocumentsId: 0,
+    DocumentId: 0,
+    DocumentName: "",
+    MainTypeId: null,
+    MainTypeName: "",
+    TypeId: null,
+    TypeName: "",
+    SubtypeId: null,
+    SubtypeName: "",
+    Price: 0,
+    IsDeleted: 0,
+  });
+
+  // Hook do pobierania wszystkich dokumentów
   const allDocumentsData = useAllDocumentsName();
   const {
     data: dataAllDocumentsName,
@@ -17,6 +37,15 @@ const DocumentsPage: React.FC = () => {
     getAllDocuments,
   } = allDocumentsData;
 
+  //Hook do edytowania dokumentów
+  const {
+    editDocument,
+    data: editData,
+    loading: editLoading,
+    error: editError,
+  } = useEditDocument();
+
+  //Hook do usuwania dokumentów
   const {
     deleteDocument,
     data: deleteData,
@@ -24,6 +53,7 @@ const DocumentsPage: React.FC = () => {
     error: deleteError,
   } = useDeleteDocument();
 
+  //Hook do przywracania dokumentów
   const {
     restoreDocument,
     data: restoreData,
@@ -36,53 +66,76 @@ const DocumentsPage: React.FC = () => {
     deleted: 0,
   });
 
-  const handleDeleteRestoreDocument = async (document: AllDocumentsName) => {
-    if (!document?.AllDocumentsId) return;
-    let loadingText = "",
-      successText = "",
-      errorText = "";
-    if (document?.IsDeleted === 0) {
-      loadingText = "Usuwanie dokumentu...";
-      successText = "Dokument został pomyślnie usunięty!";
-      errorText =
-        deleteError || "Nie udało się usunąć dokumentu. Spróbuj ponownie.";
-    } else {
-      loadingText = "Przywracanie dokumentu...";
-      successText = "Dokument został pomyślnie przywrócony!";
-      errorText =
-        restoreError || "Nie udało się przywrócić dokumentu. Spróbuj ponownie.";
-    }
+  const handleSaveEditedDocument = async (
+    document: AllDocumentsName,
+    onSuccess: () => void
+  ) => {
+    console.log("handleSaveEditedDocument: Dokument do edycji:", document);
+    // if (!document?.AllDocumentsId) return;
+
+    const successText = "Edytowany dokument został pomyślnie zapisany!";
+    const errorText = `Nie udało się zapisać edytowanego dokumentu. Spróbuj ponownie.`;
+
     try {
-      const result = await toast.promise(
-        document?.IsDeleted == 0
-          ? deleteDocument(document?.AllDocumentsId)
-          : restoreDocument(document?.AllDocumentsId),
-        {
-          loading: `${loadingText}`,
-          success: `${successText}`,
-          error: `${errorText}`,
-        }
-      );
+      const result = await editDocument(document);
       if (result.status === STATUS.Success) {
         getAllDocuments(); // Odśwież listę dokumentów
-
+        toast.success(`${successText}`);
+        onSuccess(); // Wywołaj funkcję zwrotną po sukcesie
         // setInvoiceToDelete(null);
-        console.log("confirmDeleteDocument: Dokument usunięta:", result.data);
         console.log(
-          "confirmDeleteDokument deleteData: Dokument usunięta:",
+          "handleSaveEditedDocument editDocumentt: Dokument edytowany:",
+          result.data
+        );
+        console.log(
+          "handleSaveEditedDocument editDocument: Dokument edytowany:",
           deleteData
+        );
+      } else {
+        displayErrorMessage(
+          "DocumentsPage",
+          "handleSaveEditedDocument",
+          `${errorText} ${result.message}`
         );
       }
     } catch (err) {
-      console.error("Błąd podczas usuwania/przywracania dokumentu:", err);
+      displayErrorMessage("DocumentsPage", "handleSaveEditedDocument", err);
     }
   };
-  //Edit Invoice
-  const handleEditDocument = (document: AllDocumentsName) => {
-    console.log("handleEditDocument: ", document);
-    // const invoiceData = selectedInvoiceData(invoice);
-    // setSelectedInvoice(invoiceData);
-    // openModalAddInvoice();
+
+  const handleDeleteRestoreDocument = async (document: AllDocumentsName) => {
+    if (!document?.AllDocumentsId) return;
+    let successText = "",
+      errorText = "";
+
+    if (document?.IsDeleted === 0) {
+      successText = "Dokument został pomyślnie usunięty!";
+      errorText = `Nie udało się usunąć dokumentu. Spróbuj ponownie. ${
+        deleteError ? deleteError : ""
+      }`;
+    } else {
+      successText = "Dokument został pomyślnie przywrócony!";
+      errorText = `Nie udało się przywrócić dokumentu. Spróbuj ponownie.`;
+    }
+
+    try {
+      const result = await (document?.IsDeleted === 0
+        ? deleteDocument(document.AllDocumentsId)
+        : restoreDocument(document.AllDocumentsId));
+
+      if (result.status === STATUS.Success) {
+        getAllDocuments(); // Odśwież listę dokumentów
+        toast.success(successText);
+      } else {
+        displayErrorMessage(
+          "DocumentsPage",
+          "handleDeleteRestoreDocument",
+          `${errorText} ${result.message}`
+        );
+      }
+    } catch (err) {
+      // displayErrorMessage("DocumentsPage", "handleDeleteRestoreDocument", err);
+    }
   };
 
   useEffect(() => {
@@ -122,7 +175,7 @@ const DocumentsPage: React.FC = () => {
                     key={document.AllDocumentsId}
                     document={document}
                     index={index}
-                    handleEditInvoice={handleEditDocument}
+                    saveEditedDocument={handleSaveEditedDocument}
                     handleDeleteRestoreDocument={handleDeleteRestoreDocument}
                   />
                 );

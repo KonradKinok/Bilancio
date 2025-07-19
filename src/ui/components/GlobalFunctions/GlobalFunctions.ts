@@ -8,6 +8,8 @@
 //       return acc;
 //     }, 0);
 
+import toast from "react-hot-toast";
+
 //     return currencyFormater(totalAmount.toString());
 //   }
 //   return currencyFormater("0");
@@ -255,4 +257,18 @@ export function getFormattedDate(): string {
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const year = today.getFullYear();
   return `${day}.${month}.${year}`;
+}
+
+
+export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast:boolean = true) {
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  console.error(
+    `%c[ERROR]%c [${componentName}] [${functionName}]\n%c${errorMessage}`,
+    "color: rgb(255, 255, 255); background: rgb(255, 0, 0); ",
+    "color: rgb(255, 255, 0); font-weight: bold; ",
+    "color: rgb(224, 255, 255); font-style: italic;"
+  );
+  if (isToast) {
+    toast.error(`${errorMessage}`);
+  }
 }

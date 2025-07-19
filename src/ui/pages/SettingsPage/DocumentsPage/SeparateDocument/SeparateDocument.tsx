@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { currencyFormater } from "../../../../components/GlobalFunctions/GlobalFunctions";
 import scss from "./SeparateDocument.module.scss";
 import { spacing } from "react-select/dist/declarations/src/theme";
@@ -7,14 +7,17 @@ import { TextInput } from "../../../../components/TextInput/TextInput";
 interface SeparateDocumentProps {
   document: AllDocumentsName;
   index: number;
-  handleEditInvoice: (document: AllDocumentsName) => void;
+  saveEditedDocument: (
+    document: AllDocumentsName,
+    onSuccess: () => void
+  ) => void;
   handleDeleteRestoreDocument: (document: AllDocumentsName) => void;
 }
 
 export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
   document,
   index,
-  handleEditInvoice,
+  saveEditedDocument,
   handleDeleteRestoreDocument,
 }) => {
   const [editId, setEditId] = useState<string | null>(null);
@@ -33,15 +36,27 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     useState<string>("");
   const [inputPriceError, setInputPriceError] = useState<string>("");
 
+  // Synchronizuj stany z propem document, gdy się zmieni
+  useEffect(() => {
+    setOriginalDocument(document);
+    setEditedDocument(document);
+  }, [document]);
+
   const handleEditCancelClick = () => {
     if (editId === document.AllDocumentsId.toString()) {
-      // editContact(editedContact);
       setEditId(null);
-      // setEditId(document.AllDocumentsId.toString());
     } else {
       setEditId(document.AllDocumentsId.toString());
       setEditedDocument(originalDokument);
     }
+  };
+
+  const handleSaveEditedDocument = () => {
+    // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
+    saveEditedDocument(editedDocument, () => {
+      setEditId(null); // Aktualizacja stanu po sukcesie
+      setOriginalDocument(editedDocument); // Aktualizacja stanu po sukcesie
+    });
   };
 
   const handleSingleInputChange = (
@@ -108,169 +123,167 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     );
   };
   return (
-    <>
-      <tr
-        key={document.AllDocumentsId}
-        onDoubleClick={() =>
-          document.IsDeleted === 0 && handleEditCancelClick()
-        }
-        className={scss["row-container"]}
+    <tr
+      key={document.AllDocumentsId}
+      onDoubleClick={() => document.IsDeleted === 0 && handleEditCancelClick()}
+      className={scss["row-container"]}
+    >
+      <td className={`${scss["cell"]} `}>
+        {String(index + 1).padStart(3, "0")}.
+      </td>
+      <td
+        className={`${scss["cell"]} ${
+          document.IsDeleted === 1 && scss["cell-delete"]
+        }`}
       >
-        <td className={`${scss["cell"]} `}>
-          {String(index + 1).padStart(3, "0")}.
-        </td>
-        <td
-          className={`${scss["cell"]} ${
-            document.IsDeleted === 1 && scss["cell-delete"]
-          }`}
-        >
-          {editId === String(editedDocument.AllDocumentsId) ? (
-            <TextInput
-              inputName="DocumentName"
-              singleInputValue={editedDocument.DocumentName}
-              handleSingleInputChange={handleSingleInputChange}
-              inputPlaceholder="Nazwa dokumentu ..."
-              singleInputError={inputDocumentNameError}
-              required={true}
-              classNameInputContainer={scss["custom-input-container"]}
-            />
-          ) : (
-            <>{document.DocumentName}</>
-          )}
-        </td>
-
-        <td
-          className={`${scss["cell"]} ${
-            document.IsDeleted === 1 && scss["cell-delete"]
-          }`}
-        >
-          {editId === String(editedDocument.AllDocumentsId) ? (
-            <TextInput
-              inputName="MainTypeName"
-              singleInputValue={editedDocument.MainTypeName}
-              handleSingleInputChange={handleSingleInputChange}
-              inputPlaceholder="MainTypeName ..."
-              singleInputError={inputMainTypeNameError}
-              required={false}
-              classNameInputContainer={scss["custom-input-container"]}
-            />
-          ) : (
-            <>{document.MainTypeName}</>
-          )}
-        </td>
-
-        <td
-          className={`${scss["cell"]} ${
-            document.IsDeleted === 1 && scss["cell-delete"]
-          }`}
-        >
-          {editId === String(editedDocument.AllDocumentsId) ? (
-            <TextInput
-              inputName="TypeName"
-              singleInputValue={editedDocument.TypeName}
-              handleSingleInputChange={handleSingleInputChange}
-              inputPlaceholder="TypeName ..."
-              singleInputError={inputTypeNameError}
-              required={false}
-              classNameInputContainer={scss["custom-input-container"]}
-            />
-          ) : (
-            <>{document.TypeName}</>
-          )}
-        </td>
-
-        <td
-          className={`${scss["cell"]} ${
-            document.IsDeleted === 1 && scss["cell-delete"]
-          }`}
-        >
-          {editId === String(editedDocument.AllDocumentsId) ? (
-            <TextInput
-              inputName="SubtypeName"
-              singleInputValue={editedDocument.SubtypeName}
-              handleSingleInputChange={handleSingleInputChange}
-              inputPlaceholder="SubtypeName ..."
-              singleInputError={inputSubtypeNameError}
-              required={false}
-              classNameInputContainer={scss["custom-input-container"]}
-            />
-          ) : (
-            <>{document.SubtypeName}</>
-          )}
-        </td>
-
-        <td
-          className={`${scss["cell"]} ${
-            document.IsDeleted === 1 && scss["cell-delete"]
-          }`}
-        >
-          {editId === String(editedDocument.AllDocumentsId) ? (
-            <TextInput
-              inputName="Price"
-              singleInputValue={editedDocument.Price.toString()}
-              handleSingleInputChange={handleSingleInputChange}
-              inputPlaceholder="Cena ..."
-              singleInputError={inputPriceError}
-              required={false}
-              classNameInputContainer={scss["custom-input-container"]}
-            />
-          ) : (
-            <>{document.Price}</>
-          )}
-        </td>
-
-        {document.IsDeleted === 0 ? (
-          <>
-            <td className={scss["cell"]}>
-              {!editId ? (
-                <button
-                  className={scss["edit-button"]}
-                  onClick={() => handleEditCancelClick()}
-                >
-                  Edytuj
-                </button>
-              ) : (
-                <button
-                  className={scss["save-button"]}
-                  onClick={() => handleEditCancelClick()}
-                >
-                  Zapisz
-                </button>
-              )}
-            </td>
-
-            <td className={scss["cell"]}>
-              {!editId ? (
-                <button
-                  className={scss["delete-button"]}
-                  onClick={() => handleDeleteRestoreDocument(document)}
-                >
-                  Usuń
-                </button>
-              ) : (
-                <button
-                  className={scss["cancel-button"]}
-                  onClick={() => handleEditCancelClick()}
-                >
-                  Anuluj
-                </button>
-              )}
-            </td>
-          </>
+        {editId === String(editedDocument.AllDocumentsId) ? (
+          <TextInput
+            inputName="DocumentName"
+            singleInputValue={editedDocument.DocumentName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Nazwa dokumentu ..."
+            singleInputError={inputDocumentNameError}
+            required={true}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
         ) : (
-          <td
-            colSpan={2}
-            className={`${scss["cell"]} ${scss["recover-container"]}`}
-          >
-            <button
-              className={scss["delete-button"]}
-              onClick={() => handleDeleteRestoreDocument(document)}
-            >
-              Przywróć
-            </button>
-          </td>
+          <>{document.DocumentName}</>
         )}
-      </tr>
-    </>
+      </td>
+
+      <td
+        className={`${scss["cell"]} ${
+          document.IsDeleted === 1 && scss["cell-delete"]
+        }`}
+      >
+        {editId === String(editedDocument.AllDocumentsId) ? (
+          <TextInput
+            inputName="MainTypeName"
+            singleInputValue={editedDocument.MainTypeName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="MainTypeName ..."
+            singleInputError={inputMainTypeNameError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        ) : (
+          <>{document.MainTypeName}</>
+        )}
+      </td>
+
+      <td
+        className={`${scss["cell"]} ${
+          document.IsDeleted === 1 && scss["cell-delete"]
+        }`}
+      >
+        {editId === String(editedDocument.AllDocumentsId) ? (
+          <TextInput
+            inputName="TypeName"
+            singleInputValue={editedDocument.TypeName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="TypeName ..."
+            singleInputError={inputTypeNameError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        ) : (
+          <>{document.TypeName}</>
+        )}
+      </td>
+
+      <td
+        className={`${scss["cell"]} ${
+          document.IsDeleted === 1 && scss["cell-delete"]
+        }`}
+      >
+        {editId === String(editedDocument.AllDocumentsId) ? (
+          <TextInput
+            inputName="SubtypeName"
+            singleInputValue={editedDocument.SubtypeName}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="SubtypeName ..."
+            singleInputError={
+              inputSubtypeNameError ? inputSubtypeNameError : ""
+            }
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        ) : (
+          <>{document.SubtypeName}</>
+        )}
+      </td>
+
+      <td
+        className={`${scss["cell"]} ${
+          document.IsDeleted === 1 && scss["cell-delete"]
+        }`}
+      >
+        {editId === String(editedDocument.AllDocumentsId) ? (
+          <TextInput
+            inputName="Price"
+            singleInputValue={editedDocument.Price.toString()}
+            handleSingleInputChange={handleSingleInputChange}
+            inputPlaceholder="Cena ..."
+            singleInputError={inputPriceError}
+            required={false}
+            classNameInputContainer={scss["custom-input-container"]}
+          />
+        ) : (
+          <>{document.Price}</>
+        )}
+      </td>
+
+      {document.IsDeleted === 0 ? (
+        <>
+          <td className={scss["cell"]}>
+            {!editId ? (
+              <button
+                className={scss["edit-button"]}
+                onClick={() => handleEditCancelClick()}
+              >
+                Edytuj
+              </button>
+            ) : (
+              <button
+                className={scss["save-button"]}
+                onClick={() => handleSaveEditedDocument()}
+              >
+                Zapisz
+              </button>
+            )}
+          </td>
+
+          <td className={scss["cell"]}>
+            {!editId ? (
+              <button
+                className={scss["delete-button"]}
+                onClick={() => handleDeleteRestoreDocument(document)}
+              >
+                Usuń
+              </button>
+            ) : (
+              <button
+                className={scss["cancel-button"]}
+                onClick={() => handleEditCancelClick()}
+              >
+                Anuluj
+              </button>
+            )}
+          </td>
+        </>
+      ) : (
+        <td
+          colSpan={2}
+          className={`${scss["cell"]} ${scss["recover-container"]}`}
+        >
+          <button
+            className={scss["delete-button"]}
+            onClick={() => handleDeleteRestoreDocument(document)}
+          >
+            Przywróć
+          </button>
+        </td>
+      )}
+    </tr>
   );
 };
