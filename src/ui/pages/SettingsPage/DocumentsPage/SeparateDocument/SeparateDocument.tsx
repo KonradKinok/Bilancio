@@ -5,27 +5,47 @@ import { spacing } from "react-select/dist/declarations/src/theme";
 import { TextInput } from "../../../../components/TextInput/TextInput";
 
 interface SeparateDocumentProps {
-  document: AllDocumentsName;
+  isNewDocument?: boolean;
+  document?: AllDocumentsName;
   index: number;
   saveEditedDocument: (
+    isNewDocument: boolean,
     document: AllDocumentsName,
     onSuccess: () => void
   ) => void;
   handleDeleteRestoreDocument: (document: AllDocumentsName) => void;
+  handleIsSaveButtonEnabled: (document: AllDocumentsName) => boolean;
 }
 
+const defaultDocument: AllDocumentsName = {
+  AllDocumentsId: 0,
+  DocumentId: 0,
+  DocumentName: "",
+  MainTypeId: null,
+  MainTypeName: "",
+  TypeId: null,
+  TypeName: "",
+  SubtypeId: null,
+  SubtypeName: "",
+  Price: 0,
+  IsDeleted: 0,
+};
+
 export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
-  document,
+  isNewDocument = false,
+  document = defaultDocument,
   index,
   saveEditedDocument,
   handleDeleteRestoreDocument,
+  handleIsSaveButtonEnabled,
 }) => {
+  // Domyślny stan
+
   const [editId, setEditId] = useState<string | null>(null);
   const [editedDocument, setEditedDocument] =
     useState<AllDocumentsName>(document);
   const [originalDokument, setOriginalDocument] =
     useState<AllDocumentsName>(document);
-
   //input errors
   const [inputDocumentNameError, setInputDocumentNameError] =
     useState<string>("");
@@ -48,12 +68,28 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     } else {
       setEditId(document.AllDocumentsId.toString());
       setEditedDocument(originalDokument);
+      setInputDocumentNameError("");
+      setInputMainTypeNameError("");
+      setInputTypeNameError("");
+      setInputSubtypeNameError("");
+      setInputPriceError("");
     }
   };
-
+  const isSaveButtonDisabled = () => {
+    if (
+      !editedDocument.DocumentName.trim() ||
+      inputDocumentNameError ||
+      inputMainTypeNameError ||
+      inputTypeNameError ||
+      inputSubtypeNameError ||
+      inputPriceError
+    )
+      return true;
+    return handleIsSaveButtonEnabled(editedDocument);
+  };
   const handleSaveEditedDocument = () => {
     // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
-    saveEditedDocument(editedDocument, () => {
+    saveEditedDocument(isNewDocument, editedDocument, () => {
       setEditId(null); // Aktualizacja stanu po sukcesie
       setOriginalDocument(editedDocument); // Aktualizacja stanu po sukcesie
     });
@@ -72,7 +108,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       setInputDocumentNameError(errorTextInput);
     }
     if (currentName === "MainTypeName") {
-      if (!currentValue.trim() && editedDocument.TypeName != "") {
+      if (!currentValue.trim() && !editedDocument.TypeName) {
         errorTextInput = "Musisz wypełnić pole MainTypeName";
         setInputMainTypeNameError(errorTextInput);
       } else {
@@ -80,10 +116,10 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       }
     }
     if (currentName === "TypeName") {
-      if (currentValue.trim() && editedDocument.MainTypeName == "") {
+      if (currentValue.trim() && !editedDocument.MainTypeName) {
         errorTextInput = "Musisz wypełnić pole MainTypeName";
         setInputMainTypeNameError(errorTextInput);
-      } else if (!currentValue.trim() && editedDocument.SubtypeName != "") {
+      } else if (!currentValue.trim() && editedDocument.SubtypeName) {
         errorTextInput = "Musisz wypełnić pole TypeName";
         setInputTypeNameError(errorTextInput);
       } else {
@@ -92,7 +128,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       }
     }
     if (currentName === "SubtypeName") {
-      if (currentValue.trim() && editedDocument.TypeName == "") {
+      if (currentValue.trim() && !editedDocument.TypeName) {
         errorTextInput = "Musisz wypełnić pole TypeName";
         setInputTypeNameError(errorTextInput);
       } else {
@@ -115,6 +151,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       ...prevDokument,
       [currentName]: currentValue,
     }));
+
     console.log(
       "handleInputChange: ",
       currentValue,
@@ -122,6 +159,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       inputMainTypeNameError
     );
   };
+
   return (
     <tr
       key={document.AllDocumentsId}
@@ -139,7 +177,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
         {editId === String(editedDocument.AllDocumentsId) ? (
           <TextInput
             inputName="DocumentName"
-            singleInputValue={editedDocument.DocumentName}
+            singleInputValue={editedDocument.DocumentName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="Nazwa dokumentu ..."
             singleInputError={inputDocumentNameError}
@@ -159,7 +197,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
         {editId === String(editedDocument.AllDocumentsId) ? (
           <TextInput
             inputName="MainTypeName"
-            singleInputValue={editedDocument.MainTypeName}
+            singleInputValue={editedDocument.MainTypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="MainTypeName ..."
             singleInputError={inputMainTypeNameError}
@@ -179,7 +217,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
         {editId === String(editedDocument.AllDocumentsId) ? (
           <TextInput
             inputName="TypeName"
-            singleInputValue={editedDocument.TypeName}
+            singleInputValue={editedDocument.TypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="TypeName ..."
             singleInputError={inputTypeNameError}
@@ -199,7 +237,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
         {editId === String(editedDocument.AllDocumentsId) ? (
           <TextInput
             inputName="SubtypeName"
-            singleInputValue={editedDocument.SubtypeName}
+            singleInputValue={editedDocument.SubtypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="SubtypeName ..."
             singleInputError={
@@ -225,15 +263,50 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             handleSingleInputChange={handleSingleInputChange}
             inputPlaceholder="Cena ..."
             singleInputError={inputPriceError}
-            required={false}
+            required={true}
             classNameInputContainer={scss["custom-input-container"]}
           />
         ) : (
-          <>{document.Price}</>
+          <>{document.Price > 0 ? document.Price : ""}</>
         )}
       </td>
 
-      {document.IsDeleted === 0 ? (
+      {isNewDocument ? (
+        !editId ? (
+          <td
+            colSpan={2}
+            className={`${scss["cell"]} ${scss["recover-container"]}`}
+          >
+            <button
+              className={scss["edit-button"]}
+              onClick={() => handleEditCancelClick()}
+            >
+              Dodaj nowy
+            </button>
+          </td>
+        ) : (
+          <>
+            <td className={scss["cell"]}>
+              <button
+                className={scss["save-button"]}
+                disabled={isSaveButtonDisabled()}
+                onClick={() => handleSaveEditedDocument()}
+              >
+                Zapisz
+              </button>
+            </td>
+
+            <td className={scss["cell"]}>
+              <button
+                className={scss["cancel-button"]}
+                onClick={() => handleEditCancelClick()}
+              >
+                Anuluj
+              </button>
+            </td>
+          </>
+        )
+      ) : document.IsDeleted === 0 ? (
         <>
           <td className={scss["cell"]}>
             {!editId ? (
@@ -246,6 +319,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             ) : (
               <button
                 className={scss["save-button"]}
+                disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
               >
                 Zapisz

@@ -11,23 +11,9 @@ import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../../electron/sharedTypes/status";
 import { useEditDocument } from "../../../hooks/useEditDocument";
+import { useAddDocument } from "../../../hooks/useAddDocument";
 
 const DocumentsPage: React.FC = () => {
-  //Pusty dokument
-  const [newDocument, setNewDocument] = useState<AllDocumentsName>({
-    AllDocumentsId: 0,
-    DocumentId: 0,
-    DocumentName: "",
-    MainTypeId: null,
-    MainTypeName: "",
-    TypeId: null,
-    TypeName: "",
-    SubtypeId: null,
-    SubtypeName: "",
-    Price: 0,
-    IsDeleted: 0,
-  });
-
   // Hook do pobierania wszystkich dokumentów
   const allDocumentsData = useAllDocumentsName();
   const {
@@ -36,6 +22,14 @@ const DocumentsPage: React.FC = () => {
     error: errorAllDocumentsName,
     getAllDocuments,
   } = allDocumentsData;
+
+  //Hook do edytowania dokumentów
+  const {
+    addDocument,
+    data: addData,
+    loading: addLoading,
+    error: addError,
+  } = useAddDocument();
 
   //Hook do edytowania dokumentów
   const {
@@ -66,31 +60,64 @@ const DocumentsPage: React.FC = () => {
     deleted: 0,
   });
 
+  const handleIsSaveButtonEnabled = (editDocument: AllDocumentsName) => {
+    if (!dataAllDocumentsName || !Array.isArray(dataAllDocumentsName)) {
+      return false; // Zwraca false, jeśli dataAllDocumentsName jest undefined, null lub nie jest tablicą
+    }
+    return dataAllDocumentsName.some((doc) => {
+      // Sprawdzanie DocumentName
+      // Sprawdzanie DocumentName
+      const docName = doc.DocumentName?.trim().toLowerCase() ?? "";
+      const editDocName = editDocument.DocumentName?.trim().toLowerCase() ?? "";
+
+      // Sprawdzanie MainTypeName
+      const docMainType = doc.MainTypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+      const editMainType =
+        editDocument.MainTypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+      // Sprawdzanie TypeName
+      const docType = doc.TypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+      const editType = editDocument.TypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+      // Sprawdzanie SubtypeName
+      const docSubtype = doc.SubtypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+      const editSubtype =
+        editDocument.SubtypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+      // Sprawdzanie Price
+      const docPrice = doc.Price ?? null;
+      const editPrice = editDocument.Price ?? null;
+
+      return (
+        docName == editDocName &&
+        docMainType == editMainType &&
+        docType == editType &&
+        docSubtype == editSubtype &&
+        docPrice == editPrice
+      );
+    });
+  };
+
   const handleSaveEditedDocument = async (
+    isNewDocument: boolean,
     document: AllDocumentsName,
     onSuccess: () => void
   ) => {
-    console.log("handleSaveEditedDocument: Dokument do edycji:", document);
-    // if (!document?.AllDocumentsId) return;
-
-    const successText = "Edytowany dokument został pomyślnie zapisany!";
-    const errorText = `Nie udało się zapisać edytowanego dokumentu. Spróbuj ponownie.`;
+    const successText = `${
+      isNewDocument ? "Nowy" : "Edytowany"
+    } dokument został pomyślnie zapisany.`;
+    const errorText = `Nie udało się zapisać ${
+      isNewDocument ? "nowego" : "edytowanego"
+    } dokumentu.`;
 
     try {
-      const result = await editDocument(document);
+      const result = await (isNewDocument
+        ? addDocument(document)
+        : editDocument(document));
       if (result.status === STATUS.Success) {
         getAllDocuments(); // Odśwież listę dokumentów
         toast.success(`${successText}`);
         onSuccess(); // Wywołaj funkcję zwrotną po sukcesie
-        // setInvoiceToDelete(null);
-        console.log(
-          "handleSaveEditedDocument editDocumentt: Dokument edytowany:",
-          result.data
-        );
-        console.log(
-          "handleSaveEditedDocument editDocument: Dokument edytowany:",
-          deleteData
-        );
       } else {
         displayErrorMessage(
           "DocumentsPage",
@@ -110,12 +137,10 @@ const DocumentsPage: React.FC = () => {
 
     if (document?.IsDeleted === 0) {
       successText = "Dokument został pomyślnie usunięty!";
-      errorText = `Nie udało się usunąć dokumentu. Spróbuj ponownie. ${
-        deleteError ? deleteError : ""
-      }`;
+      errorText = `Nie udało się usunąć dokumentu.`;
     } else {
       successText = "Dokument został pomyślnie przywrócony!";
-      errorText = `Nie udało się przywrócić dokumentu. Spróbuj ponownie.`;
+      errorText = `Nie udało się przywrócić dokumentu.`;
     }
 
     try {
@@ -134,7 +159,7 @@ const DocumentsPage: React.FC = () => {
         );
       }
     } catch (err) {
-      // displayErrorMessage("DocumentsPage", "handleDeleteRestoreDocument", err);
+      displayErrorMessage("DocumentsPage", "handleDeleteRestoreDocument", err);
     }
   };
 
@@ -167,6 +192,13 @@ const DocumentsPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
+            <SeparateDocument
+              isNewDocument={true}
+              index={-1}
+              saveEditedDocument={handleSaveEditedDocument}
+              handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+              handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
+            />
             {dataAllDocumentsName &&
               dataAllDocumentsName.length > 0 &&
               dataAllDocumentsName.map((document, index) => {
@@ -177,6 +209,7 @@ const DocumentsPage: React.FC = () => {
                     index={index}
                     saveEditedDocument={handleSaveEditedDocument}
                     handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+                    handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
                   />
                 );
               })}

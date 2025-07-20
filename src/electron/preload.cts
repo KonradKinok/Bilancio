@@ -22,6 +22,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName', isDeleted),
   updateDocumentDeletionStatus: (documentId, isDeleted) => ipcInvoke2('updateDocumentDeletionStatus', documentId, isDeleted),
   saveEditedDocument: (document) => ipcInvoke2('saveEditedDocument', document),
+  saveNewDocument: (document) => ipcInvoke2('saveNewDocument', document),
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
   getAllInvoices: (payload, page, rowsPerPage) =>
     ipcInvoke2('getAllInvoices', payload, page, rowsPerPage),

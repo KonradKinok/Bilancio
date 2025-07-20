@@ -15,7 +15,7 @@ tr.row-container {
     transform: scale(1); // Domyślny stan skalowania
     transition: background-color 0.5s ease, transform 0.15s ease; // Animacja dla obu właściwości
 
-    &:active {
+    &:active:not(:disabled) {
       // transition: 50ms linear;
       transform: scale(0.9);
     }
@@ -52,7 +52,12 @@ tr.row-container {
     background-color: rgb(255, 255, 0);
     color: black;
 
-    &:hover {
+    &:disabled {
+      background-color: rgb(200, 200, 200);
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
       background-color: rgb(200, 200, 0);
     }
   }

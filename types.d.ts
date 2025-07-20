@@ -111,7 +111,7 @@ type AllInvoices = {
   type AllDocumentsName = {
     AllDocumentsId: number;
     DocumentId: number;
-    DocumentName: string;
+    DocumentName: string ;
     MainTypeId: number | null;
     MainTypeName: string;
     TypeId: number | null;
@@ -203,6 +203,7 @@ type AllInvoices = {
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
     updateDocumentDeletionStatus: DataBaseResponse<ReturnMessageFromDb>;
     saveEditedDocument: DataBaseResponse<ReturnMessageFromDb>;
+    saveNewDocument: DataBaseResponse<ReturnMessageFromDb>;
     getAllInvoices: DataBaseResponse<AllInvoices[]>;
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
@@ -243,6 +244,7 @@ type AllInvoices = {
       updateDocumentDeletionStatus: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       
       saveEditedDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      saveNewDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>; 

@@ -153,21 +153,35 @@ export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseR
   }
 };
 
+// Funkcja do zapisywania nowego dokumentu
 export async function saveNewDocument(
   document: AllDocumentsName
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   try {
+    if (!document || !document.DocumentName) {
+      return {
+        status: STATUS.Error,
+        message: "DocumentName jest wymagane.",
+      };
+    }
+    if (document.Price == null|| isNaN(document.Price)|| document.Price < 0) {
+      return {
+        status: STATUS.Error,
+        message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
+      };
+    }
     await db.beginTransaction();
 
     // Krok 1: Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
     let documentId: number;
     const existingDocument = await db.get<{ DocumentId: number }>(
-      `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
+      `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
       [document.DocumentName]
     );
     if (existingDocument) {
       documentId = existingDocument.DocumentId;
     } else {
+
       const insertDocument = await db.run(
         `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
         [document.DocumentName]
@@ -186,7 +200,7 @@ export async function saveNewDocument(
     let mainTypeId: number | null = null;
     if (document.MainTypeName) {
       const existingMainType = await db.get<{ MainTypeId: number }>(
-        `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
+        `SELECT MainTypeId FROM DictionaryMainType WHERE LOWER(MainTypeName) = LOWER(?)`,
         [document.MainTypeName]
       );
       if (existingMainType) {
@@ -218,7 +232,7 @@ export async function saveNewDocument(
         };
       }
       const existingType = await db.get<{ TypeId: number }>(
-        `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
+        `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
         [document.TypeName]
       );
       if (existingType) {
@@ -250,7 +264,7 @@ export async function saveNewDocument(
         };
       }
       const existingSubtype = await db.get<{ SubtypeId: number }>(
-        `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
+        `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
         [document.SubtypeName]
       );
       if (existingSubtype) {
@@ -282,10 +296,9 @@ export async function saveNewDocument(
     );
     if (existingConfig) {
       await db.rollback();
-      throw new Error("Taka konfiguracja dokumentu już istnieje w bazie danych.");
       return {
         status: STATUS.Error,
-        message: "Taka konfiguracja dokumentu już istnieje w bazie danych.",
+        message: "Taki dokument już istnieje w bazie danych.",
       };
     }
 
@@ -310,7 +323,7 @@ export async function saveNewDocument(
     };
   } catch (err) {
     await db.rollback();
-    log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
+    log.error("Błąd podczas zapisywania nowego dokumentu:", err);
     return {
       status: STATUS.Error,
       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
@@ -318,11 +331,189 @@ export async function saveNewDocument(
   }
 }
 
+// export async function saveNewDocument(
+//   document: AllDocumentsName
+// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+//   try {
+//     await db.beginTransaction();
+
+//     // Krok 1: Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
+//     let documentId: number;
+//     const existingDocument = await db.get<{ DocumentId: number }>(
+//       `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
+//       [document.DocumentName]
+//     );
+//     if (existingDocument) {
+//       documentId = existingDocument.DocumentId;
+//     } else {
+//       const insertDocument = await db.run(
+//         `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
+//         [document.DocumentName]
+//       );
+//       if (!insertDocument.lastID) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
+//         };
+//       }
+//       documentId = insertDocument.lastID;
+//     }
+
+//     // Krok 2: Sprawdzenie lub dodanie MainTypeName w DictionaryMainType (jeśli istnieje)
+//     let mainTypeId: number | null = null;
+//     if (document.MainTypeName) {
+//       const existingMainType = await db.get<{ MainTypeId: number }>(
+//         `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
+//         [document.MainTypeName]
+//       );
+//       if (existingMainType) {
+//         mainTypeId = existingMainType.MainTypeId;
+//       } else {
+//         const insertMainType = await db.run(
+//           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
+//           [document.MainTypeName]
+//         );
+//         if (!insertMainType.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
+//           };
+//         }
+//         mainTypeId = insertMainType.lastID;
+//       }
+//     }
+
+//     // Krok 3: Sprawdzenie lub dodanie TypeName w DictionaryType (jeśli istnieje)
+//     let typeId: number | null = null;
+//     if (document.TypeName) {
+//       if (!mainTypeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "MainTypeName musi być podane, jeśli TypeName jest wypełnione.",
+//         };
+//       }
+//       const existingType = await db.get<{ TypeId: number }>(
+//         `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
+//         [document.TypeName]
+//       );
+//       if (existingType) {
+//         typeId = existingType.TypeId;
+//       } else {
+//         const insertType = await db.run(
+//           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
+//           [document.TypeName]
+//         );
+//         if (!insertType.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać TypeName do DictionaryType.",
+//           };
+//         }
+//         typeId = insertType.lastID;
+//       }
+//     }
+
+//     // Krok 4: Sprawdzenie lub dodanie SubtypeName w DictionarySubtype (jeśli istnieje)
+//     let subtypeId: number | null = null;
+//     if (document.SubtypeName) {
+//       if (!typeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "TypeName musi być podane, jeśli SubtypeName jest wypełnione.",
+//         };
+//       }
+//       const existingSubtype = await db.get<{ SubtypeId: number }>(
+//         `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
+//         [document.SubtypeName]
+//       );
+//       if (existingSubtype) {
+//         subtypeId = existingSubtype.SubtypeId;
+//       } else {
+//         const insertSubtype = await db.run(
+//           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
+//           [document.SubtypeName]
+//         );
+//         if (!insertSubtype.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
+//           };
+//         }
+//         subtypeId = insertSubtype.lastID;
+//       }
+//     }
+
+//     // Krok 5: Sprawdzenie, czy konfiguracja istnieje w AllDocuments
+//     const existingConfig = await db.get<{ AllDocumentsId: number }>(
+//       `SELECT AllDocumentsId FROM AllDocuments
+//        WHERE DocumentId = ?
+//        AND (MainTypeId = ? OR (MainTypeId IS NULL AND ? IS NULL))
+//        AND (TypeId = ? OR (TypeId IS NULL AND ? IS NULL))
+//        AND (SubtypeId = ? OR (SubtypeId IS NULL AND ? IS NULL))`,
+//       [documentId, mainTypeId, mainTypeId, typeId, typeId, subtypeId, subtypeId]
+//     );
+//     if (existingConfig) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "Nie udało się dodać nowego dokumentu. Taki dokument już istnieje w bazie danych.",
+//       };
+//     }
+
+//     // Krok 6: Wstawienie nowego rekordu do AllDocuments
+//     const insertAllDocuments = await db.run(
+//       `INSERT INTO AllDocuments (DocumentId, MainTypeId, TypeId, SubtypeId, Price, IsDeleted)
+//        VALUES (?, ?, ?, ?, ?, ?)`,
+//       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted ?? 0]
+//     );
+//     if (!insertAllDocuments.lastID || !insertAllDocuments.changes) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "Nie udało się dodać nowego dokumentu. Nie udało się zapisać dokumentu w AllDocuments.",
+//       };
+//     }
+
+//     await db.commit();
+//     return {
+//       status: STATUS.Success,
+//       data: { lastID: insertAllDocuments.lastID, changes: insertAllDocuments.changes },
+//     };
+//   } catch (err) {
+//     await db.rollback();
+//     log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
+//     };
+//   }
+// }
+
+// Funkcja do edytowania dokumentu
 export async function saveEditedDocument(
   document: AllDocumentsName
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   try {
+    if (!document || !document.DocumentName) {
+      return {
+        status: STATUS.Error,
+        message: "DocumentName jest wymagane.",
+      };
+    }
+    if (document.Price == null|| isNaN(document.Price)|| document.Price < 0) {
+      return {
+        status: STATUS.Error,
+        message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
+      };
+    }
     await db.beginTransaction();
+
     // Krok 1: Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
     let documentId: number;
     if (document.DocumentId && document.DocumentName) {
@@ -342,7 +533,7 @@ export async function saveEditedDocument(
     } else if (!document.DocumentId && document.DocumentName) {
       // Wstawienie nowego DocumentName
       const existingDocument = await db.get<{ DocumentId: number }>(
-        `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
+        `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
         [document.DocumentName]
       );
       if (existingDocument) {
@@ -388,7 +579,7 @@ export async function saveEditedDocument(
     } else if (!document.MainTypeId && document.MainTypeName) {
       // Wstawienie nowego MainTypeName
       const existingMainType = await db.get<{ MainTypeId: number }>(
-        `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
+        `SELECT MainTypeId FROM DictionaryMainType WHERE LOWER(MainTypeName) = LOWER(?)`,
         [document.MainTypeName]
       );
       if (existingMainType) {
@@ -445,7 +636,7 @@ export async function saveEditedDocument(
       }
       // Wstawienie nowego TypeName
       const existingType = await db.get<{ TypeId: number }>(
-        `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
+        `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
         [document.TypeName]
       );
       if (existingType) {
@@ -502,7 +693,7 @@ export async function saveEditedDocument(
       }
       // Wstawienie nowego SubtypeName
       const existingSubtype = await db.get<{ SubtypeId: number }>(
-        `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
+        `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
         [document.SubtypeName]
       );
       if (existingSubtype) {
@@ -531,7 +722,7 @@ export async function saveEditedDocument(
       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ?`,
       [document.AllDocumentsId]
     );
-      if (!existingConfig) {
+    if (!existingConfig) {
       await db.rollback();
       return {
         status: STATUS.Error,
@@ -555,10 +746,10 @@ export async function saveEditedDocument(
     }
 
     await db.commit();
-    console.log("saveEditedDocument: Dokument zapisany pomyślnie:", document);
+    log.info("saveEditedDocument: Edytowany dokument zapisany pomyślnie:", document);
     return {
       status: STATUS.Success,
-      data: { lastID:document.AllDocumentsId, changes: updateAllDocuments.changes },
+      data: { lastID: document.AllDocumentsId, changes: updateAllDocuments.changes },
     };
   } catch (err) {
     await db.rollback();
@@ -569,6 +760,257 @@ export async function saveEditedDocument(
     };
   }
 }
+// export async function saveEditedDocument(
+//   document: AllDocumentsName
+// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+//   try {
+//     await db.beginTransaction();
+//     // Krok 1: Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
+//     let documentId: number;
+//     if (document.DocumentId && document.DocumentName) {
+//       // Aktualizacja istniejącego DocumentName
+//       const updateDocument = await db.run(
+//         `UPDATE DictionaryDocuments SET DocumentName = ? WHERE DocumentId = ?`,
+//         [document.DocumentName, document.DocumentId]
+//       );
+//       if (!updateDocument.changes) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: `Nie udało się zaktualizować DocumentName dla DocumentId: ${document.DocumentId}.`,
+//         };
+//       }
+//       documentId = document.DocumentId;
+//     } else if (!document.DocumentId && document.DocumentName) {
+//       // Wstawienie nowego DocumentName
+//       const existingDocument = await db.get<{ DocumentId: number }>(
+//         `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
+//         [document.DocumentName]
+//       );
+//       if (existingDocument) {
+//         documentId = existingDocument.DocumentId;
+//       } else {
+//         const insertDocument = await db.run(
+//           `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
+//           [document.DocumentName]
+//         );
+//         if (!insertDocument.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
+//           };
+//         }
+//         documentId = insertDocument.lastID;
+//       }
+//     } else {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "DocumentId lub DocumentName musi być podane.",
+//       };
+//     }
+
+//     // Krok 2: Sprawdzenie i aktualizacja MainTypeName w DictionaryMainType
+//     let mainTypeId: number | null = null;
+//     if (document.MainTypeId && document.MainTypeName) {
+//       // Aktualizacja istniejącego MainTypeName
+//       const updateMainType = await db.run(
+//         `UPDATE DictionaryMainType SET MainTypeName = ? WHERE MainTypeId = ?`,
+//         [document.MainTypeName, document.MainTypeId]
+//       );
+//       if (!updateMainType.changes) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: `Nie udało się zaktualizować MainTypeName dla MainTypeId: ${document.MainTypeId}.`,
+//         };
+//       }
+//       mainTypeId = document.MainTypeId;
+//     } else if (!document.MainTypeId && document.MainTypeName) {
+//       // Wstawienie nowego MainTypeName
+//       const existingMainType = await db.get<{ MainTypeId: number }>(
+//         `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
+//         [document.MainTypeName]
+//       );
+//       if (existingMainType) {
+//         mainTypeId = existingMainType.MainTypeId;
+//       } else {
+//         const insertMainType = await db.run(
+//           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
+//           [document.MainTypeName]
+//         );
+//         if (!insertMainType.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
+//           };
+//         }
+//         mainTypeId = insertMainType.lastID;
+//       }
+//     } else if (document.MainTypeId && !document.MainTypeName) {
+//       // Ustawienie MainTypeId na null w AllDocuments
+//       mainTypeId = null;
+//     }
+
+//     // Krok 3: Sprawdzenie i aktualizacja TypeName w DictionaryType
+//     let typeId: number | null = null;
+//     if (document.TypeId && document.TypeName) {
+//       if (!mainTypeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
+//         };
+//       }
+//       // Aktualizacja istniejącego TypeName
+//       const updateType = await db.run(
+//         `UPDATE DictionaryType SET TypeName = ? WHERE TypeId = ?`,
+//         [document.TypeName, document.TypeId]
+//       );
+//       if (!updateType.changes) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: `Nie udało się zaktualizować TypeName dla TypeId: ${document.TypeId}.`,
+//         };
+//       }
+//       typeId = document.TypeId;
+//     } else if (!document.TypeId && document.TypeName) {
+//       if (!mainTypeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
+//         };
+//       }
+//       // Wstawienie nowego TypeName
+//       const existingType = await db.get<{ TypeId: number }>(
+//         `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
+//         [document.TypeName]
+//       );
+//       if (existingType) {
+//         typeId = existingType.TypeId;
+//       } else {
+//         const insertType = await db.run(
+//           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
+//           [document.TypeName]
+//         );
+//         if (!insertType.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać TypeName do DictionaryType.",
+//           };
+//         }
+//         typeId = insertType.lastID;
+//       }
+//     } else if (document.TypeId && !document.TypeName) {
+//       // Ustawienie TypeId na null w AllDocuments
+//       typeId = null;
+//     }
+
+//     // Krok 4: Sprawdzenie i aktualizacja SubtypeName w DictionarySubtype
+//     let subtypeId: number | null = null;
+//     if (document.SubtypeId && document.SubtypeName) {
+//       if (!typeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
+//         };
+//       }
+//       // Aktualizacja istniejącego SubtypeName
+//       const updateSubtype = await db.run(
+//         `UPDATE DictionarySubtype SET SubtypeName = ? WHERE SubtypeId = ?`,
+//         [document.SubtypeName, document.SubtypeId]
+//       );
+//       if (!updateSubtype.changes) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: `Nie udało się zaktualizować SubtypeName dla SubtypeId: ${document.SubtypeId}.`,
+//         };
+//       }
+//       subtypeId = document.SubtypeId;
+//     } else if (!document.SubtypeId && document.SubtypeName) {
+//       if (!typeId) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
+//         };
+//       }
+//       // Wstawienie nowego SubtypeName
+//       const existingSubtype = await db.get<{ SubtypeId: number }>(
+//         `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
+//         [document.SubtypeName]
+//       );
+//       if (existingSubtype) {
+//         subtypeId = existingSubtype.SubtypeId;
+//       } else {
+//         const insertSubtype = await db.run(
+//           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
+//           [document.SubtypeName]
+//         );
+//         if (!insertSubtype.lastID) {
+//           await db.rollback();
+//           return {
+//             status: STATUS.Error,
+//             message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
+//           };
+//         }
+//         subtypeId = insertSubtype.lastID;
+//       }
+//     } else if (document.SubtypeId && !document.SubtypeName) {
+//       // Ustawienie SubtypeId na null w AllDocuments
+//       subtypeId = null;
+//     }
+
+//     // Krok 5: Sprawdzenie, czy rekord istnieje w AllDocuments
+//     const existingConfig = await db.get<{ AllDocumentsId: number }>(
+//       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ?`,
+//       [document.AllDocumentsId]
+//     );
+//       if (!existingConfig) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: `Dokument o ID ${document.AllDocumentsId} nie istnieje w AllDocuments.`,
+//       };
+//     }
+
+//     // Krok 6: Aktualizacja rekordu w AllDocuments
+//     const updateAllDocuments = await db.run(
+//       `UPDATE AllDocuments 
+//        SET DocumentId = ?, MainTypeId = ?, TypeId = ?, SubtypeId = ?, Price = ?, IsDeleted = ? 
+//        WHERE AllDocumentsId = ?`,
+//       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted, document.AllDocumentsId]
+//     );
+//     if (!updateAllDocuments.changes) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "Nie udało się zaktualizować dokumentu w AllDocuments.",
+//       };
+//     }
+
+//     await db.commit();
+//     console.log("saveEditedDocument: Dokument zapisany pomyślnie:", document);
+//     return {
+//       status: STATUS.Success,
+//       data: { lastID:document.AllDocumentsId, changes: updateAllDocuments.changes },
+//     };
+//   } catch (err) {
+//     await db.rollback();
+//     log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
+//     };
+//   }
+// }
 
 export async function updateDocumentDeletionStatus(
   documentId: number,
