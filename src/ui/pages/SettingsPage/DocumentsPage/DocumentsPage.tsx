@@ -12,6 +12,8 @@ import toast from "react-hot-toast";
 import { STATUS } from "../../../../electron/sharedTypes/status";
 import { useEditDocument } from "../../../hooks/useEditDocument";
 import { useAddDocument } from "../../../hooks/useAddDocument";
+import { IconInfo } from "../../../components/IconInfo/IconInfo";
+import { Tooltip } from "react-tooltip";
 
 const DocumentsPage: React.FC = () => {
   // Hook do pobierania wszystkich dokumentów
@@ -178,6 +180,10 @@ const DocumentsPage: React.FC = () => {
 
   return (
     <div className={scss["documentsPage-main-container"]}>
+      <IconInfo
+        tooltipId="tooltip-formAddInvoice"
+        tooltipInfoTextHtml={tooltipInfoDocumentsPage()}
+      />
       <div>
         <table className={scss["table"]}>
           <thead>
@@ -220,8 +226,24 @@ const DocumentsPage: React.FC = () => {
           <p>Usunięte: {documentCounts?.deleted}</p>
         </div>
       </div>
+      <Tooltip
+        id="toolTipSeparateDocumentButtonSave"
+        className={scss["tooltip"]}
+      />
     </div>
   );
 };
 
 export default DocumentsPage;
+
+function tooltipInfoDocumentsPage() {
+  const text = `Strona dokumentów.
+  Przycisk "Dodaj nowy" umożliwia dodanie nowego dokumentu.
+  Przycisk "Edytuj" umożliwia edycję istniejącego dokumentu.
+  Przycisk "Usuń" umożliwia usunięcie dokumentu.
+  Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego dokumentu.
+  Przycisk "Przywróć" umożliwia przywrócenie usuniętego dokumentu.
+  UWAGA! Nazwy dokumentów nie mogą się powtarzać.`;
+
+  return text.replace(/\n/g, "<br/>");
+}

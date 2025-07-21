@@ -77,4 +77,9 @@ tr.row-container {
   .cell.recover-container {
     text-align: center;
   }
+
+  .tooltip {
+    z-index: 101;
+    font-size: 0.9rem !important;
+  }
 }

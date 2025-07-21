@@ -89,7 +89,7 @@ LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.Subtyp
       sql += ` WHERE AllDocuments.IsDeleted = ?`;
   }
   
-  sql += ` ORDER BY LOWER(DictionaryDocuments.DocumentName) ASC`;
+  sql += ` ORDER BY LOWER(DictionaryDocuments.DocumentName) ASC, LOWER(DictionaryMainType.MainTypeName) ASC, LOWER(DictionaryType.TypeName) ASC, LOWER(DictionarySubtype.SubtypeName) ASC`;
   return sql;
 };
 // Pobierz ostatni wiersz z tabeli 

@@ -3,6 +3,7 @@ import { currencyFormater } from "../../../../components/GlobalFunctions/GlobalF
 import scss from "./SeparateDocument.module.scss";
 import { spacing } from "react-select/dist/declarations/src/theme";
 import { TextInput } from "../../../../components/TextInput/TextInput";
+import { Tooltip } from "react-tooltip";
 
 interface SeparateDocumentProps {
   isNewDocument?: boolean;
@@ -291,6 +292,10 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
                 className={scss["save-button"]}
                 disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
+                data-tooltip-id="toolTipSeparateDocumentButtonSave"
+                data-tooltip-html={toolTipSeparateDocumentButtonSave(
+                  isNewDocument
+                )}
               >
                 Zapisz
               </button>
@@ -314,15 +319,23 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
                 className={scss["edit-button"]}
                 onClick={() => handleEditCancelClick()}
               >
-                Edytuj
+                Korekta
               </button>
             ) : (
               <button
                 className={scss["save-button"]}
                 disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
+                data-tooltip-id="toolTipSeparateDocumentButtonSave"
+                data-tooltip-html={toolTipSeparateDocumentButtonSave(
+                  isNewDocument
+                )}
               >
                 Zapisz
+                {/* <Tooltip
+                  id="toolTipSeparateDocumentButtonSave"
+                  className={scss["tooltip"]}
+                /> */}
               </button>
             )}
           </td>
@@ -361,3 +374,11 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     </tr>
   );
 };
+
+function toolTipSeparateDocumentButtonSave(isNewDocument: boolean) {
+  const text = `Przycisk zapisu dokumentu zostanie uaktywniony
+  po prawidłowym uzupełnieniu pól formularza ${
+    !isNewDocument ? " i wykryciu zmian w dokumencie" : ""
+  }.`;
+  return text.replace(/\n/g, "<br/>");
+}

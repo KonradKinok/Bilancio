@@ -18,16 +18,14 @@ export const IconInfo: React.FC<IconInfoProps> = ({
   const containerClassName =
     `${classNameIconContainer} ${scss["container-icon"]}`.trim();
   return (
-    <>
-      <div
-        className={containerClassName}
-        data-tooltip-id={tooltipId}
-        data-tooltip-html={tooltipInfoTextHtml}
-      >
-        {icon}
-        <Tooltip id={tooltipId} className={scss["tooltip"]} />
-      </div>
-    </>
+    <div
+      className={containerClassName}
+      data-tooltip-id={tooltipId}
+      data-tooltip-html={tooltipInfoTextHtml}
+    >
+      {icon}
+      <Tooltip id={tooltipId} className={scss["tooltip"]} />
+    </div>
   );
 };
 
