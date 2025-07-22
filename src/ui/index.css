@@ -35,6 +35,8 @@
   --twelfth-color: rgb(0 153 67); /*Red*/
   --thirteenth-color: rgb(0, 140, 61); /*Red*/
   --fourteenth-color: rgb(2, 247, 153); /*Red*/
+  --fifteenth-color: rgb(50, 205, 50); /*MediumSpringGreen*/
+  --sixteenth-color: rgb(0, 255, 127); /*MediumSpringGreen*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -98,9 +100,9 @@
   --form-button-background-first: rgb(0, 0, 255);
   --form-button-background-second: rgb(0, 100, 255);
   /* footer */
-  --footer-background: rgb(30, 144, 255);
-  --footer-text-color: rgb(0, 0, 255);
-  --footer-text-color-hover: rgb(25, 25, 112);
+  --footer-background: var(--eighth-color);
+  --footer-text-color: var(--fifteenth-color);
+  --footer-text-color-hover: var(--sixteenth-color);
   /* mobile-menu */
   --mobile-menu-open-icon-color: rgb(0, 0, 255);
   --mobile-menu-open-icon-color-hover: rgb(0, 0, 205);

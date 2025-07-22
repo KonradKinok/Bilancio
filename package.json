@@ -1,7 +1,8 @@
 {
   "name": "bilancio",
+  "displayName": "Bilancio",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": {
     "name": "Konrad Konik",
     "email": "3k.nexgen@gmail.com",

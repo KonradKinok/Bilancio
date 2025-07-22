@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import { Navigation } from "../../components/Navigation/Navigation";
 import scss from "./LayoutPage.module.scss";
 import { Toaster } from "react-hot-toast";
+import { Footer } from "../../components/Footer/Footer";
 
 export const LayoutPage: React.FC = () => {
   return (
@@ -15,7 +16,7 @@ export const LayoutPage: React.FC = () => {
           <Outlet />
         </Suspense>
       </main>
-
+      <Footer />
       <Toaster
         position="top-right"
         reverseOrder={false}
