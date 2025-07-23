@@ -1,7 +1,10 @@
-.button-6 {
+.button-universal-container {
   --background-color: rgb(255, 255, 255);
   --background-hover-color: rgb(255, 0, 0);
   --text-color: rgb(0, 0, 255);
+  --text-color-disabled: rgb(102, 102, 102);
+  --background-color-disabled: rgb(204, 204, 204);
+
   width: 150px;
   height: 34px;
   cursor: pointer;
@@ -43,9 +46,9 @@
   }
 
   &:disabled {
-    background-color: #cccccc;
+    background-color: var(--background-color-disabled);
     cursor: not-allowed;
-    color: #666666;
+    color: var(--text-color-disabled);
   }
 
   .text {

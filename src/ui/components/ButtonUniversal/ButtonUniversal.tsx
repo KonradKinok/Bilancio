@@ -30,7 +30,7 @@ export const ButtonUniversal: React.FC<ButtonUniversalProps> = ({
   toolTipClassName,
 }) => {
   const containerClassName =
-    `${classNameButtonContainer} ${scss["button-6"]}`.trim();
+    `${classNameButtonContainer} ${scss["button-universal-container"]}`.trim();
 
   return (
     <button

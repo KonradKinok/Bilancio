@@ -21,7 +21,7 @@ export const CheckboxSlider: React.FC<CheckboxSliderProps> = ({
   radioButtonIsDeleted,
   setRadioButtonIsDeleted,
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = () => {
     setRadioButtonIsDeleted((prevData) => (prevData === 1 ? 0 : 1));
   };
 

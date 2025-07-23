@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
+import { RiSave3Fill } from "react-icons/ri";
+import { ImExit } from "react-icons/im";
+import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
 import { TextInput } from "../TextInput/TextInput";
-import scss from "./FormAddInvoice.module.scss";
-import { Tooltip } from "react-tooltip";
-import { FaInfoCircle } from "react-icons/fa";
-import { RiSave3Fill } from "react-icons/ri";
-import { ImExit } from "react-icons/im";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import {
   calculateTotalAmount,
@@ -16,14 +14,13 @@ import {
   formatDocumentDetailsFunctionChanges,
 } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
-import { useToggle } from "../../hooks/useToggle";
 import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
-import { useMainDataContext } from "../Context/useOptionsImage";
-import { useAddInvoice } from "../../hooks/useAddInvoice";
-import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
+import { useToggle } from "../../hooks/useToggle";
+import { useAddInvoice } from "../../hooks/useAddInvoice";
 import { useUpdateInvoice } from "../../hooks/useUpdateInvoice";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
+import scss from "./FormAddInvoice.module.scss";
 
 interface FormAddInvoiceProps {
   addInvoiceData: InvoiceSave;
@@ -31,7 +28,7 @@ interface FormAddInvoiceProps {
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   closeModalAddInvoice: () => void;
   modalContentRef?: React.RefObject<HTMLDivElement | null>;
-  isEditMode: boolean; // Nowy prop
+  isEditMode: boolean;
   refetchAllInvoices: () => void;
 }
 
@@ -187,13 +184,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         isSubtypeValid
       );
     });
-    // const documentKeys = addInvoiceData.details.map(
-    //   (detail) =>
-    //     `${detail.DocumentId}-${detail.MainTypeId ?? "null"}-${
-    //       detail.TypeId ?? "null"
-    //     }-${detail.SubtypeId ?? "null"}`
-    // );
-    // const uniqueDocuments = new Set(documentKeys).size === documentKeys.length;
     return isInvoiceNameValid && isReceiptDateValid && areDetailsValid;
   }, [
     inputInvoiceName,

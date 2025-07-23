@@ -2,9 +2,8 @@
   --checkbox-checked-background: var(--checkbox-slider-checked-background);
   --checkbox-unchecked-background: var(--checkbox-slider-unchecked-background);
   --checkbox-unchecked-hover-background: var(--checkbox-slider-unchecked-hover-background);
+  --checkbox-color-circle: rgb(255, 255, 255);
   width: 100%;
-
-
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
@@ -27,7 +26,7 @@
     width: 1.25rem;
     height: 1.25rem;
     border-radius: 50%;
-    background-color: #fff;
+    background-color: var(--checkbox-color-circle);
     position: absolute;
     transform: translate3d(2px, 2px, 0);
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.12);

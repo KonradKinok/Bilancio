@@ -23,7 +23,7 @@ export const Footer: React.FC = () => {
       </div>
       <div className={scss["footer-info"]}>
         <span>
-          © 2025 {applicationName} v{version}
+          © 2025 {applicationName} v.{version}
         </span>
         <span>22 lipca 2025r.</span>
       </div>
