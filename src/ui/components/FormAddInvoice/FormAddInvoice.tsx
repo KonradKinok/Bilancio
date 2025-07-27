@@ -11,6 +11,7 @@ import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import {
   calculateTotalAmount,
   compareInvoices2,
+  formatDocumentDetailsFunction,
   formatDocumentDetailsFunctionChanges,
 } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -352,10 +353,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       console.log("handleConfirmSave: Wynik addInvoice:", result);
       if (result.status === STATUS.Success && result.data?.lastID) {
         console.log("handleConfirmSave: Zapis udany, zamykanie modali.");
-        console.log(
-          "handleConfirmSave: refetchAllInvoices:",
-          refetchAllInvoices
-        );
+
+        console.log("handleConfirmSave: invoice:", invoice);
+        console.log("handleConfirmSave: invoiceDetails", invoiceDetails);
         resetForm();
         closeModalConfirmationSave();
         closeModalAddInvoice();
@@ -369,6 +369,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         "handleConfirmSave: Błąd podczas zapisywania faktury:",
         error
       );
+
       closeModalConfirmationSave();
     }
   };
@@ -583,43 +584,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     </form>
   );
 };
-
-function formatDocumentDetailsFunction(
-  dataAllDocumentsName: AllDocumentsName[] | null
-) {
-  return (detail: InvoiceDetailsTable) => {
-    const document = dataAllDocumentsName?.find(
-      (doc) => doc.DocumentId === detail.DocumentId
-    );
-    const mainType = detail.MainTypeId
-      ? dataAllDocumentsName?.find(
-          (doc) => doc.MainTypeId === detail.MainTypeId
-        )
-      : null;
-    const type = detail.TypeId
-      ? dataAllDocumentsName?.find((doc) => doc.TypeId === detail.TypeId)
-      : null;
-    const subtype = detail.SubtypeId
-      ? dataAllDocumentsName?.find((doc) => doc.SubtypeId === detail.SubtypeId)
-      : null;
-
-    return {
-      documentName:
-        document?.DocumentName || `Dokument ID: ${detail.DocumentId}`,
-      mainTypeName:
-        mainType?.MainTypeName ||
-        (detail.MainTypeId ? `Typ główny ID: ${detail.MainTypeId}` : ""),
-      typeName:
-        type?.TypeName || (detail.TypeId ? `Typ ID: ${detail.TypeId}` : ""),
-      subtypeName:
-        subtype?.SubtypeName ||
-        (detail.SubtypeId ? `Podtyp ID: ${detail.SubtypeId}` : ""),
-      quantity: detail.Quantity,
-      price: detail.Price.toFixed(2),
-      total: (detail.Quantity * detail.Price).toFixed(2),
-    };
-  };
-}
 
 function tooltipInfoFormAddInvoice(isEditMode: boolean) {
   const text = `Formularz ${isEditMode ? "edycji" : "dodania nowej"} faktury.

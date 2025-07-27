@@ -1,13 +1,13 @@
-import { app, BrowserWindow, ipcMain, Menu, Tray,dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import path from "path";
 import fs from "fs"
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 import { getStaticData, pollResources } from "./resourceManager.js";
-import {checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig, getDBbBilancioPath, getPreloadPath, getUIPath, saveConfig} from "./pathResolver.js";
+import { checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig, getDBbBilancioPath, getPreloadPath, getUIPath, saveConfig } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
 import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
 
 
@@ -64,29 +64,29 @@ app.on("ready", () => {
       // nodeIntegration: true, // Włącz nodeIntegration (NIEBEZPIECZNE W PRODUKCJI)
       contextIsolation: true,
       nodeIntegration: false,
-  },
-    
+    },
+
     // disables default system frame (dont do this if you want a proper working menu bar)
     // frame: false,
   });
-  if(isDev()) {
+  if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
   }
   else {
     mainWindow.loadFile(getUIPath());
   }
 
-  
+
 
   pollResources(mainWindow);
   ipcMainHandle('getStaticData', () => {
     return getStaticData();
   });
-  
-  ipcMainHandle2('getTableDictionaryDocuments',  (payload) => {
+
+  ipcMainHandle2('getTableDictionaryDocuments', (payload) => {
     return getTableDictionaryDocuments(payload);
   });
-  ipcMainHandle2('getConnectedTableDictionary',  (tableName, documentId, mainTypeId, typeId, subTypeId) => {
+  ipcMainHandle2('getConnectedTableDictionary', (tableName, documentId, mainTypeId, typeId, subTypeId) => {
     return getConnectedTableDictionary(tableName, documentId, mainTypeId, typeId, subTypeId);
   });
   ipcMainHandle2('getAllDocumentName', (isDeleted) => {
@@ -104,14 +104,14 @@ app.on("ready", () => {
   ipcMainHandle2('getAllInvoices', (payload, page, rowsPerPage) => {
     return getAllInvoices(payload, page, rowsPerPage);
   });
-  ipcMainHandle2('addInvoice',  (payload) => {
+  ipcMainHandle2('addInvoice', (payload) => {
     return addInvoice(payload);
   });
-  ipcMainHandle2('updateInvoice',  (invoice, invoiceDetails) => {
-    return updateInvoice(invoice , invoiceDetails);
+  ipcMainHandle2('updateInvoice', (invoice, invoiceDetails) => {
+    return updateInvoice(invoice, invoiceDetails);
   });
-  ipcMainHandle2('addInvoiceDetails',  (invoice, invoiceDetails) => {
-    return addInvoiceDetails(invoice , invoiceDetails);
+  ipcMainHandle2('addInvoiceDetails', (invoice, invoiceDetails) => {
+    return addInvoiceDetails(invoice, invoiceDetails);
   });
   ipcMainHandle2('deleteInvoice', (invoiceId) => {
     return deleteInvoice(invoiceId);
@@ -122,20 +122,31 @@ app.on("ready", () => {
   ipcMainHandle2('countInvoices', (payload) => {
     return countInvoices(payload);
   });
+  // ActivityLog
+  ipcMainHandle('countActivityLog', () => {
+    return countActivityLog();
+  });
+  ipcMainHandle2('getAllActivityLog', (page, rowsPerPage) => {
+    return getAllActivityLog(page, rowsPerPage);
+  });
+  ipcMainHandle2('saveActivityLog', (activity) => {
+    return saveActivityLog(activity);
+  });
+
   // Nowe IPC dla konfiguracji
   ipcMainHandle('getConfigBilancio', () => {
     return getConfig();
   });
-  
+
   ipcMainHandle2('saveConfig', (config) => {
     return saveConfig(config);
   });
 
-  ipcMainHandle('openDBDialog',() => {
+  ipcMainHandle('openDBDialog', () => {
     return openDBDialog();
   });
 
-  ipcMainHandle('openTemplatesDialog',() => {
+  ipcMainHandle('openTemplatesDialog', () => {
     return openTemplatesDialog();
   });
 
@@ -151,25 +162,25 @@ app.on("ready", () => {
   });
   ipcMainHandle2('przykladowaFunkcja', (payload, jakisNumer) => {
     log.info('FilesPage: przykladowaFunkcja zarejestrowana i wywołana', payload, jakisNumer);
-    return przykladowaFunkcja(payload , jakisNumer);
+    return przykladowaFunkcja(payload, jakisNumer);
   });
-  
-  ipcMainHandle2('przykladowaFunkcja2',  (payload, jakisNumer) => {
-    return przykladowaFunkcja2(payload , jakisNumer);
+
+  ipcMainHandle2('przykladowaFunkcja2', (payload, jakisNumer) => {
+    return przykladowaFunkcja2(payload, jakisNumer);
   });
- 
-  ipcMainHandle('queryToDB',  () => {
+
+  ipcMainHandle('queryToDB', () => {
     return queryToDB.secondMetod();
   });
   ipcMainHandle('getDBbBilancioPath', () => {
     return getDBbBilancioPath();
   });
-  
+
   ipcMainHandle2('getConfigBilancio1', (payload) => {
     log.info('FilesPage: Handler getDBbBilancioPath1 zarejestrowany i wywołany');
-    return getConfigBilancio1(payload );
+    return getConfigBilancio1(payload);
   });
- ipcMainOn('sendFrameAction', (payload) => {
+  ipcMainOn('sendFrameAction', (payload) => {
     switch (payload) {
       case 'CLOSE':
         mainWindow.close();
@@ -183,7 +194,7 @@ app.on("ready", () => {
     }
   });
 
- createTray(mainWindow);
+  createTray(mainWindow);
   handleCloseEvents(mainWindow);
   createMenu(mainWindow);
 });
@@ -202,7 +213,7 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     }
   });
 
- app.on('before-quit', () => {
+  app.on('before-quit', () => {
     willClose = true;
   });
 

@@ -1,4 +1,4 @@
-import Database, { QueryParams} from './dbClass.js';
+import Database, { QueryParams } from './dbClass.js';
 import * as sqlString from "./dbQuerySqlString.js";
 import { DbTables, InvoicesTable } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
@@ -75,7 +75,7 @@ export async function getTableDictionaryDocuments<T>(tableName: DbTables) {
   }
 };
 
-export async function getConnectedTableDictionary<T>(tableName: DbTables, documentId?: number,mainTypeId?: number,typeId?: number,subTypeId?: number) {
+export async function getConnectedTableDictionary<T>(tableName: DbTables, documentId?: number, mainTypeId?: number, typeId?: number, subTypeId?: number) {
   try {
     let query = "";
     switch (tableName) {
@@ -89,13 +89,13 @@ export async function getConnectedTableDictionary<T>(tableName: DbTables, docume
         query = sqlString.getConnectedTableDictionaryDocumentsDictionaryMainTypeSqlString(documentId);
         break;
       case DbTables.DictionaryType:
-         if (!documentId || !mainTypeId) {
+        if (!documentId || !mainTypeId) {
           throw new Error("documentName and mainTypeId is required for DictionaryType");
         }
         query = sqlString.getConnectedTableDictionaryMainTypeDictionaryTypeSqlString(documentId, mainTypeId);
         break;
       case DbTables.DictionarySubtype:
-         if (!documentId || !mainTypeId || !typeId) {
+        if (!documentId || !mainTypeId || !typeId) {
           throw new Error("documentName, mainTypeId  and typeId is required for DictionarySubtype");
         }
         query = sqlString.getConnectedTableDictionaryTypeDictionarySubtypeSqlString(documentId, mainTypeId, typeId);
@@ -137,19 +137,19 @@ export async function getConnectedTableDictionary<T>(tableName: DbTables, docume
 
 export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
   try {
-      const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
-      const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
-      const rows = await db.all<AllDocumentsName>(query, params);
-      return {
-          status: STATUS.Success,
-          data: rows ?? [],
-      };
+    const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
+    const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
+    const rows = await db.all<AllDocumentsName>(query, params);
+    return {
+      status: STATUS.Success,
+      data: rows ?? [],
+    };
   } catch (err) {
-      log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
-      return {
-          status: STATUS.Error,
-          message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
-      };
+    log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
+    };
   }
 };
 
@@ -164,7 +164,7 @@ export async function saveNewDocument(
         message: "DocumentName jest wymagane.",
       };
     }
-    if (document.Price == null|| isNaN(document.Price)|| document.Price < 0) {
+    if (document.Price == null || isNaN(document.Price) || document.Price < 0) {
       return {
         status: STATUS.Error,
         message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
@@ -506,7 +506,7 @@ export async function saveEditedDocument(
         message: "DocumentName jest wymagane.",
       };
     }
-    if (document.Price == null|| isNaN(document.Price)|| document.Price < 0) {
+    if (document.Price == null || isNaN(document.Price) || document.Price < 0) {
       return {
         status: STATUS.Error,
         message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
@@ -1023,7 +1023,7 @@ export async function updateDocumentDeletionStatus(
       message: "Nieprawidłowy identyfikator dokumentu.",
     };
   }
-  
+
   // SQL do ustawienia IsDeleted
   const updateSql = `
     UPDATE AllDocuments 
@@ -1044,9 +1044,8 @@ export async function updateDocumentDeletionStatus(
       await db.rollback();
       return {
         status: STATUS.Error,
-        message: `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${
-          isDeleted === 0 ? "przywrócona" : "usunięta"
-        }.`,
+        message: `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${isDeleted === 0 ? "przywrócona" : "usunięta"
+          }.`,
       };
     }
 
@@ -1056,9 +1055,8 @@ export async function updateDocumentDeletionStatus(
       await db.rollback();
       return {
         status: STATUS.Error,
-        message: `Nie udało się ${
-          isDeleted === 0 ? "przywrócić" : "usunąć"
-        } dokumentu.`,
+        message: `Nie udało się ${isDeleted === 0 ? "przywrócić" : "usunąć"
+          } dokumentu.`,
       };
     }
 
@@ -1070,8 +1068,7 @@ export async function updateDocumentDeletionStatus(
   } catch (err) {
     await db.rollback();
     console.error(
-      `Błąd podczas ${
-        isDeleted === 0 ? "przywracania" : "usuwania"
+      `Błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
       } dokumentu:`,
       err
     );
@@ -1080,9 +1077,8 @@ export async function updateDocumentDeletionStatus(
       message:
         err instanceof Error
           ? err.message
-          : `Nieznany błąd podczas ${
-              isDeleted === 0 ? "przywracania" : "usuwania"
-            } dokumentu.`,
+          : `Nieznany błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
+          } dokumentu.`,
     };
   }
 }
@@ -1497,8 +1493,120 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
     };
   }
 }
+//ACTIVITY LOG
+//Funkcja zliczająca wiersze w ActivityLog
+export async function countActivityLog(): Promise<DataBaseResponse<number>> {
+  try {
+    const query = `SELECT COUNT(*) as total FROM ActivityLog`;
+    const result = await db.get<{ total: number }>(query);
+    return {
+      status: STATUS.Success,
+      data: result?.total ?? 0,
+    };
+  } catch (err) {
+    console.error("countActivityLog() Błąd podczas zliczania wpisów w ActivityLog:", err);
+    return {
+      status: STATUS.Error,
+      message: "Błąd podczas zliczania wpisów w ActivityLog z bazy danych.",
+    };
+  }
+}
 
-export async function reinitializeDatabase (dbPath: string):Promise<ReturnStatusMessage> {
+//Pobranie wszystkich aktywności
+export async function getAllActivityLog(
+  page: number = 1,
+  rowsPerPage: number = 10
+): Promise<DataBaseResponse<ActivityLog[]>> {
+  try {
+    const query = `SELECT ActivityLogId, Date, UserName, ActivityType, ActivityData 
+                   FROM ActivityLog 
+                   ORDER BY Date DESC 
+                   LIMIT ? OFFSET ?`;
+    const params: QueryParams = [rowsPerPage, (page - 1) * rowsPerPage];
+
+    const rows = await db.all<ActivityLog>(query, params);
+    return {
+      status: STATUS.Success,
+      data: rows ?? [],
+    };
+  } catch (err) {
+    console.error("getAllActivityLog() Błąd podczas pobierania aktywności:", err);
+    return {
+      status: STATUS.Error,
+      message: "Błąd podczas pobierania aktywności z bazy danych.",
+    };
+  }
+}
+
+//Zapisanie aktywności
+export async function saveActivityLog(activity: ActivityLog): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  try {
+    // Krok 1: Walidacja danych
+    if (!activity.UserName) {
+      return {
+        status: STATUS.Error,
+        message: "UserName jest wymagane.",
+      };
+    }
+    if (!activity.ActivityType || !Object.values(ActivityType).includes(activity.ActivityType)) {
+      return {
+        status: STATUS.Error,
+        message: "ActivityType musi być jednym z dozwolonych nazw.",
+      };
+    }
+    if (!activity.ActivityData) {
+      return {
+        status: STATUS.Error,
+        message: "ActivityData jest wymagane.",
+      };
+    }
+    // Walidacja JSON
+    try {
+      JSON.parse(activity.ActivityData);
+    } catch (err) {
+      return {
+        status: STATUS.Error,
+        message: "ActivityData musi być poprawnym JSON-em.",
+      };
+    }
+
+    await db.beginTransaction();
+
+    // Krok 2: Wstawienie rekordu do ActivityLog
+    const query = `
+      INSERT INTO ActivityLog (UserName, ActivityType, ActivityData)
+      VALUES (?, ?, ?)
+      RETURNING ActivityLogId, changes()
+    `;
+    const params: QueryParams = [activity.UserName, activity.ActivityType, activity.ActivityData];
+
+    const result = await db.get<{ ActivityLogId: number; changes: number }>(query, params);
+    if (!result || !result.ActivityLogId || !result.changes) {
+      await db.rollback();
+      return {
+        status: STATUS.Error,
+        message: "Nie udało się zapisać aktywności w ActivityLog.",
+      };
+    }
+
+    await db.commit();
+    return {
+      status: STATUS.Success,
+      data: { lastID: result.ActivityLogId, changes: result.changes },
+    };
+  } catch (err) {
+    await db.rollback();
+    console.error("saveActivityLog() Błąd podczas zapisywania aktywności:", err);
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania aktywności.",
+    };
+  }
+}
+
+
+
+export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatusMessage> {
   try {
     await db.reinitialize(dbPath);
     log.info('Baza danych została pomyślnie zreinicjalizowana:', dbPath);
@@ -1512,7 +1620,7 @@ export async function reinitializeDatabase (dbPath: string):Promise<ReturnStatus
 // Przykładowa funkcja, która zwraca obiekt
 export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {
   try {
-    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer};
+    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer };
     return obiekt;
   }
   catch (err) {
@@ -1561,9 +1669,9 @@ export const queryToDB = {
   }
 };
 
-export async function getConfigBilancio1(tekst: string): Promise<string> { 
+export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);
-  
+
 
   return Promise.resolve("getConfigBilancio text");
 }

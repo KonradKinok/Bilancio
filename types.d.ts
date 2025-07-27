@@ -1,4 +1,4 @@
-import  { STATUS, DataBaseResponse, isSuccess } from './src/electron/sharedTypes/status';
+import { STATUS, DataBaseResponse, isSuccess } from './src/electron/sharedTypes/status';
 
 type StaticData = {
   totalStorage: number;
@@ -18,9 +18,9 @@ declare global {
     isDeleted?: 0 | 1;
   }
   export interface PageState {
-  firstPage: number;
-  lastPage: number;
-  paginationPage: number;
+    firstPage: number;
+    lastPage: number;
+    paginationPage: number;
   }
   export interface ReturnStatusMessage {
     status: boolean;
@@ -39,13 +39,13 @@ declare global {
     DocumentId: number;
     DocumentName: string;
   }
-  
+
   export type DictionaryMainType = {
     MainTypeId: number;
     MainTypeName: string;
   }
 
-  export type DictionaryType = { 
+  export type DictionaryType = {
     TypeId: number;
     TypeName: string;
   }
@@ -59,7 +59,7 @@ declare global {
     documentTemplatesPath: string;
     savedDocumentsPath: string;
   };
-type AllInvoices = {
+  type AllInvoices = {
     InvoiceId: number;
     InvoiceName: string;
     ReceiptDate: string;
@@ -96,8 +96,8 @@ type AllInvoices = {
     Quantity: number;
     Price: number;
     isMainTypeRequired?: boolean; // Nowe pole
-  isTypeRequired?: boolean; // Nowe pole
-  isSubtypeRequired?: boolean; // Nowe pole
+    isTypeRequired?: boolean; // Nowe pole
+    isSubtypeRequired?: boolean; // Nowe pole
   }
   type InvoiceSave = {
     invoice: InvoiceTable;
@@ -111,7 +111,7 @@ type AllInvoices = {
   type AllDocumentsName = {
     AllDocumentsId: number;
     DocumentId: number;
-    DocumentName: string ;
+    DocumentName: string;
     MainTypeId: number | null;
     MainTypeName: string;
     TypeId: number | null;
@@ -161,7 +161,7 @@ type AllInvoices = {
     [key: string]: string[] | null;
   }
 
-  
+
 
   type LastRowInvoice = {
     InvoiceId: number;
@@ -172,6 +172,20 @@ type AllInvoices = {
     IsDeleted: 0 | 1;
   }
 
+  //ActivityLOG
+  enum ActivityType {
+    addInvoice = "dodanie faktury",
+    editInvoice = "edycja faktury",
+    deleteInvoice = "usunięcie faktury",
+  }
+
+  type ActivityLog = {
+    ActivityLogId?: number;
+    Date?: string;
+    UserName: string;
+    ActivityType: ActivityType;
+    ActivityData: string;
+  };
 
   type JakasFunkcja = {
     jakisTekst: string;
@@ -191,14 +205,14 @@ type AllInvoices = {
     | { status: typeof STATUS1.Sukces; dane: JakasFunkcja }
     | { status: typeof STATUS1.Error; komunikat: string };
 
-  
+
   type EventPayloadMapping = {
     statistics: Statistics;
     getStaticData: StaticData;
     changeView: View;
     sendFrameAction: FrameWindowAction;
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
-    getConnectedTableDictionary:DataBaseResponse<T[]>;
+    getConnectedTableDictionary: DataBaseResponse<T[]>;
     queryToDB: unknown[];
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
     updateDocumentDeletionStatus: DataBaseResponse<ReturnMessageFromDb>;
@@ -208,13 +222,18 @@ type AllInvoices = {
     getLastRowFromTable: unknown;
     przykladowaFunkcja: JakasFunkcja;
     przykladowaFunkcja2: PrzykladowaFunkcjaResult;
-    
+
     addInvoice: DataBaseResponse<ReturnMessageFromDb>;
     updateInvoice: DataBaseResponse<ReturnMessageFromDb>;
     addInvoiceDetails: DataBaseResponse<ReturnMessageFromDb>;
     deleteInvoice: DataBaseResponse<ReturnMessageFromDb>;
     restoreInvoice: DataBaseResponse<ReturnMessageFromDb>;
     countInvoices: DataBaseResponse<number>;
+
+    countActivityLog: DataBaseResponse<number>;
+    getAllActivityLog: DataBaseResponse<ActivityLog[]>;
+    saveActivityLog: DataBaseResponse<ReturnMessageFromDb>;
+
     getDBbBilancioPath: string;
     getConfigBilancio: Config;
     saveConfig: Config;
@@ -242,17 +261,23 @@ type AllInvoices = {
       queryToDB: () => Promise<unknown[]>;
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
       updateDocumentDeletionStatus: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      
+
       saveEditedDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       saveNewDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
-      addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>; 
-      updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>; 
+      addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
+
+      countActivityLog: () => Promise<DataBaseResponse<number>>;
+      getAllActivityLog: (page, rowsPerPage) => Promise<DataBaseResponse<ActivityLog[]>>;
+      saveActivityLog: (activity: ActivityLog) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+
+
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
       przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;

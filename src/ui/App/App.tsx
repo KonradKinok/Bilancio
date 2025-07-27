@@ -16,6 +16,9 @@ const DocumentsPage = lazy(
 const UsersPage = lazy(
   () => import("../pages/SettingsPage/UsersPage/UsersPage")
 );
+const ActivityLogPage = lazy(
+  () => import("../pages/SettingsPage/ActivityLogPage/ActivityLogPage")
+);
 
 const App: React.FC = () => {
   return (
@@ -28,6 +31,7 @@ const App: React.FC = () => {
           <Route path="filesPage" element={<FilesPage />} />
           <Route path="documentsPage" element={<DocumentsPage />} />
           <Route path="usersPage" element={<UsersPage />} />
+          <Route path="activityPage" element={<ActivityLogPage />} />
         </Route>
       </Route>
       <Route path="*" element={<LayoutPage />} />

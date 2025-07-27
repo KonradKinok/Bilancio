@@ -32,13 +32,19 @@ electron.contextBridge.exposeInMainWorld('electron', {
   deleteInvoice: (invoiceId) => ipcInvoke2('deleteInvoice', invoiceId),
   restoreInvoice: (invoiceId) => ipcInvoke2('restoreInvoice', invoiceId),
   countInvoices: (payload) => ipcInvoke2('countInvoices', payload),
+
+  countActivityLog: () => ipcInvoke('countActivityLog'),
+  getAllActivityLog: (page, rowsPerPage) =>
+    ipcInvoke2('getAllActivityLog', page, rowsPerPage),
+  saveActivityLog: (activity) => ipcInvoke2('saveActivityLog', activity),
+
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
   przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
   przykladowaFunkcja2: (payload, numer) => ipcInvoke2('przykladowaFunkcja2', payload, numer),
   // addInvoice: (payload) => ipcInvoke('addInvoice'),
   getConfigBilancio: () => ipcInvoke('getConfigBilancio'),
-  
+
   saveConfig: (config) => ipcInvoke2('saveConfig', config),
   openDBDialog: () => ipcInvoke('openDBDialog'),
   openTemplatesDialog: () => ipcInvoke('openTemplatesDialog'),
@@ -51,10 +57,10 @@ electron.contextBridge.exposeInMainWorld('electron', {
 
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
   key: Key
-  
+
 ): Promise<EventPayloadMapping[Key]> {
   console.log(`Wywołano ipcInvoke dla klucza: ${key}`);
-  return electron.ipcRenderer.invoke(key );
+  return electron.ipcRenderer.invoke(key);
 }
 function ipcInvoke2<Key extends keyof EventPayloadMapping>(
   key: Key,

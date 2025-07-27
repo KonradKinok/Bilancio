@@ -10,6 +10,7 @@
 
 import toast from "react-hot-toast";
 
+
 //     return currencyFormater(totalAmount.toString());
 //   }
 //   return currencyFormater("0");
@@ -114,7 +115,7 @@ type Difference = {
 
 //   return differences;
 // }
-export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
+export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave | undefined): Difference[] {
   const differences: Difference[] = [];
   if (!oldInvoice || !newInvoice) {
     return differences; // lub inne domyślne zachowanie
@@ -164,7 +165,7 @@ export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice
       }
     }
   }
-  
+
   return differences;
 }
 type FormattedDetail = {
@@ -181,6 +182,42 @@ type FormattedDifference = {
   oldValue: FormattedDetail | null | unknown;
   newValue: FormattedDetail | null | unknown;
 };
+export function formatDocumentDetailsFunction(
+  dataAllDocumentsName: AllDocumentsName[] | null
+) {
+  return (detail: InvoiceDetailsTable) => {
+    const document = dataAllDocumentsName?.find(
+      (doc) => doc.DocumentId === detail.DocumentId
+    );
+    const mainType = detail.MainTypeId
+      ? dataAllDocumentsName?.find(
+        (doc) => doc.MainTypeId === detail.MainTypeId
+      )
+      : null;
+    const type = detail.TypeId
+      ? dataAllDocumentsName?.find((doc) => doc.TypeId === detail.TypeId)
+      : null;
+    const subtype = detail.SubtypeId
+      ? dataAllDocumentsName?.find((doc) => doc.SubtypeId === detail.SubtypeId)
+      : null;
+
+    return {
+      documentName:
+        document?.DocumentName || `Dokument ID: ${detail.DocumentId}`,
+      mainTypeName:
+        mainType?.MainTypeName ||
+        (detail.MainTypeId ? `Typ główny ID: ${detail.MainTypeId}` : ""),
+      typeName:
+        type?.TypeName || (detail.TypeId ? `Typ ID: ${detail.TypeId}` : ""),
+      subtypeName:
+        subtype?.SubtypeName ||
+        (detail.SubtypeId ? `Podtyp ID: ${detail.SubtypeId}` : ""),
+      quantity: detail.Quantity,
+      price: detail.Price.toFixed(2),
+      total: (detail.Quantity * detail.Price).toFixed(2),
+    };
+  };
+}
 
 export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDocumentsName[] | null) {
   // Helper function to format a single InvoiceDetailsTable object
@@ -260,7 +297,7 @@ export function getFormattedDate(): string {
 }
 
 
-export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast:boolean = true) {
+export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast: boolean = true) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   console.error(
     `%c[ERROR]%c [${componentName}] [${functionName}]\n%c${errorMessage}`,
@@ -271,4 +308,59 @@ export function displayErrorMessage(componentName: string, functionName: string,
   if (isToast) {
     toast.error(`${errorMessage}`);
   }
+}
+enum ActivityType {
+  addInvoice = "dodanie faktury",
+  editInvoice = "edycja faktury",
+  deleteInvoice = "usunięcie faktury",
+}
+type UserActivitiesType = {
+  date: string;
+  userName: string;
+  activityType: ActivityType;
+  activityData: string;
+};
+
+
+export function createActivitiesObject(dataAllDocumentsName: AllDocumentsName[] | null, userName: string, activityType: ActivityType, addedInvoice?: InvoiceTable, invoiceDetails?: InvoiceDetailsTable[]): UserActivitiesType | null {
+  let activityData = "";
+
+  switch (activityType) {
+    case ActivityType.addInvoice:
+      if (!addedInvoice || !invoiceDetails || !dataAllDocumentsName || dataAllDocumentsName.length === 0) {
+        return null;
+      }
+
+      else {
+        const displayDocumentsName = invoiceDetails.map(
+          formatDocumentDetailsFunction(dataAllDocumentsName || [])
+        )
+        const combinedData = {
+          ...addedInvoice,
+          invoiceDetails: displayDocumentsName,
+        };
+        activityData = JSON.stringify(combinedData, null, 2);
+      }
+
+      break;
+    case ActivityType.editInvoice:
+      if (!addedInvoice || !invoiceDetails) {
+        throw new Error("editInvoice activity requires addedInvoice and invoiceDetails");
+      }
+      break;
+    case ActivityType.deleteInvoice:
+      if (!addedInvoice || !invoiceDetails) {
+        throw new Error("deleteInvoice activity requires addedInvoice and invoiceDetails");
+      }
+      break;
+    default:
+      throw new Error("Invalid activity type");
+  }
+
+  return {
+    date: new Date().toISOString(),
+    userName,
+    activityType,
+    activityData: activityData,
+  };
 }
