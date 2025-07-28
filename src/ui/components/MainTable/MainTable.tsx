@@ -72,6 +72,7 @@ export const MainTable: React.FC<MainTableProps> = ({
   //Delete Invoice
   const handleDeleteRestoreInvoice = (invoice: AllInvoices) => {
     // setInvoiceToDelete(invoice.InvoiceId);
+
     const invoiceData = selectedInvoiceData(invoice);
     setSelectedInvoice(invoiceData);
     openModalDeleteConfirm();
