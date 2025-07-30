@@ -9,7 +9,7 @@ export const Loader: React.FC = () => {
         <RotatingLines
           visible={true}
           width="96"
-          strokeColor="#ff4500"
+          strokeColor="rgba(0, 100, 0, 1)"
           strokeWidth="5"
           ariaLabel="rotating-lines-loading"
         />

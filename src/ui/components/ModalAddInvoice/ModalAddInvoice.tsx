@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
 import scss from "./ModalAddInvoice.module.scss";
 
@@ -41,7 +41,6 @@ export function ModalAddInvoice({
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        console.log("Zamykam modal!");
         closeModalAddInvoice();
       }
     },
@@ -55,6 +54,7 @@ export function ModalAddInvoice({
       window.removeEventListener("keydown", handleEsc);
     };
   }, [handleEsc]);
+
   // Aktualizacja addInvoiceData, gdy selectedInvoice się zmienia
   useEffect(() => {
     if (selectedInvoice) {

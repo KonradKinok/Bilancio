@@ -14,7 +14,7 @@ import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
 
 interface FormAddInvoiceDocumentsProps {
-  allDocumentsData: AllDocumentsNameHook;
+  dataAllDocumentsName: AllDocumentsName[] | null;
   addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   onAddDocument: () => void;
@@ -28,7 +28,7 @@ interface FormAddInvoiceDocumentsProps {
 export const FormAddInvoiceDocuments: React.FC<
   FormAddInvoiceDocumentsProps
 > = ({
-  allDocumentsData,
+  dataAllDocumentsName,
   addInvoiceData,
   setAddInvoiceData,
   onAddDocument,
@@ -69,11 +69,11 @@ export const FormAddInvoiceDocuments: React.FC<
   const [isPriceManuallyEdited, setIsPriceManuallyEdited] =
     useState<boolean>(false); // Nowy stan
   //All documents name
-  const {
-    data: dataAllDocumentsName,
-    loading: loadingAllDocumentsName,
-    error: errorAllDocumentsName,
-  } = allDocumentsData;
+  // const {
+  //   data: dataAllDocumentsName1,
+  //   loading: loadingAllDocumentsName,
+  //   error: errorAllDocumentsName,
+  // } = allDocumentsData;
 
   // Inicjalizacja wybranych opcji na podstawie detail
   useEffect(() => {

@@ -76,7 +76,7 @@ declare global {
     SubtypeNames: string[];
     Quantities: string[];
     Prices: string[];
-    [key: string]: string[] | null;
+    // [key: string]: string[] | null;
   }
 
   type InvoiceTable = {
@@ -126,25 +126,14 @@ declare global {
     loading: boolean;
     error: string | null;
   };
-  // type AllInvoicesDb1 = {
-  //   InvoiceId: number;
-  //   InvoiceName: string;
-  //   ReceiptDate: string;
-  //   DeadlineDate: string |null;
-  //   PaymentDate: string;
-  //   IsDeleted: 0 | 1;
-  //   InvoiceDetailsId: number;
-  //   DocumentId: number;
-  //   MainTypeId: number |null;
-  //   TypeId: number|null;
-  //   SubtypeId: number |null;
-  //   Quantity: number;
-  //   Price: number;
-  //   DocumentName: string;
-  //   MainTypeName: string;
-  //   TypeName: string;
-  //   SubtypeName: string;
-  // }
+
+  type InvoicesDifferences = {
+    key: string;
+    oldValue: unknown;
+    newValue: unknown;
+  };
+
+
   type AllInvoicesDb = {
     InvoiceId: number;
     InvoiceName: string;

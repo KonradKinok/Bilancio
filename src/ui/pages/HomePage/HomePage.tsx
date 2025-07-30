@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { MainTable } from "../../components/MainTable/MainTable";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
 import scss from "./HomePage.module.scss";
-import { useAllInvoices } from "../../hooks/useAllInvoices";
 
 const HomePage: React.FC = () => {
   const [formValuesHomePage, setFormValuesHomePage] =
@@ -31,11 +31,9 @@ const HomePage: React.FC = () => {
       <FormHomeDate
         formValuesHomePage={formValuesHomePage}
         setFormValuesHomePage={setFormValuesHomePage}
-        dataAllInvoices={dataAllInvoices}
         refetchAllInvoices={refetchAllInvoices}
       />
       <MainTable
-        formValuesHomePage={formValuesHomePage}
         setFormValuesHomePage={setFormValuesHomePage}
         dataAllInvoices={dataAllInvoices}
         refetchAllInvoices={refetchAllInvoices}

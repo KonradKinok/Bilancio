@@ -1,22 +1,20 @@
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAllInvoices } from "../../hooks/useAllInvoices";
-import scss from "./MainTable.module.scss";
-import { useMainDataContext } from "../Context/useOptionsImage";
+import { STATUS } from "../../../electron/sharedTypes/status";
+import { useToggle } from "../../hooks/useToggle";
+import { useDeleteInvoice } from "../../hooks/useDeleteInvoice";
+import { useRestoreInvoice } from "../../hooks/useRestoreInvoice";
 import {
   calculateTotalAmount,
   currencyFormater,
+  displayErrorMessage,
 } from "../GlobalFunctions/GlobalFunctions";
 import Pagination from "../Pagination/Pagination";
-import { useToggle } from "../../hooks/useToggle";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
-import { useDeleteInvoice } from "../../hooks/useDeleteInvoice";
-import { STATUS } from "../../../electron/sharedTypes/status";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
-import { useRestoreInvoice } from "../../hooks/useRestoreInvoice";
+import scss from "./MainTable.module.scss";
 
 interface MainTableProps {
-  formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >;
@@ -26,12 +24,10 @@ interface MainTableProps {
   setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
   page: PageState;
   setPage: React.Dispatch<React.SetStateAction<PageState>>;
-  totalCount: number; // Opcjonalne, jeśli potrzebujesz liczby wszystkich faktur
+  totalCount: number;
 }
 
 export const MainTable: React.FC<MainTableProps> = ({
-  formValuesHomePage,
-  setFormValuesHomePage,
   dataAllInvoices,
   refetchAllInvoices,
   rowsPerPage,
@@ -40,39 +36,29 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
-  const [totalInvoices, setTotalInvoices] = useState<number>(0);
   const {
     isOpenModal: isModalAddInvoiceOpen,
     openModal: openModalAddInvoice,
     closeModal: closeModalAddInvoice,
   } = useToggle();
+
   const {
     isOpenModal: isModalDeleteConfirmOpen,
     openModal: openModalDeleteConfirm,
     closeModal: closeModalDeleteConfirm,
   } = useToggle();
+
   const [selectedInvoice, setSelectedInvoice] = useState<
     InvoiceSave | undefined
   >(undefined);
-  const [invoiceToDelete, setInvoiceToDelete] = useState<number | null>(null);
 
-  const {
-    deleteInvoice,
-    data: deleteData,
-    loading: deleteLoading,
-    error: deleteError,
-  } = useDeleteInvoice();
-  const {
-    restoreInvoice,
-    data: restoreData,
-    loading: restoreLoading,
-    error: restoreError,
-  } = useRestoreInvoice();
+  //Delete/Restore Invoice hooks
+  const { restoreInvoice } = useRestoreInvoice();
+  const { deleteInvoice } = useDeleteInvoice();
 
-  //Delete Invoice
+  //Delete/Restore Invoice
   const handleDeleteRestoreInvoice = (invoice: AllInvoices) => {
-    // setInvoiceToDelete(invoice.InvoiceId);
-
+    console.log("handleDeleteRestoreInvoice", invoice);
     const invoiceData = selectedInvoiceData(invoice);
     setSelectedInvoice(invoiceData);
     openModalDeleteConfirm();
@@ -81,45 +67,31 @@ export const MainTable: React.FC<MainTableProps> = ({
   const confirmDeleteRestoreInvoice = async () => {
     if (!selectedInvoice?.invoice.InvoiceId) return;
 
-    let loadingText = "",
-      successText = "",
-      errorText = "";
-    if (selectedInvoice?.invoice.IsDeleted === 0) {
-      loadingText = "Usuwanie faktury...";
-      successText = "Faktura została pomyślnie usunięta!";
-      errorText =
-        deleteError || "Nie udało się usunąć faktury. Spróbuj ponownie.";
-    } else {
-      loadingText = "Przywracanie faktury...";
-      successText = "Faktura została pomyślnie przywrócona!";
-      errorText =
-        restoreError || "Nie udało się przywrócić faktury. Spróbuj ponownie.";
-    }
-    try {
-      const result = await toast.promise(
-        selectedInvoice?.invoice.IsDeleted == 0
-          ? deleteInvoice(selectedInvoice?.invoice.InvoiceId)
-          : restoreInvoice(selectedInvoice?.invoice.InvoiceId),
-        {
-          loading: `${loadingText}`,
-          success: `${successText}`,
-          error: `${errorText}`,
-        }
-      );
+    const successText = `Faktura została pomyślnie ${
+      selectedInvoice?.invoice.IsDeleted === 0 ? "usunięta" : "przywrócona"
+    }.`;
+    const errorText = `Nie udało się ${
+      selectedInvoice?.invoice.IsDeleted === 0 ? "usunąć" : "przywrócić"
+    } faktury.`;
 
+    try {
+      const result = await (selectedInvoice?.invoice.IsDeleted == 0
+        ? deleteInvoice(selectedInvoice?.invoice.InvoiceId)
+        : restoreInvoice(selectedInvoice?.invoice.InvoiceId));
       if (result.status === STATUS.Success) {
         refetchAllInvoices(); // Odśwież listę faktur
         closeModalDeleteConfirm();
         setSelectedInvoice(undefined);
-        // setInvoiceToDelete(null);
-        console.log("confirmDeleteInvoice: Faktura usunięta:", result.data);
-        console.log(
-          "confirmDeleteInvoice deleteData: Faktura usunięta:",
-          deleteData
+        toast.success(`${successText}`);
+      } else {
+        displayErrorMessage(
+          "MainTable",
+          "confirmDeleteRestoreInvoice",
+          `${errorText} ${result.message}`
         );
       }
     } catch (err) {
-      console.error("Błąd podczas usuwania/przywracania faktury:", err);
+      displayErrorMessage("MainTable", "confirmDeleteRestoreInvoice", err);
     }
   };
   //Edit Invoice
@@ -128,70 +100,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     setSelectedInvoice(invoiceData);
     openModalAddInvoice();
   };
-  //Pagination
 
-  const [someTemp, setSomeTemp] = useState<JakasFunkcja>();
-  const [someTemp1, setSomeTemp1] = useState<PrzykladowaFunkcjaResult>();
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await window.electron.przykladowaFunkcja(
-          "Przykład tekstu",
-          10
-        );
-        setSomeTemp(result);
-      } catch (err) {
-        console.error(
-          "getAllDocumentsName() Błąd podczas pobierania danych:",
-          err
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await window.electron.przykladowaFunkcja2(
-          "Przykład tekstu2",
-          20
-        );
-        setSomeTemp1(result);
-      } catch (err) {
-        console.error(
-          "getAllDocumentsName() Błąd podczas pobierania danych:",
-          err
-        );
-      }
-    };
-
-    fetchData();
-  }, []);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await window.electron.countInvoices(formValuesHomePage);
-        if (result.status === STATUS.Success) setTotalInvoices(result.data);
-      } catch (err) {
-        console.error(
-          "MainTable countInvoices Błąd podczas pobierania danych:",
-          err
-        );
-      }
-    };
-
-    fetchData();
-  }, [formValuesHomePage]);
-  const toastClick = () => {
-    toast.success("Successfully created!");
-  };
-  // Obsługa zmiany liczby wierszy na stronę
-  // const handleRowsPerPageChange = (
-  //   event: React.ChangeEvent<HTMLSelectElement>
-  // ) => {
-  //   setRowsPerPage(Number(event.target.value));
-  // };
   // Obsługa zmiany liczby wierszy na stronę
   const handleRowsPerPageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -212,31 +121,11 @@ export const MainTable: React.FC<MainTableProps> = ({
 
   // Obliczanie liczby stron
   const totalPages = Math.ceil(totalCount / rowsPerPage);
-  const sprawdzenieFunkcji = () => {
-    console.log("Funkcja sprawdzająca działa!");
-    refetchAllInvoices();
-  };
 
   // Obliczanie globalnego numeru porządkowego
   const getGlobalIndex = (index: number) => {
     return (page.paginationPage - 1) * rowsPerPage + index + 1;
   };
-  // Przycięcie danych na podstawie liczby wierszy
-  // const displayedInvoices = dataAllInvoices
-  //   ? dataAllInvoices.slice(0, rowsPerPage)
-  //   : [];
-
-  //Pagination
-  // const onPageChange = (newPage: number) => {
-  //   const newFirstPage = 2 * newPage - 1;
-  //   const newLastPage = newFirstPage + 1;
-
-  //   setPage({
-  //     paginationPage: newPage,
-  //     firstPage: newFirstPage,
-  //     lastPage: newLastPage,
-  //   });
-  // };
 
   return (
     <div className={scss["mainTable-main-container"]}>
@@ -261,8 +150,8 @@ export const MainTable: React.FC<MainTableProps> = ({
               dataAllInvoices.length > 0 &&
               dataAllInvoices.map((invoice, index) => {
                 const totalAmount = calculateTotalAmount(
-                  invoice.Quantities,
-                  invoice.Prices
+                  Array.isArray(invoice.Quantities) ? invoice.Quantities : [],
+                  Array.isArray(invoice.Prices) ? invoice.Prices : []
                 );
                 return (
                   <tr
@@ -278,33 +167,45 @@ export const MainTable: React.FC<MainTableProps> = ({
                     <td>{invoice.DeadlineDate}</td>
                     <td>{invoice.PaymentDate}</td>
                     <td>
-                      {invoice.DocumentNames &&
+                      {Array.isArray(invoice.DocumentNames) &&
+                      invoice.DocumentNames.length > 0 ? (
                         invoice.DocumentNames.map((documentName, i) => (
                           <div key={i}>
                             {i + 1}. {documentName}
-                            {invoice.MainTypeNames &&
+                            {Array.isArray(invoice.MainTypeNames) &&
                               invoice.MainTypeNames[i] &&
                               ` ${invoice.MainTypeNames[i]}`}
-                            {invoice.TypeNames &&
+                            {Array.isArray(invoice.TypeNames) &&
                               invoice.TypeNames[i] &&
                               ` ${invoice.TypeNames[i]}`}
-                            {invoice.SubtypeNames &&
+                            {Array.isArray(invoice.SubtypeNames) &&
                               invoice.SubtypeNames[i] &&
                               ` ${invoice.SubtypeNames[i]}`}
                           </div>
-                        ))}
+                        ))
+                      ) : (
+                        <div></div>
+                      )}
                     </td>
                     <td>
-                      {invoice.Quantities &&
+                      {Array.isArray(invoice.Quantities) &&
+                      invoice.Quantities.length > 0 ? (
                         invoice.Quantities.map((quantity, i) => (
                           <div key={i}>{quantity}</div>
-                        ))}
+                        ))
+                      ) : (
+                        <div></div>
+                      )}
                     </td>
                     <td>
-                      {invoice.Prices &&
+                      {Array.isArray(invoice.Prices) &&
+                      invoice.Prices.length > 0 ? (
                         invoice.Prices.map((price, i) => (
                           <div key={i}>{currencyFormater(price)}</div>
-                        ))}
+                        ))
+                      ) : (
+                        <div></div>
+                      )}
                     </td>
                     {invoice.IsDeleted === 0 ? (
                       <>
@@ -358,7 +259,7 @@ export const MainTable: React.FC<MainTableProps> = ({
               </select>
             </div>
             <div className={scss["total-invoices"]}>
-              <p>Liczba faktur: {totalInvoices}</p>
+              <p>Liczba faktur: {totalCount}</p>
             </div>
           </div>
 
@@ -389,45 +290,47 @@ export const MainTable: React.FC<MainTableProps> = ({
         }?`}
         confirmDeleteInvoice={confirmDeleteRestoreInvoice}
       />
-      <div>
-        <button onClick={sprawdzenieFunkcji}>Refetch</button>
-
-        <h2>Dokumenty</h2>
-      </div>
-      <h2>Main Table temp</h2>
-      <h3>
-        ContextDate: {formValuesHomePage.firstDate?.toDateString()}{" "}
-        {formValuesHomePage.secondDate?.toDateString()}{" "}
-        {formValuesHomePage.isDeleted}
-      </h3>
-      <h3>
-        Tu powinien być tekst: {someTemp?.jakisNumer} {someTemp?.jakisTekst}
-      </h3>
-      <h3>Tu powinien być status: {someTemp1?.status}</h3>
-      {someTemp1?.status === "sukces" ? (
-        <h3>
-          Tu powinny być dane: {someTemp1.dane.jakisTekst},{" "}
-          {someTemp1.dane.jakisNumer}
-        </h3>
-      ) : (
-        <h3>Błąd: {someTemp1?.komunikat}</h3>
-      )}
-
-      <ul className={scss[""]}>
-        {dataAllInvoices && dataAllInvoices.length > 0 ? (
-          dataAllInvoices.map((invoice, index) => (
-            <li key={index}>{JSON.stringify(invoice)}</li>
-          ))
-        ) : (
-          <li>No data</li>
-        )}
-      </ul>
     </div>
   );
 };
 
-//Wypełnienie danych wybranej faktury
-const selectedInvoiceData = (invoice: AllInvoices) => {
+const selectedInvoiceData = (invoice: AllInvoices): InvoiceSave => {
+  const details = Array.isArray(invoice.DocumentNames)
+    ? invoice.DocumentNames.map((_: string, index: number) => ({
+        InvoiceId: invoice.InvoiceId,
+        DocumentId: parseInt(invoice.DocumentIds?.[index] || "0", 10),
+        MainTypeId: invoice.MainTypeIds?.[index]
+          ? parseInt(invoice.MainTypeIds[index], 10) || null
+          : null,
+        TypeId: invoice.TypeIds?.[index]
+          ? parseInt(invoice.TypeIds[index], 10) || null
+          : null,
+        SubtypeId: invoice.SubtypeIds?.[index]
+          ? parseInt(invoice.SubtypeIds[index], 10) || null
+          : null,
+        Quantity: parseInt(invoice.Quantities?.[index] || "0", 10),
+        Price: parseFloat(invoice.Prices?.[index] || "0"),
+        isMainTypeRequired: !!(
+          invoice.MainTypeIds && invoice.MainTypeIds[index]
+        ),
+        isTypeRequired: !!(invoice.TypeIds && invoice.TypeIds[index]),
+        isSubtypeRequired: !!(invoice.SubtypeIds && invoice.SubtypeIds[index]),
+      }))
+    : [
+        {
+          InvoiceId: invoice.InvoiceId,
+          DocumentId: 0,
+          MainTypeId: null,
+          TypeId: null,
+          SubtypeId: null,
+          Quantity: 0,
+          Price: 0,
+          isMainTypeRequired: false,
+          isTypeRequired: false,
+          isSubtypeRequired: false,
+        },
+      ];
+
   const invoiceData: InvoiceSave = {
     invoice: {
       InvoiceId: invoice.InvoiceId,
@@ -437,24 +340,8 @@ const selectedInvoiceData = (invoice: AllInvoices) => {
       PaymentDate: invoice.PaymentDate,
       IsDeleted: invoice.IsDeleted || 0,
     },
-    details: invoice.DocumentNames.map((_: string, index: number) => ({
-      InvoiceId: invoice.InvoiceId,
-      DocumentId: parseInt(invoice.DocumentIds?.[index] || "0", 10),
-      MainTypeId: invoice.MainTypeIds?.[index]
-        ? parseInt(invoice.MainTypeIds[index], 10) || null
-        : null,
-      TypeId: invoice.TypeIds?.[index]
-        ? parseInt(invoice.TypeIds[index], 10) || null
-        : null,
-      SubtypeId: invoice.SubtypeIds?.[index]
-        ? parseInt(invoice.SubtypeIds[index], 10) || null
-        : null,
-      Quantity: parseInt(invoice.Quantities?.[index] || "0", 10),
-      Price: parseFloat(invoice.Prices?.[index] || "0"),
-      isMainTypeRequired: !!(invoice.MainTypeIds && invoice.MainTypeIds[index]),
-      isTypeRequired: !!(invoice.TypeIds && invoice.TypeIds[index]),
-      isSubtypeRequired: !!(invoice.SubtypeIds && invoice.SubtypeIds[index]),
-    })),
+    details,
   };
+
   return invoiceData;
 };

@@ -10,13 +10,14 @@
   flex-direction: column;
   align-items: center; //
   font-size: 1rem;
-  margin: 1rem;
+  margin: 2rem 1rem;
+
 
   .table {
     border-collapse: collapse;
     background-color: var(--tr-odd-background-color);
     box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
-    margin: 1rem auto 0;
+    margin: 0 auto;
     overflow: hidden; // Ukrywa wystające kanciaste rogi komórek
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;

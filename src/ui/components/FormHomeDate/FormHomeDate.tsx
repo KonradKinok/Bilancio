@@ -1,28 +1,23 @@
 import { useEffect, useState } from "react";
-import { FaInfoCircle } from "react-icons/fa";
-import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
-import scss from "./FormHomeDate.module.scss";
+import { Tooltip } from "react-tooltip";
 import { useToggle } from "../../hooks/useToggle";
-import { useMainDataContext } from "../Context/useOptionsImage";
+import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
-import { Tooltip } from "react-tooltip";
 import { IconInfo } from "../IconInfo/IconInfo";
-import { useAllInvoices } from "../../hooks/useAllInvoices";
+import scss from "./FormHomeDate.module.scss";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
   >;
-  dataAllInvoices: AllInvoices[] | null;
   refetchAllInvoices: () => void;
 }
 
 export const FormHomeDate: React.FC<FormHomeDate> = ({
   formValuesHomePage,
   setFormValuesHomePage,
-  dataAllInvoices,
   refetchAllInvoices,
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -36,8 +31,6 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
     useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
   const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(0);
-  const { options, setOptions } = useMainDataContext();
-  // const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -143,14 +136,6 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
         refetchAllInvoices={refetchAllInvoices}
         selectedInvoice={emptyInvoiceData()} // Przekazanie danych faktury
       />
-      {/* {isModalAddInvoiceOpen && (
-        <ModalAddInvoice
-          closeModalAddInvoice={closeModalAddInvoice}
-          isModalAddInvoiceOpen={isModalAddInvoiceOpen}
-          refetchAllInvoices={refetchAllInvoices}
-          selectedInvoice={emptyInvoiceData()} // Przekazanie danych faktury
-        />
-      )} */}
     </div>
   );
 };

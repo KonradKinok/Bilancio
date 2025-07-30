@@ -3,24 +3,26 @@ import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import { RiSave3Fill } from "react-icons/ri";
 import { ImExit } from "react-icons/im";
-import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
-import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
-import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
-import { TextInput } from "../TextInput/TextInput";
-import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
-import {
-  calculateTotalAmount,
-  compareInvoices2,
-  formatDocumentDetailsFunction,
-  formatDocumentDetailsFunctionChanges,
-} from "../GlobalFunctions/GlobalFunctions";
-import { IconInfo } from "../IconInfo/IconInfo";
-import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
-import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
+import { STATUS } from "../../../electron/sharedTypes/status";
 import { useToggle } from "../../hooks/useToggle";
 import { useAddInvoice } from "../../hooks/useAddInvoice";
 import { useUpdateInvoice } from "../../hooks/useUpdateInvoice";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
+import {
+  calculateTotalAmount,
+  compareInvoices,
+  displayErrorMessage,
+  getFormatedDate,
+  formatDocumentDetailsFunction,
+  formatDocumentDetailsFunctionChanges,
+} from "../GlobalFunctions/GlobalFunctions";
+import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
+import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
+import { TextInput } from "../TextInput/TextInput";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
+import { IconInfo } from "../IconInfo/IconInfo";
+import { ModalConfirmationSave } from "../ModalConfirmationSave/ModalConfirmationSave";
+import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 import scss from "./FormAddInvoice.module.scss";
 
 interface FormAddInvoiceProps {
@@ -42,22 +44,33 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   isEditMode,
   refetchAllInvoices,
 }) => {
+  //ModalConfirmationSave
   const {
     isOpenModal: isOpenModalConfirmationSave,
     openModal: openModalConfirmationSave,
     closeModal: closeModalConfirmationSave,
   } = useToggle();
+
+  //ModalSelectionWindow
   const {
     isOpenModal: isOpenModalSelectionWindow,
     openModal: openModalSelectionWindow,
     closeModal: closeModalSelectionWindow,
   } = useToggle();
-  const allDocumentsData = useAllDocumentsName(0);
+
+  //AllDocumentsName hook
   const {
     data: dataAllDocumentsName,
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
-  } = allDocumentsData;
+  } = useAllDocumentsName(0);
+
+  //Różnice w fakturach
+  const [invoiceDifference, setInvoiceDifference] = useState<
+    InvoicesDifferences[]
+  >([]);
+
+  //Inputy
   const [inputInvoiceName, setInputInvoiceName] = useState<string>("");
   const [inputInvoiceNameError, setInputInvoiceNameError] =
     useState<string>("");
@@ -72,28 +85,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   ]);
   const [isSaveButtonEnabled, setIsSaveButtonEnabled] =
     useState<boolean>(false);
-  const {
-    addInvoice,
-    data: saveInvoiceData,
-    loading: saveInvoiceLoading,
-    error: saveInvoiceError,
-  } = useAddInvoice();
-  const {
-    updateInvoice,
-    data: updateInvoiceData,
-    loading: updateInvoiceLoading,
-    error: updateInvoiceError,
-  } = useUpdateInvoice();
 
-  // Przechowywanie początkowego stanu dla wykrywania zmian
-  const [initialState] = useState({
-    addInvoiceData: JSON.stringify(addInvoiceData),
-    inputInvoiceName: "",
-    dateTimePickerReceiptDate: null,
-    dateTimePickerDeadlineDate: null,
-    dateTimePickerPaymentDate: null,
-    documentComponents: [nanoid()],
-  });
+  //AddInvoice hook
+  const { addInvoice } = useAddInvoice();
+
+  //UpdateInvoice hook
+  const { updateInvoice } = useUpdateInvoice();
 
   // Przygotowanie tablic quantities i prices dla calculateTotalAmount
   const quantities = addInvoiceData.details.map((detail) =>
@@ -104,34 +101,27 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   );
   const totalAmount = calculateTotalAmount(quantities, prices);
 
-  const formatDate = (date: Date | null): string | null => {
-    if (!date) return null;
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`; // YYYY-MM-DD
-  };
   // Porównanie wybranej faktury z danymi do dodania
-  // const differences = compareInvoices(selectedInvoice, addInvoiceData);
-  const differences = compareInvoices2(selectedInvoice, addInvoiceData);
-  console.log("FormAddInvoice: selectedInvoice:", selectedInvoice);
-  console.log("FormAddInvoice: addInvoiceData:", addInvoiceData);
-  console.log("FormAddInvoice: differences:", differences);
-  const formatDifferences =
-    formatDocumentDetailsFunctionChanges(dataAllDocumentsName);
-  const differencesWithName = formatDifferences(differences);
+  useEffect(() => {
+    setInvoiceDifference(compareInvoices(selectedInvoice, addInvoiceData));
+  }, [selectedInvoice, addInvoiceData]);
+  // const formatDifferences =
+  //   formatDocumentDetailsFunctionChanges(dataAllDocumentsName);
+  // const differencesWithName = formatDifferences(differences);
   // Funkcja do formatowania szczegółów dokumentu
   const formatDocumentDetails =
     formatDocumentDetailsFunction(dataAllDocumentsName);
+
+  useEffect(() => {}, []);
   // Aktualizacja dat w addInvoiceData
   useEffect(() => {
     setAddInvoiceData((prev) => ({
       ...prev,
       invoice: {
         ...prev.invoice,
-        ReceiptDate: formatDate(dateTimePickerReceiptDate) || "",
-        DeadlineDate: formatDate(dateTimePickerDeadlineDate),
-        PaymentDate: formatDate(dateTimePickerPaymentDate) || null,
+        ReceiptDate: getFormatedDate(dateTimePickerReceiptDate) || "",
+        DeadlineDate: getFormatedDate(dateTimePickerDeadlineDate),
+        PaymentDate: getFormatedDate(dateTimePickerPaymentDate) || null,
       },
     }));
   }, [
@@ -165,7 +155,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   }, [selectedInvoice]);
 
   const validateForm = useCallback((): boolean => {
-    if (isEditMode && differences.length === 0) return false; // Jeśli jest tryb edycji i są różnice, nie pozwalamy na zapis
+    if (isEditMode && invoiceDifference.length === 0) return false; // Jeśli jest tryb edycji i nie ma różnic, nie pozwalamy na zapis
     const isInvoiceNameValid = inputInvoiceName.trim() !== "";
     const isReceiptDateValid = !!dateTimePickerReceiptDate;
     const areDetailsValid = addInvoiceData.details.every((detail) => {
@@ -190,7 +180,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     inputInvoiceName,
     dateTimePickerReceiptDate,
     addInvoiceData.details,
-    differences,
+    invoiceDifference,
     isEditMode,
   ]);
 
@@ -223,6 +213,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     }
   };
 
+  //Dodawanie dokumentów do formularza faktury
   const handleAddDocument = () => {
     const newId = nanoid();
     setDocumentComponents((prev) => [...prev, newId]);
@@ -243,6 +234,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     }));
   };
 
+  //Usuwanie dokumentów z formularza faktury
   const handleRemoveDocument = (id: string) => {
     if (documentComponents.length <= 1) {
       return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
@@ -290,17 +282,22 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     });
   };
   const handleConfirmSave = async () => {
-    const toastErrorMessage = `Nie udało się ${
-      isEditMode ? "zaktualizować" : "dodać"
-    } faktury. Sprawdź dane i spróbuj ponownie.`;
-    const toastSuccessMessage = `Faktura została pomyślnie ${
+    const successText = `Faktura została pomyślnie ${
       isEditMode ? "zaktualizowana" : "dodana"
     }!`;
+    const errorText = `Nie udało się ${
+      isEditMode ? "zaktualizować" : "dodać"
+    } faktury.`;
+
     try {
       // Walidacja formularza
       if (!validateForm()) {
-        console.log("handleConfirmSave: Walidacja formularza nieudana.");
-        toast.error("Formularz zawiera błędy. Sprawdź dane.");
+        const errorTekst = "Walidacja formularza niudana.";
+        displayErrorMessage(
+          "FormAddInvoice",
+          "handleConfirmSave-validateForm",
+          errorTekst
+        );
         closeModalConfirmationSave();
         return;
       }
@@ -329,124 +326,42 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         })
       );
 
-      console.log("handleConfirmSave: Rozpoczynanie zapisu faktury...");
-      const result = await toast.promise(
-        isEditMode
-          ? updateInvoice(invoice, invoiceDetails)
-          : addInvoice(invoice, invoiceDetails),
-        {
-          loading: "Zapisywanie faktury...",
-          success: (res: DataBaseResponse<ReturnMessageFromDb>) => {
-            console.log("toast.promise sukces:", res);
-            if (res.status === STATUS.Success && res.data?.lastID) {
-              return toastSuccessMessage;
-            }
-            throw new Error(toastErrorMessage);
-          },
-          error: (err: Error) => {
-            console.log("toast.promise błąd:", err);
-            return err.message || toastErrorMessage;
-          },
-        }
-      );
+      //Rozpoczynanie zapisu faktury.
+      const result = await (isEditMode
+        ? updateInvoice(invoice, invoiceDetails)
+        : addInvoice(invoice, invoiceDetails));
 
-      console.log("handleConfirmSave: Wynik addInvoice:", result);
-      if (result.status === STATUS.Success && result.data?.lastID) {
-        console.log("handleConfirmSave: Zapis udany, zamykanie modali.");
-
-        console.log("handleConfirmSave: invoice:", invoice);
-        console.log("handleConfirmSave: invoiceDetails", invoiceDetails);
+      if (result.status === STATUS.Success) {
+        toast.success(`${successText}`);
         resetForm();
         closeModalConfirmationSave();
         closeModalAddInvoice();
         refetchAllInvoices();
       } else {
-        console.log("handleConfirmSave: Zapis nieudany, wynik:", result);
-        throw new Error("Nie udało się dodać faktury.");
+        displayErrorMessage(
+          "FormAddInvoice",
+          "handleConfirmSave",
+          `${errorText} ${result.message}`
+        );
       }
-    } catch (error) {
-      console.error(
-        "handleConfirmSave: Błąd podczas zapisywania faktury:",
-        error
-      );
-
+    } catch (err) {
+      displayErrorMessage("FormAddInvoice", "handleConfirmSave", err);
       closeModalConfirmationSave();
     }
   };
-  //ModalSelectionWindow
+
+  //Zamykanie ModalSelectionWindow
   const handleCloseModalAddInvoice = () => {
     if (isOpenModalSelectionWindow) {
       closeModalSelectionWindow();
-    } else if (differences.length > 0) {
+    } else if (invoiceDifference.length > 0) {
       openModalSelectionWindow();
     } else {
       closeModalAddInvoice();
       resetForm();
     }
   };
-  // const handleConfirmSave = async () => {
-  //   const toastErrorMessage = `Nie udało się dodać faktury. Sprawdź dane i spróbuj ponownie.`;
-  //   const toastSuccessMessage = `Faktura została pomyślnie dodana!`;
-  //   try {
-  //     const invoice: InvoiceTable = {
-  //       InvoiceName: addInvoiceData.invoice.InvoiceName,
-  //       ReceiptDate: addInvoiceData.invoice.ReceiptDate,
-  //       DeadlineDate: addInvoiceData.invoice.DeadlineDate,
-  //       PaymentDate: addInvoiceData.invoice.PaymentDate,
-  //       IsDeleted: 0,
-  //     };
 
-  //     const invoiceDetails: InvoiceDetailsTable[] = addInvoiceData.details.map(
-  //       (detail) => ({
-  //         DocumentId: detail.DocumentId,
-  //         MainTypeId: detail.MainTypeId,
-  //         TypeId: detail.TypeId,
-  //         SubtypeId: detail.SubtypeId,
-  //         Quantity: detail.Quantity,
-  //         Price: detail.Price,
-  //         isMainTypeRequired: detail.isMainTypeRequired,
-  //         isTypeRequired: detail.isTypeRequired,
-  //         isSubtypeRequired: detail.isSubtypeRequired,
-  //       })
-  //     );
-
-  //     await toast.promise(addInvoice(invoice, invoiceDetails), {
-  //       loading: "Zapisywanie faktury...",
-  //       success: toastSuccessMessage,
-  //       error: saveInvoiceError || toastErrorMessage,
-  //     });
-  //     console.log("FormAddInvoice: Faktura zapisana:", saveInvoiceData);
-  //     console.log(
-  //       "FormAddInvoice: saveInvoiceData?.changes:",
-  //       saveInvoiceData?.changes
-  //     );
-  //     console.log(
-  //       "FormAddInvoice: saveInvoiceData.lastID:",
-  //       saveInvoiceData?.lastID
-  //     );
-  //     console.log(
-  //       "FormAddInvoice: saveInvoiceLoading:",
-  //       saveInvoiceLoading.toString()
-  //     );
-  //     if (
-  //       saveInvoiceData &&
-  //       saveInvoiceData.changes &&
-  //       saveInvoiceData.lastID
-  //     ) {
-  //       resetForm();
-  //       closeModalConfirmationSave();
-  //       closeModalAddInvoice();
-  //       // toast.success(toastSuccessMessage);
-  //     } else {
-  //       // toast.error(toastErrorMessage);
-  //       throw new Error("Nie udało się dodać faktury.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Błąd podczas zapisywania faktury:", error);
-  //     // toast.error(toastErrorMessage);
-  //     closeModalConfirmationSave();
-  //   }
-  // };
   return (
     <form action="" className={scss["form-add-invoice"]}>
       <div className={scss["form-add-invoice-container"]}>
@@ -504,7 +419,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         </div>
         {documentComponents.map((id, index) => (
           <FormAddInvoiceDocuments
-            allDocumentsData={allDocumentsData}
+            dataAllDocumentsName={dataAllDocumentsName}
             key={id}
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
@@ -546,9 +461,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
-        <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
+        {/* <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
         <p>Inna faktura: {JSON.stringify(addInvoiceData)}</p>
-        <p>Różnice w fakturach: {JSON.stringify(differencesWithName)}</p>
+        <p>Różnice w fakturach: {JSON.stringify(differences)}</p>
         <h2>Różnice w fakturach</h2>
         <ul>
           {differencesWithName.map((diff, index) => (
@@ -560,7 +475,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
               Nowa wartość: {JSON.stringify(diff.newValue)}
             </li>
           ))}
-        </ul>
+        </ul> */}
       </div>
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}

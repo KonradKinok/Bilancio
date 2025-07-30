@@ -58,11 +58,7 @@ export function currencyFormater(value: string | number | null | undefined): str
 
 
 
-type Difference = {
-  key: string;
-  oldValue: unknown;
-  newValue: unknown;
-};
+
 
 // export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
 //   const differences: Difference[] = [];
@@ -115,8 +111,8 @@ type Difference = {
 
 //   return differences;
 // }
-export function compareInvoices2(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave | undefined): Difference[] {
-  const differences: Difference[] = [];
+export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave | undefined): InvoicesDifferences[] {
+  const differences: InvoicesDifferences[] = [];
   if (!oldInvoice || !newInvoice) {
     return differences; // lub inne domyślne zachowanie
   }
@@ -255,7 +251,7 @@ export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDo
       : null;
 
     return {
-      documentName: document?.DocumentName ?? `Document ID: ${detail.DocumentId}`,
+      documentName: document?.DocumentName ?? `Document Id: ${detail.DocumentId}`,
       mainTypeName: mainType?.MainTypeName ?? (detail.MainTypeId ? `Main Type ID: ${detail.MainTypeId}` : ""),
       typeName: type?.TypeName ?? (detail.TypeId ? `Type ID: ${detail.TypeId}` : ""),
       subtypeName: subtype?.SubtypeName ?? (detail.SubtypeId ? `Subtype ID: ${detail.SubtypeId}` : ""),
@@ -266,7 +262,7 @@ export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDo
   };
 
   // Main function to format an array of Difference objects
-  return (differences: Difference[]): FormattedDifference[] => {
+  return (differences: InvoicesDifferences[]): FormattedDifference[] => {
     return differences.map((difference) => {
       // Format only for keys matching details[i] (e.g., details[0], details[1])
       const isFullDetail = difference.key.match(/^details\[\d+\]$/);
@@ -286,14 +282,20 @@ export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDo
   };
 }
 
+export const getFormatedDate = (date: Date | null, separator: string = "-"): string | null => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}${separator}${month}${separator}${day}`; // YYYY-MM-DD
+};
 
-
-export function getFormattedDate(): string {
+export function getTodayFormattedDate(separator: string = "-"): string {
   const today = new Date();
   const day = String(today.getDate()).padStart(2, '0');
   const month = String(today.getMonth() + 1).padStart(2, '0');
   const year = today.getFullYear();
-  return `${day}.${month}.${year}`;
+  return `${day}${separator}${month}${separator}${year}`;
 }
 
 

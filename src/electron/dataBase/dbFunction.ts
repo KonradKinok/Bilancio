@@ -1153,6 +1153,7 @@ export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseRespons
   ];
 
   try {
+
     const result = await db.run(sql, params);
     if (!result.lastID || !result.changes) {
       return {
@@ -1349,7 +1350,6 @@ export async function deleteInvoice(
       message: "Nieprawidłowy identyfikator faktury.",
     };
   }
-
   // SQL do ustawienia IsDeleted na 1
   const deleteInvoiceSql = `
     UPDATE Invoices 
