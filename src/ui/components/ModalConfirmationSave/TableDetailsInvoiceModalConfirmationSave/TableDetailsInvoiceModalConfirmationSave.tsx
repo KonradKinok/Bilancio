@@ -1,18 +1,13 @@
-import { currencyFormater } from "../../GlobalFunctions/GlobalFunctions";
+import {
+  currencyFormater,
+  formatDocumentDetailsFunction,
+} from "../../GlobalFunctions/GlobalFunctions";
 import scss from "./TableDetailsInvoiceModalConfirmationSave.module.scss";
 
 interface TableDetailsInvoiceModalConfirmationSaveProps {
   addInvoiceData: InvoiceSave;
   selectedInvoice?: InvoiceSave;
-  formatDocumentDetails: (detail: InvoiceDetailsTable) => {
-    documentName: string;
-    mainTypeName: string;
-    typeName: string;
-    subtypeName: string;
-    quantity: number;
-    price: string;
-    total: string;
-  };
+  dataAllDocumentsName: AllDocumentsName[] | null;
   isEditMode: boolean;
 }
 
@@ -21,9 +16,13 @@ export const TableDetailsInvoiceModalConfirmationSave: React.FC<
 > = ({
   addInvoiceData,
   selectedInvoice,
-  formatDocumentDetails,
+  dataAllDocumentsName,
+
   isEditMode,
 }) => {
+  const formatDocumentDetails =
+    formatDocumentDetailsFunction(dataAllDocumentsName);
+
   return (
     <table className={scss["modal-table"]}>
       <thead>

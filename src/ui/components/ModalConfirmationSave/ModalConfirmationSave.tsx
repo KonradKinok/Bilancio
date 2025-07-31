@@ -13,15 +13,7 @@ interface ModalConfirmationSaveProps {
   addInvoiceData: InvoiceSave;
   selectedInvoice?: InvoiceSave;
   totalAmount: string;
-  formatDocumentDetails: (detail: InvoiceDetailsTable) => {
-    documentName: string;
-    mainTypeName: string;
-    typeName: string;
-    subtypeName: string;
-    quantity: number;
-    price: string;
-    total: string;
-  };
+  dataAllDocumentsName: AllDocumentsName[] | null;
   isOpenModalConfirmationSave: boolean;
   onConfirm: () => void;
   onCancel: () => void;
@@ -34,7 +26,8 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
   addInvoiceData,
   selectedInvoice,
   totalAmount,
-  formatDocumentDetails,
+  dataAllDocumentsName,
+
   isOpenModalConfirmationSave,
   onConfirm,
   onCancel,
@@ -122,7 +115,7 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
               addInvoiceData={addInvoiceData}
               selectedInvoice={selectedInvoice}
               isEditMode={isEditMode}
-              formatDocumentDetails={formatDocumentDetails}
+              dataAllDocumentsName={dataAllDocumentsName}
             />
           )}
           <p>

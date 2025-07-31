@@ -214,7 +214,15 @@ export function formatDocumentDetailsFunction(
     };
   };
 }
-
+// formatDocumentDetails: (detail: InvoiceDetailsTable) => {
+//   documentName: string;
+//   mainTypeName: string;
+//   typeName: string;
+//   subtypeName: string;
+//   quantity: number;
+//   price: string;
+//   total: string;
+// };
 export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDocumentsName[] | null) {
   // Helper function to format a single InvoiceDetailsTable object
   const formatDetail = (detail: InvoiceDetailsTable | null): FormattedDetail | null => {
