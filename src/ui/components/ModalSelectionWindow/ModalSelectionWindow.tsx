@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
-import scss from "./ModalSelectionWindow.module.scss";
-import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
+import { useCallback, useEffect, useRef } from "react";
 import { GiCancel, GiConfirmed } from "react-icons/gi";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
+import scss from "./ModalSelectionWindow.module.scss";
 
 interface ModalSelectionWindowProps {
   closeModalSelectionWindow: () => void;
@@ -11,7 +10,6 @@ interface ModalSelectionWindowProps {
   isModalSelectionWindowOpen: boolean;
   titleModalSelectionWindow: string;
   confirmDeleteInvoice?: () => void; // Opcjonalna własna funkcja potwierdzenia
-  selectedInvoice?: InvoiceSave;
 }
 
 export function ModalSelectionWindow({
@@ -21,34 +19,11 @@ export function ModalSelectionWindow({
   isModalSelectionWindowOpen,
   titleModalSelectionWindow,
   confirmDeleteInvoice,
-  selectedInvoice,
 }: ModalSelectionWindowProps) {
-  const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
-    invoice: {
-      InvoiceId: undefined,
-      InvoiceName: "",
-      ReceiptDate: "",
-      DeadlineDate: null,
-      PaymentDate: "",
-      IsDeleted: 0,
-    },
-    details: [
-      {
-        InvoiceId: undefined,
-        DocumentId: 0,
-        MainTypeId: null,
-        TypeId: null,
-        SubtypeId: null,
-        Quantity: 0,
-        Price: 0,
-      },
-    ],
-  });
   const modalContentRef = useRef<HTMLDivElement>(null);
   const handleEsc = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        console.log("Zamykam modal!");
         closeModalSelectionWindow();
       }
     },
@@ -63,22 +38,7 @@ export function ModalSelectionWindow({
     };
   }, [handleEsc]);
 
-  const handleClickOutside = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeModalSelectionWindow();
-    }
-  };
-
-  // const handleConfirm = () => {
-  //   console.log("Zamknij");
-  //   // Add your save logic here
-
-  //   closeModalSelectionWindow();
-  //   closeModalAddInvoice();
-  //   resetFormAddInvoice();
-  // };
   const handleConfirm = () => {
-    console.log("Zamknij");
     if (confirmDeleteInvoice) {
       confirmDeleteInvoice(); // Wywołaj własną funkcję, jeśli istnieje
     } else {
@@ -88,9 +48,9 @@ export function ModalSelectionWindow({
     }
   };
   const handleClose = () => {
-    console.log("Anuluj");
     closeModalSelectionWindow();
   };
+
   return (
     <div
       className={`${scss["modalSelectionWindow-main-container"]} 
@@ -99,12 +59,6 @@ export function ModalSelectionWindow({
     >
       <div className={scss["modalSelectionWindow-container"]}>
         <h3>{titleModalSelectionWindow}</h3>
-        {selectedInvoice && (
-          <p>
-            {selectedInvoice.invoice.InvoiceName} z{" "}
-            {selectedInvoice.invoice.ReceiptDate}
-          </p>
-        )}
         <div className={scss["modal-buttons"]}>
           <ButtonUniversal
             buttonName="closeWindow"

@@ -28,7 +28,7 @@ export function useAllActivityLog(
         console.log("useAllActivityLog", result.data)
         setAllActivityLog(result.data);
       } else {
-        throw new Error(result.message || "Błąd podczas pobierania faktur");
+        throw new Error(result.message || "Błąd podczas pobierania czynności");
       }
     } catch (err) {
       setError(err as Error);
@@ -41,7 +41,7 @@ export function useAllActivityLog(
     fetchData();
   }, [fetchData]);
 
-  // Funkcja do ponownego pobierania dokumentów
+  // Funkcja do ponownego pobierania aktywności
   const getAllActivityLog = async () => {
     await fetchData();
   };

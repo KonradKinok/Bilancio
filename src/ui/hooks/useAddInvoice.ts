@@ -16,11 +16,9 @@ export function useAddInvoice() {
         invoice,
         invoiceDetails
       );
-      console.log("useAddInvoice", result);
 
-      if (result.status === STATUS.Success ) {
+      if (result.status === STATUS.Success) {
         setData(result.data);
-        console.log("useAddInvoice result.data", result.data);
         setError(null);
       } else {
         setError(result.message || "Błąd podczas zapisywania faktury");

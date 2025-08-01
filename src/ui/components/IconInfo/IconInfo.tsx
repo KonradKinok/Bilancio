@@ -1,6 +1,6 @@
 import { Tooltip } from "react-tooltip";
-import scss from "./IconInfo.module.scss";
 import { FaInfoCircle } from "react-icons/fa";
+import scss from "./IconInfo.module.scss";
 
 interface IconInfoProps {
   tooltipInfoTextHtml: string;
@@ -8,6 +8,7 @@ interface IconInfoProps {
   icon?: React.ReactNode;
   classNameIconContainer?: string;
 }
+
 export const IconInfo: React.FC<IconInfoProps> = ({
   tooltipId,
   tooltipInfoTextHtml,

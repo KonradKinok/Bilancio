@@ -16,7 +16,6 @@ export function useDeleteInvoice() {
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
         await window.electron.deleteInvoice(invoiceId);
-      console.log("useDeleteInvoice", result);
 
       if (result.status === STATUS.Success) {
         setData(result.data);

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { nanoid } from "nanoid";
 import toast from "react-hot-toast";
 import { RiSave3Fill } from "react-icons/ri";
@@ -13,8 +13,6 @@ import {
   compareInvoices,
   displayErrorMessage,
   getFormatedDate,
-  formatDocumentDetailsFunction,
-  formatDocumentDetailsFunctionChanges,
 } from "../GlobalFunctions/GlobalFunctions";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { FormAddInvoiceDocuments } from "../FormAddInvoiceDocuments/FormAddInvoiceDocuments";
@@ -93,26 +91,23 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   const { updateInvoice } = useUpdateInvoice();
 
   // Przygotowanie tablic quantities i prices dla calculateTotalAmount
-  const quantities = addInvoiceData.details.map((detail) =>
-    detail.Quantity.toString()
+  const quantities = useMemo(
+    () => addInvoiceData.details.map((detail) => detail.Quantity.toString()),
+    [addInvoiceData.details]
   );
-  const prices = addInvoiceData.details.map((detail) =>
-    detail.Price.toString()
+  const prices = useMemo(
+    () => addInvoiceData.details.map((detail) => detail.Price.toString()),
+    [addInvoiceData.details]
   );
-  const totalAmount = calculateTotalAmount(quantities, prices);
-
+  const totalAmount = useMemo(
+    () => calculateTotalAmount(quantities, prices),
+    [quantities, prices]
+  );
   // Porównanie wybranej faktury z danymi do dodania
   useEffect(() => {
     setInvoiceDifference(compareInvoices(selectedInvoice, addInvoiceData));
   }, [selectedInvoice, addInvoiceData]);
-  // const formatDifferences =
-  //   formatDocumentDetailsFunctionChanges(dataAllDocumentsName);
-  // const differencesWithName = formatDifferences(differences);
-  // Funkcja do formatowania szczegółów dokumentu
-  const formatDocumentDetails =
-    formatDocumentDetailsFunction(dataAllDocumentsName);
 
-  useEffect(() => {}, []);
   // Aktualizacja dat w addInvoiceData
   useEffect(() => {
     setAddInvoiceData((prev) => ({
@@ -250,8 +245,9 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
     }));
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setInputInvoiceName("");
+    setInputInvoiceNameError("");
     setDateTimePickerReceiptDate(null);
     setDateTimePickerDeadlineDate(null);
     setDateTimePickerPaymentDate(null);
@@ -280,7 +276,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
         },
       ],
     });
-  };
+  }, [setAddInvoiceData]);
+
   const handleConfirmSave = async () => {
     const successText = `Faktura została pomyślnie ${
       isEditMode ? "zaktualizowana" : "dodana"
@@ -351,7 +348,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   };
 
   //Zamykanie ModalSelectionWindow
-  const handleCloseModalAddInvoice = () => {
+  const handleCloseModalAddInvoice = useCallback(() => {
     if (isOpenModalSelectionWindow) {
       closeModalSelectionWindow();
     } else if (invoiceDifference.length > 0) {
@@ -360,7 +357,30 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       closeModalAddInvoice();
       resetForm();
     }
-  };
+  }, [
+    isOpenModalSelectionWindow,
+    closeModalSelectionWindow,
+    invoiceDifference,
+    openModalSelectionWindow,
+    closeModalAddInvoice,
+    resetForm,
+  ]);
+  const handleEsc = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleCloseModalAddInvoice();
+      }
+    },
+    [handleCloseModalAddInvoice]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleEsc);
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [handleEsc]);
 
   return (
     <form action="" className={scss["form-add-invoice"]}>
@@ -421,7 +441,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
           <FormAddInvoiceDocuments
             dataAllDocumentsName={dataAllDocumentsName}
             key={id}
-            addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
             onAddDocument={handleAddDocument}
             onRemoveDocument={() => handleRemoveDocument(id)}

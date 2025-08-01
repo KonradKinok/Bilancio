@@ -281,7 +281,6 @@ export const MainTable: React.FC<MainTableProps> = ({
         closeModalSelectionWindow={closeModalDeleteConfirm}
         closeModalAddInvoice={closeModalDeleteConfirm}
         resetFormAddInvoice={() => {}}
-        selectedInvoice={selectedInvoice} // Przekazanie danych faktury
         isModalSelectionWindowOpen={isModalDeleteConfirmOpen}
         titleModalSelectionWindow={`Czy na pewno chcesz ${
           selectedInvoice?.invoice.IsDeleted == 0 ? "usunąć" : "przywrócić"

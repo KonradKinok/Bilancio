@@ -16,7 +16,6 @@ export function useRestoreInvoice() {
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
         await window.electron.restoreInvoice(invoiceId);
-      console.log("useRestoreInvoice", result);
 
       if (result.status === STATUS.Success) {
         setData(result.data);

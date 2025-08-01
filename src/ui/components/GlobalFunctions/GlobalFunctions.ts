@@ -1,21 +1,6 @@
-// export function calculateTotalAmount(quantities: string[], prices: string[]): string {
-//   if (quantities && prices) {
-//     const totalAmount = quantities.reduce((acc, quantity, i) => {
-//       const price = prices[i];
-//       if (price) {
-//         return acc + parseFloat(quantity) * parseFloat(price);
-//       }
-//       return acc;
-//     }, 0);
-
 import toast from "react-hot-toast";
 
-
-//     return currencyFormater(totalAmount.toString());
-//   }
-//   return currencyFormater("0");
-// }
-
+//Suma ceny faktury
 export function calculateTotalAmount(quantities: string[], prices: string[]): string {
   // Sprawdź, czy tablice są poprawne i mają tę samą długość
   if (!quantities || !prices || quantities.length !== prices.length) {
@@ -35,6 +20,8 @@ export function calculateTotalAmount(quantities: string[], prices: string[]): st
 
   return currencyFormater(totalAmount.toString());
 }
+
+//Formater do ceny
 export function currencyFormater(value: string | number | null | undefined): string {
   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
     style: "currency",
@@ -55,62 +42,7 @@ export function currencyFormater(value: string | number | null | undefined): str
   return currencyFormatter.format(num);
 }
 
-
-
-
-
-
-// export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave| undefined): Difference[] {
-//   const differences: Difference[] = [];
-//   if (!oldInvoice || !newInvoice) {
-//     return differences; // lub inne domyślne zachowanie
-//   }
-//   // Compare top-level invoice properties
-//   const invoiceKeys = Object.keys(oldInvoice.invoice) as (keyof InvoiceTable)[];
-//   for (const key of invoiceKeys) {
-//     if (oldInvoice.invoice[key] !== newInvoice.invoice[key]) {
-//       differences.push({
-//         key: `invoice.${key}`,
-//         oldValue: oldInvoice.invoice[key],
-//         newValue: newInvoice.invoice[key],
-//       });
-//     }
-//   }
-
-//   // Compare details arrays
-//   const maxLength = Math.max(oldInvoice.details.length, newInvoice.details.length);
-//   for (let i = 0; i < maxLength; i++) {
-//     if (i >= oldInvoice.details.length) {
-//       // New details entry added
-//       differences.push({
-//         key: `details[${i}]`,
-//         oldValue: null,
-//         newValue: newInvoice.details[i],
-//       });
-//     } else if (i >= newInvoice.details.length) {
-//       // Old details entry removed
-//       differences.push({
-//         key: `details[${i}]`,
-//         oldValue: oldInvoice.details[i],
-//         newValue: null,
-//       });
-//     } else {
-//       // Compare properties of details entries
-//       const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
-//       for (const key of detailKeys) {
-//         if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
-//           differences.push({
-//             key: `details[${i}].${key}`,
-//             oldValue: oldInvoice.details[i][key],
-//             newValue: newInvoice.details[i][key],
-//           });
-//         }
-//       }
-//     }
-//   }
-
-//   return differences;
-// }
+//Porównanie danych w dwóch fakturach
 export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice: InvoiceSave | undefined): InvoicesDifferences[] {
   const differences: InvoicesDifferences[] = [];
   if (!oldInvoice || !newInvoice) {
@@ -161,9 +93,9 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
       }
     }
   }
-
   return differences;
 }
+
 type FormattedDetail = {
   documentName: string;
   mainTypeName: string;
@@ -178,6 +110,8 @@ type FormattedDifference = {
   oldValue: FormattedDetail | null | unknown;
   newValue: FormattedDetail | null | unknown;
 };
+
+
 export function formatDocumentDetailsFunction(
   dataAllDocumentsName: AllDocumentsName[] | null
 ) {
@@ -214,15 +148,8 @@ export function formatDocumentDetailsFunction(
     };
   };
 }
-// formatDocumentDetails: (detail: InvoiceDetailsTable) => {
-//   documentName: string;
-//   mainTypeName: string;
-//   typeName: string;
-//   subtypeName: string;
-//   quantity: number;
-//   price: string;
-//   total: string;
-// };
+
+
 export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDocumentsName[] | null) {
   // Helper function to format a single InvoiceDetailsTable object
   const formatDetail = (detail: InvoiceDetailsTable | null): FormattedDetail | null => {
@@ -306,7 +233,6 @@ export function getTodayFormattedDate(separator: string = "-"): string {
   return `${day}${separator}${month}${separator}${year}`;
 }
 
-
 export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast: boolean = true) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   console.error(
@@ -319,6 +245,8 @@ export function displayErrorMessage(componentName: string, functionName: string,
     toast.error(`${errorMessage}`);
   }
 }
+
+//ACTIVITIES
 enum ActivityType {
   addInvoice = "dodanie faktury",
   editInvoice = "edycja faktury",
@@ -331,13 +259,17 @@ type UserActivitiesType = {
   activityData: string;
 };
 
-
 export function createActivitiesObject(dataAllDocumentsName: AllDocumentsName[] | null, userName: string, activityType: ActivityType, addedInvoice?: InvoiceTable, invoiceDetails?: InvoiceDetailsTable[]): UserActivitiesType | null {
   let activityData = "";
 
   switch (activityType) {
     case ActivityType.addInvoice:
       if (!addedInvoice || !invoiceDetails || !dataAllDocumentsName || dataAllDocumentsName.length === 0) {
+        displayErrorMessage(
+          "GlobalFunctions",
+          "createActivitiesObject - case ActivityType.addInvoice",
+          `addedInvoice lub invoiceDetails lub dataAllDocumentsName nie istnieją`
+        );
         return null;
       }
 

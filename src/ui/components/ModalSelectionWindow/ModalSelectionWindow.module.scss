@@ -36,6 +36,8 @@
         padding: 1rem;
         border-radius: 1rem;
         background-color: var(--modal-background-color);
+        white-space: pre-line;
+        /* Zachowuje podziały linii z \n */
     }
 
 

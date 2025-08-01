@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import { Outlet } from "react-router-dom";
-import { Navigation } from "../../components/Navigation/Navigation";
-import scss from "./LayoutPage.module.scss";
 import { Toaster } from "react-hot-toast";
-import { Footer } from "../../components/Footer/Footer";
+import { Navigation } from "../../components/Navigation/Navigation";
 import { Loader } from "../../components/Loader/Loader";
+import { Footer } from "../../components/Footer/Footer";
+import scss from "./LayoutPage.module.scss";
 
 export const LayoutPage: React.FC = () => {
   return (
@@ -24,7 +24,7 @@ export const LayoutPage: React.FC = () => {
         toastOptions={{
           success: { duration: 4000 },
           error: { duration: 6000 },
-          loading: { duration: Infinity }, // Nie znika, dopóki nie zakończy się ładowanie
+          loading: { duration: 3000 }, //Infinity- Nie znika, dopóki nie zakończy się ładowanie
         }}
       />
     </div>

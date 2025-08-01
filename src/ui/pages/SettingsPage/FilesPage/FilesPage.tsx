@@ -1,8 +1,5 @@
-// src/ui/pages/SettingsPage/FilesPage/FilesPage.tsx
-import { Suspense, useEffect, useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import scss from "./FilesPage.module.scss";
 import { useConfig } from "../../../hooks/useConfig";
+import scss from "./FilesPage.module.scss";
 
 const FilesPage: React.FC = () => {
   const {
@@ -38,7 +35,6 @@ const FilesPage: React.FC = () => {
 
   return (
     <div className={scss["files-page-container"]}>
-      {error && <p className={scss.error}>Błąd: {error}</p>}
       {config && (
         <>
           <div className={scss["path-container"]}>

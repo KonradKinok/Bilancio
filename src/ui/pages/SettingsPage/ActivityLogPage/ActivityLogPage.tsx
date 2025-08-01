@@ -86,12 +86,11 @@ export const ActivityLogPage: React.FC = () => {
     getAllActivityLog,
   } = useAllActivityLog();
 
-  const allDocumentsData = useAllDocumentsName();
   const {
     data: dataAllDocumentsName,
     loading: loadingAllDocumentsName,
     error: errorAllDocumentsName,
-  } = allDocumentsData;
+  } = useAllDocumentsName();
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   const [page, setPage] = useState<PageState>({
     paginationPage: 1,
@@ -180,7 +179,6 @@ export const ActivityLogPage: React.FC = () => {
               <p>Liczba aktywności: {totalCount}</p>
             </div>
           </div>
-
           <Pagination
             className={scss.pagination}
             currentPage={page.paginationPage}

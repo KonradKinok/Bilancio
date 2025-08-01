@@ -16,9 +16,8 @@ export function useUpdateInvoice() {
         invoice,
         invoiceDetails
       );
-      console.log("useUpdateInvoice", result);
 
-      if (result.status === STATUS.Success ) {
+      if (result.status === STATUS.Success) {
         setData(result.data);
         console.log("useUpdateInvoice result.data", result.data);
         setError(null);

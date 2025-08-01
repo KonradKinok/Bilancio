@@ -76,7 +76,7 @@ declare global {
     SubtypeNames: string[];
     Quantities: string[];
     Prices: string[];
-    // [key: string]: string[] | null;
+    [key: string]: string[] | null;
   }
 
   type InvoiceTable = {

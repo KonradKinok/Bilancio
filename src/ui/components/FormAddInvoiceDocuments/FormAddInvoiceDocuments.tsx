@@ -1,21 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { useTableDictionaryDocuments } from "../../hooks/useTableDictionaryDocuments";
-import { useConnectedTableDictionary } from "../../hooks/useConnectedTableDictionary";
+import Select from "react-select";
 import { MdOutlinePostAdd } from "react-icons/md";
-import scss from "./FormAddInvoiceDocuments.module.scss";
-import Select, { SingleValue } from "react-select";
-import { DbTables } from "../../../electron/dataBase/enum";
+import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
 import { TextInput } from "../TextInput/TextInput";
 import { customStylesComboBox, ComboBoxOption } from "../ComboBox/ComboBox";
-import { SingleInput } from "../SingleInput/SingleInput";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
-import { useMainDataContext } from "../Context/useOptionsImage";
-import { calculateTotalAmount } from "../GlobalFunctions/GlobalFunctions";
-import { IconInfo } from "../IconInfo/IconInfo";
+import scss from "./FormAddInvoiceDocuments.module.scss";
 
 interface FormAddInvoiceDocumentsProps {
   dataAllDocumentsName: AllDocumentsName[] | null;
-  addInvoiceData: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   onAddDocument: () => void;
   onRemoveDocument: () => void;
@@ -29,7 +22,6 @@ export const FormAddInvoiceDocuments: React.FC<
   FormAddInvoiceDocumentsProps
 > = ({
   dataAllDocumentsName,
-  addInvoiceData,
   setAddInvoiceData,
   onAddDocument,
   onRemoveDocument,
@@ -40,6 +32,7 @@ export const FormAddInvoiceDocuments: React.FC<
   detail,
 }) => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
   //useState combobox
   const [selectedDocument, setSelectedDocument] =
     useState<ComboBoxOption | null>(null);
@@ -68,12 +61,6 @@ export const FormAddInvoiceDocuments: React.FC<
     useState<string>("");
   const [isPriceManuallyEdited, setIsPriceManuallyEdited] =
     useState<boolean>(false); // Nowy stan
-  //All documents name
-  // const {
-  //   data: dataAllDocumentsName1,
-  //   loading: loadingAllDocumentsName,
-  //   error: errorAllDocumentsName,
-  // } = allDocumentsData;
 
   // Inicjalizacja wybranych opcji na podstawie detail
   useEffect(() => {
@@ -93,7 +80,6 @@ export const FormAddInvoiceDocuments: React.FC<
         const mainType = dataAllDocumentsName?.find(
           (doc) => doc.MainTypeId === detail.MainTypeId
         );
-
         if (mainType) {
           setSelectedMainType({
             value: mainType.MainTypeId || -1,
@@ -124,8 +110,7 @@ export const FormAddInvoiceDocuments: React.FC<
         }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, dataAllDocumentsName]);
+  }, [detail, dataAllDocumentsName, isInitialized]);
 
   // Funkcje obsługujące zmiany w comboboxach
   const handleDocumentChange = (option: ComboBoxOption | null) => {
@@ -148,6 +133,7 @@ export const FormAddInvoiceDocuments: React.FC<
     setIsInitialized(true);
   };
 
+  // Funkcje obsługujące zmiany w textbox
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -188,6 +174,8 @@ export const FormAddInvoiceDocuments: React.FC<
       setInputInvoicePriceError(errorTextInput);
     }
   };
+
+  //TextInput Quantity - dozwolone tylko liczby
   const handleKeyDownQuantityInput = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -200,6 +188,8 @@ export const FormAddInvoiceDocuments: React.FC<
       event.preventDefault();
     }
   };
+
+  //TextInput Price - dozwolone tylko liczby
   const handleKeyDownPriceInput = (
     event: React.KeyboardEvent<HTMLInputElement>
   ) => {
@@ -213,6 +203,7 @@ export const FormAddInvoiceDocuments: React.FC<
       event.preventDefault();
     }
   };
+
   //Dane tabel pobrane z hooka
   //dictionaryDocumentTable
   const dictionaryDocumentTable = useMemo(() => {
@@ -297,22 +288,7 @@ export const FormAddInvoiceDocuments: React.FC<
   ): T | undefined => {
     return options.length === 1 ? options[0] : undefined;
   };
-  //removing elements from the combobox when changing
-  // useEffect(() => {
-  //   setSelectedMainType(null);
-  //   setSelectedType(null);
-  //   setSelectedSubtype(null);
-  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie dokumentu
-  // }, [selectedDocument]);
-  // useEffect(() => {
-  //   setSelectedType(null);
-  //   setSelectedSubtype(null);
-  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu głównego
-  // }, [selectedMainType]);
-  // useEffect(() => {
-  //   setSelectedSubtype(null);
-  //   setIsPriceManuallyEdited(false); // Resetuj flagę przy zmianie typu
-  // }, [selectedType]);
+
   // Resetowanie pól tylko po zakończeniu inicjalizacji
   useEffect(() => {
     if (isInitialized) {
@@ -340,8 +316,8 @@ export const FormAddInvoiceDocuments: React.FC<
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedType]);
-  //set single item in combobox
 
+  //Ustaw Item w combobox jeśli istnieje tylko jeden
   useEffect(() => {
     const defaultMainType = getSingleDefaultOption(
       optionsDictionaryMainTypeTable
@@ -368,7 +344,7 @@ export const FormAddInvoiceDocuments: React.FC<
     }
   }, [optionsDictionarySubtypeTable, selectedSubtype]);
 
-  //Setting the price and checking the existence of types
+  //Ustawianie ceny i sprawdzanie istnienia typów
   useEffect(() => {
     const isMainTypeExists = checkComboBoxExistence(
       [selectedDocument],
@@ -457,6 +433,7 @@ export const FormAddInvoiceDocuments: React.FC<
     );
   };
 
+  //Przesunięcie ekranu przy dodaniu nowego dokumentu
   const handleAddButtonClick = () => {
     onAddDocument();
     setTimeout(() => {
@@ -468,6 +445,7 @@ export const FormAddInvoiceDocuments: React.FC<
       }
     }, 100);
   };
+
   return (
     <div className={scss["formAddInvoiceDocuments-main-container"]}>
       <div className={scss["document-container"]}>
@@ -504,7 +482,6 @@ export const FormAddInvoiceDocuments: React.FC<
             className={scss["select-maintype-container"]}
           />
         )}
-
         {isTypeExistsBool && (
           <Select<ComboBoxOption> //Type Combobox
             value={selectedType}
@@ -520,7 +497,6 @@ export const FormAddInvoiceDocuments: React.FC<
             className={scss["select-type-container"]}
           />
         )}
-
         {isSubtypeExistsBool && (
           <Select<ComboBoxOption> //Subtype Combobox
             value={selectedSubtype}

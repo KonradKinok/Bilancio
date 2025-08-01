@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { STATUS } from "../../electron/sharedTypes/status";
 
-type Config = {
-  dbPath: string;
-  documentTemplatesPath: string;
-  savedDocumentsPath: string;
-};
 
 type DialogResponse = {
   success: boolean;

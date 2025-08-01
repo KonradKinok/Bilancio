@@ -36,24 +36,8 @@ export function ModalAddInvoice({
       },
     ],
   });
+  
   const modalContentRef = useRef<HTMLDivElement>(null);
-
-  const handleEsc = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeModalAddInvoice();
-      }
-    },
-    [closeModalAddInvoice]
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleEsc);
-
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [handleEsc]);
 
   // Aktualizacja addInvoiceData, gdy selectedInvoice się zmienia
   useEffect(() => {

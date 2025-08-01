@@ -1,15 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
-import scss from "./TextInput.module.scss";
-import { RxCross1 } from "react-icons/rx";
-import { RxLetterCaseUppercase } from "react-icons/rx";
+import React, { useRef } from "react";
 import { Tooltip } from "react-tooltip";
+import scss from "./TextInput.module.scss";
 
 interface TextInputInterface {
   inputType?: string;
   inputName: string;
   required?: boolean;
   singleInputValue: string;
-  // setSingleInputValue: React.Dispatch<React.SetStateAction<string>>;
   handleKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
   inputPlaceholder: string;
@@ -23,7 +20,6 @@ export const TextInput: React.FC<TextInputInterface> = ({
   inputType = "text",
   inputName = "defaultInputName",
   singleInputValue,
-  // setSingleInputValue,
   inputPlaceholder,
   inputLabelText,
   singleInputError = "",
@@ -40,36 +36,34 @@ export const TextInput: React.FC<TextInputInterface> = ({
     `${classNameInputContainer} ${scss["input-container"]}`.trim();
 
   return (
-    <>
-      <div className={containerClassName}>
-        {inputLabelText && (
-          <label htmlFor={inputName} className={scss["input-label"]}>
-            {inputLabelText}
-          </label>
-        )}
-        <input
-          ref={inputRef}
-          type={inputType}
-          name={inputName}
-          id={inputName}
-          placeholder={inputPlaceholder}
-          value={singleInputValue}
-          onChange={handleSingleInputChange}
-          onKeyDown={handleKeyDown} // Obsługa zdarzenia onKeyDown
-          onPaste={handleOnPaste} // Obsługa zdarzenia onPaste
-          required={required}
-          className={`${scss["input"]} ${
-            singleInputError ? scss["input-error"] : ""
-          }`}
-          data-tooltip-id={singleInputError ? inputName : undefined}
-          data-tooltip-content={singleInputError ? singleInputError : undefined}
-        />
-        <Tooltip
-          id={inputName}
-          className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
-          isOpen={!!singleInputError}
-        />
-      </div>
-    </>
+    <div className={containerClassName}>
+      {inputLabelText && (
+        <label htmlFor={inputName} className={scss["input-label"]}>
+          {inputLabelText}
+        </label>
+      )}
+      <input
+        ref={inputRef}
+        type={inputType}
+        name={inputName}
+        id={inputName}
+        placeholder={inputPlaceholder}
+        value={singleInputValue}
+        onChange={handleSingleInputChange}
+        onKeyDown={handleKeyDown} // Obsługa zdarzenia onKeyDown
+        onPaste={handleOnPaste} // Obsługa zdarzenia onPaste
+        required={required}
+        className={`${scss["input"]} ${
+          singleInputError ? scss["input-error"] : ""
+        }`}
+        data-tooltip-id={singleInputError ? inputName : undefined}
+        data-tooltip-content={singleInputError ? singleInputError : undefined}
+      />
+      <Tooltip
+        id={inputName}
+        className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
+        isOpen={!!singleInputError}
+      />
+    </div>
   );
 };

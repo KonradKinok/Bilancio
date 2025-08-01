@@ -1,13 +1,11 @@
-import { useState } from "react";
 import { RiSave3Fill } from "react-icons/ri";
 import { GiConfirmed } from "react-icons/gi";
 import { GiCancel } from "react-icons/gi";
 import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
-import scss from "./ModalConfirmationSave.module.scss";
-import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
 import { IconInfo } from "../IconInfo/IconInfo";
 import { TableInvoiceModalConfirmationSave } from "./TableInvoiceModalConfirmationSave/TableInvoiceModalConfirmationSave";
 import { TableDetailsInvoiceModalConfirmationSave } from "./TableDetailsInvoiceModalConfirmationSave/TableDetailsInvoiceModalConfirmationSave";
+import scss from "./ModalConfirmationSave.module.scss";
 
 interface ModalConfirmationSaveProps {
   addInvoiceData: InvoiceSave;
@@ -27,7 +25,6 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
   selectedInvoice,
   totalAmount,
   dataAllDocumentsName,
-
   isOpenModalConfirmationSave,
   onConfirm,
   onCancel,
@@ -61,47 +58,6 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
             isEditMode={isEditMode}
           />
           <h4>Szczegóły dokumentów:</h4>
-          {/* {loadingDocuments ? (
-            <p>Ładowanie danych dokumentów...</p>
-          ) : errorDocuments ? (
-            <p className={scss["error-message"]}>
-              Błąd ładowania danych dokumentów. Wyświetlane są ID.
-            </p>
-          ) : addInvoiceData.details.length === 0 ? (
-            <p>Brak dokumentów do wyświetlenia.</p>
-          ) : (
-            <table className={scss["modal-table"]}>
-              <thead>
-                <tr>
-                  <th>Dokument</th>
-                  <th>Ilość</th>
-                  <th>Cena jednostkowa</th>
-                  <th>Razem</th>
-                </tr>
-              </thead>
-              <tbody>
-                {addInvoiceData.details.map((detail, index) => {
-                  const formatted = formatDocumentDetails(detail);
-                  return (
-                    <tr
-                      key={index}
-                      className={
-                        detail.DocumentId === 0 ? scss["invalid-row"] : ""
-                      }
-                    >
-                      <td>
-                        {formatted.documentName} {formatted.mainTypeName}{" "}
-                        {formatted.typeName} {formatted.subtypeName}
-                      </td>
-                      <td>{formatted.quantity}</td>
-                      <td>{currencyFormater(formatted.price)}</td>
-                      <td>{currencyFormater(formatted.total)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )} */}
           {loadingDocuments ? (
             <p>Ładowanie danych dokumentów...</p>
           ) : errorDocuments ? (

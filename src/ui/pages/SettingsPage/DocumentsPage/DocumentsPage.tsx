@@ -1,61 +1,33 @@
-import scss from "./DocumentsPage.module.scss";
-import {
-  currencyFormater,
-  displayErrorMessage,
-} from "../../../components/GlobalFunctions/GlobalFunctions";
-import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
-import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
-import { use, useEffect, useState } from "react";
-import { useDeleteDocument } from "../../../hooks/useDeleteDocument";
-import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
+import { useEffect, useState } from "react";
+import { Tooltip } from "react-tooltip";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../../electron/sharedTypes/status";
+import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
+import { useDeleteDocument } from "../../../hooks/useDeleteDocument";
+import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
 import { useEditDocument } from "../../../hooks/useEditDocument";
 import { useAddDocument } from "../../../hooks/useAddDocument";
+import { displayErrorMessage } from "../../../components/GlobalFunctions/GlobalFunctions";
+import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
-import { Tooltip } from "react-tooltip";
+import scss from "./DocumentsPage.module.scss";
 
 const DocumentsPage: React.FC = () => {
   // Hook do pobierania wszystkich dokumentów
-  const allDocumentsData = useAllDocumentsName();
-  const {
-    data: dataAllDocumentsName,
-    loading: loadingAllDocumentsName,
-    error: errorAllDocumentsName,
-    getAllDocuments,
-  } = allDocumentsData;
+  const { data: dataAllDocumentsName, getAllDocuments } = useAllDocumentsName();
 
   //Hook do edytowania dokumentów
-  const {
-    addDocument,
-    data: addData,
-    loading: addLoading,
-    error: addError,
-  } = useAddDocument();
+  const { addDocument } = useAddDocument();
 
   //Hook do edytowania dokumentów
-  const {
-    editDocument,
-    data: editData,
-    loading: editLoading,
-    error: editError,
-  } = useEditDocument();
+  const { editDocument } = useEditDocument();
 
   //Hook do usuwania dokumentów
-  const {
-    deleteDocument,
-    data: deleteData,
-    loading: deleteLoading,
-    error: deleteError,
-  } = useDeleteDocument();
+  const { deleteDocument } = useDeleteDocument();
 
   //Hook do przywracania dokumentów
-  const {
-    restoreDocument,
-    data: restoreData,
-    loading: restoreLoading,
-    error: restoreError,
-  } = useRestoreDocument();
+  const { restoreDocument } = useRestoreDocument();
+
   // Stan do przechowywania liczby dokumentów
   const [documentCounts, setDocumentCounts] = useState({
     active: 0,
@@ -67,7 +39,6 @@ const DocumentsPage: React.FC = () => {
       return false; // Zwraca false, jeśli dataAllDocumentsName jest undefined, null lub nie jest tablicą
     }
     return dataAllDocumentsName.some((doc) => {
-      // Sprawdzanie DocumentName
       // Sprawdzanie DocumentName
       const docName = doc.DocumentName?.trim().toLowerCase() ?? "";
       const editDocName = editDocument.DocumentName?.trim().toLowerCase() ?? "";
@@ -100,6 +71,7 @@ const DocumentsPage: React.FC = () => {
     });
   };
 
+  //Zapisanie edytowanego dokumentu
   const handleSaveEditedDocument = async (
     isNewDocument: boolean,
     document: AllDocumentsName,
@@ -132,6 +104,7 @@ const DocumentsPage: React.FC = () => {
     }
   };
 
+  //Usuwanie przywracanie dokumentu
   const handleDeleteRestoreDocument = async (document: AllDocumentsName) => {
     if (!document?.AllDocumentsId) return;
     let successText = "",
