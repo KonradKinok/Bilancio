@@ -13,40 +13,12 @@ import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, ope
 
 
 Menu.setApplicationMenu(null);
-// const configPath = path.join(app.getPath('userData'), 'config.json');
-
-// Funkcja do odczytu zapisanej ścieżki bazy danych
-// function getSavedDBPath(): string {
-//   try {
-//     if (fs.existsSync(configPath)) {
-//       const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-//       return config.dbPath || getDefaultDBPath();
-//     }
-//     return getDefaultDBPath();
-//   } catch (err) {
-//     console.error('Błąd odczytu konfiguracji:', err);
-//     return getDefaultDBPath();
-//   }
-// }
-
-// // Funkcja do zapisu ścieżki bazy danych
-// function saveDBPath(dbPath: string) {
-//   try {
-//     fs.writeFileSync(configPath, JSON.stringify({ dbPath }, null, 2));
-//   } catch (err) {
-//     console.error('Błąd zapisu konfiguracji:', err);
-//   }
-// }
-
-// // Domyślna ścieżka bazy danych
-// function getDefaultDBPath(): string {
-//   return path.join(app.getAppPath(), 'BazaDanych', 'BilancioDataBase.db');
-// }
 
 app.on("ready", () => {
   configureLogs(); // Wywołanie funkcji konfiguracyjnej logowania
   defaultLogs();
   createDocumentDirectories();
+
   const mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
@@ -57,11 +29,33 @@ app.on("ready", () => {
       // nodeIntegration: true, // Włącz nodeIntegration (NIEBEZPIECZNE W PRODUKCJI)
       contextIsolation: true,
       nodeIntegration: false,
+      additionalArguments: [
+        `--content-security-policy="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';"`
+      ],
     },
 
     // disables default system frame (dont do this if you want a proper working menu bar)
     // frame: false,
   });
+
+  // Ustawienie polityki CSP dla trybu produkcyjnego
+  if (!isDev()) {
+    mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
+      callback({ requestHeaders: details.requestHeaders });
+    });
+
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+      // Sprawdzanie, czy responseHeaders istnieje
+      const responseHeaders = details.responseHeaders || {};
+      responseHeaders['Content-Security-Policy'] = [
+        "default-src 'self'; img-src 'self' data: blob:; script-src 'self'; style-src 'self' 'unsafe-inline';",
+      ];
+      callback({ responseHeaders });
+    });
+  }
+
+
+
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");
   }

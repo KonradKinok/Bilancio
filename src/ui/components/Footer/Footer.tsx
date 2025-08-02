@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import footerLogoText from "../../assets/footer/3KLogo.png";
-import footerLogoImage from "../../assets/footer/konikMaly24x24Squoosh.png";
+import footerLogoText from "../../../assets/footer/3KLogo.png";
+import footerLogoImage from "../../../assets/footer/konikMaly24x24Squoosh.png";
 import packageJson from "../../../../package.json";
 import scss from "./Footer.module.scss";
 

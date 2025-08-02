@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../electron/sharedTypes/status";
 import { useToggle } from "../../hooks/useToggle";
@@ -57,32 +57,32 @@ export const MainTable: React.FC<MainTableProps> = ({
   const { deleteInvoice } = useDeleteInvoice();
 
   //Delete/Restore Invoice
-  const handleDeleteRestoreInvoice = (invoice: AllInvoices) => {
-    console.log("handleDeleteRestoreInvoice", invoice);
-    const invoiceData = selectedInvoiceData(invoice);
-    setSelectedInvoice(invoiceData);
-    openModalDeleteConfirm();
-  };
+  const handleDeleteRestoreInvoice = useCallback(
+    (invoice: AllInvoices) => {
+      const invoiceData = selectedInvoiceData(invoice);
+      setSelectedInvoice(invoiceData);
+      openModalDeleteConfirm();
+    },
+    [openModalDeleteConfirm]
+  );
 
-  const confirmDeleteRestoreInvoice = async () => {
+  const confirmDeleteRestoreInvoice = useCallback(async () => {
     if (!selectedInvoice?.invoice.InvoiceId) return;
-
     const successText = `Faktura została pomyślnie ${
       selectedInvoice?.invoice.IsDeleted === 0 ? "usunięta" : "przywrócona"
     }.`;
     const errorText = `Nie udało się ${
       selectedInvoice?.invoice.IsDeleted === 0 ? "usunąć" : "przywrócić"
     } faktury.`;
-
     try {
-      const result = await (selectedInvoice?.invoice.IsDeleted == 0
+      const result = await (selectedInvoice?.invoice.IsDeleted === 0
         ? deleteInvoice(selectedInvoice?.invoice.InvoiceId)
         : restoreInvoice(selectedInvoice?.invoice.InvoiceId));
       if (result.status === STATUS.Success) {
-        refetchAllInvoices(); // Odśwież listę faktur
+        refetchAllInvoices();
         closeModalDeleteConfirm();
         setSelectedInvoice(undefined);
-        toast.success(`${successText}`);
+        toast.success(successText);
       } else {
         displayErrorMessage(
           "MainTable",
@@ -93,40 +93,54 @@ export const MainTable: React.FC<MainTableProps> = ({
     } catch (err) {
       displayErrorMessage("MainTable", "confirmDeleteRestoreInvoice", err);
     }
-  };
-  //Edit Invoice
-  const handleEditInvoice = (invoice: AllInvoices) => {
-    const invoiceData = selectedInvoiceData(invoice);
-    setSelectedInvoice(invoiceData);
-    openModalAddInvoice();
-  };
+  }, [
+    selectedInvoice,
+    deleteInvoice,
+    restoreInvoice,
+    refetchAllInvoices,
+    closeModalDeleteConfirm,
+  ]);
 
-  // Obsługa zmiany liczby wierszy na stronę
-  const handleRowsPerPageChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setRowsPerPage(Number(event.target.value));
-    setPage((prev) => ({ ...prev, paginationPage: 1 })); // Resetuj stronę do 1 po zmianie liczby wierszy
-  };
+  const handleEditInvoice = useCallback(
+    (invoice: AllInvoices) => {
+      const invoiceData = selectedInvoiceData(invoice);
+      setSelectedInvoice(invoiceData);
+      openModalAddInvoice();
+    },
+    [openModalAddInvoice]
+  );
 
-  // Obsługa zmiany strony
-  const onPageChange = (newPage: number) => {
-    setPage((prev) => ({
-      ...prev,
-      paginationPage: newPage,
-      firstPage: 2 * newPage - 1,
-      lastPage: 2 * newPage,
-    }));
-  };
+  const handleRowsPerPageChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setRowsPerPage(Number(event.target.value));
+      setPage((prev) => ({ ...prev, paginationPage: 1 }));
+    },
+    [setRowsPerPage, setPage]
+  );
 
-  // Obliczanie liczby stron
-  const totalPages = Math.ceil(totalCount / rowsPerPage);
+  const onPageChange = useCallback(
+    (newPage: number) => {
+      setPage((prev) => ({
+        ...prev,
+        paginationPage: newPage,
+        firstPage: 2 * newPage - 1,
+        lastPage: 2 * newPage,
+      }));
+    },
+    [setPage]
+  );
 
-  // Obliczanie globalnego numeru porządkowego
-  const getGlobalIndex = (index: number) => {
-    return (page.paginationPage - 1) * rowsPerPage + index + 1;
-  };
+  const totalPages = useMemo(
+    () => Math.ceil(totalCount / rowsPerPage),
+    [totalCount, rowsPerPage]
+  );
 
+  const getGlobalIndex = useCallback(
+    (index: number) => {
+      return (page.paginationPage - 1) * rowsPerPage + index + 1;
+    },
+    [page.paginationPage, rowsPerPage]
+  );
   return (
     <div className={scss["mainTable-main-container"]}>
       <div>
