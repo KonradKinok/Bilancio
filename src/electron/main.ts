@@ -2,22 +2,15 @@ import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import path from "path";
 import fs from "fs"
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
-import { getStaticData, pollResources } from "./resourceManager.js";
+// import { getStaticData, pollResources } from "./resourceManager.js";
 import { checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig, getDBbBilancioPath, getPreloadPath, getUIPath, saveConfig } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, przykladowaFunkcja, przykladowaFunkcja2, queryToDB, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
 import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
 
 
-
-
-
-export type DictionaryDocuments = {
-  DocumentId: number;
-  DocumentName: string;
-}[];
 
 Menu.setApplicationMenu(null);
 // const configPath = path.join(app.getPath('userData'), 'config.json');
@@ -78,10 +71,8 @@ app.on("ready", () => {
 
 
 
-  pollResources(mainWindow);
-  ipcMainHandle('getStaticData', () => {
-    return getStaticData();
-  });
+  // pollResources(mainWindow);
+
 
   ipcMainHandle2('getTableDictionaryDocuments', (payload) => {
     return getTableDictionaryDocuments(payload);
@@ -160,18 +151,7 @@ app.on("ready", () => {
   ipcMainHandle2('reinitializeDatabase', (dbPath) => {
     return reinitializeDatabase(dbPath);
   });
-  ipcMainHandle2('przykladowaFunkcja', (payload, jakisNumer) => {
-    log.info('FilesPage: przykladowaFunkcja zarejestrowana i wywołana', payload, jakisNumer);
-    return przykladowaFunkcja(payload, jakisNumer);
-  });
 
-  ipcMainHandle2('przykladowaFunkcja2', (payload, jakisNumer) => {
-    return przykladowaFunkcja2(payload, jakisNumer);
-  });
-
-  ipcMainHandle('queryToDB', () => {
-    return queryToDB.secondMetod();
-  });
   ipcMainHandle('getDBbBilancioPath', () => {
     return getDBbBilancioPath();
   });
@@ -180,19 +160,19 @@ app.on("ready", () => {
     log.info('FilesPage: Handler getDBbBilancioPath1 zarejestrowany i wywołany');
     return getConfigBilancio1(payload);
   });
-  ipcMainOn('sendFrameAction', (payload) => {
-    switch (payload) {
-      case 'CLOSE':
-        mainWindow.close();
-        break;
-      case 'MAXIMIZE':
-        mainWindow.maximize();
-        break;
-      case 'MINIMIZE':
-        mainWindow.minimize();
-        break;
-    }
-  });
+  // ipcMainOn('sendFrameAction', (payload) => {
+  //   switch (payload) {
+  //     case 'CLOSE':
+  //       mainWindow.close();
+  //       break;
+  //     case 'MAXIMIZE':
+  //       mainWindow.maximize();
+  //       break;
+  //     case 'MINIMIZE':
+  //       mainWindow.minimize();
+  //       break;
+  //   }
+  // });
 
   createTray(mainWindow);
   handleCloseEvents(mainWindow);

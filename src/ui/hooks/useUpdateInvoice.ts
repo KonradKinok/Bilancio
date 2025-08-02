@@ -19,15 +19,13 @@ export function useUpdateInvoice() {
 
       if (result.status === STATUS.Success) {
         setData(result.data);
-        console.log("useUpdateInvoice result.data", result.data);
         setError(null);
       } else {
-        setError(result.message || "useUpdateInvoice Błąd podczas zapisywania faktury");
+        setError(result.message || "Błąd podczas zapisywania edytowanej faktury");
       }
       return result;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "useUpdateInvoice Nieznany błąd");
-      const errorMessage = err instanceof Error ? err.message : "useUpdateInvoice Nieznany błąd";
+      const errorMessage = err instanceof Error ? err.message : "Nieznany błąd";
       setError(errorMessage);
       return {
         status: STATUS.Error,

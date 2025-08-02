@@ -4,20 +4,9 @@ const electron = require('electron');
 // console.log('Ładowanie preload.cts w trybie', process.env.NODE_ENV);
 
 electron.contextBridge.exposeInMainWorld('electron', {
-  subscribeStatistics: (callback) => {
-    return ipcOn('statistics', (stats) => {
-      callback(stats);
-    })
-  },
-  subscribeChangeView: (callback) =>
-    ipcOn('changeView', (view) => {
-      callback(view);
-    }),
-  getStaticData: () => ipcInvoke('getStaticData'),
-  sendFrameAction: (payload) => ipcSend('sendFrameAction', payload),
+
   getTableDictionaryDocuments: (payload) => ipcInvoke2('getTableDictionaryDocuments', payload),
   getConnectedTableDictionary: (tableName, documentId, mainTypeId, typeId, subTypeId) => ipcInvoke2('getConnectedTableDictionary', tableName, documentId, mainTypeId, typeId, subTypeId),
-  queryToDB: () => ipcInvoke('queryToDB'),
   getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
   getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName', isDeleted),
   updateDocumentDeletionStatus: (documentId, isDeleted) => ipcInvoke2('updateDocumentDeletionStatus', documentId, isDeleted),
@@ -39,10 +28,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   saveActivityLog: (activity) => ipcInvoke2('saveActivityLog', activity),
 
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
-  // przykladowaFunkcja: (payload) => ipcInvoke('przykladowaFunkcja'),
-  przykladowaFunkcja: (payload, numer) => ipcInvoke2('przykladowaFunkcja', payload, numer),
-  przykladowaFunkcja2: (payload, numer) => ipcInvoke2('przykladowaFunkcja2', payload, numer),
-  // addInvoice: (payload) => ipcInvoke('addInvoice'),
+
   getConfigBilancio: () => ipcInvoke('getConfigBilancio'),
 
   saveConfig: (config) => ipcInvoke2('saveConfig', config),
@@ -57,18 +43,17 @@ electron.contextBridge.exposeInMainWorld('electron', {
 
 function ipcInvoke<Key extends keyof EventPayloadMapping>(
   key: Key
-
 ): Promise<EventPayloadMapping[Key]> {
-  console.log(`Wywołano ipcInvoke dla klucza: ${key}`);
   return electron.ipcRenderer.invoke(key);
 }
+
 function ipcInvoke2<Key extends keyof EventPayloadMapping>(
   key: Key,
   ...params: any[]
 ): Promise<EventPayloadMapping[Key]> {
-  console.log(`Wywołano ipcInvoke2 dla klucza: ${key}`);
   return electron.ipcRenderer.invoke(key, ...params);
 }
+
 function ipcOn<Key extends keyof EventPayloadMapping>(
   key: Key,
   callback: (payload: EventPayloadMapping[Key]) => void

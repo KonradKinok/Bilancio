@@ -25,7 +25,6 @@ export function useAddInvoice() {
       }
       return result;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Nieznany błąd");
       const errorMessage = err instanceof Error ? err.message : "Nieznany błąd";
       setError(errorMessage);
       return {

@@ -1,15 +1,5 @@
 import { STATUS, DataBaseResponse, isSuccess } from './src/electron/sharedTypes/status';
 
-type StaticData = {
-  totalStorage: number;
-  cpuModel: string;
-  totalMemoryGB: number;
-};
-
-type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
-
-type UnsubscribeFunction = () => void;
-
 declare global {
   //Context HomePage
   interface FormValuesHomePage {
@@ -26,14 +16,7 @@ declare global {
     status: boolean;
     message: string;
   }
-  type Statistics = {
-    cpuUsage: number;
-    ramUsage: number;
-    storageUsage: number;
-  };
-  type TextTempDataBase = {
-    textNazwa: string;
-  };
+
   //Table
   export type DictionaryDocuments = {
     DocumentId: number;
@@ -133,7 +116,6 @@ declare global {
     newValue: unknown;
   };
 
-
   type AllInvoicesDb = {
     InvoiceId: number;
     InvoiceName: string;
@@ -149,8 +131,6 @@ declare global {
     Prices: string;
     [key: string]: string[] | null;
   }
-
-
 
   type LastRowInvoice = {
     InvoiceId: number;
@@ -176,41 +156,16 @@ declare global {
     ActivityData: string;
   };
 
-  type JakasFunkcja = {
-    jakisTekst: string;
-    jakisNumer: number;
-  }
-  //   const STATUS_SUKCES = 'sukces';
-  // const STATUS_BLED = 'blad';
-
-  // type PrzykladowaFunkcjaResult =
-  //   | { status: typeof STATUS_SUKCES; dane: JakasFunkcja }
-  //   | { status: typeof STATUS_BLED; komunikat: string };
-  const STATUS1 = {
-    Sukces: "sukces",
-    Error: "error"
-  } as const
-  type PrzykladowaFunkcjaResult =
-    | { status: typeof STATUS1.Sukces; dane: JakasFunkcja }
-    | { status: typeof STATUS1.Error; komunikat: string };
-
 
   type EventPayloadMapping = {
-    statistics: Statistics;
-    getStaticData: StaticData;
-    changeView: View;
-    sendFrameAction: FrameWindowAction;
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
     getConnectedTableDictionary: DataBaseResponse<T[]>;
-    queryToDB: unknown[];
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
     updateDocumentDeletionStatus: DataBaseResponse<ReturnMessageFromDb>;
     saveEditedDocument: DataBaseResponse<ReturnMessageFromDb>;
     saveNewDocument: DataBaseResponse<ReturnMessageFromDb>;
     getAllInvoices: DataBaseResponse<AllInvoices[]>;
     getLastRowFromTable: unknown;
-    przykladowaFunkcja: JakasFunkcja;
-    przykladowaFunkcja2: PrzykladowaFunkcjaResult;
 
     addInvoice: DataBaseResponse<ReturnMessageFromDb>;
     updateInvoice: DataBaseResponse<ReturnMessageFromDb>;
@@ -237,17 +192,9 @@ declare global {
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
   interface Window {
     electron: {
-      subscribeStatistics: (
-        callback: (statistics: Statistics) => void
-      ) => UnsubscribeFunction;
-      getStaticData: () => Promise<StaticData>;
-      subscribeChangeView: (
-        callback: (view: View) => void
-      ) => UnsubscribeFunction;
-      sendFrameAction: (payload: FrameWindowAction) => void;
       getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
-      queryToDB: () => Promise<unknown[]>;
+
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
       updateDocumentDeletionStatus: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
 
@@ -269,8 +216,6 @@ declare global {
 
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
-      przykladowaFunkcja: (payload, numer) => Promise<JakasFunkcja>;
-      przykladowaFunkcja2: (payload, numer) => Promise<PrzykladowaFunkcjaResult>;
       getConfigBilancio: () => Promise<Config>;
       saveConfig: (config: Config) => Promise<Config>;
       openDBDialog: () => Promise<{ success: boolean; path: string | null }>;

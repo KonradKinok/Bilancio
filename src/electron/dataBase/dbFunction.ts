@@ -1617,57 +1617,7 @@ export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatus
   }
 };
 
-// Przykładowa funkcja, która zwraca obiekt
-export async function przykladowaFunkcja(tekst2: string, jakisNumer: number) {
-  try {
-    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer };
-    return obiekt;
-  }
-  catch (err) {
-    console.error('fetchDocuments() Błąd podczas pobierania dokumentów:', err);
-    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer };
-    return obiekt;
-  }
-}
 
-export async function przykladowaFunkcja2(tekst2: string, jakisNumer: number): Promise<PrzykladowaFunkcjaResult> {
-  try {
-    const obiekt = { jakisTekst: tekst2, jakisNumer: jakisNumer };
-    return { status: "sukces", dane: obiekt };
-  } catch (err) {
-    const errorMessage = (err as Error).message || 'Nieznany błąd';
-    return { status: "error", komunikat: errorMessage };
-  }
-}
-
-export const queryToDB = {
-  firstMetod: async function fetchDocuments() {
-    try {
-      const rows = await db.all<DictionaryDocuments>('SELECT * FROM DictionaryDocuments');
-      console.log("fetchDocuments()", rows);
-      return rows || [];
-
-    } catch (err: unknown) {
-      console.error('fetchDocuments() Błąd podczas pobierania dokumentów:', err);
-      return [];
-    }
-
-
-  },
-  secondMetod: async function fetchDocuments() {
-    try {
-      const rows = await db.all('SELECT * FROM DictionaryMainType');
-      console.log("fetchDocuments()", rows);
-      return rows || [];
-
-    } catch (err) {
-      console.error('fetchDocuments() Błąd podczas pobierania dokumentów:');
-      return [];
-    }
-
-
-  }
-};
 
 export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);
