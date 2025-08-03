@@ -14,7 +14,7 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
   return (
     <div className={containerClassName}>
       <div className={scss["btn"]}>
-        <strong>BILANCIO</strong>
+        <strong className={scss["strong"]}>BILANCIO</strong>
         <div id={scss["container-stars"]}>
           <div id={scss["stars"]}></div>
         </div>
