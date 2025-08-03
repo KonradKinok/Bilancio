@@ -53,15 +53,20 @@ export default tseslint.config({
 })
 
 
-
-
-
+```
 Bilancio
 ├─ backup
 │  ├─ ai.docx
+│  ├─ BilancioDataBase.27.07.2025.db
+│  ├─ BilancioDataBase03.08.2025.db
 │  ├─ BilancioDataBase1.db
+│  ├─ BilancioDataBase14.07.2025.db
 │  ├─ BilancioDataBase20.04.2025.db
 │  ├─ BilancioDataBase20.04.2025a.db
+│  ├─ BilancioDataBase21.07.2025.db
+│  ├─ config.ts
+│  ├─ package2.json
+│  │  └─ package.json
 │  └─ tsconfig.app.json..txtbackup
 ├─ desktopIcon.png
 ├─ electron-builder.json
@@ -73,9 +78,13 @@ Bilancio
 ├─ README.md
 ├─ src
 │  ├─ assets
+│  │  ├─ footer
+│  │  │  ├─ 3KLogo.png
+│  │  │  └─ konikMaly24x24Squoosh.png
 │  │  ├─ trayIcon.png
 │  │  └─ trayIconTemplate.png
 │  ├─ electron
+│  │  ├─ config.ts
 │  │  ├─ dataBase
 │  │  │  ├─ dbClass.ts
 │  │  │  ├─ dbFunction.ts
@@ -88,7 +97,6 @@ Bilancio
 │  │  ├─ preload.cts
 │  │  ├─ resourceManager.ts
 │  │  ├─ sharedTypes
-│  │  │  ├─ status.backup..js
 │  │  │  └─ status.ts
 │  │  ├─ tray.ts
 │  │  ├─ tsconfig.json
@@ -116,6 +124,11 @@ Bilancio
 │     │  ├─ DateTimePicker
 │     │  │  ├─ DateTimePicer.module.scss
 │     │  │  └─ DateTimePicker.tsx
+│     │  ├─ ErrorBoundary
+│     │  │  └─ ErrorBoundary.tsx
+│     │  ├─ Footer
+│     │  │  ├─ Footer.module.scss
+│     │  │  └─ Footer.tsx
 │     │  ├─ FormAddInvoice
 │     │  │  ├─ FormAddInvoice.module.scss
 │     │  │  └─ FormAddInvoice.tsx
@@ -130,6 +143,12 @@ Bilancio
 │     │  ├─ IconInfo
 │     │  │  ├─ IconInfo.module.scss
 │     │  │  └─ IconInfo.tsx
+│     │  ├─ Loader
+│     │  │  ├─ Loader.module.scss
+│     │  │  └─ Loader.tsx
+│     │  ├─ LogoBilancio
+│     │  │  ├─ LogoBilancio.module.scss
+│     │  │  └─ LogoBilancio.tsx
 │     │  ├─ MainTable
 │     │  │  ├─ MainTable.module.scss
 │     │  │  └─ MainTable.tsx
@@ -166,12 +185,19 @@ Bilancio
 │     │     ├─ TextInput.module.scss
 │     │     └─ TextInput.tsx
 │     ├─ hooks
+│     │  ├─ useAddActivityLogs.ts
+│     │  ├─ useAddDocument.ts
 │     │  ├─ useAddInvoice.ts
+│     │  ├─ useAllActivityLog.ts
 │     │  ├─ useAllDocumentName.ts
 │     │  ├─ useAllInvoices.ts
+│     │  ├─ useConfig.ts
 │     │  ├─ useConnectedTableDictionary.ts
+│     │  ├─ useDeleteDocument.ts
 │     │  ├─ useDeleteInvoice.ts
+│     │  ├─ useEditDocument.ts
 │     │  ├─ useLocalStorage.ts
+│     │  ├─ useRestoreDocument.ts
 │     │  ├─ useRestoreInvoice.ts
 │     │  ├─ useTableDictionaryDocuments.ts
 │     │  ├─ useToggle.ts
@@ -188,9 +214,18 @@ Bilancio
 │     │  ├─ ReportDataPage
 │     │  │  └─ ReportDataPage.tsx
 │     │  └─ SettingsPage
+│     │     ├─ ActivityLogPage
+│     │     │  ├─ ActivityLog.module.scss
+│     │     │  ├─ ActivityLogPage.tsx
+│     │     │  └─ SeparateActivityLog
+│     │     │     ├─ SeparateActivityLog.module.scss
+│     │     │     └─ SeparateActivityLog.tsx
 │     │     ├─ DocumentsPage
 │     │     │  ├─ DocumentsPage.module.scss
-│     │     │  └─ DocumentsPage.tsx
+│     │     │  ├─ DocumentsPage.tsx
+│     │     │  └─ SeparateDocument
+│     │     │     ├─ SeparateDocument.module.scss
+│     │     │     └─ SeparateDocument.tsx
 │     │     ├─ FilesPage
 │     │     │  ├─ FilesPage.module.scss
 │     │     │  └─ FilesPage.tsx
@@ -208,3 +243,5 @@ Bilancio
 ├─ tsconfig.node.json
 ├─ types.d.ts
 └─ vite.config.ts
+
+```

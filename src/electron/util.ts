@@ -2,9 +2,31 @@ import { ipcMain, WebContents, WebFrameMain } from "electron";
 import { getUIPath } from "./pathResolver.js";
 import { pathToFileURL } from "url";
 import log from "electron-log";
+import os from 'os';
+import { STATUS, DataBaseResponse } from './sharedTypes/status.js';
+
 export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
+
+//Pobierz nazwę użytkownika oraz hostname z systemu
+export async function getWindowsUsername(): Promise<DataBaseResponse<WindowsUsername>> {
+  try {
+    const username = os.userInfo().username.toLowerCase();
+    const hostname = os.hostname();
+    return {
+      status: STATUS.Success,
+      data: { username, hostname },
+    };
+  } catch (err) {
+    log.error('[utils.js] [getWindowsUsername()]', err);
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas pobierania użytkownika: ${err}`,
+    };
+  }
+}
+
 
 // export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
 //   key: Key,
@@ -88,10 +110,10 @@ export function validateEventFrame(frame: WebFrameMain) {
     log.error('validateEventFrame pathToFileURL(getUIPath()):', pathToFileURL(getUIPath()).toString());
     return;
   }
-//   const uiPathUrl = pathToFileURL(getUIPath()).toString();
-// if (!frame.url.startsWith(uiPathUrl)) {
-//   log.error('validateEventFrame frame.url:', frame.url);
-//   log.error('validateEventFrame pathToFileURL(getUIPath()):', uiPathUrl);
-//   return;
-// }
+  //   const uiPathUrl = pathToFileURL(getUIPath()).toString();
+  // if (!frame.url.startsWith(uiPathUrl)) {
+  //   log.error('validateEventFrame frame.url:', frame.url);
+  //   log.error('validateEventFrame pathToFileURL(getUIPath()):', uiPathUrl);
+  //   return;
+  // }
 }

@@ -27,10 +27,16 @@ electron.contextBridge.exposeInMainWorld('electron', {
     ipcInvoke2('getAllActivityLog', page, rowsPerPage),
   saveActivityLog: (activity) => ipcInvoke2('saveActivityLog', activity),
 
+  getAllUsers: (isDeleted) => ipcInvoke2('getAllUsers', isDeleted),
+
+  //Auth
+  getWindowsUsername: () => ipcInvoke('getWindowsUsername'),
+  getUserBySystemName: (systemUserName) => ipcInvoke2('getUserBySystemName', systemUserName),
+  loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
+
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
 
   getConfigBilancio: () => ipcInvoke('getConfigBilancio'),
-
   saveConfig: (config) => ipcInvoke2('saveConfig', config),
   openDBDialog: () => ipcInvoke('openDBDialog'),
   openTemplatesDialog: () => ipcInvoke('openTemplatesDialog'),

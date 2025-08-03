@@ -1,13 +1,13 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import path from "path";
 import fs from "fs"
-import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
+import { getWindowsUsername, ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
 import { checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig, getDBbBilancioPath, getPreloadPath, getUIPath, saveConfig } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, loginUser, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
 import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
 
 
@@ -118,6 +118,21 @@ app.on("ready", () => {
     return saveActivityLog(activity);
   });
 
+  //Users
+  ipcMainHandle2('getAllUsers', (isDeleted) => {
+    return getAllUsers(isDeleted);
+  });
+
+  //Auth
+  ipcMainHandle('getWindowsUsername', () => {
+    return getWindowsUsername();
+  });
+  ipcMainHandle2('getUserBySystemName', (systemUserName) => {
+    return getUserBySystemName(systemUserName);
+  });
+  ipcMainHandle2('loginUser', (systemUserName, password) => {
+    return loginUser(systemUserName, password);
+  });
   // Nowe IPC dla konfiguracji
   ipcMainHandle('getConfigBilancio', () => {
     return getConfig();

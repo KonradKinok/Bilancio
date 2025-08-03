@@ -43,30 +43,72 @@
     .status-container {
         display: flex;
 
-        .user-label {
-            color: #C0C0C0;
-            /* Srebrny kolor */
-            text-shadow: 1px 1px 0 #ffffff, -1px -1px 0 #333333;
-            /* Efekt wypukłości */
-            font-weight: 800;
-        }
+        .user-label-container {
+            @keyframes shine {
+                0% {
+                    background-position: 110% 0%, 0 0;
+                }
 
-        .admin-label {
-            color: #FFD700;
-            /* Złoty kolor */
-            text-shadow: 1px 1px 0 #ffffff, -1px -1px 0 #333333;
-            /* Efekt wypukłości */
-            font-weight: 800;
+                100% {
+                    background-position: -10% 0%, 0 0;
+                }
+            }
+
+            .gold-text {
+                position: relative;
+                display: inline-block;
+                font-family: 'Source Sans Pro', sans-serif;
+                font-weight: 400;
+                font-size: 1rem;
+                // letter-spacing: 1.5vw;
+                text-transform: uppercase;
+                margin: 0;
+            }
+
+            [data-gold] {
+                color: #ac733c; //fallback solid color
+
+                @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+                    color: transparent;
+                    background-image: linear-gradient(to right, transparent 0%, transparent 45%, white 50%, transparent 55%, transparent 100%), linear-gradient(90deg, #c78c48, #cf9147 9.4%, #cf9348 9.4%, #b2763e 33.6%, #ad743c 35.7%, #ac723d 46.9%, #b0773d 51.7%, #b0793e 52.1%, #c4914c 64.6%, #c99750 68.5%, #ce9e54 73.2%, #f4d188);
+                    background-position: 110% 0%, 0 0;
+                    background-size: 200% auto, auto;
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    // animation: shine 2s ease-in-out 2 alternate 2s;
+                }
+
+                &.animate {
+                    animation: shine 2s ease-in-out forwards;
+                }
+
+                &:before {
+                    content: attr(data-gold);
+                    color: #f0d8a9;
+                    position: absolute;
+                    z-index: -1;
+                    top: -.08vw;
+                    left: 0px;
+                    text-shadow: rgba(black, 1) 0px .08vw 12px;
+                }
+
+                // @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+                //   &:after {
+                //     content: attr(data-gold);
+                //     position: absolute;
+                //     top: 0;
+                //     left: 0;
+                //     background-image: linear-gradient(to bottom, transparent 0%, transparent 48%, rgba(#621000, .5) 50%, transparent 75%);
+                //     -webkit-background-clip: text;
+                //     background-clip: text;
+                //   }
+                // }
+            }
         }
     }
 
-
-
     .icon-container a svg {
-
         font-size: 2rem;
-
-        // color: var(--text-color);
     }
 }
 

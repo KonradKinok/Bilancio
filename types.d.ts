@@ -37,11 +37,24 @@ declare global {
     SubtypeId: number;
     SubtypeName: string;
   }
+
+  type User = {
+    UserId: number;
+    UserSystemName: string;
+    UserDisplayName: string;
+    UserPassword: string | null;
+    UserRole: 'admin' | 'user';
+    IsDeleted: 0 | 1;
+  }
+
+  //Config
   type Config = {
     dbPath: string;
     documentTemplatesPath: string;
     savedDocumentsPath: string;
   };
+
+
   type AllInvoices = {
     InvoiceId: number;
     InvoiceName: string;
@@ -140,7 +153,11 @@ declare global {
     PaymentDate: string | null;
     IsDeleted: 0 | 1;
   }
-
+  //Auth
+  type WindowsUsername = {
+    username: string | null;
+    hostname: string | null;
+  }
   //ActivityLOG
   enum ActivityType {
     addInvoice = "dodanie faktury",
@@ -155,6 +172,8 @@ declare global {
     ActivityType: ActivityType;
     ActivityData: string;
   };
+
+
 
 
   type EventPayloadMapping = {
@@ -177,6 +196,14 @@ declare global {
     countActivityLog: DataBaseResponse<number>;
     getAllActivityLog: DataBaseResponse<ActivityLog[]>;
     saveActivityLog: DataBaseResponse<ReturnMessageFromDb>;
+
+    //Users
+    getAllUsers: DataBaseResponse<User[]>;
+
+    //Auth
+    getWindowsUsername: DataBaseResponse<WindowsUsername>;
+    getUserBySystemName: DataBaseResponse<User>;
+    loginUser: DataBaseResponse<User>;
 
     getDBbBilancioPath: string;
     getConfigBilancio: Config;
@@ -213,6 +240,10 @@ declare global {
       getAllActivityLog: (page, rowsPerPage) => Promise<DataBaseResponse<ActivityLog[]>>;
       saveActivityLog: (activity: ActivityLog) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
 
+      getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;
+      getWindowsUsername: () => Promise<DataBaseResponse<WindowsUsername>>;
+      getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
+      loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;

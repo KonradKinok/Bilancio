@@ -2,18 +2,18 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { IoSettingsOutline } from "react-icons/io5";
 import scss from "./Navigation.module.scss";
-
-const userData = {
-  userName: "Konrad Konik",
-  isAdmin: true,
-};
+import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
+import { useMainDataContext } from "../Context/useOptionsImage";
 
 export const Navigation: React.FC = () => {
+  const { auth } = useMainDataContext();
+  const { userDb } = auth;
+
   return (
     <nav className={scss["navigation-main-container"]}>
       <div className={scss["navigation-container"]}>
         <div className={scss["logo-container"]}>
-          <h5 className={scss[""]}>Bilancio</h5>
+          <LogoBilancio />
         </div>
         <NavLink
           to="/"
@@ -30,8 +30,11 @@ export const Navigation: React.FC = () => {
         </NavLink>
       </div>
       <div className={scss["status-container"]}>
-        <div>
-          <p className={scss["user-label"]}> USER:</p>
+        <div className={scss["user-label-container"]}>
+          <p className={`${scss["gold-text"]} ${scss["input-container"]}`}>
+            {" "}
+            USER:
+          </p>
           {/* <p className={scss["admin-label"]}>ADMIN:</p> */}
         </div>
         <div className={scss["icon-container"]}>

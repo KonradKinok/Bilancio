@@ -1617,7 +1617,101 @@ export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatus
   }
 };
 
+//USERS
+// Funkcja do pobierania wszystkich użytkowników z tabeli Users
+export async function getAllUsers(isDeleted?: 0 | 1): Promise<DataBaseResponse<User[]>> {
+  try {
+    let query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted 
+                 FROM Users`;
+    const params: QueryParams = [];
 
+    if (isDeleted !== undefined) {
+      query += ` WHERE IsDeleted = ?`;
+      params.push(isDeleted);
+    }
+
+    const rows = await db.all<User>(query, params);
+
+    log.info('[dbFunction] [getAllUsers()] Pobrano użytkowników', { count: rows.length, isDeleted });
+    return {
+      status: STATUS.Success,
+      data: rows ?? [],
+    };
+  } catch (err) {
+    log.error('[dbFunction] [getAllUsers()] Błąd podczas pobierania użytkowników z bazy danych:', err);
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas pobierania użytkowników z bazy danych: ${err}`,
+    };
+  }
+}
+
+// Weryfikacja użytkownika na podstawie UserSystemName
+export async function getUserBySystemName(systemUserName: string): Promise<DataBaseResponse<User>> {
+  try {
+    const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
+                   FROM Users 
+                   WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
+    const params: QueryParams = [systemUserName];
+    const user = await db.get<User>(query, params);
+
+    if (!user) {
+      log.error(`[dbFunction] [getUserBySystemName()] Brak użytkownika ${systemUserName} w bazie danych.`);
+      return {
+        status: STATUS.Error,
+        message: `Brak użytkownika ${systemUserName} w bazie danych.`,
+      };
+    }
+
+    return {
+      status: STATUS.Success,
+      data: user,
+    };
+  } catch (err) {
+    log.error('[dbFunction] [getUserBySystemName()] Błąd podczas pobierania użytkownika:', err);
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas pobierania użytkownika: ${err}`,
+    };
+  }
+}
+
+// Weryfikacja użytkownika na podstawie UserSystemName i hasła
+export async function loginUser(systemUserName: string, password: string): Promise<DataBaseResponse<User>> {
+  try {
+    const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
+                   FROM Users 
+                   WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
+    const params: QueryParams = [systemUserName];
+    const user = await db.get<User>(query, params);
+
+    if (!user) {
+      log.error(`[dbFunction] [loginUser()] Brak użytkownika ${systemUserName} w bazie danych.`);
+      return {
+        status: STATUS.Error,
+        message: `Brak użytkownika ${systemUserName} w bazie danych.`,
+      };
+    }
+
+    if (user.UserPassword && user.UserPassword !== password) {
+      return {
+        status: STATUS.Error,
+        message: 'Nieprawidłowe hasło.',
+      };
+    }
+
+    return {
+      status: STATUS.Success,
+      data: user,
+    };
+  } catch (err) {
+    log.error('[dbFunction] [loginUser()] Błąd podczas logowania użytkownika:', err);
+    return {
+      status: STATUS.Error,
+      message: `Błąd podczas logowania użytkownika: ${err}`,
+    };
+  }
+}
 
 export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);

@@ -2,6 +2,7 @@ import React, { ReactNode, useState } from "react";
 import { ElectronContext } from "./useOptionsImage";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
+import { useAuth } from "../../hooks/useAuth";
 type AllDocumentsNameHook = {
   data: AllDocumentsName[] | null;
   loading: boolean;
@@ -24,6 +25,16 @@ export interface Options {
   color: string;
 }
 
+type Auth = {
+  windowsUserName: WindowsUsername | null;
+  userDb: User | null;
+  loading: boolean;
+  error: string | null;
+  autoLogin: () => void;
+  loginFunction: () => void;
+  logoutFunction: () => void;
+  windowsUserNameFunction: () => void;
+};
 // Typ dla kontekstu
 export interface ElectronContextType {
   options: Options; // Obiekt zawierający orientację
@@ -31,7 +42,9 @@ export interface ElectronContextType {
   formValuesHomePage: FormValuesHomePage; // Obiekt zawierający orientację
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
-  >; // Funkcja zmiany opcji
+  >;
+  auth: Auth;
+  // Funkcja zmiany opcji
   // allDocumentsData: AllDocumentsNameHook;
 }
 // Typ dla propsów w providerze
@@ -58,11 +71,15 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
 
   const allDocumentsData = useAllDocumentsName();
   // Wartość kontekstu (obiekt z opcjami)
+  // Użycie hooka useUsers
+  const auth = useAuth();
+
   const value: ElectronContextType = {
     options,
     setOptions,
     formValuesHomePage,
     setFormValuesHomePage,
+    auth,
     // allDocumentsData,
   };
 
