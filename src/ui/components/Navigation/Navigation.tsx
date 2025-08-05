@@ -1,13 +1,29 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { IoSettingsOutline } from "react-icons/io5";
-import scss from "./Navigation.module.scss";
+import { IoSettingsSharp } from "react-icons/io5";
 import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
-import { useMainDataContext } from "../Context/useOptionsImage";
+import { useMainDataContext } from "../Context/useMainDataContext";
+import scss from "./Navigation.module.scss";
 
 export const Navigation: React.FC = () => {
   const { auth } = useMainDataContext();
-  const { userDb } = auth;
+  const { windowsUserName, userDb } = auth;
+  const [animation, setAnimation] = useState(true);
+
+  useEffect(() => {
+    function triggerAnimation() {
+      setAnimation(true);
+      setTimeout(() => {
+        setAnimation(false);
+      }, 8000); // Usuń klasę po 2 sekundach (czas trwania animacji)
+    }
+
+    triggerAnimation(); // Uruchom od razu po załadowaniu
+    const interval = setInterval(triggerAnimation, 12000); // Uruchamiaj co 10 minut
+
+    // Czyszczenie interwału przy odmontowaniu komponentu
+    return () => clearInterval(interval);
+  }, []); // Pusty dependency array, aby useEffect wykonał się tylko raz
 
   return (
     <nav className={scss["navigation-main-container"]}>
@@ -31,18 +47,41 @@ export const Navigation: React.FC = () => {
       </div>
       <div className={scss["status-container"]}>
         <div className={scss["user-label-container"]}>
-          <p className={`${scss["gold-text"]} ${scss["input-container"]}`}>
-            {" "}
-            USER:
+          <p className={`${scss["user-label"]}`}>
+            <span
+              className={`${scss["first-span"]} ${
+                animation ? scss["animate"] : ""
+              }`}
+            >
+              {userDb?.UserRole
+                ? userDb?.UserRole === "admin"
+                  ? "Admin:"
+                  : "User:"
+                : "None:"}
+            </span>
+            <span className={scss["second-span"]}>
+              {userDb?.UserDisplayName || "None"}
+            </span>
           </p>
-          {/* <p className={scss["admin-label"]}>ADMIN:</p> */}
+          <p className={scss["user-label"]}>
+            <span
+              className={`${scss["first-span"]} ${
+                animation ? scss["animate"] : ""
+              }`}
+            >
+              Hostname:
+            </span>{" "}
+            <span className={scss["second-span"]}>
+              {windowsUserName?.hostname || "None"}
+            </span>
+          </p>
         </div>
         <div className={scss["icon-container"]}>
           <NavLink
             to="settingsPage"
             className={({ isActive }) => (isActive ? scss.active : "")}
           >
-            <IoSettingsOutline />
+            <IoSettingsSharp />
           </NavLink>
         </div>
       </div>

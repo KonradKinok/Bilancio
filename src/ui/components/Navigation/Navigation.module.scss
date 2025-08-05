@@ -37,13 +37,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-
     }
 
     .status-container {
         display: flex;
 
         .user-label-container {
+            display: grid;
+            grid-template-columns: 1fr;
+
             @keyframes shine {
                 0% {
                     background-position: 110% 0%, 0 0;
@@ -54,55 +56,40 @@
                 }
             }
 
-            .gold-text {
+            .user-label {
                 position: relative;
-                display: inline-block;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
                 font-family: 'Source Sans Pro', sans-serif;
-                font-weight: 400;
-                font-size: 1rem;
-                // letter-spacing: 1.5vw;
+                font-weight: 900;
+                font-size: 0.8rem;
                 text-transform: uppercase;
                 margin: 0;
-            }
 
-            [data-gold] {
-                color: #ac733c; //fallback solid color
+                .first-span {
+                    justify-self: flex-end;
+                    --button-gradient-first-color: rgb(17 145 15);
+                    --button-gradient-second-color: rgb(20, 252, 12);
 
-                @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-                    color: transparent;
-                    background-image: linear-gradient(to right, transparent 0%, transparent 45%, white 50%, transparent 55%, transparent 100%), linear-gradient(90deg, #c78c48, #cf9147 9.4%, #cf9348 9.4%, #b2763e 33.6%, #ad743c 35.7%, #ac723d 46.9%, #b0773d 51.7%, #b0793e 52.1%, #c4914c 64.6%, #c99750 68.5%, #ce9e54 73.2%, #f4d188);
-                    background-position: 110% 0%, 0 0;
-                    background-size: 200% auto, auto;
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    // animation: shine 2s ease-in-out 2 alternate 2s;
+                    @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+                        color: transparent;
+                        background-image: linear-gradient(45deg, var(--button-gradient-first-color) 0%, var(--button-gradient-second-color) 51%, var(--button-gradient-first-color) 100%);
+                        background-position: 110% 0%, 0 0;
+                        background-size: 200% auto, auto;
+                        -webkit-background-clip: text;
+                        background-clip: text;
+                    }
+
+                    &.animate {
+                        animation: shine 3s ease-in-out 2s 2 alternate;
+                    }
                 }
 
-                &.animate {
-                    animation: shine 2s ease-in-out forwards;
+                .second-span {
+                    color: var(--header-text-color);
+                    text-shadow: -1px -1px 1px #111, 2px 2px 1px #363636;
                 }
-
-                &:before {
-                    content: attr(data-gold);
-                    color: #f0d8a9;
-                    position: absolute;
-                    z-index: -1;
-                    top: -.08vw;
-                    left: 0px;
-                    text-shadow: rgba(black, 1) 0px .08vw 12px;
-                }
-
-                // @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-                //   &:after {
-                //     content: attr(data-gold);
-                //     position: absolute;
-                //     top: 0;
-                //     left: 0;
-                //     background-image: linear-gradient(to bottom, transparent 0%, transparent 48%, rgba(#621000, .5) 50%, transparent 75%);
-                //     -webkit-background-clip: text;
-                //     background-clip: text;
-                //   }
-                // }
             }
         }
     }

@@ -13,6 +13,7 @@ import Pagination from "../Pagination/Pagination";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 import scss from "./MainTable.module.scss";
+import { useMainDataContext } from "../Context/useMainDataContext";
 
 interface MainTableProps {
   setFormValuesHomePage: React.Dispatch<
@@ -36,6 +37,9 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
+  const { setdotsNumber } = useMainDataContext();
+  setdotsNumber(totalCount); // Liczba kropek
+
   const {
     isOpenModal: isModalAddInvoiceOpen,
     openModal: openModalAddInvoice,

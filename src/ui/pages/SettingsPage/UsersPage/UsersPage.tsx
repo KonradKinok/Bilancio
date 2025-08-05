@@ -2,7 +2,7 @@ import { Suspense, useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import scss from "./UsersPage.module.scss";
 import { useUsers } from "../../../hooks/useUsers";
-import { useMainDataContext } from "../../../components/Context/useOptionsImage";
+import { useMainDataContext } from "../../../components/Context/useMainDataContext";
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<FieldInfo[]>([]);

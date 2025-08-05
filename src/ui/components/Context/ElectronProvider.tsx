@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from "react";
-import { ElectronContext } from "./useOptionsImage";
+import { ElectronContext } from "./useMainDataContext";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
 import { useAuth } from "../../hooks/useAuth";
@@ -39,11 +39,10 @@ type Auth = {
 export interface ElectronContextType {
   options: Options; // Obiekt zawierający orientację
   setOptions: React.Dispatch<React.SetStateAction<Options>>; // Funkcja zmiany opcji
-  formValuesHomePage: FormValuesHomePage; // Obiekt zawierający orientację
-  setFormValuesHomePage: React.Dispatch<
-    React.SetStateAction<FormValuesHomePage>
-  >;
+  dotsNumber: number; // Obiekt zawierający orientację
+  setdotsNumber: React.Dispatch<React.SetStateAction<number>>; // Funkcja zmiany opcji
   auth: Auth;
+
   // Funkcja zmiany opcji
   // allDocumentsData: AllDocumentsNameHook;
 }
@@ -73,12 +72,12 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
   // Wartość kontekstu (obiekt z opcjami)
   // Użycie hooka useUsers
   const auth = useAuth();
-
+  const [dotsNumber, setdotsNumber] = useState<number>(0); // Domyślna liczba kropek
   const value: ElectronContextType = {
     options,
     setOptions,
-    formValuesHomePage,
-    setFormValuesHomePage,
+    dotsNumber,
+    setdotsNumber,
     auth,
     // allDocumentsData,
   };
