@@ -15,7 +15,7 @@ export function useAllInvoices(
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-
+      console.log("useAllInvoices", formValuesHomePage);
       // Pobierz liczbę faktur
       const countResult = await window.electron.countInvoices(formValuesHomePage);
       if (countResult.status === STATUS.Success) {

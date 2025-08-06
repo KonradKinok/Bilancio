@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../electron/sharedTypes/status";
 import { useToggle } from "../../hooks/useToggle";
@@ -23,8 +23,8 @@ interface MainTableProps {
   refetchAllInvoices: () => void;
   rowsPerPage: number;
   setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
-  page: PageState;
-  setPage: React.Dispatch<React.SetStateAction<PageState>>;
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
   totalCount: number;
 }
 
@@ -37,8 +37,14 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
-  const { setdotsNumber } = useMainDataContext();
-  setdotsNumber(totalCount); // Liczba kropek
+  const { dotsNumber, setDotsNumber } = useMainDataContext();
+
+  useEffect(() => {
+    if (dotsNumber !== totalCount) {
+      setDotsNumber(totalCount);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalCount, dotsNumber]);
 
   const {
     isOpenModal: isModalAddInvoiceOpen,
@@ -117,19 +123,14 @@ export const MainTable: React.FC<MainTableProps> = ({
   const handleRowsPerPageChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       setRowsPerPage(Number(event.target.value));
-      setPage((prev) => ({ ...prev, paginationPage: 1 }));
+      setPage(1);
     },
     [setRowsPerPage, setPage]
   );
 
   const onPageChange = useCallback(
     (newPage: number) => {
-      setPage((prev) => ({
-        ...prev,
-        paginationPage: newPage,
-        firstPage: 2 * newPage - 1,
-        lastPage: 2 * newPage,
-      }));
+      setPage(newPage);
     },
     [setPage]
   );
@@ -141,9 +142,9 @@ export const MainTable: React.FC<MainTableProps> = ({
 
   const getGlobalIndex = useCallback(
     (index: number) => {
-      return (page.paginationPage - 1) * rowsPerPage + index + 1;
+      return (page - 1) * rowsPerPage + index + 1;
     },
-    [page.paginationPage, rowsPerPage]
+    [page, rowsPerPage]
   );
   return (
     <div className={scss["mainTable-main-container"]}>
@@ -283,7 +284,7 @@ export const MainTable: React.FC<MainTableProps> = ({
 
           <Pagination
             className={scss.pagination}
-            currentPage={page.paginationPage}
+            currentPage={page}
             totalCount={totalPages}
             onPageChange={(page) => onPageChange(page)}
           />

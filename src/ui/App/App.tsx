@@ -1,7 +1,6 @@
 import React, { lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { LayoutPage } from "../pages/LayoutPage/LayoutPage";
-
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
 const ReportDataPage = lazy(
   () => import("../pages/ReportDataPage/ReportDataPage")

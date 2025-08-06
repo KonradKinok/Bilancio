@@ -1,4 +1,4 @@
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useMemo, useState } from "react";
 import { ElectronContext } from "./useMainDataContext";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { useAllDocumentsName } from "../../hooks/useAllDocumentName";
@@ -39,8 +39,14 @@ type Auth = {
 export interface ElectronContextType {
   options: Options; // Obiekt zawierający orientację
   setOptions: React.Dispatch<React.SetStateAction<Options>>; // Funkcja zmiany opcji
+  formValuesHomePage: FormValuesHomePage; // Obiekt zawierający wartości formularza
+  setFormValuesHomePage: React.Dispatch<
+    React.SetStateAction<FormValuesHomePage>
+  >;
+  page: number;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
   dotsNumber: number; // Obiekt zawierający orientację
-  setdotsNumber: React.Dispatch<React.SetStateAction<number>>; // Funkcja zmiany opcji
+  setDotsNumber: React.Dispatch<React.SetStateAction<number>>; // Funkcja zmiany opcji
   auth: Auth;
 
   // Funkcja zmiany opcji
@@ -72,16 +78,43 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
   // Wartość kontekstu (obiekt z opcjami)
   // Użycie hooka useUsers
   const auth = useAuth();
-  const [dotsNumber, setdotsNumber] = useState<number>(0); // Domyślna liczba kropek
-  const value: ElectronContextType = {
-    options,
-    setOptions,
-    dotsNumber,
-    setdotsNumber,
-    auth,
-    // allDocumentsData,
-  };
-
+  const [dotsNumber, setDotsNumber] = useState<number>(0); // Domyślna liczba kropek
+  const [page, setPage] = useState<number>(1);
+  // const value: ElectronContextType = {
+  //   options,
+  //   setOptions,
+  //   formValuesHomePage,
+  //   setFormValuesHomePage,
+  //   dotsNumber,
+  //   setdotsNumber,
+  //   auth,
+  //   // allDocumentsData,
+  // };
+  const value: ElectronContextType = useMemo(
+    () => ({
+      options,
+      setOptions,
+      formValuesHomePage,
+      setFormValuesHomePage,
+      page,
+      setPage,
+      dotsNumber,
+      setDotsNumber,
+      auth,
+      // allDocumentsData,
+    }),
+    [
+      options,
+      setOptions,
+      formValuesHomePage,
+      setFormValuesHomePage,
+      page,
+      setPage,
+      dotsNumber,
+      setDotsNumber,
+      auth /*, allDocumentsData*/,
+    ]
+  );
   return (
     <ElectronContext.Provider value={value}>
       {children}

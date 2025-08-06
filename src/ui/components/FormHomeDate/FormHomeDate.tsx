@@ -27,10 +27,12 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
     closeModal: closeModalAddInvoice,
   } = useToggle();
   const [dateTimePickerFirstDate, setDateTimePickerFirstDate] =
-    useState<Date | null>(new Date(new Date().getFullYear(), 0, 1));
+    useState<Date | null>(formValuesHomePage.firstDate);
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
-    useState<Date | null>(new Date(new Date().getFullYear(), 11, 31));
-  const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(0);
+    useState<Date | null>(formValuesHomePage.secondDate);
+  const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(
+    formValuesHomePage.isDeleted || 0
+  );
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -49,11 +51,19 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
     }));
   };
 
-  useEffect(() => {
-    setDateTimePickerFirstDate(formValuesHomePage.firstDate);
-    setDateTimePickerLastDate(formValuesHomePage.secondDate);
-    setRadioButtonIsDeleted(formValuesHomePage.isDeleted || 0);
-  }, [formValuesHomePage]);
+  // Synchronizacja z formValuesHomePage
+  // useEffect(() => {
+  //   if (dateTimePickerFirstDate !== formValuesHomePage.firstDate) {
+  //     setDateTimePickerFirstDate(formValuesHomePage.firstDate);
+  //   }
+  //   if (dateTimePickerLastDate !== formValuesHomePage.secondDate) {
+  //     setDateTimePickerLastDate(formValuesHomePage.secondDate);
+  //   }
+  //   if (radioButtonIsDeleted !== formValuesHomePage.isDeleted) {
+  //     setRadioButtonIsDeleted(formValuesHomePage.isDeleted || 0);
+  //   }
+  // // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [formValuesHomePage]);
 
   useEffect(() => {
     if (

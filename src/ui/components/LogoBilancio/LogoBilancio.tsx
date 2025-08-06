@@ -1,6 +1,6 @@
-import { use, useEffect, useRef, useState } from "react";
-import scss from "./LogoBilancio.module.scss";
+import { useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
+import scss from "./LogoBilancio.module.scss";
 
 interface LogoBilancioProps {
   classNameIconContainer?: string;
@@ -10,9 +10,14 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
   classNameIconContainer
 ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { dotsNumber } = useMainDataContext();
-  // const [numDots] = useState<number>(new Date().getDate()); // Liczba kropek do animacji
-  const [numDots] = useState<number>(15);
+  const { dotsNumber, setDotsNumber } = useMainDataContext();
+  const [numberOfDots, setNumberOfDots] = useState(dotsNumber); // Domyślna liczba kropek
+  // Synchronizacja numberOfDots z dotsNumber
+  useEffect(() => {
+    if (numberOfDots !== dotsNumber) {
+      setNumberOfDots(dotsNumber);
+    }
+  }, [dotsNumber, numberOfDots]);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -34,7 +39,7 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
     };
 
     // Tablica trzech kropek z losowymi początkowymi pozycjami i kątami
-    const dots = Array.from({ length: dotsNumber }, () => ({
+    const dots = Array.from({ length: numberOfDots }, () => ({
       x: Math.random() * (containerWidth - 2 * dotRadius) + dotRadius,
       y: Math.random() * (containerHeight - 2 * dotRadius) + dotRadius,
       vx: 0,
@@ -110,7 +115,7 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
     return () => {
       ctx.clearRect(0, 0, containerWidth, containerHeight);
     };
-  }, [dotsNumber]);
+  }, [numberOfDots]);
   // Ustawienie dynamicznej klasy
   const containerClassName =
     `${classNameIconContainer} ${scss["logo-main-container"]}`.trim();
