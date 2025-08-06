@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { MainTable } from "../../components/MainTable/MainTable";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
@@ -6,7 +6,8 @@ import scss from "./HomePage.module.scss";
 import { useMainDataContext } from "../../components/Context/useMainDataContext";
 
 const HomePage: React.FC = () => {
-  const { formValuesHomePage, setFormValuesHomePage } = useMainDataContext();
+  const { page, setPage, formValuesHomePage, setFormValuesHomePage } =
+    useMainDataContext();
   // useState<FormValuesHomePage>({
   //   // firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
   //   firstDate: new Date(Date.UTC(2010, 0, 1)),
@@ -14,8 +15,13 @@ const HomePage: React.FC = () => {
   //   isDeleted: 0,
   // });
   const [rowsPerPage, setRowsPerPage] = useState<number>(10);
-  const [page, setPage] = useState<number>(2);
-
+  // const [page, setPage] = useState<number>(1);
+  useEffect(() => {
+    console.log("HomePage mounted, page:");
+    return () => {
+      console.log("HomePage unmounted");
+    };
+  }, [page]);
   // Używamy hooka useAllInvoices z paginacją
   const {
     data: dataAllInvoices,
