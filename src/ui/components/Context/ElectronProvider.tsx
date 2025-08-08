@@ -45,6 +45,8 @@ export interface ElectronContextType {
   >;
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
+  rowsPerPage: number;
+  setRowsPerPage: React.Dispatch<React.SetStateAction<number>>;
   dotsNumber: number; // Obiekt zawierający orientację
   setDotsNumber: React.Dispatch<React.SetStateAction<number>>; // Funkcja zmiany opcji
   auth: Auth;
@@ -80,6 +82,7 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
   const auth = useAuth();
   const [dotsNumber, setDotsNumber] = useState<number>(0); // Domyślna liczba kropek
   const [page, setPage] = useState<number>(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(10);
   // const value: ElectronContextType = {
   //   options,
   //   setOptions,
@@ -98,6 +101,8 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
       setFormValuesHomePage,
       page,
       setPage,
+      rowsPerPage,
+      setRowsPerPage,
       dotsNumber,
       setDotsNumber,
       auth,
@@ -110,6 +115,8 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
       setFormValuesHomePage,
       page,
       setPage,
+      rowsPerPage,
+      setRowsPerPage,
       dotsNumber,
       setDotsNumber,
       auth /*, allDocumentsData*/,

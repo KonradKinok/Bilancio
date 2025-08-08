@@ -6,6 +6,7 @@ import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { IconInfo } from "../IconInfo/IconInfo";
 import scss from "./FormHomeDate.module.scss";
+import { useMainDataContext } from "../Context/useMainDataContext";
 
 interface FormHomeDate {
   formValuesHomePage: FormValuesHomePage;
@@ -20,6 +21,7 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
   setFormValuesHomePage,
   refetchAllInvoices,
 }) => {
+  const { setPage } = useMainDataContext();
   const [showTooltip, setShowTooltip] = useState(false);
   const {
     isOpenModal: isModalAddInvoiceOpen,
@@ -49,6 +51,7 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
       secondDate: dateTimePickerLastDate,
       isDeleted: radioButtonIsDeleted,
     }));
+    setPage(1); // Reset page to 1 on form submission
   };
 
   // Synchronizacja z formValuesHomePage

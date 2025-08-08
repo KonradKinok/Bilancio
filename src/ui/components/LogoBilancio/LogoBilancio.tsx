@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
+import logoBilancio1 from "../../../assets/logoBilancio/TextBilancio1.png";
+import logoBilancio2 from "../../../assets/logoBilancio/textBilancioGold.png";
+import logoBilancio3 from "../../../assets/logoBilancio/textBilancioSilver.png";
+import logoBilancio4 from "../../../assets/logoBilancio/textBilancio4.png";
+import logoBilancio5 from "../../../assets/logoBilancio/textBilancio5.png";
+import logoBilancio6 from "../../../assets/logoBilancio/textBilancio6.png";
+import logoBilancio7 from "../../../assets/logoBilancio/textBilancio7.png";
 import scss from "./LogoBilancio.module.scss";
 
 interface LogoBilancioProps {
@@ -10,14 +17,9 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
   classNameIconContainer
 ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { dotsNumber, setDotsNumber } = useMainDataContext();
-  const [numberOfDots, setNumberOfDots] = useState(dotsNumber); // Domyślna liczba kropek
-  // Synchronizacja numberOfDots z dotsNumber
-  useEffect(() => {
-    if (numberOfDots !== dotsNumber) {
-      setNumberOfDots(dotsNumber);
-    }
-  }, [dotsNumber, numberOfDots]);
+  const { dotsNumber } = useMainDataContext();
+  const [isAnimating, setIsAnimating] = useState(false); // Stan do kontrolowania animacji
+  const [isHovered, setIsHovered] = useState(false); // Czy kursor jest nad elementem
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -39,7 +41,7 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
     };
 
     // Tablica trzech kropek z losowymi początkowymi pozycjami i kątami
-    const dots = Array.from({ length: numberOfDots }, () => ({
+    const dots = Array.from({ length: dotsNumber }, () => ({
       x: Math.random() * (containerWidth - 2 * dotRadius) + dotRadius,
       y: Math.random() * (containerHeight - 2 * dotRadius) + dotRadius,
       vx: 0,
@@ -115,21 +117,53 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
     return () => {
       ctx.clearRect(0, 0, containerWidth, containerHeight);
     };
-  }, [numberOfDots]);
+  }, [dotsNumber]);
+
+  // Funkcja obsługująca najechanie kursorem
+  const handleMouseEnter = () => {
+    if (!isAnimating) {
+      setIsAnimating(true);
+      setTimeout(() => setIsAnimating(false), 3000); // Reset po 3 sekundach
+    }
+  };
+  // Funkcja obsługująca opuszczenie kursora
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  // Funkcja obsługująca zakończenie animacji
+  const handleAnimationEnd = () => {
+    setIsAnimating(false);
+    if (isHovered) {
+      // Jeśli kursor nadal jest nad elementem, uruchom animację ponownie
+      setIsAnimating(true);
+    }
+  };
   // Ustawienie dynamicznej klasy
   const containerClassName =
     `${classNameIconContainer} ${scss["logo-main-container"]}`.trim();
 
   return (
     <div className={containerClassName}>
-      <div className={scss["logo-container"]}>
+      <div
+        className={scss["logo-container"]}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
         <canvas
           ref={canvasRef}
           width={190}
           height={60}
           className={scss["canvas"]}
         />
-        <div className={scss["logo-text-container"]}>BILANCIO</div>
+        <div
+          className={`${scss["logo-text-container"]} ${
+            isAnimating ? scss["rotate-animation"] : ""
+          }`}
+          onAnimationEnd={handleAnimationEnd}
+        >
+          <img src={logoBilancio4} alt="logoText" />
+        </div>
       </div>
     </div>
   );

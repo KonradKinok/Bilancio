@@ -38,9 +38,8 @@ export const MainTable: React.FC<MainTableProps> = ({
   totalCount,
 }) => {
   const { dotsNumber, setDotsNumber } = useMainDataContext();
-
   useEffect(() => {
-    if (dotsNumber !== totalCount) {
+    if (dotsNumber !== totalCount && totalCount > 0) {
       setDotsNumber(totalCount);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,6 +145,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     },
     [page, rowsPerPage]
   );
+
   return (
     <div className={scss["mainTable-main-container"]}>
       <div>
