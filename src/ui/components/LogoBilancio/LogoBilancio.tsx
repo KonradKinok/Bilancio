@@ -1,4 +1,4 @@
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import logoBilancio1 from "../../../assets/logoBilancio/TextBilancio1.png";
 import logoBilancio2 from "../../../assets/logoBilancio/textBilancioGold.png";
@@ -13,9 +13,9 @@ interface LogoBilancioProps {
   classNameIconContainer?: string;
 }
 
-export const LogoBilancio: React.FC<LogoBilancioProps> = (
-  classNameIconContainer
-) => {
+export const LogoBilancio: React.FC<LogoBilancioProps> = ({
+  classNameIconContainer,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { dotsNumber } = useMainDataContext();
   const [isAnimating, setIsAnimating] = useState(false); // Stan do kontrolowania animacji

@@ -1,5 +1,5 @@
 {
-  "appId": "com.n-ziermann.electron-course",
+  "appId": "com.3K.nexgen.bilancio.konradkonik",
   "files": ["dist-electron", "dist-react"],
   "extraResources": ["dist-electron/preload.cjs", "src/assets/**"],
   "icon": "./desktopIcon.png",

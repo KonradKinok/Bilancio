@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { useMainDataContext } from "../../components/Context/useMainDataContext";
 import { MainTable } from "../../components/MainTable/MainTable";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
+import { ConditionalWrapper } from "../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./HomePage.module.scss";
 
 const HomePage: React.FC = () => {
@@ -14,22 +14,11 @@ const HomePage: React.FC = () => {
     formValuesHomePage,
     setFormValuesHomePage,
   } = useMainDataContext();
-  // useState<FormValuesHomePage>({
-  //   // firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-  //   firstDate: new Date(Date.UTC(2010, 0, 1)),
-  //   secondDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-  //   isDeleted: 0,
-  // });
-  // const [page, setPage] = useState<number>(1);
-  useEffect(() => {
-    console.log("HomePage mounted, page:");
-    return () => {
-      console.log("HomePage unmounted");
-    };
-  }, [page]);
-  // Używamy hooka useAllInvoices z paginacją
+
+  // Hooka useAllInvoices z paginacją
   const {
     data: dataAllInvoices,
+    loading: loadingDataAllInvoices,
     totalCount,
     refetch: refetchAllInvoices,
   } = useAllInvoices(formValuesHomePage, page, rowsPerPage);
@@ -41,16 +30,18 @@ const HomePage: React.FC = () => {
         setFormValuesHomePage={setFormValuesHomePage}
         refetchAllInvoices={refetchAllInvoices}
       />
-      <MainTable
-        setFormValuesHomePage={setFormValuesHomePage}
-        dataAllInvoices={dataAllInvoices}
-        refetchAllInvoices={refetchAllInvoices}
-        rowsPerPage={rowsPerPage}
-        setRowsPerPage={setRowsPerPage}
-        page={page}
-        setPage={setPage}
-        totalCount={totalCount}
-      />
+      <ConditionalWrapper isLoading={loadingDataAllInvoices}>
+        <MainTable
+          setFormValuesHomePage={setFormValuesHomePage}
+          dataAllInvoices={dataAllInvoices}
+          refetchAllInvoices={refetchAllInvoices}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
+          page={page}
+          setPage={setPage}
+          totalCount={totalCount}
+        />
+      </ConditionalWrapper>
     </div>
   );
 };

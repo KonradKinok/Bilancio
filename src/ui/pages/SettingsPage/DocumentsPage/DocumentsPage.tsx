@@ -10,11 +10,16 @@ import { useAddDocument } from "../../../hooks/useAddDocument";
 import { displayErrorMessage } from "../../../components/GlobalFunctions/GlobalFunctions";
 import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
+import { ConditionalWrapper } from "../../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./DocumentsPage.module.scss";
 
 const DocumentsPage: React.FC = () => {
   // Hook do pobierania wszystkich dokumentów
-  const { data: dataAllDocumentsName, getAllDocuments } = useAllDocumentsName();
+  const {
+    data: dataAllDocumentsName,
+    loading: loadingDataAllDocumentsName,
+    getAllDocuments,
+  } = useAllDocumentsName();
 
   //Hook do edytowania dokumentów
   const { addDocument } = useAddDocument();
@@ -157,48 +162,51 @@ const DocumentsPage: React.FC = () => {
         tooltipId="tooltip-formAddInvoice"
         tooltipInfoTextHtml={tooltipInfoDocumentsPage()}
       />
-      <div>
-        <table className={scss["table"]}>
-          <thead>
-            <tr>
-              <th>Lp.</th>
-              <th>Nazwa dokumentu</th>
-              <th>Główny typ dokumentu</th>
-              <th>Typ dokumentu</th>
-              <th>Podtyp dokumentu</th>
-              <th>Cena</th>
-              <th colSpan={2}>Akcje</th>
-            </tr>
-          </thead>
-          <tbody>
-            <SeparateDocument
-              isNewDocument={true}
-              index={-1}
-              saveEditedDocument={handleSaveEditedDocument}
-              handleDeleteRestoreDocument={handleDeleteRestoreDocument}
-              handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
-            />
-            {dataAllDocumentsName &&
-              dataAllDocumentsName.length > 0 &&
-              dataAllDocumentsName.map((document, index) => {
-                return (
-                  <SeparateDocument
-                    key={document.AllDocumentsId}
-                    document={document}
-                    index={index}
-                    saveEditedDocument={handleSaveEditedDocument}
-                    handleDeleteRestoreDocument={handleDeleteRestoreDocument}
-                    handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
-                  />
-                );
-              })}
-          </tbody>
-        </table>
-        <div className={scss["maintable-footer-container"]}>
-          <p>Aktywne: {documentCounts?.active}</p>
-          <p>Usunięte: {documentCounts?.deleted}</p>
+      <ConditionalWrapper isLoading={loadingDataAllDocumentsName}>
+        <div>
+          <table className={scss["table"]}>
+            <thead>
+              <tr>
+                <th>Lp.</th>
+                <th>Nazwa dokumentu</th>
+                <th>Główny typ dokumentu</th>
+                <th>Typ dokumentu</th>
+                <th>Podtyp dokumentu</th>
+                <th>Cena</th>
+                <th colSpan={2}>Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <SeparateDocument
+                isNewDocument={true}
+                index={-1}
+                saveEditedDocument={handleSaveEditedDocument}
+                handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+                handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
+              />
+              {dataAllDocumentsName &&
+                dataAllDocumentsName.length > 0 &&
+                dataAllDocumentsName.map((document, index) => {
+                  return (
+                    <SeparateDocument
+                      key={document.AllDocumentsId}
+                      document={document}
+                      index={index}
+                      saveEditedDocument={handleSaveEditedDocument}
+                      handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+                      handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
+                    />
+                  );
+                })}
+            </tbody>
+          </table>
+
+          <div className={scss["maintable-footer-container"]}>
+            <p>Aktywne: {documentCounts?.active}</p>
+            <p>Usunięte: {documentCounts?.deleted}</p>
+          </div>
         </div>
-      </div>
+      </ConditionalWrapper>
       <Tooltip
         id="toolTipSeparateDocumentButtonSave"
         className={scss["tooltip"]}
