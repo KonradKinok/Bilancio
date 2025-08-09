@@ -24,7 +24,13 @@ import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWind
 import scss from "./FormAddInvoice.module.scss";
 
 interface FormAddInvoiceProps {
+  invoiceToChangeTemp?: InvoiceSave;
+  setInvoiceToChangeTemp?: React.Dispatch<
+    React.SetStateAction<InvoiceSave | undefined>
+  >;
+
   addInvoiceData: InvoiceSave;
+
   selectedInvoice?: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   closeModalAddInvoice: () => void;
@@ -34,6 +40,8 @@ interface FormAddInvoiceProps {
 }
 
 export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
+  invoiceToChangeTemp,
+  setInvoiceToChangeTemp,
   addInvoiceData,
   setAddInvoiceData,
   closeModalAddInvoice,
@@ -81,6 +89,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   const [documentComponents, setDocumentComponents] = useState<string[]>([
     nanoid(),
   ]);
+
   const [isSaveButtonEnabled, setIsSaveButtonEnabled] =
     useState<boolean>(false);
 
@@ -128,26 +137,26 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 
   // Wypełnianie formularza danymi z addInvoiceData
   useEffect(() => {
-    if (selectedInvoice) {
-      setInputInvoiceName(selectedInvoice.invoice.InvoiceName);
+    if (invoiceToChangeTemp) {
+      setInputInvoiceName(invoiceToChangeTemp.invoice.InvoiceName);
       setDateTimePickerReceiptDate(
-        selectedInvoice.invoice.ReceiptDate
-          ? new Date(selectedInvoice.invoice.ReceiptDate)
+        invoiceToChangeTemp.invoice.ReceiptDate
+          ? new Date(invoiceToChangeTemp.invoice.ReceiptDate)
           : null
       );
       setDateTimePickerDeadlineDate(
-        selectedInvoice.invoice.DeadlineDate
-          ? new Date(selectedInvoice.invoice.DeadlineDate)
+        invoiceToChangeTemp.invoice.DeadlineDate
+          ? new Date(invoiceToChangeTemp.invoice.DeadlineDate)
           : null
       );
       setDateTimePickerPaymentDate(
-        selectedInvoice.invoice.PaymentDate
-          ? new Date(selectedInvoice.invoice.PaymentDate)
+        invoiceToChangeTemp.invoice.PaymentDate
+          ? new Date(invoiceToChangeTemp.invoice.PaymentDate)
           : null
       );
-      setDocumentComponents(selectedInvoice.details.map(() => nanoid()));
+      setDocumentComponents(invoiceToChangeTemp.details.map(() => nanoid()));
     }
-  }, [selectedInvoice]);
+  }, [invoiceToChangeTemp]);
 
   const validateForm = useCallback((): boolean => {
     if (isEditMode && invoiceDifference.length === 0) return false; // Jeśli jest tryb edycji i nie ma różnic, nie pozwalamy na zapis
@@ -235,6 +244,8 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
     }
     const indexToRemove = documentComponents.indexOf(id);
+    console.log("Index to remove:", indexToRemove);
+    console.log("Document components before removal:", documentComponents);
     if (indexToRemove === -1) return; // Zabezpieczenie przed błędnym ID
     setDocumentComponents((prev) =>
       prev.filter((componentId) => componentId !== id)
@@ -243,6 +254,19 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       ...prev,
       details: prev.details.filter((_, i) => i !== indexToRemove),
     }));
+    if (setInvoiceToChangeTemp) {
+      setInvoiceToChangeTemp((prev: InvoiceSave | undefined) => {
+        if (!prev) {
+          return prev; // Zwracamy undefined, jeśli prev jest undefined
+        }
+        return {
+          ...prev,
+          details: prev.details.filter(
+            (_: InvoiceDetailsTable, i: number) => i !== indexToRemove
+          ),
+        };
+      });
+    }
   };
 
   const resetForm = useCallback(() => {
@@ -448,7 +472,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             isOnly={documentComponents.length === 1}
             index={index}
             modalContentRef={modalContentRef}
-            detail={selectedInvoice?.details[index]} // Przekazujemy dane szczegółów
+            detail={invoiceToChangeTemp?.details[index]} // Przekazujemy dane szczegółów
           />
         ))}
         <div className={scss["form-add-invoice-save-container"]}>

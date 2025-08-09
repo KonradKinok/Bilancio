@@ -3,6 +3,11 @@ import { FormAddInvoice } from "../FormAddInvoice/FormAddInvoice";
 import scss from "./ModalAddInvoice.module.scss";
 
 interface ModalAddInvoiceProps {
+  invoiceToChangeTemp?: InvoiceSave;
+  setInvoiceToChangeTemp?: React.Dispatch<
+    React.SetStateAction<InvoiceSave | undefined>
+  >;
+
   closeModalAddInvoice: () => void;
   isModalAddInvoiceOpen: boolean;
   selectedInvoice?: InvoiceSave;
@@ -14,6 +19,8 @@ export function ModalAddInvoice({
   isModalAddInvoiceOpen,
   selectedInvoice,
   refetchAllInvoices,
+  invoiceToChangeTemp,
+  setInvoiceToChangeTemp,
 }: ModalAddInvoiceProps) {
   const [addInvoiceData, setAddInvoiceData] = useState<InvoiceSave>({
     invoice: {
@@ -36,7 +43,7 @@ export function ModalAddInvoice({
       },
     ],
   });
-  
+
   const modalContentRef = useRef<HTMLDivElement>(null);
 
   // Aktualizacja addInvoiceData, gdy selectedInvoice się zmienia
@@ -57,12 +64,14 @@ export function ModalAddInvoice({
           ref={modalContentRef}
         >
           <FormAddInvoice
+            invoiceToChangeTemp={invoiceToChangeTemp}
+            setInvoiceToChangeTemp={setInvoiceToChangeTemp}
             addInvoiceData={addInvoiceData}
             setAddInvoiceData={setAddInvoiceData}
             closeModalAddInvoice={closeModalAddInvoice}
             modalContentRef={modalContentRef}
             selectedInvoice={selectedInvoice}
-            isEditMode={!!selectedInvoice?.invoice.InvoiceId} // Przekazujemy informację o trybie edycji
+            isEditMode={!!invoiceToChangeTemp?.invoice.InvoiceId} // Przekazujemy informację o trybie edycji
             refetchAllInvoices={refetchAllInvoices}
           />
         </div>

@@ -60,7 +60,9 @@ export const MainTable: React.FC<MainTableProps> = ({
   const [selectedInvoice, setSelectedInvoice] = useState<
     InvoiceSave | undefined
   >(undefined);
-
+  const [invoiceToChangeTemp, setInvoiceToChangeTemp] = useState<
+    InvoiceSave | undefined
+  >(undefined);
   //Delete/Restore Invoice hooks
   const { restoreInvoice } = useRestoreInvoice();
   const { deleteInvoice } = useDeleteInvoice();
@@ -114,6 +116,7 @@ export const MainTable: React.FC<MainTableProps> = ({
     (invoice: AllInvoices) => {
       const invoiceData = selectedInvoiceData(invoice);
       setSelectedInvoice(invoiceData);
+      setInvoiceToChangeTemp(invoiceData);
       openModalAddInvoice();
     },
     [openModalAddInvoice]
@@ -294,6 +297,8 @@ export const MainTable: React.FC<MainTableProps> = ({
         isModalAddInvoiceOpen={isModalAddInvoiceOpen}
         closeModalAddInvoice={closeModalAddInvoice}
         selectedInvoice={selectedInvoice} // Przekazanie danych faktury
+        invoiceToChangeTemp={invoiceToChangeTemp} // Tymczasowe dane faktury do edycji
+        setInvoiceToChangeTemp={setInvoiceToChangeTemp} // Funkcja do ustawienia tymczasowych danych faktury
         refetchAllInvoices={refetchAllInvoices} // Funkcja do odświeżenia listy faktur
       />
       <ModalSelectionWindow

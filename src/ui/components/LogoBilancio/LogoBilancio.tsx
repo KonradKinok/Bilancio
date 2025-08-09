@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import logoBilancio1 from "../../../assets/logoBilancio/TextBilancio1.png";
 import logoBilancio2 from "../../../assets/logoBilancio/textBilancioGold.png";
@@ -119,13 +119,23 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = (
     };
   }, [dotsNumber]);
 
-  // Funkcja obsługująca najechanie kursorem
-  const handleMouseEnter = () => {
-    if (!isAnimating) {
-      setIsAnimating(true);
-      setTimeout(() => setIsAnimating(false), 3000); // Reset po 3 sekundach
+  // Monitorowanie zmiany isHovered
+  useEffect(() => {
+    if (isHovered) {
+      const timeout = setTimeout(() => {
+        if (isHovered && !isAnimating) {
+          setIsAnimating(true);
+          setTimeout(() => setIsAnimating(false), 3000); // Reset po 3 sekundach
+        }
+      }, 1000); // Opóźnienie 2 sekundy
+      return () => clearTimeout(timeout); // Czyszczenie timeoutu
     }
+  }, [isHovered, isAnimating]);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
   };
+
   // Funkcja obsługująca opuszczenie kursora
   const handleMouseLeave = () => {
     setIsHovered(false);
