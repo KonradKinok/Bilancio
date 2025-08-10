@@ -3,23 +3,44 @@ import path from "path";
 import fs from "fs"
 import { getWindowsUsername, ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
-import { checkDatabaseExists, createDocumentDirectories, getAssetPath, getConfig, getDBbBilancioPath, getPreloadPath, getUIPath, saveConfig } from "./pathResolver.js";
+import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, getUIPath, } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
 import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, loginUser, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
-import { configureLogs, defaultLogs, openDBDialog, openSavedDocumentsDialog, openTemplatesDialog } from "./config.js";
+import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
-
+// Deklaracja mainWindow na poziomie globalnym
+let mainWindow: BrowserWindow | null = null;
+const gotTheLock = app.requestSingleInstanceLock();
 
 Menu.setApplicationMenu(null);
-
+if (!gotTheLock) {
+  // Jeśli lock nie uzyskany, zamknij bieżącą instancję i nie wykonuj dalszego kodu
+  app.quit();
+  process.exit(0);
+} else {
+  // Handler dla drugiej instancji
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) {
+        mainWindow.restore(); // Przywróć z minimalizacji
+      }
+      mainWindow.show(); // Pokaż okno
+      mainWindow.focus(); // Ustaw fokus
+      if (app.dock) {
+        app.dock.show(); // Pokaż dock na macOS jeśli ukryty
+      }
+    }
+  });
+}
 app.on("ready", () => {
+  if (!gotTheLock) return;
   configureLogs(); // Wywołanie funkcji konfiguracyjnej logowania
   defaultLogs();
-  createDocumentDirectories();
+  configureBackupDb();
 
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     resizable: true,
@@ -134,25 +155,7 @@ app.on("ready", () => {
     return loginUser(systemUserName, password);
   });
   // Nowe IPC dla konfiguracji
-  ipcMainHandle('getConfigBilancio', () => {
-    return getConfig();
-  });
 
-  ipcMainHandle2('saveConfig', (config) => {
-    return saveConfig(config);
-  });
-
-  ipcMainHandle('openDBDialog', () => {
-    return openDBDialog();
-  });
-
-  ipcMainHandle('openTemplatesDialog', () => {
-    return openTemplatesDialog();
-  });
-
-  ipcMainHandle('openSavedDocumentsDialog', () => {
-    return openSavedDocumentsDialog();
-  });
 
   ipcMainHandle('checkDatabaseExists', () => {
     return checkDatabaseExists();

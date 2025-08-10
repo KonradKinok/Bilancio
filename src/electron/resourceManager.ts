@@ -1,9 +1,9 @@
-import osUtils from 'os-utils';
-import os from 'os';
-import fs from 'fs';
-import { BrowserWindow } from 'electron';
-import { ipcWebContentsSend } from './util.js';
-const POLLING_INTERVAL = 2500;
+// import osUtils from 'os-utils';
+// import os from 'os';
+// import fs from 'fs';
+// import { BrowserWindow } from 'electron';
+// import { ipcWebContentsSend } from './util.js';
+// const POLLING_INTERVAL = 2500;
 
 // export function pollResources(mainWindow:BrowserWindow) {
 //   setInterval(async() => {
@@ -18,34 +18,166 @@ const POLLING_INTERVAL = 2500;
 //    }, POLLING_INTERVAL);
 // }
 
-export function getStaticData() {
-  const totalStorage = getStorageData().total;
-  const cpuModel = os.cpus()[0].model;
-  const totalMemoryGB = Math.floor(osUtils.totalmem() / 1024);
-  return { totalStorage, cpuModel, totalMemoryGB };
-}
+// export function getStaticData() {
+//   const totalStorage = getStorageData().total;
+//   const cpuModel = os.cpus()[0].model;
+//   const totalMemoryGB = Math.floor(osUtils.totalmem() / 1024);
+//   return { totalStorage, cpuModel, totalMemoryGB };
+// }
 
 
-function getCpuUsage(): Promise<number> {
-  return new Promise((resolve) => {
-    osUtils.cpuUsage(resolve);
-  });
-}
+// function getCpuUsage(): Promise<number> {
+//   return new Promise((resolve) => {
+//     osUtils.cpuUsage(resolve);
+//   });
+// }
 
-function getRamUsage() {
-  return 1 - osUtils.freememPercentage();
-}
+// function getRamUsage() {
+//   return 1 - osUtils.freememPercentage();
+// }
 
-function getStorageData() {
-  // requires node 18
-  const stats = fs.statfsSync(process.platform === 'win32' ? 'C://' : '/');
-  const total = stats.bsize * stats.blocks;
-  const free = stats.bsize * stats.bfree;
+// function getStorageData() {
+//   // requires node 18
+//   const stats = fs.statfsSync(process.platform === 'win32' ? 'C://' : '/');
+//   const total = stats.bsize * stats.blocks;
+//   const free = stats.bsize * stats.bfree;
 
-  return {
-    total: Math.floor(total / 1_000_000_000),
-    usage: 1 - free / total,
-  };
-}
+//   return {
+//     total: Math.floor(total / 1_000_000_000),
+//     usage: 1 - free / total,
+//   };
+// }
 
+// Funkcja do tworzenia katalogów document templates i saved documents
+// export function createDocumentDirectories() {
+//   const config = getConfig();
+//   const documentTemplatesPath = config.documentTemplatesPath;
+//   const savedDocumentsPath = config.savedDocumentsPath;
+//   try {
+//     if (!fs.existsSync(documentTemplatesPath)) {
+//       fs.mkdirSync(documentTemplatesPath, { recursive: true });
+//       log.info('Utworzono katalog szablonów dokumentów:', documentTemplatesPath);
+//     }
+//     if (!fs.existsSync(savedDocumentsPath)) {
+//       fs.mkdirSync(savedDocumentsPath, { recursive: true });
+//       log.info('Utworzono katalog zapisanych dokumentów:', savedDocumentsPath);
+//     }
+//   } catch (err) {
+//     log.error('Błąd tworzenia katalogów dokumentów:', err);
+//   }
+// };
 
+// Funkcja do pobierania i zapisywania konfiguracji
+// export function getConfig() {
+//   const configPath = path.join(getUserDataDirPath(), 'config.json');
+//   const defaultConfig = {
+//     dbPath: path.join(getUserDataDirPath(), 'BilancioDataBase.db'),
+//     documentTemplatesPath: path.join(getUserDataDirPath(), 'szablony dokumentów'),
+//     savedDocumentsPath: path.join(getUserDataDirPath(), 'zapisane dokumenty'),
+//   };
+
+//   try {
+//     if (!fs.existsSync(getUserDataDirPath())) {
+//       fs.mkdirSync(getUserDataDirPath(), { recursive: true });
+//       log.info('pathResolver: Utworzono folder userData:', getUserDataDirPath());
+//     }
+
+//     if (!fs.existsSync(configPath)) {
+//       fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+//       log.info('Utworzono domyślny plik config.json:', configPath);
+//     }
+
+//     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+//     return { ...defaultConfig, ...config };
+//   } catch (err) {
+//     log.error('Błąd odczytu konfiguracji:', err);
+//     return defaultConfig;
+//   }
+// }
+
+// Funkcja do zapisywania konfiguracji
+// export function saveConfig(config: { dbPath?: string; documentTemplatesPath?: string; savedDocumentsPath?: string }) {
+//   const configPath = path.join(getUserDataDirPath(), 'config.json');
+//   try {
+//     const currentConfig = getConfig();
+//     const newConfig = { ...currentConfig, ...config };
+//     fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2));
+//     log.info('Zapisano konfigurację:', newConfig);
+//     return newConfig;
+//   } catch (err) {
+//     log.error('Błąd zapisu konfiguracji:', err);
+//     throw err;
+//   }
+// }
+
+// Funkcja do otwierania dialogu wyboru bazy danych
+// oraz aktualizacji ścieżki w konfiguracji
+// export const openDBDialog = async () => {
+//   const config = getConfig();
+//   if (!config) {
+//     log.error('Nie można otworzyć dialogu wyboru bazy danych, brak konfiguracji.');
+//     return { success: false, path: null };
+//   }
+//   const result = await dialog.showOpenDialog({
+//     properties: ['openFile'],
+//     defaultPath: path.dirname(config.dbPath),
+//     filters: [{ name: 'BilancioDataBase', extensions: ['db'] }],
+//     title: 'Wybierz plik bazy danych',
+//   });
+//   if (!result.canceled && result.filePaths.length > 0) {
+//     const selectedPath = result.filePaths[0];
+//     const currentConfig = getConfig()
+//     const updatedConfig = {
+//       ...currentConfig,
+//       dbPath: selectedPath,
+//     };
+
+//     await saveConfig(updatedConfig); // Przekaż pełny obiekt Config
+//     return { success: true, path: selectedPath };
+//   }
+//   return { success: false, path: null };
+// };
+
+// Funkcja do otwierania dialogu wyboru katalogu z szablonami dokumentów
+// oraz aktualizacji ścieżki w konfiguracji
+// export const openTemplatesDialog = async () => {
+//   const config = getConfig();
+//   const result = await dialog.showOpenDialog({
+//     properties: ['openDirectory'],
+//     defaultPath: path.dirname(config.documentTemplatesPath),
+//     title: 'Wybierz katalog szablonów dokumentów',
+//   });
+//   if (!result.canceled && result.filePaths.length > 0) {
+//     const selectedPath = result.filePaths[0];
+//     const currentConfig = getConfig();
+//     const updatedConfig = {
+//       ...currentConfig,
+//       documentTemplatesPath: selectedPath,
+//     };
+//     saveConfig(updatedConfig);
+//     return { success: true, path: selectedPath };
+//   }
+//   return { success: false, path: null };
+// };
+
+// Funkcja do otwierania dialogu wyboru katalogu z zapisanymi dokumentami
+// oraz aktualizacji ścieżki w konfiguracji
+// export const openSavedDocumentsDialog = async () => {
+//   const config = getConfig();
+//   const result = await dialog.showOpenDialog({
+//     properties: ['openDirectory'],
+//     defaultPath: path.dirname(config.savedDocumentsPath),
+//     title: 'Wybierz katalog zapisanych dokumentów',
+//   });
+//   if (!result.canceled && result.filePaths.length > 0) {
+//     const selectedPath = result.filePaths[0];
+//     const currentConfig = getConfig();
+//     const updatedConfig = {
+//       ...currentConfig,
+//       savedDocumentsPath: selectedPath,
+//     };
+//     saveConfig(updatedConfig);
+//     return { success: true, path: selectedPath };
+//   }
+//   return { success: false, path: null };
+// };

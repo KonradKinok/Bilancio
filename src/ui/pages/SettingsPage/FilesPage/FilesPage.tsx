@@ -1,41 +1,41 @@
-import { useConfig } from "../../../hooks/useConfig";
+// import { useConfig } from "../../../hooks/useConfig";
 import scss from "./FilesPage.module.scss";
 
 const FilesPage: React.FC = () => {
-  const {
-    config,
-    dbExists,
-    loading,
-    error,
-    selectDatabasePath,
-    selectTemplatesPath,
-    selectSavedDocumentsPath,
-  } = useConfig();
+  // const {
+  //   config,
+  //   dbExists,
+  //   loading,
+  //   error,
+  //   selectDatabasePath,
+  //   selectTemplatesPath,
+  //   selectSavedDocumentsPath,
+  // } = useConfig();
 
-  const handleSelectDB = async () => {
-    const result = await selectDatabasePath();
-    if (!result.success) {
-      console.log("Anulowano wybór ścieżki bazy danych");
-    }
-  };
+  // const handleSelectDB = async () => {
+  //   const result = await selectDatabasePath();
+  //   if (!result.success) {
+  //     console.log("Anulowano wybór ścieżki bazy danych");
+  //   }
+  // };
 
-  const handleSelectTemplates = async () => {
-    const result = await selectTemplatesPath();
-    if (!result.success) {
-      console.log("Anulowano wybór katalogu szablonów");
-    }
-  };
+  // const handleSelectTemplates = async () => {
+  //   const result = await selectTemplatesPath();
+  //   if (!result.success) {
+  //     console.log("Anulowano wybór katalogu szablonów");
+  //   }
+  // };
 
-  const handleSelectSavedDocuments = async () => {
-    const result = await selectSavedDocumentsPath();
-    if (!result.success) {
-      console.log("Anulowano wybór katalogu zapisanych dokumentów");
-    }
-  };
+  // const handleSelectSavedDocuments = async () => {
+  //   const result = await selectSavedDocumentsPath();
+  //   if (!result.success) {
+  //     console.log("Anulowano wybór katalogu zapisanych dokumentów");
+  //   }
+  // };
 
   return (
     <div className={scss["files-page-container"]}>
-      {config && (
+      {/* {config && (
         <>
           <div className={scss["path-container"]}>
             <button
@@ -71,7 +71,7 @@ const FilesPage: React.FC = () => {
             <p className={scss["path"]}>{config.savedDocumentsPath}</p>
           </div>
         </>
-      )}
+      )} */}
     </div>
   );
 };

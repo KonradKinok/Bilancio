@@ -36,11 +36,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
 
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
 
-  getConfigBilancio: () => ipcInvoke('getConfigBilancio'),
-  saveConfig: (config) => ipcInvoke2('saveConfig', config),
-  openDBDialog: () => ipcInvoke('openDBDialog'),
-  openTemplatesDialog: () => ipcInvoke('openTemplatesDialog'),
-  openSavedDocumentsDialog: () => ipcInvoke('openSavedDocumentsDialog'),
+
   reinitializeDatabase: (payload) => ipcInvoke2('reinitializeDatabase', payload),
   checkDatabaseExists: () => ipcInvoke('checkDatabaseExists'),
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),

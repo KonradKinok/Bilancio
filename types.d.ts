@@ -206,11 +206,7 @@ declare global {
     loginUser: DataBaseResponse<User>;
 
     getDBbBilancioPath: string;
-    getConfigBilancio: Config;
-    saveConfig: Config;
-    openDBDialog: { success: boolean; path: string | null };
-    openTemplatesDialog: { success: boolean; path: string | null };
-    openSavedDocumentsDialog: { success: boolean; path: string | null };
+
     checkDatabaseExists: ReturnStatusMessage;
     reinitializeDatabase: ReturnStatusMessage;
     getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
@@ -247,11 +243,7 @@ declare global {
 
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
-      getConfigBilancio: () => Promise<Config>;
-      saveConfig: (config: Config) => Promise<Config>;
-      openDBDialog: () => Promise<{ success: boolean; path: string | null }>;
-      openTemplatesDialog: () => Promise<{ success: boolean; path: string | null }>;
-      openSavedDocumentsDialog: () => Promise<{ success: boolean; path: string | null }>;
+
       checkDatabaseExists: () => Promise<ReturnStatusMessage>;
       reinitializeDatabase: (dbPath: string) => Promise<ReturnStatusMessage>;
       getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
