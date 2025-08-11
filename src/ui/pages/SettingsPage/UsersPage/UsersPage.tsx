@@ -3,10 +3,14 @@ import { NavLink, Outlet } from "react-router-dom";
 import scss from "./UsersPage.module.scss";
 import { useUsers } from "../../../hooks/useUsers";
 import { useMainDataContext } from "../../../components/Context/useMainDataContext";
+import { IconInfo } from "../../../components/IconInfo/IconInfo";
+import { ConditionalWrapper } from "../../../components/ConditionalWrapper/ConditionalWrapper";
+import { Tooltip } from "react-tooltip";
+import { SeparateUser } from "./SeparateUser/SeparateUser";
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<FieldInfo[]>([]);
-  const { data: dataUsers, getUsers } = useUsers();
+  const { data: dataUsers, loading: loadingUsers, getUsers } = useUsers();
   const { auth } = useMainDataContext();
   const {
     windowsUserName,
@@ -23,41 +27,213 @@ const UsersPage: React.FC = () => {
     setUsers(usersTable);
   }, [dataUsers]);
 
+  // Hook do pobierania wszystkich dokumentów
+
+  //Hook do edytowania dokumentów
+  // const { addDocument } = useAddDocument();
+
+  // //Hook do edytowania dokumentów
+  // const { editDocument } = useEditDocument();
+
+  // //Hook do usuwania dokumentów
+  // const { deleteDocument } = useDeleteDocument();
+
+  // //Hook do przywracania dokumentów
+  // const { restoreDocument } = useRestoreDocument();
+
+  // Stan do przechowywania liczby dokumentów
+  const [documentCounts, setDocumentCounts] = useState({
+    active: 0,
+    deleted: 0,
+  });
+
+  // const handleIsSaveButtonEnabled = (editDocument: AllDocumentsName) => {
+  //   if (!dataAllDocumentsName || !Array.isArray(dataAllDocumentsName)) {
+  //     return false; // Zwraca false, jeśli dataAllDocumentsName jest undefined, null lub nie jest tablicą
+  //   }
+  //   return dataAllDocumentsName.some((doc) => {
+  //     // Sprawdzanie DocumentName
+  //     const docName = doc.DocumentName?.trim().toLowerCase() ?? "";
+  //     const editDocName = editDocument.DocumentName?.trim().toLowerCase() ?? "";
+
+  //     // Sprawdzanie MainTypeName
+  //     const docMainType = doc.MainTypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+  //     const editMainType =
+  //       editDocument.MainTypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+  //     // Sprawdzanie TypeName
+  //     const docType = doc.TypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+  //     const editType = editDocument.TypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+  //     // Sprawdzanie SubtypeName
+  //     const docSubtype = doc.SubtypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+  //     const editSubtype =
+  //       editDocument.SubtypeName?.trim().toLowerCase() || null; // Konwersja "" na null
+
+  //     // Sprawdzanie Price
+  //     const docPrice = doc.Price ?? null;
+  //     const editPrice = editDocument.Price ?? null;
+
+  //     return (
+  //       docName == editDocName &&
+  //       docMainType == editMainType &&
+  //       docType == editType &&
+  //       docSubtype == editSubtype &&
+  //       docPrice == editPrice
+  //     );
+  //   });
+  // };
+
+  //Zapisanie edytowanego dokumentu
+  // const handleSaveEditedDocument = async (
+  //   isNewDocument: boolean,
+  //   document: AllDocumentsName,
+  //   onSuccess: () => void
+  // ) => {
+  //   const successText = `${
+  //     isNewDocument ? "Nowy" : "Edytowany"
+  //   } dokument został pomyślnie zapisany.`;
+  //   const errorText = `Nie udało się zapisać ${
+  //     isNewDocument ? "nowego" : "edytowanego"
+  //   } dokumentu.`;
+
+  //   try {
+  //     const result = await (isNewDocument
+  //       ? addDocument(document)
+  //       : editDocument(document));
+  //     if (result.status === STATUS.Success) {
+  //       getAllDocuments(); // Odśwież listę dokumentów
+  //       toast.success(`${successText}`);
+  //       onSuccess(); // Wywołaj funkcję zwrotną po sukcesie
+  //     } else {
+  //       displayErrorMessage(
+  //         "DocumentsPage",
+  //         "handleSaveEditedDocument",
+  //         `${errorText} ${result.message}`
+  //       );
+  //     }
+  //   } catch (err) {
+  //     displayErrorMessage("DocumentsPage", "handleSaveEditedDocument", err);
+  //   }
+  // };
+
+  //Usuwanie przywracanie dokumentu
+  // const handleDeleteRestoreDocument = async (document: AllDocumentsName) => {
+  //   if (!document?.AllDocumentsId) return;
+  //   let successText = "",
+  //     errorText = "";
+
+  //   if (document?.IsDeleted === 0) {
+  //     successText = "Dokument został pomyślnie usunięty!";
+  //     errorText = `Nie udało się usunąć dokumentu.`;
+  //   } else {
+  //     successText = "Dokument został pomyślnie przywrócony!";
+  //     errorText = `Nie udało się przywrócić dokumentu.`;
+  //   }
+
+  //   try {
+  //     const result = await (document?.IsDeleted === 0
+  //       ? deleteDocument(document.AllDocumentsId)
+  //       : restoreDocument(document.AllDocumentsId));
+
+  //     if (result.status === STATUS.Success) {
+  //       getAllDocuments(); // Odśwież listę dokumentów
+  //       toast.success(successText);
+  //     } else {
+  //       displayErrorMessage(
+  //         "DocumentsPage",
+  //         "handleDeleteRestoreDocument",
+  //         `${errorText} ${result.message}`
+  //       );
+  //     }
+  //   } catch (err) {
+  //     displayErrorMessage("DocumentsPage", "handleDeleteRestoreDocument", err);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (dataAllDocumentsName) {
+  //     const counts = dataAllDocumentsName?.reduce(
+  //       (acc, item) => ({
+  //         active: acc.active + (item.IsDeleted == 0 ? 1 : 0),
+  //         deleted: acc.deleted + (item.IsDeleted == 1 ? 1 : 0),
+  //       }),
+  //       { active: 0, deleted: 0 } // Initial value
+  //     );
+  //     setDocumentCounts(counts);
+  //   }
+  // }, [dataAllDocumentsName]);
+
   return (
-    <div className={scss[""]}>
-      <p>
-        UsersPage {windowsUserName?.username} {windowsUserName?.hostname}
-      </p>
-      <p>User z context: {userDb?.UserDisplayName}</p>
-      {dataUsers &&
-        dataUsers.length > 0 &&
-        dataUsers.map((user, index) => {
-          return (
-            <div>
-              <p>UserSystemName: {user.UserSystemName}</p>
-              <p>UserDisplayName: {user.UserDisplayName}</p>
-              <p>typeof {typeof user.UserPassword}</p>
-            </div>
-          );
-        })}
-      {users &&
-        users.length > 0 &&
-        users.map((user, index) => {
-          return (
-            <div>
-              <p>
-                {user.name}:{" "}
-                {user.value != null ? String(user.value) : "brak wartości"}:{" "}
-                {user.type}
-              </p>
-            </div>
-          );
-        })}
+    <div className={scss["usersPage-main-container"]}>
+      <IconInfo
+        tooltipId="tooltip-usersPage"
+        tooltipInfoTextHtml={tooltipInfoUsersPage()}
+      />
+      <ConditionalWrapper isLoading={loadingUsers}>
+        <div>
+          <table className={scss["table"]}>
+            <thead>
+              <tr>
+                <th>Lp.</th>
+                <th>Nazwa systemowa użytkownika</th>
+                <th>Wyświetlana nazwa użytkownika</th>
+                <th>Rola użytkownika</th>
+                <th colSpan={2}>Akcje</th>
+              </tr>
+            </thead>
+            <tbody>
+              <SeparateUser
+                isNewUser={true}
+                index={-1}
+                // saveEditedDocument={handleSaveEditedDocument}
+                // handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+                // handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
+              />
+              {dataUsers &&
+                dataUsers.length > 0 &&
+                dataUsers.map((user, index) => {
+                  return (
+                    <SeparateUser
+                      key={user.UserId}
+                      user={user}
+                      index={index}
+                      // saveEditedDocument={handleSaveEditedDocument}
+                      // handleDeleteRestoreDocument={handleDeleteRestoreDocument}
+                      // handleIsSaveButtonEnabled={handleIsSaveButtonEnabled}
+                    />
+                  );
+                })}
+            </tbody>
+          </table>
+
+          <div className={scss["maintable-footer-container"]}>
+            <p>Aktywne: {documentCounts?.active}</p>
+            <p>Usunięte: {documentCounts?.deleted}</p>
+          </div>
+        </div>
+      </ConditionalWrapper>
+      <Tooltip
+        id="toolTipSeparateDocumentButtonSave"
+        className={scss["tooltip"]}
+      />
     </div>
   );
 };
-
 export default UsersPage;
+
+function tooltipInfoUsersPage() {
+  const text = `Strona użytkowników.
+  Przycisk "Dodaj nowy" umożliwia dodanie nowego dokumentu.
+  Przycisk "Edytuj" umożliwia edycję istniejącego dokumentu.
+  Przycisk "Usuń" umożliwia usunięcie dokumentu.
+  Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego dokumentu.
+  Przycisk "Przywróć" umożliwia przywrócenie usuniętego dokumentu.
+  UWAGA! Nazwy dokumentów nie mogą się powtarzać.`;
+
+  return text.replace(/\n/g, "<br/>");
+}
+
 interface FieldInfo {
   name: string;
   value: unknown;

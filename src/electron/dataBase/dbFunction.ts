@@ -1619,7 +1619,7 @@ export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatus
 
 //USERS
 // Funkcja do pobierania wszystkich użytkowników z tabeli Users
-export async function getAllUsers(isDeleted?: 0 | 1): Promise<DataBaseResponse<User[]>> {
+export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<User[]>> {
   try {
     let query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted 
                  FROM Users`;

@@ -1,0 +1,85 @@
+tr.row-container {
+  --th-background-color: var(--maintable-th-background);
+  color: red;
+
+  .edit-button,
+  .delete-button,
+  .cancel-button,
+  .save-button {
+    padding: 6px 12px;
+    margin: 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.6rem;
+    transform: scale(1); // Domyślny stan skalowania
+    transition: background-color 0.5s ease, transform 0.15s ease; // Animacja dla obu właściwości
+
+    &:active:not(:disabled) {
+      // transition: 50ms linear;
+      transform: scale(0.9);
+    }
+  }
+
+  .edit-button {
+    background-color: #4caf50;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #2e7d32;
+    }
+  }
+
+  .delete-button {
+    background-color: #f44336;
+    color: #ffffff;
+
+    &:hover {
+      background-color: #d32f2f;
+    }
+  }
+
+  .cancel-button {
+    background-color: rgb(8, 207, 17);
+    color: black;
+
+    &:hover {
+      background-color: #2e7d32;
+    }
+  }
+
+  .save-button {
+    background-color: rgb(255, 255, 0);
+    color: black;
+
+    &:disabled {
+      background-color: rgb(200, 200, 200);
+      cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: rgb(200, 200, 0);
+    }
+  }
+
+  .cell {
+    text-align: left;
+    padding: 2px 5px;
+    border: 1px solid var(--th-background-color);
+    cursor: pointer;
+  }
+
+  .cell-delete {
+    color: #7f0000;
+    text-decoration: line-through;
+  }
+
+  .cell.recover-container {
+    text-align: center;
+  }
+
+  .tooltip {
+    z-index: 101;
+    font-size: 0.9rem !important;
+  }
+}
