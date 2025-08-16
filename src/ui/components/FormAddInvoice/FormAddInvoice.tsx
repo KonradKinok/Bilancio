@@ -28,9 +28,7 @@ interface FormAddInvoiceProps {
   setInvoiceToChangeTemp?: React.Dispatch<
     React.SetStateAction<InvoiceSave | undefined>
   >;
-
   addInvoiceData: InvoiceSave;
-
   selectedInvoice?: InvoiceSave;
   setAddInvoiceData: React.Dispatch<React.SetStateAction<InvoiceSave>>;
   closeModalAddInvoice: () => void;
@@ -504,12 +502,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
-        {/* <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
+        <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
         <p>Inna faktura: {JSON.stringify(addInvoiceData)}</p>
-        <p>Różnice w fakturach: {JSON.stringify(differences)}</p>
+        <p>Różnice w fakturach: {JSON.stringify(invoiceDifference)}</p>
         <h2>Różnice w fakturach</h2>
         <ul>
-          {differencesWithName.map((diff, index) => (
+          {invoiceDifference.map((diff, index) => (
             <li key={index}>
               <strong>{diff.key}</strong>:
               <br />
@@ -518,7 +516,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
               Nowa wartość: {JSON.stringify(diff.newValue)}
             </li>
           ))}
-        </ul> */}
+        </ul>
       </div>
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}

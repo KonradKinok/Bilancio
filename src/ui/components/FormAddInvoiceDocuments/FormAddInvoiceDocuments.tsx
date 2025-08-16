@@ -383,9 +383,13 @@ export const FormAddInvoiceDocuments: React.FC<
       newDetails[index] = {
         InvoiceId: undefined,
         DocumentId: Number(selectedDocument?.value ?? 0),
-        MainTypeId: Number(selectedMainType?.value ?? null),
-        TypeId: Number(selectedType?.value ?? null),
-        SubtypeId: Number(selectedSubtype?.value ?? null),
+        MainTypeId: selectedMainType?.value
+          ? Number(selectedMainType.value)
+          : null,
+        TypeId: selectedType?.value ? Number(selectedType.value) : null,
+        SubtypeId: selectedSubtype?.value
+          ? Number(selectedSubtype.value)
+          : null,
         Quantity: inputInvoiceQuantity ? parseInt(inputInvoiceQuantity) : 0,
         Price: inputInvoicePrice ? parseFloat(inputInvoicePrice) : 0,
         isMainTypeRequired: isMainTypeExists,

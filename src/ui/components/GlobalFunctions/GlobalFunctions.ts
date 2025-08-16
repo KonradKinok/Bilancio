@@ -50,7 +50,9 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
   }
   // Compare top-level invoice properties
   const invoiceKeys = Object.keys(oldInvoice.invoice) as (keyof InvoiceTable)[];
+
   for (const key of invoiceKeys) {
+    if (key === "InvoiceId") continue; // Pomijanie InvoiceId
     if (oldInvoice.invoice[key] !== newInvoice.invoice[key]) {
       differences.push({
         key: `invoice.${key}`,
@@ -79,20 +81,36 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
       });
     } else {
       // Compare properties of details entries
+      // const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
+      // for (const key of detailKeys) {
+      //   if (key === "InvoiceId") continue; // Skip DocumentId comparison
+      //   if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
+      //     differences.push({
+      //       key: `details[${i}]`,
+      //       oldValue: oldInvoice.details[i],
+      //       newValue: newInvoice.details[i],
+      //     });
+      //     break; // Exit after the first difference in this detail
+      //   }
+      // }
       const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
       for (const key of detailKeys) {
-        if (key === "InvoiceId") continue; // Skip DocumentId comparison
-        if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
+        if (key === "InvoiceId") continue; // Pomijanie InvoiceId
+        const oldValue = oldInvoice.details[i][key];
+        const newValue = newInvoice.details[i][key];
+        // Sprawdzanie, czy wartości są różne, traktując null i 0 jako równe
+        if (!(oldValue === null && newValue === 0) && !(oldValue === 0 && newValue === null) && oldValue !== newValue) {
           differences.push({
             key: `details[${i}]`,
             oldValue: oldInvoice.details[i],
             newValue: newInvoice.details[i],
           });
-          break; // Exit after the first difference in this detail
+          break; // Zakończ po pierwszej różnicy w tym wpisie
         }
       }
     }
   }
+
   return differences;
 }
 
