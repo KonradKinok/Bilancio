@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { STATUS } from '../../electron/sharedTypes/status';
 
-export function useUsers(isDeleted?: 0 | 1) {
+export function useAllUsers(isDeleted?: 0 | 1) {
   const [data, setData] = useState<User[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Funkcja do pobierania danych z użyciem useCallback
-  const getUsers = useCallback(async () => {
+  const getAllUsers = useCallback(async () => {
     setLoading(true);
     setError(null);
     setData(null); // Reset danych
@@ -27,7 +27,7 @@ export function useUsers(isDeleted?: 0 | 1) {
   }, [isDeleted]);
 
   useEffect(() => {
-    getUsers();
-  }, [getUsers]);
-  return { data, loading, error, getUsers };
+    getAllUsers();
+  }, [getAllUsers]);
+  return { data, loading, error, getAllUsers };
 }

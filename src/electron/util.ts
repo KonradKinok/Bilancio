@@ -4,13 +4,14 @@ import { pathToFileURL } from "url";
 import log from "electron-log";
 import os from 'os';
 import { STATUS, DataBaseResponse } from './sharedTypes/status.js';
+import { getUserBySystemName } from "./dataBase/dbFunction.js";
 
 export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
 
 //Pobierz nazwę użytkownika oraz hostname z systemu
-export async function getWindowsUsername(): Promise<DataBaseResponse<WindowsUsername>> {
+export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<WindowsUsername>> {
   try {
     const username = os.userInfo().username.toLowerCase();
     const hostname = os.hostname();
@@ -19,7 +20,7 @@ export async function getWindowsUsername(): Promise<DataBaseResponse<WindowsUser
       data: { username, hostname },
     };
   } catch (err) {
-    log.error('[utils.js] [getWindowsUsername()]', err);
+    log.error('[utils.js] [getWindowsUsernameHostname()]', err);
     return {
       status: STATUS.Error,
       message: `Błąd podczas pobierania użytkownika: ${err}`,
@@ -27,7 +28,21 @@ export async function getWindowsUsername(): Promise<DataBaseResponse<WindowsUser
   }
 }
 
-
+//Pobierz nazwę użytkownika oraz hostname z systemu
+export async function getWindowsUsernameElektron(): Promise<string> {
+  try {
+    const username = os.userInfo().username.toLowerCase();
+    const displayUserName = await getUserBySystemName(username);
+    if (!displayUserName || displayUserName.status === STATUS.Error) {
+      log.error('[utils.js] [getWindowsUsernameElektron()]', displayUserName);
+      return "defaultUser";
+    }
+    return displayUserName.data.UserDisplayName;
+  } catch (err) {
+    log.error('[utils.js] [getWindowsUsername()]', err);
+    return "defaultUser";
+  }
+}
 // export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
 //   key: Key,
 //   handler: () => EventPayloadMapping[Key]

@@ -9,7 +9,7 @@ interface ModalSelectionWindowProps {
   resetFormAddInvoice: () => void;
   isModalSelectionWindowOpen: boolean;
   titleModalSelectionWindow: string;
-  confirmDeleteInvoice?: () => void; // Opcjonalna własna funkcja potwierdzenia
+  confirmDeleteFunction?: () => void; // Opcjonalna własna funkcja potwierdzenia
 }
 
 export function ModalSelectionWindow({
@@ -18,7 +18,7 @@ export function ModalSelectionWindow({
   resetFormAddInvoice,
   isModalSelectionWindowOpen,
   titleModalSelectionWindow,
-  confirmDeleteInvoice,
+  confirmDeleteFunction: confirmDeleteInvoice,
 }: ModalSelectionWindowProps) {
   const modalContentRef = useRef<HTMLDivElement>(null);
   const handleEsc = useCallback(

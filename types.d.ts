@@ -199,9 +199,13 @@ declare global {
 
     //Users
     getAllUsers: DataBaseResponse<User[]>;
+    saveUser: DataBaseResponse<ReturnMessageFromDb>;
+    updateUser: DataBaseResponse<ReturnMessageFromDb>;
+    deleteUser: DataBaseResponse<ReturnMessageFromDb>;
 
     //Auth
     getWindowsUsername: DataBaseResponse<WindowsUsername>;
+
     getUserBySystemName: DataBaseResponse<User>;
     loginUser: DataBaseResponse<User>;
 
@@ -237,6 +241,11 @@ declare global {
       saveActivityLog: (activity: ActivityLog) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
 
       getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;
+      saveUser: (user: User) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      updateUser: (user: User) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      deleteUser: (userId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+
+
       getWindowsUsername: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
       loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;

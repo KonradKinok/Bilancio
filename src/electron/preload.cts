@@ -27,7 +27,10 @@ electron.contextBridge.exposeInMainWorld('electron', {
     ipcInvoke2('getAllActivityLog', page, rowsPerPage),
   saveActivityLog: (activity) => ipcInvoke2('saveActivityLog', activity),
 
-  getAllUsers: (isDeleted) => ipcInvoke2('getAllUsers', isDeleted),
+  getAllUsers: (user) => ipcInvoke2('getAllUsers', user),
+  saveUser: (user) => ipcInvoke2('saveUser', user),
+  updateUser: (user) => ipcInvoke2('updateUser', user),
+  deleteUser: (userId) => ipcInvoke2('deleteUser', userId),
 
   //Auth
   getWindowsUsername: () => ipcInvoke('getWindowsUsername'),

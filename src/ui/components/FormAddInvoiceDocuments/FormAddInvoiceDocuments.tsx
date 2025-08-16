@@ -216,7 +216,7 @@ export const FormAddInvoiceDocuments: React.FC<
     if (!dataAllDocumentsName) return [];
     return getDictionaryMainTypeTable(
       dataAllDocumentsName,
-      selectedDocument?.value
+      Number(selectedDocument?.value)
     );
   }, [dataAllDocumentsName, selectedDocument]);
 
@@ -225,8 +225,8 @@ export const FormAddInvoiceDocuments: React.FC<
     if (!dataAllDocumentsName || !selectedDocument?.value) return [];
     return getDictionaryTypeTable(
       dataAllDocumentsName,
-      selectedDocument.value,
-      selectedMainType?.value ?? null
+      Number(selectedDocument.value),
+      Number(selectedMainType?.value ?? null)
     );
   }, [dataAllDocumentsName, selectedDocument, selectedMainType]);
 
@@ -235,9 +235,9 @@ export const FormAddInvoiceDocuments: React.FC<
     if (!dataAllDocumentsName || !selectedDocument?.value) return [];
     return getDictionarySubtypeTable(
       dataAllDocumentsName,
-      selectedDocument.value,
-      selectedMainType?.value ?? null,
-      selectedType?.value ?? null
+      Number(selectedDocument.value),
+      Number(selectedMainType?.value ?? null),
+      Number(selectedType?.value ?? null)
     );
   }, [dataAllDocumentsName, selectedDocument, selectedMainType, selectedType]);
 
@@ -382,10 +382,10 @@ export const FormAddInvoiceDocuments: React.FC<
       const newDetails = [...prev.details];
       newDetails[index] = {
         InvoiceId: undefined,
-        DocumentId: selectedDocument?.value ?? 0,
-        MainTypeId: selectedMainType?.value ?? null,
-        TypeId: selectedType?.value ?? null,
-        SubtypeId: selectedSubtype?.value ?? null,
+        DocumentId: Number(selectedDocument?.value ?? 0),
+        MainTypeId: Number(selectedMainType?.value ?? null),
+        TypeId: Number(selectedType?.value ?? null),
+        SubtypeId: Number(selectedSubtype?.value ?? null),
         Quantity: inputInvoiceQuantity ? parseInt(inputInvoiceQuantity) : 0,
         Price: inputInvoicePrice ? parseFloat(inputInvoicePrice) : 0,
         isMainTypeRequired: isMainTypeExists,

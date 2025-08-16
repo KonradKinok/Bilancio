@@ -1,13 +1,13 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import path from "path";
 import fs from "fs"
-import { getWindowsUsername, ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
+import { getWindowsUsernameHostname, ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
 import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, getUIPath, } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, getAllActivityLog, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, loginUser, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, updateDocumentDeletionStatus, updateInvoice } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, deleteUser, getAllActivityLog, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, loginUser, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, saveUser, updateDocumentDeletionStatus, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
 // Deklaracja mainWindow na poziomie globalnym
@@ -143,10 +143,19 @@ app.on("ready", () => {
   ipcMainHandle2('getAllUsers', (isDeleted) => {
     return getAllUsers(isDeleted);
   });
+  ipcMainHandle2('saveUser', (user) => {
+    return saveUser(user);
+  });
+  ipcMainHandle2('updateUser', (user) => {
+    return updateUser(user);
+  });
+  ipcMainHandle2('deleteUser', (userId) => {
+    return deleteUser(userId);
+  });
 
   //Auth
   ipcMainHandle('getWindowsUsername', () => {
-    return getWindowsUsername();
+    return getWindowsUsernameHostname();
   });
   ipcMainHandle2('getUserBySystemName', (systemUserName) => {
     return getUserBySystemName(systemUserName);

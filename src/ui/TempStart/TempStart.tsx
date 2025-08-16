@@ -1,4 +1,57 @@
-// import { useEffect, useMemo, useState } from "react";
+// import { useState } from "react";
+
+// export const ExampleParentCod: React.FC = () => {
+//   const [text, setText] = useState<string>("");
+
+//   const clickHandler = () => {
+//     setText("Clicked!");
+//   };
+
+//   return (
+//     <div>
+//       <h1>JakiśTekst {text}</h1>
+//       <ExampleChildCod clickHandler={clickHandler} />
+//     </div>
+//   );
+// };
+
+// interface ExampleChildCodProps {
+//   clickHandler: () => void;
+// }
+// export const ExampleChildCod: React.FC<ExampleChildCodProps> = ({
+//   clickHandler,
+// }) => {
+//   return (
+//     <div>
+//       <button onClick={clickHandler}>Click me</button>
+//     </div>
+//   );
+// };
+
+// export const ExampleParentCod1: React.FC = () => {
+//   const [text, setText] = useState<string>("");
+
+//   return (
+//     <div>
+//       <h1>JakiśTekst {text}</h1>
+//       <ExampleChildCod1 setText={setText} />
+//     </div>
+//   );
+// };
+// interface ExampleChildCod1Props {
+//   setText: React.Dispatch<React.SetStateAction<string>>;
+// }
+
+// const ExampleChildCod1: React.FC<ExampleChildCod1Props> = ({ setText }) => {
+//   const clickHandler = () => {
+//     setText("Clicked!");
+//   };
+//   return (
+//     <div>
+//       <button onClick={clickHandler}>Click me</button>
+//     </div>
+//   );
+// };
 
 // import "./TempStart.css";
 // import { useStatistics } from "../useStatistics";

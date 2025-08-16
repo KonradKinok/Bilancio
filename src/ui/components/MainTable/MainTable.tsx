@@ -311,7 +311,7 @@ export const MainTable: React.FC<MainTableProps> = ({
         } fakturę\n\r ${selectedInvoice?.invoice.InvoiceName} z dnia ${
           selectedInvoice?.invoice.ReceiptDate
         }?`}
-        confirmDeleteInvoice={confirmDeleteRestoreInvoice}
+        confirmDeleteFunction={confirmDeleteRestoreInvoice}
       />
     </div>
   );

@@ -1,30 +1,30 @@
 import { useEffect, useState } from "react";
-import { currencyFormater } from "../../../../components/GlobalFunctions/GlobalFunctions";
-import scss from "./SeparateUser.module.scss";
-import { spacing } from "react-select/dist/declarations/src/theme";
+import Select from "react-select";
+import {
+  customStylesComboBox,
+  ComboBoxOption,
+} from "../../../../components/ComboBox/ComboBox";
 import { TextInput } from "../../../../components/TextInput/TextInput";
-import { Tooltip } from "react-tooltip";
+import scss from "./SeparateUser.module.scss";
+
+const comboBoxOptions: ComboBoxOption[] = [
+  { label: "użytkownik", value: "user" },
+  { label: "administrator", value: "admin" },
+];
 
 interface SeparateUserProps {
   isNewUser?: boolean;
   user?: User;
   index: number;
-  // saveEditedDocument: (
-  //   isNewDocument: boolean,
-  //   document: AllDocumentsName,
-  //   onSuccess: () => void
-  // ) => void;
-  // handleDeleteRestoreDocument: (document: AllDocumentsName) => void;
-  // handleIsSaveButtonEnabled: (document: AllDocumentsName) => boolean;
+  saveEditedUser: (
+    isNewUser: boolean,
+    user: User,
+    onSuccess: () => void
+  ) => void;
+  handleDeleteUser: (user: User) => void;
+  handleIsSaveButtonEnabled: (isNewUser: boolean, user: User) => boolean;
 }
-// type User = {
-//   UserId: number;
-//   UserSystemName: string;
-//   UserDisplayName: string;
-//   UserPassword: string | null;
-//   UserRole: "admin" | "user";
-//   IsDeleted: 0 | 1;
-// };
+
 const defaultUser: User = {
   UserId: 0,
   UserSystemName: "",
@@ -38,26 +38,22 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
   isNewUser = false,
   user = defaultUser,
   index,
-  // saveEditedDocument,
-  // handleDeleteRestoreDocument,
-  // handleIsSaveButtonEnabled,
+  saveEditedUser,
+  handleDeleteUser,
+  handleIsSaveButtonEnabled,
 }) => {
   // Domyślny stan
-
   const [editId, setEditId] = useState<string | null>(null);
   const [editedUser, setEditedUser] = useState<User>(user);
   const [originalUser, setOriginalUser] = useState<User>(user);
+  const [selectedUserComboBox, setSelectedUserComboBox] =
+    useState<ComboBoxOption | null>(getRoleLabel(editedUser.UserRole) || null);
   //input errors
   const [inputUserSystemNameError, setInputUserSystemNameError] =
     useState<string>("");
   const [inputUserDisplayNameError, setInputUserDisplayNameError] =
     useState<string>("");
-  // const [inputTypeNameError, setInputTypeNameError] = useState<string>("");
-  // const [inputSubtypeNameError, setInputSubtypeNameError] =
-  //   useState<string>("");
-  // const [inputPriceError, setInputPriceError] = useState<string>("");
 
-  // Synchronizuj stany z propem document, gdy się zmieni
   useEffect(() => {
     setOriginalUser(user);
     setEditedUser(user);
@@ -69,91 +65,70 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
     } else {
       setEditId(user.UserId.toString());
       setEditedUser(originalUser);
+      setSelectedUserComboBox(getRoleLabel(originalUser.UserRole) || null);
       setInputUserSystemNameError("");
       setInputUserDisplayNameError("");
     }
   };
   const isSaveButtonDisabled = () => {
-    // if (
-    //   !editedUser.DocumentName.trim() ||
-    //   inputUserSystemNameError ||
-    //   inputUserDisplayNameError ||
-    //   inputTypeNameError ||
-    //   inputSubtypeNameError ||
-    //   inputPriceError
-    // )
-    //   return true;
-    // return handleIsSaveButtonEnabled(editedUser);
+    if (
+      !editedUser.UserSystemName.trim() ||
+      !editedUser.UserDisplayName.trim() ||
+      inputUserSystemNameError ||
+      inputUserDisplayNameError
+    )
+      return true;
+    return handleIsSaveButtonEnabled(isNewUser, editedUser);
   };
   const handleSaveEditedDocument = () => {
-    // // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
-    // saveEditedDocument(isNewUser, editedUser, () => {
-    //   setEditId(null); // Aktualizacja stanu po sukcesie
-    //   setOriginalUser(editedUser); // Aktualizacja stanu po sukcesie
-    // });
+    console.log("handleSaveEditedDocument: ", editedUser);
+    // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
+    saveEditedUser(isNewUser, editedUser, () => {
+      setEditId(null); // Aktualizacja stanu po sukcesie
+      setOriginalUser(editedUser); // Aktualizacja stanu po sukcesie
+    });
   };
 
   const handleSingleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    // const currentName = event.target.name as keyof AllDocumentsName;
-    // const currentValue: string | number = event.target.value;
-    // let errorTextInput = "";
-    // if (currentName === "DocumentName") {
-    //   if (!currentValue.trim()) {
-    //     errorTextInput = "Musisz wypełnić to pole";
-    //   }
-    //   setInputUserSystemNameError(errorTextInput);
-    // }
-    // if (currentName === "MainTypeName") {
-    //   if (!currentValue.trim() && !editedUser.TypeName) {
-    //     errorTextInput = "Musisz wypełnić pole MainTypeName";
-    //     setInputUserDisplayNameError(errorTextInput);
-    //   } else {
-    //     setInputUserDisplayNameError("");
-    //   }
-    // }
-    // if (currentName === "TypeName") {
-    //   if (currentValue.trim() && !editedUser.MainTypeName) {
-    //     errorTextInput = "Musisz wypełnić pole MainTypeName";
-    //     setInputUserDisplayNameError(errorTextInput);
-    //   } else if (!currentValue.trim() && editedUser.SubtypeName) {
-    //     errorTextInput = "Musisz wypełnić pole TypeName";
-    //     setInputTypeNameError(errorTextInput);
-    //   } else {
-    //     setInputUserDisplayNameError("");
-    //     setInputTypeNameError("");
-    //   }
-    // }
-    // if (currentName === "SubtypeName") {
-    //   if (currentValue.trim() && !editedUser.TypeName) {
-    //     errorTextInput = "Musisz wypełnić pole TypeName";
-    //     setInputTypeNameError(errorTextInput);
-    //   } else {
-    //     setInputTypeNameError("");
-    //   }
-    // }
-    // if (currentName === "Price") {
-    //   const isValidPrice = /^\d*\.?\d*$/.test(currentValue); // Dopuszcza liczby zmiennoprzecinkowe
-    //   if (!currentValue) {
-    //     errorTextInput = "Musisz wypełnić to pole";
-    //   } else if (currentValue.includes(",")) {
-    //     errorTextInput = "Zamiast przecinka użyj kropki";
-    //   } else if (!isValidPrice) {
-    //     errorTextInput = "Wprowadź poprawną liczbę";
-    //   }
-    //   setInputPriceError(errorTextInput);
-    // }
-    // setEditedUser((prevDokument) => ({
-    //   ...prevDokument,
-    //   [currentName]: currentValue,
-    // }));
-    // console.log(
-    //   "handleInputChange: ",
-    //   currentValue,
-    //   editedUser.MainTypeName,
-    //   inputUserDisplayNameError
-    // );
+    const currentName = event.target.name as keyof User;
+    const currentValue: string | number = event.target.value;
+    let errorTextInput = "";
+    if (currentName === "UserSystemName") {
+      if (!currentValue.trim()) {
+        errorTextInput = "Musisz wypełnić to pole";
+      }
+      setInputUserSystemNameError(errorTextInput);
+    }
+    if (currentName === "UserDisplayName") {
+      if (!currentValue.trim()) {
+        errorTextInput = "Musisz wypełnić to pole";
+        setInputUserDisplayNameError(errorTextInput);
+      } else {
+        setInputUserDisplayNameError("");
+      }
+    }
+
+    setEditedUser((prevDokument) => ({
+      ...prevDokument,
+      [currentName]: currentValue,
+    }));
+    console.log(
+      "handleInputChange: ",
+      currentValue,
+      editedUser.UserDisplayName,
+      inputUserDisplayNameError
+    );
+  };
+  const handleUserComboBoxChange = (option: ComboBoxOption | null) => {
+    if (option) {
+      setSelectedUserComboBox(option);
+      setEditedUser((prevUser) => ({
+        ...prevUser,
+        UserRole: option.value as "admin" | "user",
+      }));
+    }
   };
 
   return (
@@ -175,7 +150,7 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
             inputName="UserSystemName"
             singleInputValue={editedUser.UserSystemName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="Nazwa dokumentu ..."
+            inputPlaceholder="Nazwa systemowa użytkownika ..."
             singleInputError={inputUserSystemNameError}
             required={true}
             classNameInputContainer={scss["custom-input-container"]}
@@ -211,19 +186,23 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
         }`}
       >
         {editId === String(editedUser.UserId) ? (
-          <TextInput
-            inputName="UserRole"
-            singleInputValue={editedUser.UserRole ?? ""}
-            handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="Uprawnienia użytkownika ..."
-            // singleInputError={inputTypeNameError}
-            required={false}
-            classNameInputContainer={scss["custom-input-container"]}
+          <Select<ComboBoxOption>
+            value={selectedUserComboBox} // <-- zamiast tylko defaultValue
+            onChange={(option) =>
+              handleUserComboBoxChange(option as ComboBoxOption)
+            }
+            options={comboBoxOptions} // Użyj danych z hooka
+            isSearchable={true}
+            placeholder="Wybierz..."
+            styles={customStylesComboBox}
+            menuPortalTarget={document.body} // Portal, który zapewnia renderowanie listy na poziomie document.body
+            menuPosition="fixed" // Zapewnia, że pozycjonowanie menu jest "fixed"
+            menuShouldBlockScroll={true} // Opcjonalnie: blokuje scroll podczas otwartego menu
+            className={scss["select-document-container"]}
+            classNamePrefix={scss["select-document"]}
           />
         ) : (
-          <>
-            {user.UserRole} {user.IsDeleted}
-          </>
+          <>{!isNewUser ? getRoleLabel(user.UserRole)?.label : null}</>
         )}
       </td>
 
@@ -245,9 +224,13 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
             <td className={scss["cell"]}>
               <button
                 className={scss["save-button"]}
-                // disabled={isSaveButtonDisabled()}
+                disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
-                data-tooltip-id="toolTipSeparateDocumentButtonSave"
+                data-tooltip-id={
+                  isSaveButtonDisabled()
+                    ? "toolTipSeparateDocumentButtonSave"
+                    : undefined
+                }
                 data-tooltip-html={toolTipSeparateDocumentButtonSave(isNewUser)}
               >
                 Zapisz
@@ -277,13 +260,13 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
             ) : (
               <button
                 className={scss["save-button"]}
-                // disabled={isSaveButtonDisabled()}
+                disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
-                // data-tooltip-id={
-                //   isSaveButtonDisabled()
-                //     ? "toolTipSeparateDocumentButtonSave"
-                //     : undefined
-                // }
+                data-tooltip-id={
+                  isSaveButtonDisabled()
+                    ? "toolTipSeparateDocumentButtonSave"
+                    : undefined
+                }
                 data-tooltip-html={toolTipSeparateDocumentButtonSave(isNewUser)}
               >
                 Zapisz
@@ -295,7 +278,7 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
             {!editId ? (
               <button
                 className={scss["delete-button"]}
-                // onClick={() => handleDeleteRestoreDocument(user)}
+                onClick={() => handleDeleteUser(user)}
               >
                 Usuń
               </button>
@@ -316,7 +299,7 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
         >
           <button
             className={scss["delete-button"]}
-            // onClick={() => handleDeleteRestoreDocument(user)}
+            onClick={() => handleDeleteUser(user)}
           >
             Przywróć
           </button>
@@ -326,10 +309,16 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
   );
 };
 
+const getRoleLabel = (role: string | undefined): ComboBoxOption | null => {
+  if (!role) return null;
+  const option = comboBoxOptions.find((opt) => opt.value === role);
+  return option || null;
+};
+
 function toolTipSeparateDocumentButtonSave(isNewDocument: boolean) {
-  const text = `Przycisk zapisu dokumentu zostanie uaktywniony
+  const text = `Przycisk zapisu użytkownika zostanie uaktywniony
   po prawidłowym uzupełnieniu pól formularza ${
-    !isNewDocument ? " i wykryciu zmian w dokumencie" : ""
+    !isNewDocument ? " i wykryciu zmian w użytkowniku" : ""
   }.`;
   return text.replace(/\n/g, "<br/>");
 }

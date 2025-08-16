@@ -2,7 +2,7 @@ import { StylesConfig } from "react-select";
 
 export interface ComboBoxOption {
   label: string;
-  value: number;
+  value: number | string;
 }
 
 export const customStylesComboBox: StylesConfig<ComboBoxOption, false> = {
