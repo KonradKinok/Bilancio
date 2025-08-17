@@ -26,14 +26,10 @@ export interface Options {
 }
 
 type Auth = {
-  windowsUserName: WindowsUsername | null;
   userDb: User | null;
-  loading: boolean;
-  error: string | null;
+  loadingAuth: boolean;
+  errorAuth: string | null;
   autoLogin: () => void;
-  loginFunction: () => void;
-  logoutFunction: () => void;
-  windowsUserNameFunction: () => void;
 };
 // Typ dla kontekstu
 export interface ElectronContextType {

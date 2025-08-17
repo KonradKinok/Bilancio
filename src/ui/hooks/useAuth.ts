@@ -3,86 +3,78 @@ import { STATUS } from '../../electron/sharedTypes/status';
 
 export function useAuth(login?: string, password?: string) {
   const [windowsUserName, setWindowsUserName] = useState<WindowsUsername | null>(null);
+  const [loadingWindowsUserName, setLoadingWindowsUserName] = useState<boolean>(true);
+  const [errorWindowsUserName, setErrorWindowsUserName] = useState<string | null>(null);
   const [userDb, setUserDb] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
+  const [errorAuth, setErrorAuth] = useState<string | null>(null);
 
-  const windowsUserNameFunction = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  const windowsUserNameHostnameFunction = useCallback(async () => {
+    setLoadingWindowsUserName(true);
+    setErrorWindowsUserName(null);
     setUserDb(null); // Reset danych
     try {
-      const result = await window.electron.getWindowsUsername();
+      const result = await window.electron.getWindowsUsernameHostname();
       if (result.status === STATUS.Success) {
         setWindowsUserName(result.data);
-        setError(null);
+        setErrorWindowsUserName(null);
       } else {
-        setError(result.message || "Błąd podczas pobierania danych użytkowników");
+        setErrorWindowsUserName(result.message || "Błąd podczas pobierania danych użytkowników");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Nieznany błąd");
+      setErrorWindowsUserName(err instanceof Error ? err.message : "Nieznany błąd");
     } finally {
-      setLoading(false);
+      setLoadingWindowsUserName(false);
     }
   }, []);
 
   useEffect(() => {
-    windowsUserNameFunction();
-  }, [windowsUserNameFunction]);
+    windowsUserNameHostnameFunction();
+  }, [windowsUserNameHostnameFunction]);
 
 
 
   // Funkcja do pobierania danych z użyciem useCallback
   const autoLogin = useCallback(async () => {
-    if (!windowsUserName?.username) {
-      await windowsUserNameFunction();
-      return;
+    if (loadingWindowsUserName) {
+      return; // Czekaj, aż dane z useWindowsUsernameHostname będą gotowe
     }
-    if (!windowsUserName?.username) { setError("Nie pobrano użytkownika z systemu"); return null }
-    setLoading(true);
-    setError(null);
+
+    if (!windowsUserName?.username) {
+      await windowsUserNameHostnameFunction();
+      if (!windowsUserName?.username) {
+        setErrorAuth("Nie pobrano użytkownika z systemu");
+        setLoadingWindowsUserName(false);
+        return;
+      }
+    }
+    setLoadingAuth(true);
+    setErrorAuth(null);
     setUserDb(null); // Reset danych
     try {
       const result = await window.electron.getUserBySystemName(windowsUserName.username);
       if (result.status === STATUS.Success) {
-        setUserDb(result.data);
-        setError(null);
+        // Wzbogacanie obiektu userDb o pole Hostname
+        const enrichedUser = {
+          ...result.data,
+          Hostname: windowsUserName?.hostname || null,
+        };
+        setUserDb(enrichedUser);
+        setErrorAuth(null);
       } else {
-        setError(result.message || "Błąd podczas pobierania danych użytkowników");
+        setErrorAuth(result.message || "Błąd podczas pobierania danych użytkowników");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Nieznany błąd");
+      setErrorAuth(err instanceof Error ? err.message : "Nieznany błąd");
     } finally {
-      setLoading(false);
+      setLoadingAuth(false);
     }
-  }, [windowsUserName, windowsUserNameFunction]);
+  }, [loadingWindowsUserName, windowsUserName?.hostname, windowsUserName?.username, windowsUserNameHostnameFunction]);
 
   useEffect(() => {
     autoLogin();
   }, [autoLogin]);
 
-  const loginFunction = useCallback(async () => {
-    if (!login || !password) { setError("Login i hasło muszą być uzupełnione"); return null }
-    setLoading(true);
-    setError(null);
-    setUserDb(null); // Reset danych
-    try {
-      const result = await window.electron.loginUser(login, password);
-      if (result.status === STATUS.Success) {
-        setUserDb(result.data);
-        setError(null);
-      } else {
-        setError(result.message || "Błąd podczas pobierania danych użytkowników");
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Nieznany błąd");
-    } finally {
-      setLoading(false);
-    }
-  }, [login, password]);
 
-  const logoutFunction = () => {
-    setUserDb(null);
-  };
-  return { windowsUserName, userDb, loading, error, autoLogin, loginFunction, logoutFunction, windowsUserNameFunction };
+  return { userDb, loadingAuth, errorAuth, autoLogin };
 }

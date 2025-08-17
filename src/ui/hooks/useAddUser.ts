@@ -2,19 +2,19 @@ import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
 export function useAddUser() {
-  const [data, setData] = useState<ReturnMessageFromDb | null>(null);
+  const [data, setData] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const addUser = async (
     addedUser: User
-  ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
+  ): Promise<DataBaseResponse<User>> => {
     setLoading(true);
     setError(null);
     setData(null);
     console.log("useAddUser: ", addedUser);
     try {
-      const result: DataBaseResponse<ReturnMessageFromDb> =
+      const result: DataBaseResponse<User> =
         await window.electron.saveUser(addedUser);
       if (result.status === STATUS.Success) {
         setData(result.data);

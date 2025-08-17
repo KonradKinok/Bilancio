@@ -45,6 +45,7 @@ declare global {
     UserPassword: string | null;
     UserRole: 'admin' | 'user';
     IsDeleted: 0 | 1;
+    Hostname: string | null;
   }
 
   //Config
@@ -201,10 +202,10 @@ declare global {
     getAllUsers: DataBaseResponse<User[]>;
     saveUser: DataBaseResponse<ReturnMessageFromDb>;
     updateUser: DataBaseResponse<ReturnMessageFromDb>;
-    deleteUser: DataBaseResponse<ReturnMessageFromDb>;
+    deleteUser: DataBaseResponse<User>;
 
     //Auth
-    getWindowsUsername: DataBaseResponse<WindowsUsername>;
+    getWindowsUsernameHostname: DataBaseResponse<WindowsUsername>;
 
     getUserBySystemName: DataBaseResponse<User>;
     loginUser: DataBaseResponse<User>;
@@ -214,6 +215,8 @@ declare global {
     checkDatabaseExists: ReturnStatusMessage;
     reinitializeDatabase: ReturnStatusMessage;
     getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
+
+
   };
   type View = 'CPU' | 'RAM' | 'STORAGE';
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
@@ -241,12 +244,12 @@ declare global {
       saveActivityLog: (activity: ActivityLog) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
 
       getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;
-      saveUser: (user: User) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      updateUser: (user: User) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      deleteUser: (userId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      saveUser: (user: User) => Promise<DataBaseResponse<User>>;
+      updateUser: (user: User) => Promise<DataBaseResponse<User>>;
+      deleteUser: (userId: number) => Promise<DataBaseResponse<User>>;
 
 
-      getWindowsUsername: () => Promise<DataBaseResponse<WindowsUsername>>;
+      getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
       loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
@@ -256,6 +259,9 @@ declare global {
       checkDatabaseExists: () => Promise<ReturnStatusMessage>;
       reinitializeDatabase: (dbPath: string) => Promise<ReturnStatusMessage>;
       getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
+
+      //Electron
+      reloadWindow: () => void;
     };
   }
 }

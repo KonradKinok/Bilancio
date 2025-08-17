@@ -32,6 +32,7 @@ const defaultUser: User = {
   UserPassword: null,
   UserRole: "user",
   IsDeleted: 0,
+  Hostname:"",
 };
 
 export const SeparateUser: React.FC<SeparateUserProps> = ({

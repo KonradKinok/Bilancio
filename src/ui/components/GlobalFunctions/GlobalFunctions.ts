@@ -18,7 +18,7 @@ export function calculateTotalAmount(quantities: string[], prices: string[]): st
     return acc; // Pomiń niepoprawne pary
   }, 0);
 
-  return currencyFormater(totalAmount.toString());
+  return currencyFormater(totalAmount.toFixed(2));
 }
 
 //Formater do ceny
@@ -26,6 +26,7 @@ export function currencyFormater(value: string | number | null | undefined): str
   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: "PLN",
+    maximumFractionDigits: 4, // Maksymalna liczba cyfr po przecinku
   });
 
   if (value === null || value === undefined) {

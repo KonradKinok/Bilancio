@@ -33,7 +33,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   deleteUser: (userId) => ipcInvoke2('deleteUser', userId),
 
   //Auth
-  getWindowsUsername: () => ipcInvoke('getWindowsUsername'),
+  getWindowsUsernameHostname: () => ipcInvoke('getWindowsUsernameHostname'),
   getUserBySystemName: (systemUserName) => ipcInvoke2('getUserBySystemName', systemUserName),
   loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
 
@@ -43,6 +43,9 @@ electron.contextBridge.exposeInMainWorld('electron', {
   reinitializeDatabase: (payload) => ipcInvoke2('reinitializeDatabase', payload),
   checkDatabaseExists: () => ipcInvoke('checkDatabaseExists'),
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),
+  //Electron
+  reloadWindow: () => ipcRenderer.send('reload-window'),
+
 } satisfies Window["electron"]);
 
 

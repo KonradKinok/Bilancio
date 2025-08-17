@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { use, useEffect, useState } from "react";
+import { NavLink, redirect, useNavigate } from "react-router-dom";
 import { IoSettingsSharp } from "react-icons/io5";
 import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
 import { useMainDataContext } from "../Context/useMainDataContext";
@@ -7,7 +7,7 @@ import scss from "./Navigation.module.scss";
 
 export const Navigation: React.FC = () => {
   const { auth } = useMainDataContext();
-  const { windowsUserName, userDb } = auth;
+  const { userDb } = auth;
   const [animation, setAnimation] = useState(true);
 
   useEffect(() => {
@@ -45,6 +45,7 @@ export const Navigation: React.FC = () => {
           Raporty
         </NavLink>
       </div>
+
       <div className={scss["status-container"]}>
         <div className={scss["user-label-container"]}>
           <p className={`${scss["user-label"]}`}>
@@ -72,7 +73,7 @@ export const Navigation: React.FC = () => {
               Hostname:
             </span>{" "}
             <span className={scss["second-span"]}>
-              {windowsUserName?.hostname || "None"}
+              {userDb?.Hostname || "None"}
             </span>
           </p>
         </div>

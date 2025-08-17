@@ -2,19 +2,19 @@ import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
 export function useDeleteUser() {
-  const [data, setData] = useState<ReturnMessageFromDb | null>(null);
+  const [data, setData] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const deleteUser = async (
     userId: number
-  ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
+  ): Promise<DataBaseResponse<User>> => {
     setLoading(true);
     setError(null);
     setData(null);
 
     try {
-      const result: DataBaseResponse<ReturnMessageFromDb> =
+      const result: DataBaseResponse<User> =
         await window.electron.deleteUser(userId);
 
       if (result.status === STATUS.Success) {

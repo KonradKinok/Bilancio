@@ -154,7 +154,7 @@ app.on("ready", () => {
   });
 
   //Auth
-  ipcMainHandle('getWindowsUsername', () => {
+  ipcMainHandle('getWindowsUsernameHostname', () => {
     return getWindowsUsernameHostname();
   });
   ipcMainHandle2('getUserBySystemName', (systemUserName) => {
@@ -194,7 +194,12 @@ app.on("ready", () => {
   //       break;
   //   }
   // });
-
+  ipcMain.on('reload-window', () => {
+    if (mainWindow) {
+      mainWindow.reload();
+      log.info('Okno aplikacji zostało odświeżone');
+    }
+  });
   createTray(mainWindow);
   handleCloseEvents(mainWindow);
   createMenu(mainWindow);

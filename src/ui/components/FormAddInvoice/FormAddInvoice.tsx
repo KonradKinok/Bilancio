@@ -242,8 +242,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
       return; // Blokuj usuwanie, jeśli jest tylko jeden komponent
     }
     const indexToRemove = documentComponents.indexOf(id);
-    console.log("Index to remove:", indexToRemove);
-    console.log("Document components before removal:", documentComponents);
     if (indexToRemove === -1) return; // Zabezpieczenie przed błędnym ID
     setDocumentComponents((prev) =>
       prev.filter((componentId) => componentId !== id)
@@ -502,7 +500,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
-        <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
+        {/* <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
         <p>Inna faktura: {JSON.stringify(addInvoiceData)}</p>
         <p>Różnice w fakturach: {JSON.stringify(invoiceDifference)}</p>
         <h2>Różnice w fakturach</h2>
@@ -516,7 +514,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
               Nowa wartość: {JSON.stringify(diff.newValue)}
             </li>
           ))}
-        </ul>
+        </ul> */}
       </div>
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}

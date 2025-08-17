@@ -7,14 +7,6 @@ export const NavigationSettings: React.FC = () => {
     <ul className={scss["settings-navigation"]}>
       <li>
         <NavLink
-          to="filesPage"
-          className={(navData) => (navData.isActive ? scss.active : "")}
-        >
-          Pliki
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
           to="documentsPage"
           className={(navData) => (navData.isActive ? scss.active : "")}
         >
@@ -23,18 +15,18 @@ export const NavigationSettings: React.FC = () => {
       </li>
       <li>
         <NavLink
-          to="usersPage"
-          className={(navData) => (navData.isActive ? scss.active : "")}
-        >
-          Użytkownicy
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
           to="activityPage"
           className={(navData) => (navData.isActive ? scss.active : "")}
         >
           Aktywność
+        </NavLink>
+      </li>
+      <li>
+        <NavLink
+          to="usersPage"
+          className={(navData) => (navData.isActive ? scss.active : "")}
+        >
+          Użytkownicy
         </NavLink>
       </li>
     </ul>

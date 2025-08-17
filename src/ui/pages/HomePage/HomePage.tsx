@@ -4,6 +4,8 @@ import { MainTable } from "../../components/MainTable/MainTable";
 import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
 import { ConditionalWrapper } from "../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./HomePage.module.scss";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 const HomePage: React.FC = () => {
   const {
@@ -22,7 +24,14 @@ const HomePage: React.FC = () => {
     totalCount,
     refetch: refetchAllInvoices,
   } = useAllInvoices(formValuesHomePage, page, rowsPerPage);
+  const location = useLocation();
 
+  // Sprawdzenie, czy strona jest załadowana z innej strony
+  useEffect(() => {
+    console.log("location.pathname:", location.pathname);
+    console.log("location.state:", location.state);
+    console.log("location:", { location });
+  }, [location]);
   return (
     <div className={scss["homepage-main-container"]}>
       <FormHomeDate

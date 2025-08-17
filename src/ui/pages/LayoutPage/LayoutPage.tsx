@@ -7,6 +7,7 @@ import { Footer } from "../../components/Footer/Footer";
 import scss from "./LayoutPage.module.scss";
 
 export const LayoutPage: React.FC = () => {
+  console.log("Rendering LayoutPage");
   return (
     <div className={scss["layoutpage-main-container"]}>
       <header className={scss["header-main-container"]}>

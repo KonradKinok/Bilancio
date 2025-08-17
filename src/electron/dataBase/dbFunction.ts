@@ -4,12 +4,17 @@ import { DbTables, InvoicesTable } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
 import log from "electron-log"; // Dodaj import
 import { getWindowsUsernameElektron, } from '../util.js';
-
+import path from 'path';
+import { fileURLToPath } from 'url';
 // Tworzymy instancję bazy danych
 const db = new Database();
+
+// Pobieranie nazwy użytkownika systemu Windows
 const displayUserName = await getWindowsUsernameElektron();
 
-
+// Pobieranie nazwy pliku w module ES
+const __filename = fileURLToPath(import.meta.url);
+const fileName = path.basename(__filename);
 
 // Pobierz tablicę DictionaryDocuments
 // export async function getTableDictionaryDocuments()  {
@@ -1624,6 +1629,7 @@ export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatus
 //USERS
 // Funkcja do pobierania wszystkich użytkowników z tabeli Users
 export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<User[]>> {
+  const functionName = getAllUsers.name;
   try {
     let query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted FROM Users`;
     const params: QueryParams = [];
@@ -1635,46 +1641,53 @@ export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<
 
     const rows = await db.all<User>(query, params);
 
-    log.info('[dbFunction] [getAllUsers()] Pobrano użytkowników', { count: rows.length, isDeleted });
     return {
       status: STATUS.Success,
       data: rows ?? [],
     };
   } catch (err) {
-    log.error('[dbFunction] [getAllUsers()] Błąd podczas pobierania użytkowników z bazy danych:', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania użytkowników z bazy danych: ${err}`,
-    };
+    const message = "Błąd podczas pobierania użytkowników z bazy danych.";
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
 // Funkcja do zapisywania użytkownika w tabeli Users
-export async function saveUser(user: User): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-
+export async function saveUser(user: User): Promise<DataBaseResponse<User>> {
+  const functionName = saveUser.name;
+  const { UserPassword, ...userWithoutPassword } = user;
   try {
     // Walidacja
     if (!user.UserSystemName?.trim()) {
       const message = "UserSystemName jest wymagane.";
-      log.error(`[dbFunction] [saveUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
     if (!user.UserDisplayName?.trim()) {
       const message = `UserDisplayName jest wymagane.`;
-      log.error(`[dbFunction] [saveUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
     if (!["admin", "user"].includes(user.UserRole)) {
       const message = "UserRole może być tylko admin lub user.";
-      log.error(`[dbFunction] [saveUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
-
+    const existingUser = await db.get<{ UserId: number }>(
+      `SELECT UserId FROM Users WHERE LOWER(UserSystemName) = LOWER(?)`,
+      [user.UserSystemName.trim()]
+    );
+    if (existingUser) {
+      const message = "Użytkownik o podanej nazwie systemowej już istnieje.";
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
+      return { status: STATUS.Error, message: message };
+    }
     await db.beginTransaction();
 
     const query = `
       INSERT INTO Users (UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted)
       VALUES (?, ?, ?, ?, 0)
+      RETURNING UserId, UserSystemName, UserDisplayName, UserRole
     `;
     const params: QueryParams = [
       user.UserSystemName.trim(),
@@ -1683,47 +1696,49 @@ export async function saveUser(user: User): Promise<DataBaseResponse<ReturnMessa
       user.UserRole
     ];
 
-    const result = await db.run(query, params);
-    console.log("saveUser() result:", result);
-    if (!result.lastID || !result.changes) {
+    const result = await db.get<User>(query, params);
+    if (!result) {
       await db.rollback();
       const message = "Nie udało się zapisać użytkownika.";
-      log.error(`[dbFunction] [saveUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    return { status: STATUS.Success, data: { lastID: result.lastID, changes: result.changes } };
+    const message = "Zapisano użytkownika:";
+    log.info(logTitle(functionName, message), { result });
+    return { status: STATUS.Success, data: result };
   } catch (err) {
-    await db.rollback();
     const message = "Błąd zapisu użytkownika.";
-    log.error(`[dbFunction] [saveUser]: ${message}`, err, { user });
+    log.error(logTitle(functionName, message), err, { user: userWithoutPassword });
     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
 // Funkcja do aktualizowania użytkownika w tabeli Users
-export async function updateUser(user: User): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
+  const functionName = updateUser.name;
+  const { UserPassword, ...userWithoutPassword } = user;
   try {
     // Walidacja
     if (!user.UserId) {
       const message = `UserId jest wymagane do edycji.`;
-      log.error(`[dbFunction] [updateUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
     if (!user.UserSystemName?.trim()) {
       const message = `UserSystemName jest wymagane.`;
-      log.error(`[dbFunction] [updateUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
     if (!user.UserDisplayName?.trim()) {
       const message = `UserDisplayName jest wymagane.`;
-      log.error(`[dbFunction] [updateUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
     if (!["admin", "user"].includes(user.UserRole)) {
       const message = `UserRole może być tylko admin lub user.`;
-      log.error(`[dbFunction] [updateUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
 
@@ -1732,7 +1747,8 @@ export async function updateUser(user: User): Promise<DataBaseResponse<ReturnMes
     const query = `
       UPDATE Users
       SET UserSystemName = ?, UserDisplayName = ?, UserPassword = ?, UserRole = ?
-      WHERE UserId = ?      
+      WHERE UserId = ?
+      RETURNING UserId, UserSystemName, UserDisplayName, UserRole
     `;
     const params: QueryParams = [
       user.UserSystemName.trim(),
@@ -1742,59 +1758,32 @@ export async function updateUser(user: User): Promise<DataBaseResponse<ReturnMes
       user.UserId
     ];
 
-    const result = await db.run(query, params);
-    if (!result?.changes) {
+    const result = await db.get<User>(query, params);
+    if (!result) {
       await db.rollback();
       const message = `Nie udało się zaktualizować użytkownika.`;
-      log.error(`[dbFunction] [updateUser]: ${message}`, { user });
+      log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    return { status: STATUS.Success, data: { lastID: user.UserId, changes: result.changes } };
+    const message = "Zaktualizowano użytkownika:";
+    log.info(logTitle(functionName, message), { result });
+    return { status: STATUS.Success, data: result };
   } catch (err) {
-    await db.rollback();
     const message = "Błąd edycji użytkownika.";
-    log.error(`[dbFunction] [saveUser]: ${message}`, err, { user });
+    log.error(logTitle(functionName, message), err, { user: userWithoutPassword });
     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
-//Funkcja do usuwania (soft) użytkownika z tabeli Users
-// export async function deleteUser(userId: number): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-//   try {
-//     if (!userId) {
-//       return { status: STATUS.Error, message: "UserId jest wymagane do usunięcia." };
-//     }
-
-//     await db.beginTransaction();
-
-//     const query = `
-//       UPDATE Users
-//       SET IsDeleted = 1
-//       WHERE UserId = ?
-//       RETURNING changes()
-//     `;
-//     const params: QueryParams = [userId];
-
-//     const result = await db.get<{ changes: number }>(query, params);
-//     if (!result?.changes) {
-//       await db.rollback();
-//       return { status: STATUS.Error, message: "Nie udało się usunąć użytkownika." };
-//     }
-
-//     await db.commit();
-//     return { status: STATUS.Success, data: { lastID: userId, changes: result.changes } };
-//   } catch (err) {
-//     await db.rollback();
-//     console.error("deleteUser() błąd:", err);
-//     return { status: STATUS.Error, message: err instanceof Error ? err.message : "Błąd usuwania użytkownika." };
-//   }
-// }
 export async function deleteUser(userId: number): Promise<DataBaseResponse<User>> {
+  const functionName = deleteUser.name;
   try {
     if (!userId) {
-      return { status: STATUS.Error, message: "UserId jest wymagane do usunięcia." };
+      const message = `UserId jest wymagane do usunięcia.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     await db.beginTransaction();
@@ -1802,56 +1791,29 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
     const query = `
       DELETE FROM Users
       WHERE UserId = ?
-      RETURNING UserId, UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted
+      RETURNING UserId, UserSystemName, UserDisplayName, UserRole
     `;
     const params: QueryParams = [userId];
 
     const result = await db.get<User>(query, params);
     if (!result) {
       await db.rollback();
-      return { status: STATUS.Error, message: "Nie udało się usunąć użytkownika lub użytkownik nie istnieje." };
+      const message = `Nie udało się usunąć użytkownika lub użytkownik nie istnieje.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    log.info(`[dbFunction] [deleteUser] [${displayUserName}]:`, { result });
+    const message = "Usunięto użytkownika:"
+    log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
   } catch (err) {
-    await db.rollback();
-    console.error("deleteUser() błąd:", err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : "Błąd usuwania użytkownika." };
+    const message = `Błąd usuwania użytkownika. `;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-//Funkcja do przywracania (soft) użytkownika w tabeli Users
-export async function restoreUser(userId: number): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-  try {
-    if (!userId) {
-      return { status: STATUS.Error, message: "UserId jest wymagane do przywrócenia." };
-    }
 
-    await db.beginTransaction();
-
-    const query = `
-      UPDATE Users
-      SET IsDeleted = 0
-      WHERE UserId = ?
-      RETURNING changes()
-    `;
-    const params: QueryParams = [userId];
-
-    const result = await db.get<{ changes: number }>(query, params);
-    if (!result?.changes) {
-      await db.rollback();
-      return { status: STATUS.Error, message: "Nie udało się przywrócić użytkownika." };
-    }
-
-    await db.commit();
-    return { status: STATUS.Success, data: { lastID: userId, changes: result.changes } };
-  } catch (err) {
-    await db.rollback();
-    console.error("restoreUser() błąd:", err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : "Błąd przywracania użytkownika." };
-  }
-}
 // Weryfikacja użytkownika na podstawie UserSystemName
 export async function getUserBySystemName(systemUserName: string): Promise<DataBaseResponse<User>> {
   try {
@@ -1868,7 +1830,7 @@ export async function getUserBySystemName(systemUserName: string): Promise<DataB
         message: `Brak użytkownika ${systemUserName} w bazie danych.`,
       };
     }
-
+    log.info(`[dbFunction] [getUserBySystemName()] Użytkownik ${user.UserDisplayName} został pomyślnie zalogowany.`);
     return {
       status: STATUS.Success,
       data: user,
@@ -1882,7 +1844,7 @@ export async function getUserBySystemName(systemUserName: string): Promise<DataB
   }
 }
 
-// Weryfikacja użytkownika na podstawie UserSystemName i hasła
+// BRAK IMPLEMENTACJI!!! Weryfikacja użytkownika na podstawie UserSystemName i hasła
 export async function loginUser(systemUserName: string, password: string): Promise<DataBaseResponse<User>> {
   try {
     const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
@@ -1919,10 +1881,9 @@ export async function loginUser(systemUserName: string, password: string): Promi
   }
 }
 
+// Przykładowa funkcja
 export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);
-
-
   return Promise.resolve("getConfigBilancio text");
 }
 // import { app } from 'electron';
@@ -1935,3 +1896,7 @@ export async function getConfigBilancio1(tekst: string): Promise<string> {
 //   }
 // });
 
+export function logTitle(functionName: string, message: string): string {
+  const title = `[${fileName}] [${functionName}] [${displayUserName}]: ${message}`;
+  return title;
+}

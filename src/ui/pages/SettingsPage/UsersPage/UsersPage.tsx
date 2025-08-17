@@ -78,12 +78,12 @@ const UsersPage: React.FC = () => {
     onSuccess: () => void
   ) => {
     if (user.UserSystemName === "konrad.konik") return;
-    const successText = `${
-      isNewUser ? "Nowy" : "Edytowany"
-    } użytkownik został pomyślnie zapisany.`;
+    const successText = `${isNewUser ? "Nowy" : "Edytowany"} użytkownik ${
+      user.UserDisplayName
+    } został pomyślnie zapisany.`;
     const errorText = `Nie udało się zapisać ${
       isNewUser ? "nowego" : "edytowanego"
-    } użytkownika.`;
+    } użytkownika ${user.UserDisplayName}.`;
 
     try {
       const result = await (isNewUser ? addUser(user) : updateUser(user));
@@ -113,7 +113,7 @@ const UsersPage: React.FC = () => {
     if (!selectedUser?.UserId) return;
     if (selectedUser.UserSystemName === "konrad.konik") return;
     const successText = `Użytkownik ${selectedUser.UserDisplayName} został pomyślnie usunięty!`;
-    const errorText = `Nie udało się usunąć użytkownika.`;
+    const errorText = `Nie udało się usunąć użytkownika ${selectedUser.UserDisplayName}.`;
 
     try {
       const result = await deleteUser(selectedUser.UserId);
@@ -197,12 +197,11 @@ export default UsersPage;
 
 function tooltipInfoUsersPage() {
   const text = `Strona użytkowników.
-  Przycisk "Dodaj nowy" umożliwia dodanie nowego dokumentu.
-  Przycisk "Edytuj" umożliwia edycję istniejącego dokumentu.
-  Przycisk "Usuń" umożliwia usunięcie dokumentu.
-  Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego dokumentu.
-  Przycisk "Przywróć" umożliwia przywrócenie usuniętego dokumentu.
-  UWAGA! Nazwy dokumentów nie mogą się powtarzać.`;
+  Przycisk "Dodaj nowy" umożliwia dodanie nowego użytkownika.
+  Przycisk "Edytuj" umożliwia edycję istniejącego użytkownika.
+  Przycisk "Usuń" umożliwia usunięcie użytkownika.
+  Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego użytkownika.
+  UWAGA! Nazwy systemowe użytkowników nie mogą się powtarzać.`;
 
   return text.replace(/\n/g, "<br/>");
 }
