@@ -159,23 +159,6 @@ declare global {
     username: string | null;
     hostname: string | null;
   }
-  //ActivityLOG
-  enum ActivityType {
-    addInvoice = "dodanie faktury",
-    editInvoice = "edycja faktury",
-    deleteInvoice = "usunięcie faktury",
-  }
-
-  type ActivityLog = {
-    ActivityLogId?: number;
-    Date?: string;
-    UserName: string;
-    ActivityType: ActivityType;
-    ActivityData: string;
-  };
-
-
-
 
   type EventPayloadMapping = {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
@@ -194,13 +177,9 @@ declare global {
     restoreInvoice: DataBaseResponse<ReturnMessageFromDb>;
     countInvoices: DataBaseResponse<number>;
 
-    countActivityLog: DataBaseResponse<number>;
-    getAllActivityLog: DataBaseResponse<ActivityLog[]>;
-    saveActivityLog: DataBaseResponse<ReturnMessageFromDb>;
-
     //Users
     getAllUsers: DataBaseResponse<User[]>;
-    saveUser: DataBaseResponse<ReturnMessageFromDb>;
+    addUser: DataBaseResponse<ReturnMessageFromDb>;
     updateUser: DataBaseResponse<ReturnMessageFromDb>;
     deleteUser: DataBaseResponse<User>;
 
@@ -213,7 +192,6 @@ declare global {
     getDBbBilancioPath: string;
 
     checkDatabaseExists: ReturnStatusMessage;
-    reinitializeDatabase: ReturnStatusMessage;
     getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
 
 
@@ -239,25 +217,21 @@ declare global {
       restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
 
-      countActivityLog: () => Promise<DataBaseResponse<number>>;
-      getAllActivityLog: (page, rowsPerPage) => Promise<DataBaseResponse<ActivityLog[]>>;
-      saveActivityLog: (activity: ActivityLog) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-
       getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;
-      saveUser: (user: User) => Promise<DataBaseResponse<User>>;
+      addUser: (user: User) => Promise<DataBaseResponse<User>>;
       updateUser: (user: User) => Promise<DataBaseResponse<User>>;
       deleteUser: (userId: number) => Promise<DataBaseResponse<User>>;
 
 
       getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
-      loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
+      // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
       getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
 
       checkDatabaseExists: () => Promise<ReturnStatusMessage>;
-      reinitializeDatabase: (dbPath: string) => Promise<ReturnStatusMessage>;
+
       getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
 
       //Electron

@@ -30,16 +30,19 @@ export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<Win
 
 //Pobierz nazwę użytkownika oraz hostname z systemu
 export async function getWindowsUsernameElektron(): Promise<string> {
+  const functionName = getWindowsUsernameElektron.name;
   try {
     const username = os.userInfo().username.toLowerCase();
-    const displayUserName = await getUserBySystemName(username);
+    const displayUserName = (await getUserBySystemName(username));
     if (!displayUserName || displayUserName.status === STATUS.Error) {
-      log.error('[utils.js] [getWindowsUsernameElektron()]', displayUserName);
+      const message = `Nie udało się pobrać nazwy użytkownika z bazy danych.`;
+      log.error(`[utils.js] [${functionName}] pierwszy log`);
       return "defaultUser";
     }
     return displayUserName.data.UserDisplayName;
   } catch (err) {
-    log.error('[utils.js] [getWindowsUsername()]', err);
+    log.error('[utils.js] [getWindowsUsername()] drugi log', err);
+    console.error('Nie udało się pobrać nazwy użytkownika z bazy danych.', err);
     return "defaultUser";
   }
 }

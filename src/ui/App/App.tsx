@@ -15,9 +15,7 @@ const DocumentsPage = lazy(
 const UsersPage = lazy(
   () => import("../pages/SettingsPage/UsersPage/UsersPage")
 );
-const ActivityLogPage = lazy(
-  () => import("../pages/SettingsPage/ActivityLogPage/ActivityLogPage")
-);
+
 const NotLoggedInPage = lazy(
   () => import("../pages/NotLoggedInPage/NotLoggedInPage")
 );
@@ -47,7 +45,6 @@ const App: React.FC = () => {
             <Route index element={<Navigate to="documentsPage" replace />} />
             <Route path="documentsPage" element={<DocumentsPage />} />
             <Route path="usersPage" element={<UsersPage />} />
-            <Route path="activityPage" element={<ActivityLogPage />} />
           </Route>
         </Route>
         <Route path="notLoggedInPage" element={<NotLoggedInPage />} />

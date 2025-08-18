@@ -1,8 +1,8 @@
+import fs from "fs";
 import path from "path";
 import { app } from "electron";
-import { isDev } from "./util.js";
-import fs from "fs";
 import log from "electron-log";
+import { isDev } from "./util.js";
 import { isDatabaseExists } from "./dataBase/dbClass.js";
 
 // Funkcja do pobierania ścieżki do pliku preload
@@ -43,7 +43,7 @@ export function getLogDir() {
   const logDir = path.join(getUserDataDirPath(), "logs");
 
   if (!fs.existsSync(logDir)) {
-    log.error('Katalog logs nie istnieje w ścieżce:', logDir);
+    log.error('[pathResolver] [getLogDir]: Katalog logs nie istnieje w ścieżce:', logDir);
   }
   return logDir;
 }
@@ -52,10 +52,10 @@ export function getLogDir() {
 // Funkcja do pobierania i zapisywania konfiguracji
 export function checkDirs() {
   const defaultDirConfig = {
-    dbPath: path.join(getUserDataDirPath(), 'BilancioDataBase.db'),
-    documentTemplatesPath: path.join(getUserDataDirPath(), 'szablony dokumentów'),
-    savedDocumentsPath: path.join(getUserDataDirPath(), 'zapisane dokumenty'),
-    backupDbPath: path.join(getUserDataDirPath(), 'database', 'backup'),
+    dbPath: path.join(getDBbBilancioPath()),
+    documentTemplatesPath: path.join(getDocumentTemplatesPath()),
+    savedDocumentsPath: path.join(getSavedDocumentsPath()),
+    backupDbPath: path.join(getBackupDbPath()),
   };
 
   try {
@@ -87,7 +87,7 @@ export function getDBbBilancioPath() {
   const pathToDb = path.join(getUserDataDirPath(), "database", 'BilancioDataBase.db');
 
   if (!fs.existsSync(pathToDb)) {
-    log.error('Plik BilancioDataBase.db nie istnieje w ścieżce:', pathToDb);
+    log.error('[pathResolver.js] [getDBbBilancioPath]: Plik BilancioDataBase.db nie istnieje w ścieżce:', pathToDb);
   }
   return pathToDb;
 }
@@ -97,7 +97,7 @@ export function getDocumentTemplatesPath() {
   const pathToDocumentTemplates = path.join(getUserDataDirPath(), "szablony dokumentów");
 
   if (!fs.existsSync(pathToDocumentTemplates)) {
-    log.error('Katalog szablony dokumentów nie istnieje w ścieżce:', pathToDocumentTemplates);
+    log.error('[pathResolver.js] [getDocumentTemplatesPath]: Katalog szablony dokumentów nie istnieje w ścieżce:', pathToDocumentTemplates);
   }
   return pathToDocumentTemplates;
 }
@@ -107,7 +107,7 @@ export function getSavedDocumentsPath() {
   const pathToSavedDocumentsPath = path.join(getUserDataDirPath(), "zapisane dokumenty");
 
   if (!fs.existsSync(pathToSavedDocumentsPath)) {
-    log.error('Katalog zapisane dokumenty nie istnieje w ścieżce:', pathToSavedDocumentsPath);
+    log.error('[pathResolver.js] [getSavedDocumentsPath]: Katalog zapisane dokumenty nie istnieje w ścieżce:', pathToSavedDocumentsPath);
   }
   return pathToSavedDocumentsPath;
 }
@@ -117,7 +117,7 @@ export function getBackupDbPath() {
   const pathToBackupDbPath = path.join(getUserDataDirPath(), "database", "backup");
 
   if (!fs.existsSync(pathToBackupDbPath)) {
-    log.error('Katalog database/backup nie istnieje w ścieżce:', pathToBackupDbPath);
+    log.error('[pathResolver.js] [getBackupDbPath]: Katalog database/backup nie istnieje w ścieżce:', pathToBackupDbPath);
   }
   return pathToBackupDbPath;
 }

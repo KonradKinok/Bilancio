@@ -22,25 +22,20 @@ electron.contextBridge.exposeInMainWorld('electron', {
   restoreInvoice: (invoiceId) => ipcInvoke2('restoreInvoice', invoiceId),
   countInvoices: (payload) => ipcInvoke2('countInvoices', payload),
 
-  countActivityLog: () => ipcInvoke('countActivityLog'),
-  getAllActivityLog: (page, rowsPerPage) =>
-    ipcInvoke2('getAllActivityLog', page, rowsPerPage),
-  saveActivityLog: (activity) => ipcInvoke2('saveActivityLog', activity),
-
   getAllUsers: (user) => ipcInvoke2('getAllUsers', user),
-  saveUser: (user) => ipcInvoke2('saveUser', user),
+  addUser: (user) => ipcInvoke2('addUser', user),
   updateUser: (user) => ipcInvoke2('updateUser', user),
   deleteUser: (userId) => ipcInvoke2('deleteUser', userId),
 
   //Auth
   getWindowsUsernameHostname: () => ipcInvoke('getWindowsUsernameHostname'),
   getUserBySystemName: (systemUserName) => ipcInvoke2('getUserBySystemName', systemUserName),
-  loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
+  // loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
 
   getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
 
 
-  reinitializeDatabase: (payload) => ipcInvoke2('reinitializeDatabase', payload),
+
   checkDatabaseExists: () => ipcInvoke('checkDatabaseExists'),
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),
   //Electron

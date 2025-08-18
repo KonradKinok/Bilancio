@@ -15,14 +15,6 @@ export const NavigationSettings: React.FC = () => {
       </li>
       <li>
         <NavLink
-          to="activityPage"
-          className={(navData) => (navData.isActive ? scss.active : "")}
-        >
-          Aktywność
-        </NavLink>
-      </li>
-      <li>
-        <NavLink
           to="usersPage"
           className={(navData) => (navData.isActive ? scss.active : "")}
         >

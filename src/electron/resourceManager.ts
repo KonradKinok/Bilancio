@@ -181,3 +181,107 @@
 //   }
 //   return { success: false, path: null };
 // };
+
+
+// export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatusMessage> {
+//   try {
+//     await db.reinitialize(dbPath);
+//     log.info('Baza danych została pomyślnie zreinicjalizowana:', dbPath);
+//     return { status: true, message: 'Baza danych została pomyślnie zreinicjalizowana.' };
+//   } catch (err) {
+//     log.error('Błąd podczas reinicjalizacji bazy danych:', err);
+//     return { status: false, message: err instanceof Error ? err.message : 'Nieznany błąd podczas reinicjalizacji bazy danych.' };
+//   }
+// };
+
+//Pobranie wszystkich aktywności
+// export async function getAllActivityLog(
+//   page: number = 1,
+//   rowsPerPage: number = 10
+// ): Promise<DataBaseResponse<ActivityLog[]>> {
+//   try {
+//     const query = `SELECT ActivityLogId, Date, UserName, ActivityType, ActivityData
+//                    FROM ActivityLog
+//                    ORDER BY Date DESC
+//                    LIMIT ? OFFSET ?`;
+//     const params: QueryParams = [rowsPerPage, (page - 1) * rowsPerPage];
+
+//     const rows = await db.all<ActivityLog>(query, params);
+//     return {
+//       status: STATUS.Success,
+//       data: rows ?? [],
+//     };
+//   } catch (err) {
+//     console.error("getAllActivityLog() Błąd podczas pobierania aktywności:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: "Błąd podczas pobierania aktywności z bazy danych.",
+//     };
+//   }
+// }
+
+//Zapisanie aktywności
+// export async function saveActivityLog(activity: ActivityLog): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+//   try {
+//     // Krok 1: Walidacja danych
+//     if (!activity.UserName) {
+//       return {
+//         status: STATUS.Error,
+//         message: "UserName jest wymagane.",
+//       };
+//     }
+//     if (!activity.ActivityType || !Object.values(ActivityType).includes(activity.ActivityType)) {
+//       return {
+//         status: STATUS.Error,
+//         message: "ActivityType musi być jednym z dozwolonych nazw.",
+//       };
+//     }
+//     if (!activity.ActivityData) {
+//       return {
+//         status: STATUS.Error,
+//         message: "ActivityData jest wymagane.",
+//       };
+//     }
+//     // Walidacja JSON
+//     try {
+//       JSON.parse(activity.ActivityData);
+//     } catch (err) {
+//       return {
+//         status: STATUS.Error,
+//         message: "ActivityData musi być poprawnym JSON-em.",
+//       };
+//     }
+
+//     await db.beginTransaction();
+
+//     // Krok 2: Wstawienie rekordu do ActivityLog
+//     const query = `
+//       INSERT INTO ActivityLog (UserName, ActivityType, ActivityData)
+//       VALUES (?, ?, ?)
+//       RETURNING ActivityLogId, changes()
+//     `;
+//     const params: QueryParams = [activity.UserName, activity.ActivityType, activity.ActivityData];
+
+//     const result = await db.get<{ ActivityLogId: number; changes: number }>(query, params);
+//     if (!result || !result.ActivityLogId || !result.changes) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "Nie udało się zapisać aktywności w ActivityLog.",
+//       };
+//     }
+
+//     await db.commit();
+//     return {
+//       status: STATUS.Success,
+//       data: { lastID: result.ActivityLogId, changes: result.changes },
+//     };
+//   } catch (err) {
+//     await db.rollback();
+//     console.error("saveActivityLog() Błąd podczas zapisywania aktywności:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania aktywności.",
+//     };
+//   }
+// }

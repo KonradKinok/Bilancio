@@ -15,7 +15,7 @@ export function useAddUser() {
     console.log("useAddUser: ", addedUser);
     try {
       const result: DataBaseResponse<User> =
-        await window.electron.saveUser(addedUser);
+        await window.electron.addUser(addedUser);
       if (result.status === STATUS.Success) {
         setData(result.data);
         setError(null);

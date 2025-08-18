@@ -6,6 +6,7 @@ import log from "electron-log"; // Dodaj import
 import { getWindowsUsernameElektron, } from '../util.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import os from 'os';
 // Tworzymy instancję bazy danych
 const db = new Database();
 
@@ -1521,111 +1522,6 @@ export async function countActivityLog(): Promise<DataBaseResponse<number>> {
   }
 }
 
-//Pobranie wszystkich aktywności
-export async function getAllActivityLog(
-  page: number = 1,
-  rowsPerPage: number = 10
-): Promise<DataBaseResponse<ActivityLog[]>> {
-  try {
-    const query = `SELECT ActivityLogId, Date, UserName, ActivityType, ActivityData 
-                   FROM ActivityLog 
-                   ORDER BY Date DESC 
-                   LIMIT ? OFFSET ?`;
-    const params: QueryParams = [rowsPerPage, (page - 1) * rowsPerPage];
-
-    const rows = await db.all<ActivityLog>(query, params);
-    return {
-      status: STATUS.Success,
-      data: rows ?? [],
-    };
-  } catch (err) {
-    console.error("getAllActivityLog() Błąd podczas pobierania aktywności:", err);
-    return {
-      status: STATUS.Error,
-      message: "Błąd podczas pobierania aktywności z bazy danych.",
-    };
-  }
-}
-
-//Zapisanie aktywności
-export async function saveActivityLog(activity: ActivityLog): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-  try {
-    // Krok 1: Walidacja danych
-    if (!activity.UserName) {
-      return {
-        status: STATUS.Error,
-        message: "UserName jest wymagane.",
-      };
-    }
-    if (!activity.ActivityType || !Object.values(ActivityType).includes(activity.ActivityType)) {
-      return {
-        status: STATUS.Error,
-        message: "ActivityType musi być jednym z dozwolonych nazw.",
-      };
-    }
-    if (!activity.ActivityData) {
-      return {
-        status: STATUS.Error,
-        message: "ActivityData jest wymagane.",
-      };
-    }
-    // Walidacja JSON
-    try {
-      JSON.parse(activity.ActivityData);
-    } catch (err) {
-      return {
-        status: STATUS.Error,
-        message: "ActivityData musi być poprawnym JSON-em.",
-      };
-    }
-
-    await db.beginTransaction();
-
-    // Krok 2: Wstawienie rekordu do ActivityLog
-    const query = `
-      INSERT INTO ActivityLog (UserName, ActivityType, ActivityData)
-      VALUES (?, ?, ?)
-      RETURNING ActivityLogId, changes()
-    `;
-    const params: QueryParams = [activity.UserName, activity.ActivityType, activity.ActivityData];
-
-    const result = await db.get<{ ActivityLogId: number; changes: number }>(query, params);
-    if (!result || !result.ActivityLogId || !result.changes) {
-      await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się zapisać aktywności w ActivityLog.",
-      };
-    }
-
-    await db.commit();
-    return {
-      status: STATUS.Success,
-      data: { lastID: result.ActivityLogId, changes: result.changes },
-    };
-  } catch (err) {
-    await db.rollback();
-    console.error("saveActivityLog() Błąd podczas zapisywania aktywności:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania aktywności.",
-    };
-  }
-}
-
-
-
-export async function reinitializeDatabase(dbPath: string): Promise<ReturnStatusMessage> {
-  try {
-    await db.reinitialize(dbPath);
-    log.info('Baza danych została pomyślnie zreinicjalizowana:', dbPath);
-    return { status: true, message: 'Baza danych została pomyślnie zreinicjalizowana.' };
-  } catch (err) {
-    log.error('Błąd podczas reinicjalizacji bazy danych:', err);
-    return { status: false, message: err instanceof Error ? err.message : 'Nieznany błąd podczas reinicjalizacji bazy danych.' };
-  }
-};
-
 //USERS
 // Funkcja do pobierania wszystkich użytkowników z tabeli Users
 export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<User[]>> {
@@ -1653,8 +1549,8 @@ export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<
 }
 
 // Funkcja do zapisywania użytkownika w tabeli Users
-export async function saveUser(user: User): Promise<DataBaseResponse<User>> {
-  const functionName = saveUser.name;
+export async function addUser(user: User): Promise<DataBaseResponse<User>> {
+  const functionName = addUser.name;
   const { UserPassword, ...userWithoutPassword } = user;
   try {
     // Walidacja
@@ -1777,6 +1673,7 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
   }
 }
 
+// Funkcja do usuwania użytkownika z tabeli Users
 export async function deleteUser(userId: number): Promise<DataBaseResponse<User>> {
   const functionName = deleteUser.name;
   try {
@@ -1816,68 +1713,32 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
 
 // Weryfikacja użytkownika na podstawie UserSystemName
 export async function getUserBySystemName(systemUserName: string): Promise<DataBaseResponse<User>> {
+  const functionName = getUserBySystemName.name;
   try {
     const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
                    FROM Users 
                    WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
     const params: QueryParams = [systemUserName];
-    const user = await db.get<User>(query, params);
+    const result = await db.get<User>(query, params);
 
-    if (!user) {
-      log.error(`[dbFunction] [getUserBySystemName()] Brak użytkownika ${systemUserName} w bazie danych.`);
+    if (!result) {
+      const message = `Brak użytkownika ${systemUserName} w bazie danych.`
+      log.error(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`);
       return {
         status: STATUS.Error,
-        message: `Brak użytkownika ${systemUserName} w bazie danych.`,
+        message: message,
       };
     }
-    log.info(`[dbFunction] [getUserBySystemName()] Użytkownik ${user.UserDisplayName} został pomyślnie zalogowany.`);
+    const message = `Użytkownik ${result.UserDisplayName} został pomyślnie zalogowany.`
+    log.info(`[dbFunction.js] [${functionName}] [${result.UserDisplayName}] ${message}`);
     return {
       status: STATUS.Success,
-      data: user,
+      data: result,
     };
   } catch (err) {
-    log.error('[dbFunction] [getUserBySystemName()] Błąd podczas pobierania użytkownika:', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania użytkownika: ${err}`,
-    };
-  }
-}
-
-// BRAK IMPLEMENTACJI!!! Weryfikacja użytkownika na podstawie UserSystemName i hasła
-export async function loginUser(systemUserName: string, password: string): Promise<DataBaseResponse<User>> {
-  try {
-    const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
-                   FROM Users 
-                   WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
-    const params: QueryParams = [systemUserName];
-    const user = await db.get<User>(query, params);
-
-    if (!user) {
-      log.error(`[dbFunction] [loginUser()] Brak użytkownika ${systemUserName} w bazie danych.`);
-      return {
-        status: STATUS.Error,
-        message: `Brak użytkownika ${systemUserName} w bazie danych.`,
-      };
-    }
-
-    if (user.UserPassword && user.UserPassword !== password) {
-      return {
-        status: STATUS.Error,
-        message: 'Nieprawidłowe hasło.',
-      };
-    }
-
-    return {
-      status: STATUS.Success,
-      data: user,
-    };
-  } catch (err) {
-    log.error('[dbFunction] [loginUser()] Błąd podczas logowania użytkownika:', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas logowania użytkownika: ${err}`,
-    };
+    const message = `Błąd podczas pobierania użytkownika: ${systemUserName}.`
+    log.info(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`, err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
@@ -1896,7 +1757,7 @@ export async function getConfigBilancio1(tekst: string): Promise<string> {
 //   }
 // });
 
-export function logTitle(functionName: string, message: string): string {
-  const title = `[${fileName}] [${functionName}] [${displayUserName}]: ${message}`;
+export function logTitle(functionName: string, message: string, displayUserNameLog: string = displayUserName): string {
+  const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
   return title;
 }

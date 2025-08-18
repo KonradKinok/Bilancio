@@ -7,7 +7,7 @@ import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, get
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, deleteUser, getAllActivityLog, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, loginUser, reinitializeDatabase, restoreInvoice, saveActivityLog, saveEditedDocument, saveNewDocument, saveUser, updateDocumentDeletionStatus, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, saveEditedDocument, saveNewDocument, addUser, updateDocumentDeletionStatus, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
 // Deklaracja mainWindow na poziomie globalnym
@@ -36,7 +36,7 @@ if (!gotTheLock) {
 }
 app.on("ready", () => {
   if (!gotTheLock) return;
-  configureLogs(); // Wywołanie funkcji konfiguracyjnej logowania
+  configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
   defaultLogs();
   configureBackupDb();
 
@@ -128,23 +128,13 @@ app.on("ready", () => {
   ipcMainHandle2('countInvoices', (payload) => {
     return countInvoices(payload);
   });
-  // ActivityLog
-  ipcMainHandle('countActivityLog', () => {
-    return countActivityLog();
-  });
-  ipcMainHandle2('getAllActivityLog', (page, rowsPerPage) => {
-    return getAllActivityLog(page, rowsPerPage);
-  });
-  ipcMainHandle2('saveActivityLog', (activity) => {
-    return saveActivityLog(activity);
-  });
 
   //Users
   ipcMainHandle2('getAllUsers', (isDeleted) => {
     return getAllUsers(isDeleted);
   });
-  ipcMainHandle2('saveUser', (user) => {
-    return saveUser(user);
+  ipcMainHandle2('addUser', (user) => {
+    return addUser(user);
   });
   ipcMainHandle2('updateUser', (user) => {
     return updateUser(user);
@@ -160,17 +150,12 @@ app.on("ready", () => {
   ipcMainHandle2('getUserBySystemName', (systemUserName) => {
     return getUserBySystemName(systemUserName);
   });
-  ipcMainHandle2('loginUser', (systemUserName, password) => {
-    return loginUser(systemUserName, password);
-  });
+
   // Nowe IPC dla konfiguracji
 
 
   ipcMainHandle('checkDatabaseExists', () => {
     return checkDatabaseExists();
-  });
-  ipcMainHandle2('reinitializeDatabase', (dbPath) => {
-    return reinitializeDatabase(dbPath);
   });
 
   ipcMainHandle('getDBbBilancioPath', () => {
