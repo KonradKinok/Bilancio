@@ -1149,7 +1149,10 @@ export async function getLastRowFromTable(tableName: DbTables, tableNameId: Invo
     return [];
   }
 };
-export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+
+// Funkcja przygotowująca do dodawania faktury 
+async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  const functionName = addInvoice.name;
   const sql = `
     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
     VALUES (?, ?, ?, ?, ?)
@@ -1163,30 +1166,29 @@ export async function addInvoice(invoice: InvoiceTable): Promise<DataBaseRespons
   ];
 
   try {
-
     const result = await db.run(sql, params);
     if (!result.lastID || !result.changes) {
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się dodać faktury do bazy danych.",
-      };
+      const message = `Nie udało się dodać faktury ${invoice.InvoiceName} do bazy danych: .`;
+      log.error(logTitle(functionName, message), { invoice });
+      return { status: STATUS.Error, message: message };
     }
     return {
       status: STATUS.Success,
       data: { lastID: result.lastID, changes: result.changes },
     };
   } catch (err) {
-    console.error("Błąd podczas dodawania nowej faktury:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas dodawania faktury.",
-    };
+    const message = `Nieznany błąd podczas dodawania faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
+
+// Funkcja do dodawania faktury i jej szczegółów do bazy danych
 export async function addInvoiceDetails(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  const functionName = addInvoiceDetails.name;
   const sql = `
     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -1196,14 +1198,12 @@ export async function addInvoiceDetails(
     await db.beginTransaction();
     const resultAddInvoice = await addInvoice(invoice);
     if (resultAddInvoice.status === STATUS.Success && resultAddInvoice.data) {
-      console.log(`Dodano nową fakturę z ID: ${resultAddInvoice.data.lastID}`);
       for (const detail of invoiceDetails) {
         if (!detail.DocumentId || detail.Quantity <= 0) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nieprawidłowe dane szczegółów faktury (DocumentId lub Quantity).",
-          };
+          const message = `Nieprawidłowe dane szczegółów faktury ${invoice.InvoiceName} (DocumentId ${detail.DocumentId} lub Quantity ${invoice.InvoiceName}).`;
+          log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+          return { status: STATUS.Error, message: message };
         }
         const params = [
           resultAddInvoice.data.lastID,
@@ -1217,148 +1217,36 @@ export async function addInvoiceDetails(
         const resultDetail = await db.run(sql, params);
         if (!resultDetail.changes) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId}.`,
-          };
+          const message = `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId} ${invoice.InvoiceName}.`;
+          log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+          return { status: STATUS.Error, message: message };
         }
       }
       await db.commit();
+      const message = "Dodano fakturę:";
+      log.info(logTitle(functionName, message), { invoice }, { invoiceDetails });
       return resultAddInvoice;
     }
     await db.rollback();
     return resultAddInvoice;
   } catch (err) {
-    await db.rollback();
-    console.error("Błąd podczas dodawania szczegółów faktury:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas dodawania szczegółów faktury.",
-    };
+    const message = `Nieznany błąd podczas dodawania szczegółów faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-// //Funkcja do aktualizacji faktury w bazie danych w tabeli Invoices
-// export async function updateInvoice(
-//   invoice: InvoiceTable,
-//   invoiceDetails: InvoiceDetailsTable[]
-// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-//   // Walidacja InvoiceId
-//   if (invoice.InvoiceId === undefined) {
-//     return {
-//       status: STATUS.Error,
-//       message: "Brak InvoiceId. Aktualizacja faktury wymaga identyfikatora.",
-//     };
-//   }
 
-//   // SQL do aktualizacji faktury
-//   const updateInvoiceSql = `
-//     UPDATE Invoices 
-//     SET InvoiceName = ?, ReceiptDate = ?, DeadlineDate = ?, PaymentDate = ?, IsDeleted = ?
-//     WHERE InvoiceId = ?
-//   `;
-//   const updateInvoiceParams: QueryParams = [
-//     invoice.InvoiceName ?? "",
-//     invoice.ReceiptDate ?? "",
-//     invoice.DeadlineDate ?? null,
-//     invoice.PaymentDate ?? null,
-//     invoice.IsDeleted ?? 0,
-//     invoice.InvoiceId, // Teraz gwarantujemy, że jest to number
-//   ];
-
-//   // SQL do usuwania istniejących szczegółów faktury
-//   const deleteDetailsSql = `
-//     DELETE FROM InvoiceDetails WHERE InvoiceId = ?
-//   `;
-//   const deleteDetailsParams: QueryParams = [invoice.InvoiceId];
-
-//   // SQL do wstawiania nowych szczegółów faktury
-//   const insertDetailsSql = `
-//     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
-//     VALUES (?, ?, ?, ?, ?, ?, ?)
-//   `;
-
-//   try {
-//     await db.beginTransaction();
-
-//     // Sprawdzenie, czy faktura istnieje
-//     const existingInvoice = await db.get<{ InvoiceId: number }>(
-//       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ?`,
-//       [invoice.InvoiceId]
-//     );
-//     if (!existingInvoice) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: `Faktura o ID ${invoice.InvoiceId} nie istnieje.`,
-//       };
-//     }
-
-//     // Aktualizacja faktury
-//     const updateResult = await db.run(updateInvoiceSql, updateInvoiceParams);
-//     if (!updateResult.changes) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: "Nie udało się zaktualizować faktury.",
-//       };
-//     }
-
-//     // Usunięcie istniejących szczegółów
-//     await db.run(deleteDetailsSql, deleteDetailsParams);
-
-//     // Wstawianie nowych szczegółów
-//     for (const detail of invoiceDetails) {
-//       if (!detail.DocumentId || detail.Quantity <= 0) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "Nieprawidłowe dane szczegółów faktury (DocumentId lub Quantity).",
-//         };
-//       }
-//       const insertParams: QueryParams = [
-//         invoice.InvoiceId,
-//         detail.DocumentId,
-//         detail.MainTypeId ?? null,
-//         detail.TypeId ?? null,
-//         detail.SubtypeId ?? null,
-//         detail.Quantity,
-//         detail.Price,
-//       ];
-//       const insertResult = await db.run(insertDetailsSql, insertParams);
-//       if (!insertResult.changes) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId}.`,
-//         };
-//       }
-//     }
-
-//     await db.commit();
-//     return {
-//       status: STATUS.Success,
-//       data: { lastID: invoice.InvoiceId, changes: updateResult.changes },
-//     };
-//   } catch (err) {
-//     await db.rollback();
-//     console.error("Błąd podczas aktualizacji faktury:", err);
-//     return {
-//       status: STATUS.Error,
-//       message: err instanceof Error ? err.message : "Nieznany błąd podczas aktualizacji faktury.",
-//     };
-//   }
-// }
 //Funkcja do aktualizacji faktury w bazie danych w tabeli Invoices
 export async function updateInvoice(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  const functionName = updateInvoice.name;
   // Walidacja InvoiceId
   if (invoice.InvoiceId === undefined) {
-    return {
-      status: STATUS.Error,
-      message: "Brak InvoiceId. Aktualizacja faktury wymaga identyfikatora.",
-    };
+    const message = `Brak InvoiceId. Aktualizacja faktury ${invoice.InvoiceName} wymaga identyfikatora.`;
+    log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+    return { status: STATUS.Error, message: message };
   }
 
   // SQL do aktualizacji faktury
@@ -1398,20 +1286,18 @@ export async function updateInvoice(
     );
     if (!existingInvoice) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Faktura o ID ${invoice.InvoiceId} nie istnieje.`,
-      };
+      const message = `Nie udało się zaktualizować faktury ${invoice.InvoiceName}. Faktura o ID ${invoice.InvoiceId} nie istnieje.`;
+      log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+      return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja faktury
     const updateResult = await db.run(updateInvoiceSql, updateInvoiceParams);
     if (!updateResult.changes) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się zaktualizować faktury.",
-      };
+      const message = `Nie udało się zaktualizować faktury ${invoice.InvoiceName}.`;
+      log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+      return { status: STATUS.Error, message: message };
     }
 
     // Usunięcie istniejących szczegółów
@@ -1421,10 +1307,9 @@ export async function updateInvoice(
     for (const detail of invoiceDetails) {
       if (!detail.DocumentId || detail.Quantity <= 0) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "Nieprawidłowe dane szczegółów faktury (DocumentId lub Quantity).",
-        };
+        const message = `Nieprawidłowe dane szczegółów faktury ${invoice.InvoiceName} (DocumentId ${detail.DocumentId} lub Quantity ${invoice.InvoiceName}).`;
+        log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+        return { status: STATUS.Error, message: message };
       }
       const insertParams: QueryParams = [
         invoice.InvoiceId,
@@ -1438,25 +1323,23 @@ export async function updateInvoice(
       const insertResult = await db.run(insertDetailsSql, insertParams);
       if (!insertResult.changes) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId}.`,
-        };
+        const message = `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId} ${invoice.InvoiceName}.`;
+        log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+        return { status: STATUS.Error, message: message };
       }
     }
 
     await db.commit();
+    const message = "Zaktualizowano fakturę:";
+    log.info(logTitle(functionName, message), { invoice }, { invoiceDetails });
     return {
       status: STATUS.Success,
       data: { lastID: invoice.InvoiceId, changes: updateResult.changes },
     };
   } catch (err) {
-    await db.rollback();
-    console.error("Błąd podczas aktualizacji faktury:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas aktualizacji faktury.",
-    };
+    const message = `Nieznany błąd podczas aktualizacji faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 //Funkcja do usuwania (soft) faktury w bazie danych w tabeli Invoices

@@ -210,7 +210,7 @@ declare global {
       saveNewDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
-      addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      // addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<InvoiceTable>>;

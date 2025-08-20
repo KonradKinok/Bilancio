@@ -15,7 +15,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
   getAllInvoices: (payload, page, rowsPerPage) =>
     ipcInvoke2('getAllInvoices', payload, page, rowsPerPage),
-  addInvoice: (payload) => ipcInvoke2('addInvoice', payload),
+  // addInvoice: (payload) => ipcInvoke2('addInvoice', payload),
   updateInvoice: (invoice, invoiceDetails) => ipcInvoke2('updateInvoice', invoice, invoiceDetails),
   addInvoiceDetails: (invoice, invoiceDetails) => ipcInvoke2('addInvoiceDetails', invoice, invoiceDetails),
   deleteInvoice: (invoiceId) => ipcInvoke2('deleteInvoice', invoiceId),

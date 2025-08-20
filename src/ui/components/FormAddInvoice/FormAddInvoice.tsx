@@ -299,13 +299,12 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
   }, [setAddInvoiceData]);
 
   const handleConfirmSave = async () => {
-    const successText = `Faktura została pomyślnie ${
-      isEditMode ? "zaktualizowana" : "dodana"
-    }!`;
+    const successText = `Faktura ${
+      addInvoiceData?.invoice.InvoiceName
+    } została pomyślnie ${isEditMode ? "zaktualizowana" : "dodana"}!`;
     const errorText = `Nie udało się ${
       isEditMode ? "zaktualizować" : "dodać"
-    } faktury.`;
-
+    } faktury ${addInvoiceData?.invoice.InvoiceName}.`;
     try {
       // Walidacja formularza
       if (!validateForm()) {
