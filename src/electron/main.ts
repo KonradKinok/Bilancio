@@ -7,7 +7,7 @@ import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, get
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoice, addInvoiceDetails, countActivityLog, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, saveEditedDocument, saveNewDocument, addUser, updateDocumentDeletionStatus, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
+import { addInvoice, addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, saveEditedDocument, saveNewDocument, addUser, updateDocumentDeletionStatus, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
 // Deklaracja mainWindow na poziomie globalnym

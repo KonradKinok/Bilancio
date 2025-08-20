@@ -213,8 +213,8 @@ declare global {
       addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<InvoiceTable>>;
+      restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<InvoiceTable>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
 
       getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;

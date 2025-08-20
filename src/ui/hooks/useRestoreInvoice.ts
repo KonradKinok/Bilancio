@@ -2,19 +2,19 @@ import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
 export function useRestoreInvoice() {
-  const [data, setData] = useState<ReturnMessageFromDb | null>(null);
+  const [data, setData] = useState<InvoiceTable | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const restoreInvoice = async (
     invoiceId: number
-  ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
+  ): Promise<DataBaseResponse<InvoiceTable>> => {
     setLoading(true);
     setError(null);
     setData(null);
 
     try {
-      const result: DataBaseResponse<ReturnMessageFromDb> =
+      const result: DataBaseResponse<InvoiceTable> =
         await window.electron.restoreInvoice(invoiceId);
 
       if (result.status === STATUS.Success) {

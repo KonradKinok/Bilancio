@@ -1237,7 +1237,118 @@ export async function addInvoiceDetails(
     };
   }
 }
+// //Funkcja do aktualizacji faktury w bazie danych w tabeli Invoices
+// export async function updateInvoice(
+//   invoice: InvoiceTable,
+//   invoiceDetails: InvoiceDetailsTable[]
+// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+//   // Walidacja InvoiceId
+//   if (invoice.InvoiceId === undefined) {
+//     return {
+//       status: STATUS.Error,
+//       message: "Brak InvoiceId. Aktualizacja faktury wymaga identyfikatora.",
+//     };
+//   }
 
+//   // SQL do aktualizacji faktury
+//   const updateInvoiceSql = `
+//     UPDATE Invoices 
+//     SET InvoiceName = ?, ReceiptDate = ?, DeadlineDate = ?, PaymentDate = ?, IsDeleted = ?
+//     WHERE InvoiceId = ?
+//   `;
+//   const updateInvoiceParams: QueryParams = [
+//     invoice.InvoiceName ?? "",
+//     invoice.ReceiptDate ?? "",
+//     invoice.DeadlineDate ?? null,
+//     invoice.PaymentDate ?? null,
+//     invoice.IsDeleted ?? 0,
+//     invoice.InvoiceId, // Teraz gwarantujemy, że jest to number
+//   ];
+
+//   // SQL do usuwania istniejących szczegółów faktury
+//   const deleteDetailsSql = `
+//     DELETE FROM InvoiceDetails WHERE InvoiceId = ?
+//   `;
+//   const deleteDetailsParams: QueryParams = [invoice.InvoiceId];
+
+//   // SQL do wstawiania nowych szczegółów faktury
+//   const insertDetailsSql = `
+//     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
+//     VALUES (?, ?, ?, ?, ?, ?, ?)
+//   `;
+
+//   try {
+//     await db.beginTransaction();
+
+//     // Sprawdzenie, czy faktura istnieje
+//     const existingInvoice = await db.get<{ InvoiceId: number }>(
+//       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ?`,
+//       [invoice.InvoiceId]
+//     );
+//     if (!existingInvoice) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: `Faktura o ID ${invoice.InvoiceId} nie istnieje.`,
+//       };
+//     }
+
+//     // Aktualizacja faktury
+//     const updateResult = await db.run(updateInvoiceSql, updateInvoiceParams);
+//     if (!updateResult.changes) {
+//       await db.rollback();
+//       return {
+//         status: STATUS.Error,
+//         message: "Nie udało się zaktualizować faktury.",
+//       };
+//     }
+
+//     // Usunięcie istniejących szczegółów
+//     await db.run(deleteDetailsSql, deleteDetailsParams);
+
+//     // Wstawianie nowych szczegółów
+//     for (const detail of invoiceDetails) {
+//       if (!detail.DocumentId || detail.Quantity <= 0) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: "Nieprawidłowe dane szczegółów faktury (DocumentId lub Quantity).",
+//         };
+//       }
+//       const insertParams: QueryParams = [
+//         invoice.InvoiceId,
+//         detail.DocumentId,
+//         detail.MainTypeId ?? null,
+//         detail.TypeId ?? null,
+//         detail.SubtypeId ?? null,
+//         detail.Quantity,
+//         detail.Price,
+//       ];
+//       const insertResult = await db.run(insertDetailsSql, insertParams);
+//       if (!insertResult.changes) {
+//         await db.rollback();
+//         return {
+//           status: STATUS.Error,
+//           message: `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId}.`,
+//         };
+//       }
+//     }
+
+//     await db.commit();
+//     return {
+//       status: STATUS.Success,
+//       data: { lastID: invoice.InvoiceId, changes: updateResult.changes },
+//     };
+//   } catch (err) {
+//     await db.rollback();
+//     console.error("Błąd podczas aktualizacji faktury:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: err instanceof Error ? err.message : "Nieznany błąd podczas aktualizacji faktury.",
+//     };
+//   }
+// }
+//Funkcja do aktualizacji faktury w bazie danych w tabeli Invoices
 export async function updateInvoice(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
@@ -1348,23 +1459,23 @@ export async function updateInvoice(
     };
   }
 }
-
-
+//Funkcja do usuwania (soft) faktury w bazie danych w tabeli Invoices
 export async function deleteInvoice(
   invoiceId: number
-): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+): Promise<DataBaseResponse<InvoiceTable>> {
+  const functionName = deleteInvoice.name;
   // Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
-    return {
-      status: STATUS.Error,
-      message: "Nieprawidłowy identyfikator faktury.",
-    };
+    const message = `Nieprawidłowy identyfikator faktury.`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
   }
   // SQL do ustawienia IsDeleted na 1
   const deleteInvoiceSql = `
     UPDATE Invoices 
     SET IsDeleted = 1
     WHERE InvoiceId = ?
+    RETURNING InvoiceId, InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted
   `;
   const deleteInvoiceParams: QueryParams = [invoiceId];
 
@@ -1378,47 +1489,41 @@ export async function deleteInvoice(
     );
     if (!existingInvoice) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Faktura o ID ${invoiceId} nie istnieje lub jest już oznaczona jako usunięta.`,
-      };
+      const message = `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja flagi IsDeleted
-    const deleteResult = await db.run(deleteInvoiceSql, deleteInvoiceParams);
-    if (!deleteResult.changes) {
+    const result = await db.get<InvoiceTable>(deleteInvoiceSql, deleteInvoiceParams);
+    if (!result) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się oznaczyć faktury jako usuniętej.",
-      };
+      const message = `Nie udało się usunąć faktury o ID ${invoiceId}`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    return {
-      status: STATUS.Success,
-      data: { lastID: invoiceId, changes: deleteResult.changes },
-    };
+    const message = "Usunięto fakturę:";
+    log.info(logTitle(functionName, message), { result });
+    return { status: STATUS.Success, data: result };
   } catch (err) {
-    await db.rollback();
-    console.error("Błąd podczas oznaczania faktury jako usuniętej:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas usuwania faktury.",
-    };
+    const message = `Błąd podczas usuwania faktury o ID ${invoiceId}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
-//restore invoice
+//Funkcja do przywracania (soft) faktury w bazie danych w tabeli Invoices
 export async function restoreInvoice(
   invoiceId: number
-): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+): Promise<DataBaseResponse<InvoiceTable>> {
+  const functionName = restoreInvoice.name;
   // Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
-    return {
-      status: STATUS.Error,
-      message: "Nieprawidłowy identyfikator faktury.",
-    };
+    const message = `Nieprawidłowy identyfikator faktury.`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
   }
 
   // SQL do ustawienia IsDeleted na 0
@@ -1426,6 +1531,7 @@ export async function restoreInvoice(
     UPDATE Invoices 
     SET IsDeleted = 0
     WHERE InvoiceId = ?
+    RETURNING InvoiceId, InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted
   `;
   const restoreInvoiceParams: QueryParams = [invoiceId];
 
@@ -1439,40 +1545,35 @@ export async function restoreInvoice(
     );
     if (!existingInvoice) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`,
-      };
+      const message = `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja flagi IsDeleted
-    const restoreResult = await db.run(restoreInvoiceSql, restoreInvoiceParams);
-    if (!restoreResult.changes) {
+    const result = await db.get<InvoiceTable>(restoreInvoiceSql, restoreInvoiceParams);
+
+    if (!result) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się przywrócić faktury.",
-      };
+      const message = `Nie udało się przywrócić faktury o ID ${invoiceId}`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    return {
-      status: STATUS.Success,
-      data: { lastID: invoiceId, changes: restoreResult.changes },
-    };
+    const message = "Przywrócono usuniętą fakturę:";
+    log.info(logTitle(functionName, message), { result });
+    return { status: STATUS.Success, data: result };
   } catch (err) {
-    await db.rollback();
-    console.error("Błąd podczas przywracania faktury:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas przywracania faktury.",
-    };
+    const message = `Błąd podczas przywracania faktury o ID ${invoiceId}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
-
-// Funkcja zliczająca faktury
+// Funkcja zwracająca liczbę faktur z bazy danych na podstawie filtrów z formularza
 export async function countInvoices(formValuesHomePage: FormValuesHomePage): Promise<DataBaseResponse<number>> {
+  const functionName = countInvoices.name;
   try {
     let query = `SELECT COUNT(*) as total FROM Invoices WHERE 1=1`;
     const params: QueryParams = [];
@@ -1496,29 +1597,9 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
       data: result?.total ?? 0,
     };
   } catch (err) {
-    console.error("countInvoices() Błąd podczas zliczania faktur:", err);
-    return {
-      status: STATUS.Error,
-      message: "Błąd podczas zliczania faktur z bazy danych.",
-    };
-  }
-}
-//ACTIVITY LOG
-//Funkcja zliczająca wiersze w ActivityLog
-export async function countActivityLog(): Promise<DataBaseResponse<number>> {
-  try {
-    const query = `SELECT COUNT(*) as total FROM ActivityLog`;
-    const result = await db.get<{ total: number }>(query);
-    return {
-      status: STATUS.Success,
-      data: result?.total ?? 0,
-    };
-  } catch (err) {
-    console.error("countActivityLog() Błąd podczas zliczania wpisów w ActivityLog:", err);
-    return {
-      status: STATUS.Error,
-      message: "Błąd podczas zliczania wpisów w ActivityLog z bazy danych.",
-    };
+    const message = "Błąd podczas zliczania faktur z bazy danych.";
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 

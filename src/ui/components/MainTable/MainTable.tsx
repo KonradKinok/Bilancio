@@ -79,12 +79,14 @@ export const MainTable: React.FC<MainTableProps> = ({
 
   const confirmDeleteRestoreInvoice = useCallback(async () => {
     if (!selectedInvoice?.invoice.InvoiceId) return;
-    const successText = `Faktura została pomyślnie ${
+    const successText = `Faktura ${
+      selectedInvoice.invoice.InvoiceName
+    } została pomyślnie ${
       selectedInvoice?.invoice.IsDeleted === 0 ? "usunięta" : "przywrócona"
     }.`;
     const errorText = `Nie udało się ${
       selectedInvoice?.invoice.IsDeleted === 0 ? "usunąć" : "przywrócić"
-    } faktury.`;
+    } faktury ${selectedInvoice.invoice.InvoiceName}.`;
     try {
       const result = await (selectedInvoice?.invoice.IsDeleted === 0
         ? deleteInvoice(selectedInvoice?.invoice.InvoiceId)

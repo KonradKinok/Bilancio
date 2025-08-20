@@ -285,3 +285,22 @@
 //     };
 //   }
 // }
+
+//ACTIVITY LOG
+//Funkcja zliczająca wiersze w ActivityLog
+// export async function countActivityLog(): Promise<DataBaseResponse<number>> {
+//   try {
+//     const query = `SELECT COUNT(*) as total FROM ActivityLog`;
+//     const result = await db.get<{ total: number }>(query);
+//     return {
+//       status: STATUS.Success,
+//       data: result?.total ?? 0,
+//     };
+//   } catch (err) {
+//     console.error("countActivityLog() Błąd podczas zliczania wpisów w ActivityLog:", err);
+//     return {
+//       status: STATUS.Error,
+//       message: "Błąd podczas zliczania wpisów w ActivityLog z bazy danych.",
+//     };
+//   }
+// }
