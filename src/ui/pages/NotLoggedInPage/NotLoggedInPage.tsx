@@ -2,7 +2,8 @@ import { Suspense, useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { useMainDataContext } from "../../components/Context/useMainDataContext";
-
+import scss from "./NotLoggedInPage.module.scss";
+import { Footer } from "../../components/Footer/Footer";
 const NotLoggedInPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Użyj hooka useNavigate
@@ -24,10 +25,20 @@ const NotLoggedInPage: React.FC = () => {
   // const { data: dataAllInvoices } = useAllInvoices();
   // console.log("ReportDataPage data", dataAllInvoices);
   return (
-    <div>
-      <h1>NotLoggedInPage</h1>
-      <button onClick={handleRefresh}>Refresh page</button>
-      <button onClick={handleRestart}>Restart app</button>
+    <div className={scss["notLoggedInPage-main-container"]}>
+      <div className={scss["notLoggedInPage-header"]}>
+        <div className={scss["container-gold-text"]}>
+          <p className={scss["gold-text"]}>Bilancio</p>
+        </div>
+      </div>
+      <div className={scss["notLoggedInPage-container"]}>
+        <div className={scss["notLoggedInPage-text-content"]}>
+          <p>Nie jesteś zalogowany.</p>
+          <p>Zamknij program</p>
+          <p>i skontaktuj się z administratorem.</p>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 };

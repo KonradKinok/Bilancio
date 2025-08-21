@@ -137,7 +137,7 @@ body {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  background-color: var(--body-background);
+  background-color: var(--nineth-color);
   min-height: 100vh;
 }
 

@@ -1,0 +1,110 @@
+.notLoggedInPage-main-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+
+
+
+  .notLoggedInPage-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    font-size: 3rem;
+    background-color: var(--header-background);
+
+
+    .container-gold-text {
+      @keyframes shine {
+        0% {
+          background-position: 110% 0%, 0 0;
+        }
+
+        100% {
+          background-position: -10% 0%, 0 0;
+        }
+      }
+
+      .gold-text {
+        position: relative;
+        display: inline-block;
+        font-family: 'Source Sans Pro', sans-serif;
+        font-weight: 900;
+
+        letter-spacing: 1.5vw;
+        text-transform: uppercase;
+        margin: 0;
+        color: #ac733c; //fallback solid color
+        text-transform: uppercase;
+
+        @supports ((background-clip: text) or (-webkit-background-clip: text)) {
+          color: transparent;
+          background-image: linear-gradient(to right, transparent 0%, transparent 45%, white 50%, transparent 55%, transparent 100%), linear-gradient(90deg, #c78c48, #cf9147 9.4%, #cf9348 9.4%, #b2763e 33.6%, #ad743c 35.7%, #ac723d 46.9%, #b0773d 51.7%, #b0793e 52.1%, #c4914c 64.6%, #c99750 68.5%, #ce9e54 73.2%, #f4d188);
+          background-position: 110% 0%, 0 0;
+          background-size: 200% auto, auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          animation: shine 3s ease-in-out 4s infinite alternate;
+        }
+      }
+    }
+  }
+
+  .notLoggedInPage-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-size: 2rem;
+    font-weight: 900;
+    text-shadow: 1px 3px 0 #969696, 1px 13px 5px #aba8a8, 2px 2px 2px rgba(27, 206, 85, 0);
+    background-color: var(--main-background);
+
+
+    .notLoggedInPage-text-content {
+      animation: content-animation 4s infinite;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      @keyframes content-animation {
+
+        5%,
+        50% {
+          transform: scale(1);
+        }
+
+        10% {
+          transform: scale(1);
+        }
+
+        15% {
+          transform: scale(1);
+        }
+
+        20% {
+          transform: scale(1) rotate(-5deg);
+        }
+
+        25% {
+          transform: scale(1) rotate(5deg);
+        }
+
+        30% {
+          transform: scale(1) rotate(-3deg);
+        }
+
+        35% {
+          transform: scale(1) rotate(2deg);
+        }
+
+        40% {
+          transform: scale(1) rotate(0);
+        }
+      }
+    }
+  }
+}
