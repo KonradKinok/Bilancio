@@ -11,6 +11,10 @@ const NotLoggedInPage: React.FC = () => {
     // Wysyła sygnał do głównego procesu Electron, aby odświeżyć okno
     window.electron.reloadWindow();
   };
+  const handleRestart = () => {
+    // Wysyła sygnał do głównego procesu Electron, aby zrestartować aplikację
+    window.electron.restartApp();
+  };
   // Sprawdzenie, czy strona jest załadowana z innej strony
   useEffect(() => {
     console.log("NotLoggedInPage location.pathname:", location.pathname);
@@ -23,7 +27,7 @@ const NotLoggedInPage: React.FC = () => {
     <div>
       <h1>NotLoggedInPage</h1>
       <button onClick={handleRefresh}>Refresh page</button>
-      {/* <Toaster position="top-right" reverseOrder={false} /> */}
+      <button onClick={handleRestart}>Restart app</button>
     </div>
   );
 };

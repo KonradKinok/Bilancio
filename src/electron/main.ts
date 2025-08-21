@@ -179,11 +179,17 @@ app.on("ready", () => {
   //       break;
   //   }
   // });
+
+  // Electron
   ipcMain.on('reload-window', () => {
     if (mainWindow) {
       mainWindow.reload();
       log.info('Okno aplikacji zostało odświeżone');
     }
+  });
+  ipcMain.on("restart-app", () => {
+    app.relaunch();   // uruchamia nową instancję
+    app.exit(0);      // zamyka obecną
   });
   createTray(mainWindow);
   handleCloseEvents(mainWindow);

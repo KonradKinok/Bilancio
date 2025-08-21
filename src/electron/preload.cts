@@ -40,6 +40,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),
   //Electron
   reloadWindow: () => ipcRenderer.send('reload-window'),
+  restartApp: () => ipcRenderer.send("restart-app"),
 
 } satisfies Window["electron"]);
 

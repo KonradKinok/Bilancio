@@ -12,6 +12,7 @@ export function isDev(): boolean {
 
 //Pobierz nazwę użytkownika oraz hostname z systemu
 export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<WindowsUsername>> {
+  const functionName = getWindowsUsernameHostname.name;
   try {
     const username = os.userInfo().username.toLowerCase();
     const hostname = os.hostname();
@@ -20,11 +21,9 @@ export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<Win
       data: { username, hostname },
     };
   } catch (err) {
-    log.error('[utils.js] [getWindowsUsernameHostname()]', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania użytkownika: ${err}`,
-    };
+    const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`;
+    log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
@@ -36,13 +35,13 @@ export async function getWindowsUsernameElektron(): Promise<string> {
     const displayUserName = (await getUserBySystemName(username));
     if (!displayUserName || displayUserName.status === STATUS.Error) {
       const message = `Nie udało się pobrać nazwy użytkownika z bazy danych.`;
-      log.error(`[utils.js] [${functionName}] pierwszy log`);
+      log.error(`[utils.js] [${functionName}] [${username}] ${message}`);
       return "defaultUser";
     }
     return displayUserName.data.UserDisplayName;
   } catch (err) {
-    log.error('[utils.js] [getWindowsUsername()] drugi log', err);
-    console.error('Nie udało się pobrać nazwy użytkownika z bazy danych.', err);
+    const message = `Nieznany błąd przy pobieraniu użytkownika z bazy danych.`;
+    log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
     return "defaultUser";
   }
 }

@@ -249,6 +249,7 @@ declare global {
 
       //Electron
       reloadWindow: () => void;
+      restartApp: () => void;
     };
   }
 }
