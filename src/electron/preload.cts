@@ -9,7 +9,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getConnectedTableDictionary: (tableName, documentId, mainTypeId, typeId, subTypeId) => ipcInvoke2('getConnectedTableDictionary', tableName, documentId, mainTypeId, typeId, subTypeId),
   getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
   getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName', isDeleted),
-  updateDocumentDeletionStatus: (documentId, isDeleted) => ipcInvoke2('updateDocumentDeletionStatus', documentId, isDeleted),
+  deleteRestoreDocument: (documentId, isDeleted) => ipcInvoke2('deleteRestoreDocument', documentId, isDeleted),
   saveEditedDocument: (document) => ipcInvoke2('saveEditedDocument', document),
   saveNewDocument: (document) => ipcInvoke2('saveNewDocument', document),
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
@@ -32,7 +32,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getUserBySystemName: (systemUserName) => ipcInvoke2('getUserBySystemName', systemUserName),
   // loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
 
-  getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
+  // getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
 
 
 

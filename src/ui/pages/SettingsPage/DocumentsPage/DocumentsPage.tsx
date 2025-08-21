@@ -114,13 +114,17 @@ const DocumentsPage: React.FC = () => {
     if (!document?.AllDocumentsId) return;
     let successText = "",
       errorText = "";
-
+    const documentName = `${document.DocumentName} ${
+      document.MainTypeName ? document.MainTypeName : ""
+    } ${document.TypeName ? document.TypeName : ""} ${
+      document.SubtypeName ? document.SubtypeName : ""
+    }`.trim();
     if (document?.IsDeleted === 0) {
-      successText = "Dokument został pomyślnie usunięty!";
-      errorText = `Nie udało się usunąć dokumentu.`;
+      successText = `Dokument ${documentName} został pomyślnie usunięty.`;
+      errorText = `Nie udało się usunąć dokumentu ${documentName}.`;
     } else {
-      successText = "Dokument został pomyślnie przywrócony!";
-      errorText = `Nie udało się przywrócić dokumentu.`;
+      successText = `Dokument ${documentName} został pomyślnie przywrócony.`;
+      errorText = `Nie udało się przywrócić dokumentu ${documentName}.`;
     }
 
     try {

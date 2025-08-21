@@ -2,20 +2,20 @@ import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
 export function useRestoreDocument() {
-  const [data, setData] = useState<ReturnMessageFromDb | null>(null);
+  const [data, setData] = useState<AllDocumentsNameTable | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const restoreDocument = async (
     documentId: number
-  ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
+  ): Promise<DataBaseResponse<AllDocumentsNameTable>> => {
     setLoading(true);
     setError(null);
     setData(null);
-    
+
     try {
-      const result: DataBaseResponse<ReturnMessageFromDb> =
-        await window.electron.updateDocumentDeletionStatus(documentId,0);
+      const result: DataBaseResponse<AllDocumentsNameTable> =
+        await window.electron.deleteRestoreDocument(documentId, 0);
 
       if (result.status === STATUS.Success) {
         setData(result.data);

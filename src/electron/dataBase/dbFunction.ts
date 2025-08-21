@@ -1022,16 +1022,16 @@ export async function saveEditedDocument(
 //   }
 // }
 
-export async function updateDocumentDeletionStatus(
+export async function deleteRestoreDocument(
   documentId: number,
   isDeleted: 0 | 1
-): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+): Promise<DataBaseResponse<AllDocumentsNameTable>> {
+  const functionName = deleteRestoreDocument.name;
   // Walidacja InvoiceId
   if (!documentId || documentId <= 0) {
-    return {
-      status: STATUS.Error,
-      message: "Nieprawidłowy identyfikator dokumentu.",
-    };
+    const message = `Nieprawidłowy identyfikator dokumentu. Id: ${documentId}.`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
   }
 
   // SQL do ustawienia IsDeleted
@@ -1039,6 +1039,7 @@ export async function updateDocumentDeletionStatus(
     UPDATE AllDocuments 
     SET IsDeleted = ?
     WHERE AllDocumentsId = ?
+    RETURNING *
   `;
   const updateParams: QueryParams = [isDeleted, documentId];
 
@@ -1052,103 +1053,134 @@ export async function updateDocumentDeletionStatus(
     );
     if (!existingDocument) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${isDeleted === 0 ? "przywrócona" : "usunięta"
-          }.`,
-      };
+      const message = `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${isDeleted === 0 ? "przywrócona" : "usunięta"
+        }.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja flagi IsDeleted
-    const updateResult = await db.run(updateSql, updateParams);
-    if (!updateResult.changes) {
+    const result = await db.get<AllDocumentsNameTable>(updateSql, updateParams);
+    if (!result) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Nie udało się ${isDeleted === 0 ? "przywrócić" : "usunąć"
-          } dokumentu.`,
-      };
+      const message = `Nie udało się ${isDeleted === 0 ? "przywrócić" : "usunąć"
+        } dokumentu o Id: ${documentId}.`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
+    const message = `${isDeleted === 0 ? "Przywrócono" : "Usunięto"
+      } dokument Id: ${result.DocumentId}.`;
+    log.info(logTitle(functionName, message), { result });
     return {
       status: STATUS.Success,
-      data: { lastID: documentId, changes: updateResult.changes },
+      data: result,
     };
   } catch (err) {
-    await db.rollback();
-    console.error(
-      `Błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
-      } dokumentu:`,
-      err
-    );
-    return {
-      status: STATUS.Error,
-      message:
-        err instanceof Error
-          ? err.message
-          : `Nieznany błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
-          } dokumentu.`,
-    };
+    const message = `Nieznany błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
+      } dokumentu.`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
+
+//Funkcja do pobierania wszystkich faktur z bazy danych
 export async function getAllInvoices(
   formValuesHomePage: FormValuesHomePage,
   page: number = 1,
   rowsPerPage: number = 10
 ): Promise<DataBaseResponse<AllInvoices[]>> {
+  const functionName = getAllInvoices.name;
+  // --- Walidacja danych wejściowych ---
+  if (!formValuesHomePage) {
+    const message = `Brak dat do pobrania faktur z bazy danych (formValuesHomePage jest undefined)`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
+  if (!formValuesHomePage.firstDate || !formValuesHomePage.secondDate) {
+    const message = `Pierwsza albo druga data nie jest ustawiona. Pierwsza data: ${formValuesHomePage.firstDate}, druga data: ${formValuesHomePage.secondDate}`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
+  if (!(formValuesHomePage.firstDate instanceof Date && !isNaN(formValuesHomePage.firstDate.getTime()))) {
+    const message = `Pierwsza data ma nieprawidłowy format: ${formValuesHomePage.firstDate}`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
+  if (!(formValuesHomePage.secondDate instanceof Date && !isNaN(formValuesHomePage.secondDate.getTime()))) {
+    const message = `Druga data ma nieprawidłowy format: ${formValuesHomePage.secondDate}`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
+  if (page < 1 || rowsPerPage < 1) {
+    const message = `Nieprawidłowe wartości paginacji: page=${page}, rowsPerPage=${rowsPerPage}`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
+  // Domyślna wartość isDeleted
+  const isDeleted = formValuesHomePage.isDeleted ?? 0;
   try {
-    let query = sqlString.getAllInvoicesSqlString(formValuesHomePage);
-    const params: QueryParams = [];
+    // --- Budowa zapytania SQL ---
+    let query = `
+      SELECT 
+        Invoices.InvoiceId,
+        Invoices.InvoiceName,
+        Invoices.ReceiptDate,
+        Invoices.DeadlineDate,
+        Invoices.PaymentDate,
+        Invoices.IsDeleted,
+        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentId, ''), ';') AS DocumentIds,
+        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentName, ''), ';') AS DocumentNames,
+        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeId, ''), ';') AS MainTypeIds,
+        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeName, ''), ';') AS MainTypeNames,
+        GROUP_CONCAT(IFNULL(DictionaryType.TypeId, ''), ';') AS TypeIds,
+        GROUP_CONCAT(IFNULL(DictionaryType.TypeName, ''), ';') AS TypeNames,
+        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeId, ''), ';') AS SubtypeIds,
+        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeName, ''), ';') AS SubtypeNames,
+        GROUP_CONCAT(IFNULL(InvoiceDetails.Quantity, ''), ';') AS Quantities,
+        GROUP_CONCAT(IFNULL(InvoiceDetails.Price, ''), ';') AS Prices
+      FROM Invoices
+      LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
+      LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
+      LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
+      LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
+      LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
+      WHERE 
+        Invoices.ReceiptDate BETWEEN ? AND ?
+        AND Invoices.IsDeleted = ?
+      GROUP BY Invoices.InvoiceId
+      ORDER BY Invoices.ReceiptDate DESC
+    `;
 
-    if (formValuesHomePage.firstDate) {
-      params.push(formValuesHomePage.firstDate.toISOString().split("T")[0]);
-    }
-    if (formValuesHomePage.secondDate) {
-      params.push(formValuesHomePage.secondDate.toISOString().split("T")[0]);
-    }
-    params.push(formValuesHomePage.isDeleted ?? 0); // Domyślna wartość isDeleted
+    // --- Parametry ---
+    const params: QueryParams = [
+      formValuesHomePage.firstDate.toISOString().split("T")[0],
+      formValuesHomePage.secondDate.toISOString().split("T")[0],
+      isDeleted,
+    ];
 
-    // Dodajemy paginację
+    // --- Paginacja ---
     const offset = (page - 1) * rowsPerPage;
     query += ` LIMIT ? OFFSET ?`;
     params.push(rowsPerPage, offset);
 
-    const rows = await db.all<AllInvoices>(query, params);
+    // --- Wykonanie zapytania ---
+    const result = await db.all<AllInvoices>(query, params);
+    const message = `Pobranie faktur.`;
+    log.error(logTitle(functionName, message), {
+      Pierwsza_faktura: result[0] ?? []
+    });
     return {
       status: STATUS.Success,
-      data: rows ?? [],
+      data: result ?? [],
     };
   } catch (err) {
-    console.error("getAllInvoices() Błąd podczas pobierania faktur:", err);
-    return {
-      status: STATUS.Error,
-      message: "Błąd podczas pobierania faktur z bazy danych.",
-    };
+    const message = `Nieznany błąd podczas pobierania faktur z bazy danych.`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-// Pobierz wszystkie faktury
-// export async function getAllInvoices(formValuesHomePage: FormValuesHomePage) {
-//   try {
-//     const rows = await db.all<AllInvoices>(sqlString.getAllInvoicesSqlString(formValuesHomePage));
-//     return rows || [];
-
-//   } catch (err) {
-//     console.error('getAllInvoices() Błąd podczas pobierania faktur:', err);
-//     return [];
-//   }
-// };
-
-// Pobierz ostatni wiersz z tabeli
-export async function getLastRowFromTable(tableName: DbTables, tableNameId: InvoicesTable) {
-  try {
-    const row = await db.get(sqlString.getLastRowFromTableSqlString(tableName, tableNameId));
-    return row || [];
-  } catch (err) {
-    console.error('getLastRowFromTable() Błąd podczas pobierania faktur:', err);
-    return [];
-  }
-};
 
 // Funkcja przygotowująca do dodawania faktury 
 async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnMessageFromDb>> {
@@ -1342,6 +1374,7 @@ export async function updateInvoice(
     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
+
 //Funkcja do usuwania (soft) faktury w bazie danych w tabeli Invoices
 export async function deleteInvoice(
   invoiceId: number

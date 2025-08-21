@@ -105,6 +105,16 @@ declare global {
     changes: number;
   }
   //ConnectedTable
+  type AllDocumentsNameTable = {
+    AllDocumentsId: number;
+    DocumentId: number;
+    MainTypeId: number | null;
+    TypeId: number | null;
+    SubtypeId: number | null;
+    Price: number;
+    IsDeleted: 0 | 1;
+  }
+
   type AllDocumentsName = {
     AllDocumentsId: number;
     DocumentId: number;
@@ -163,13 +173,16 @@ declare global {
   type EventPayloadMapping = {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
     getConnectedTableDictionary: DataBaseResponse<T[]>;
+
+    //Documents
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
-    updateDocumentDeletionStatus: DataBaseResponse<ReturnMessageFromDb>;
+    deleteRestoreDocument: DataBaseResponse<AllDocumentsName>;
     saveEditedDocument: DataBaseResponse<ReturnMessageFromDb>;
     saveNewDocument: DataBaseResponse<ReturnMessageFromDb>;
-    getAllInvoices: DataBaseResponse<AllInvoices[]>;
-    getLastRowFromTable: unknown;
 
+    //Invoices
+    getAllInvoices: DataBaseResponse<AllInvoices[]>;
+    // getLastRowFromTable: unknown;
     addInvoice: DataBaseResponse<ReturnMessageFromDb>;
     updateInvoice: DataBaseResponse<ReturnMessageFromDb>;
     addInvoiceDetails: DataBaseResponse<ReturnMessageFromDb>;
@@ -204,7 +217,7 @@ declare global {
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
 
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
-      updateDocumentDeletionStatus: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      deleteRestoreDocument: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<AllDocumentsNameTable>>;
 
       saveEditedDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       saveNewDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
@@ -227,7 +240,7 @@ declare global {
       getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
       // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
-      getLastRowFromTable: () => Promise<unknown>;
+      // getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
 
       checkDatabaseExists: () => Promise<ReturnStatusMessage>;
