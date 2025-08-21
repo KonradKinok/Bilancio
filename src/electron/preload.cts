@@ -10,8 +10,8 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
   getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName', isDeleted),
   deleteRestoreDocument: (documentId, isDeleted) => ipcInvoke2('deleteRestoreDocument', documentId, isDeleted),
-  saveEditedDocument: (document) => ipcInvoke2('saveEditedDocument', document),
-  saveNewDocument: (document) => ipcInvoke2('saveNewDocument', document),
+  updateDocument: (document) => ipcInvoke2('updateDocument', document),
+  addDocument: (document) => ipcInvoke2('addDocument', document),
   // getAllInvoices: (payload) => ipcInvoke2('getAllInvoices', payload),
   getAllInvoices: (payload, page, rowsPerPage) =>
     ipcInvoke2('getAllInvoices', payload, page, rowsPerPage),

@@ -7,7 +7,7 @@ import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, get
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, saveEditedDocument, saveNewDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
+import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
 // Deklaracja mainWindow na poziomie globalnym
@@ -101,11 +101,11 @@ app.on("ready", () => {
   ipcMainHandle2('deleteRestoreDocument', (documentId, isDeleted) => {
     return deleteRestoreDocument(documentId, isDeleted);
   });
-  ipcMainHandle2('saveNewDocument', (document) => {
-    return saveNewDocument(document);
+  ipcMainHandle2('addDocument', (document) => {
+    return addDocument(document);
   });
-  ipcMainHandle2('saveEditedDocument', (document) => {
-    return saveEditedDocument(document);
+  ipcMainHandle2('updateDocument', (document) => {
+    return updateDocument(document);
   });
   ipcMainHandle2('getAllInvoices', (payload, page, rowsPerPage) => {
     return getAllInvoices(payload, page, rowsPerPage);

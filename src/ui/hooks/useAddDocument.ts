@@ -12,10 +12,10 @@ export function useAddDocument() {
     setLoading(true);
     setError(null);
     setData(null);
-    
+
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
-        await window.electron.saveNewDocument(addedDocument);
+        await window.electron.addDocument(addedDocument);
       if (result.status === STATUS.Success) {
         setData(result.data);
         setError(null);

@@ -292,7 +292,11 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
                 className={scss["save-button"]}
                 disabled={isSaveButtonDisabled()}
                 onClick={() => handleSaveEditedDocument()}
-                data-tooltip-id="toolTipSeparateDocumentButtonSave"
+                data-tooltip-id={
+                  isSaveButtonDisabled()
+                    ? "toolTipSeparateDocumentButtonSave"
+                    : undefined
+                }
                 data-tooltip-html={toolTipSeparateDocumentButtonSave(
                   isNewDocument
                 )}

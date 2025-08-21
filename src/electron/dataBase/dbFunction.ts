@@ -1,12 +1,11 @@
-import Database, { QueryParams } from './dbClass.js';
-import * as sqlString from "./dbQuerySqlString.js";
-import { DbTables, InvoicesTable } from './enum.js';
-import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
 import log from "electron-log"; // Dodaj import
-import { getWindowsUsernameElektron, } from '../util.js';
-import path from 'path';
 import { fileURLToPath } from 'url';
-import os from 'os';
+import path from 'path';
+import { getWindowsUsernameElektron, } from '../util.js';
+import { DbTables } from './enum.js';
+import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
+import Database, { QueryParams } from './dbClass.js';
+
 // Tworzymy instancję bazy danych
 const db = new Database();
 
@@ -17,55 +16,22 @@ const displayUserName = await getWindowsUsernameElektron();
 const __filename = fileURLToPath(import.meta.url);
 const fileName = path.basename(__filename);
 
-// Pobierz tablicę DictionaryDocuments
-// export async function getTableDictionaryDocuments()  {
-//   try {
-//     const rows = await db.all<DictionaryDocuments>(sqlString.getTableDictionaryDocumentsSqlString());
-//     return rows || [];
-//   } catch (err) {
-//     console.error('getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:');
-//    return [];
-//   }
-// };
-
-// export type Status = (typeof STATUS)[keyof typeof STATUS];
-
-// Pobierz tablicę DictionaryDocuments
-// export async function getTableDictionaryDocuments()  {
-//  try {
-//     const rows = await db.all<DictionaryDocuments>(sqlString.getTableDictionaryDocumentsSqlString());
-// console.log("dbFunction.ts getTableDictionaryDocuments()", rows);
-//     return {
-//       status: STATUS.Success,
-//       data: rows ?? [],
-//     };
-//   } catch (err) {
-//     console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
-//     return {
-//       status: STATUS.Error,
-//       message: "Błąd podczas pobierania dokumentów z bazy danych.",
-//     };
-//   }
-// };
-
-
-
 export async function getTableDictionaryDocuments<T>(tableName: DbTables) {
   try {
-    let query = "";
+    const query = "";
     switch (tableName) {
-      case DbTables.DictionaryDocuments:
-        query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-        break;
-      case DbTables.DictionaryMainType:
-        query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-        break;
-      case DbTables.DictionaryType:
-        query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-        break;
-      case DbTables.DictionarySubtype:
-        query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-        break;
+      // case DbTables.DictionaryDocuments:
+      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+      //   break;
+      // case DbTables.DictionaryMainType:
+      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+      //   break;
+      // case DbTables.DictionaryType:
+      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+      //   break;
+      // case DbTables.DictionarySubtype:
+      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+      //   break;
       default:
         throw new Error(`Nieznana tabela: ${tableName}`);
     }
@@ -84,60 +50,145 @@ export async function getTableDictionaryDocuments<T>(tableName: DbTables) {
     };
   }
 };
-
-export async function getConnectedTableDictionary<T>(tableName: DbTables, documentId?: number, mainTypeId?: number, typeId?: number, subTypeId?: number) {
+// Pobierz połączone dane ze słowników
+export async function getConnectedTableDictionary<T>(
+  tableName: DbTables,
+  documentId?: number,
+  mainTypeId?: number,
+  typeId?: number,
+  subTypeId?: number
+): Promise<DataBaseResponse<T[]>> {
+  const functionName = getConnectedTableDictionary.name;
   try {
     let query = "";
+
     switch (tableName) {
       case DbTables.DictionaryDocuments:
-        query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+        query = `
+          SELECT * 
+          FROM DictionaryDocuments
+          ORDER BY LOWER(DocumentName) ASC
+        `;
         break;
+
       case DbTables.DictionaryMainType:
         if (!documentId) {
-          throw new Error("documentName is required for DictionaryMainType");
+          const message = `documentId jest wymagany do zapisu w DictionaryMainType`;
+          log.error(logTitle(functionName, message));
+          return { status: STATUS.Error, message: message };
         }
-        query = sqlString.getConnectedTableDictionaryDocumentsDictionaryMainTypeSqlString(documentId);
+        query = `
+          SELECT DISTINCT DictionaryMainType.MainTypeId, DictionaryMainType.MainTypeName
+          FROM DictionaryMainType
+          JOIN AllDocuments ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+          JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+          WHERE DictionaryDocuments.DocumentId = ?
+          ORDER BY LOWER(DictionaryMainType.MainTypeName) ASC
+        `;
         break;
+
       case DbTables.DictionaryType:
         if (!documentId || !mainTypeId) {
-          throw new Error("documentName and mainTypeId is required for DictionaryType");
+          const message = `documentId i mainTypeId są wymagane do zapisu w DictionaryType`;
+          log.error(logTitle(functionName, message));
+          return { status: STATUS.Error, message: message };
         }
-        query = sqlString.getConnectedTableDictionaryMainTypeDictionaryTypeSqlString(documentId, mainTypeId);
+        query = `
+          SELECT DISTINCT DictionaryType.*
+          FROM DictionaryType
+          JOIN AllDocuments ON DictionaryType.TypeId = AllDocuments.TypeId
+          JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+          JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+          WHERE DictionaryDocuments.DocumentId = ?
+            AND DictionaryMainType.MainTypeId = ?
+          ORDER BY LOWER(DictionaryType.TypeName) ASC
+        `;
         break;
+
       case DbTables.DictionarySubtype:
         if (!documentId || !mainTypeId || !typeId) {
-          throw new Error("documentName, mainTypeId  and typeId is required for DictionarySubtype");
+          const message = `documentId, mainTypeId i typeId są wymagane do zapisu w DictionarySubtype`;
+          log.error(logTitle(functionName, message));
+          return { status: STATUS.Error, message: message };
         }
-        query = sqlString.getConnectedTableDictionaryTypeDictionarySubtypeSqlString(documentId, mainTypeId, typeId);
+        query = `
+          SELECT DISTINCT DictionarySubtype.*
+          FROM DictionarySubtype
+          JOIN AllDocuments ON DictionarySubtype.SubtypeId = AllDocuments.SubtypeId
+          JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+          JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+          JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
+          WHERE DictionaryDocuments.DocumentId = ?
+            AND DictionaryMainType.MainTypeId = ?
+            AND DictionaryType.TypeId = ?
+          ORDER BY LOWER(DictionarySubtype.SubtypeName) ASC
+        `;
         break;
-      default:
-        throw new Error(`Nieznana tabela: ${tableName}`);
+
+      default: {
+        const message = `Nieznana tabela ${tableName}`;
+        log.error(logTitle(functionName, message));
+        return { status: STATUS.Error, message: message };
+      }
     }
-    console.log("getConnectedTableDictionary", query);
-    const rows = await db.all<T>(query);
-    console.log("dbFunction.ts getConnectedTableDictionary()", tableName, rows);
+
+    // --- Parametry zapytania ---
+    const params: QueryParams = [];
+    if (documentId) params.push(documentId);
+    if (mainTypeId) params.push(mainTypeId);
+    if (typeId) params.push(typeId);
+
+    // --- Wykonanie zapytania ---
+    const rows = await db.all<T>(query, params);
+
     return {
       status: STATUS.Success,
       data: rows ?? [],
     };
   } catch (err) {
-    console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
-    };
+    const message = `Nieznany błąd podczas pobierania danych z ${tableName}`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
-};
-
-// export async function getAllDocumentsName() {
+}
+// Funkcja do obsługi zapisu edytowanego dokumentu
+// export async function getConnectedTableDictionary<T>(tableName: DbTables, documentId?: number, mainTypeId?: number, typeId?: number, subTypeId?: number) {
 //   try {
-//     const rows = await db.all<AllDocumentsName>(sqlString.getAllDocumentsNameSqlString());
+//     let query = "";
+//     switch (tableName) {
+//       case DbTables.DictionaryDocuments:
+//         query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
+//         break;
+//       case DbTables.DictionaryMainType:
+//         if (!documentId) {
+//           throw new Error("documentName is required for DictionaryMainType");
+//         }
+//         query = sqlString.getConnectedTableDictionaryDocumentsDictionaryMainTypeSqlString(documentId);
+//         break;
+//       case DbTables.DictionaryType:
+//         if (!documentId || !mainTypeId) {
+//           throw new Error("documentName and mainTypeId is required for DictionaryType");
+//         }
+//         query = sqlString.getConnectedTableDictionaryMainTypeDictionaryTypeSqlString(documentId, mainTypeId);
+//         break;
+//       case DbTables.DictionarySubtype:
+//         if (!documentId || !mainTypeId || !typeId) {
+//           throw new Error("documentName, mainTypeId  and typeId is required for DictionarySubtype");
+//         }
+//         query = sqlString.getConnectedTableDictionaryTypeDictionarySubtypeSqlString(documentId, mainTypeId, typeId);
+//         break;
+//       default:
+//         throw new Error(`Nieznana tabela: ${tableName}`);
+//     }
+//     console.log("getConnectedTableDictionary", query);
+//     const rows = await db.all<T>(query);
+//     console.log("dbFunction.ts getConnectedTableDictionary()", tableName, rows);
 //     return {
 //       status: STATUS.Success,
 //       data: rows ?? [],
 //     };
 //   } catch (err) {
-//     console.error('getAllDocumentName() Błąd podczas pobierania dokumentów:', err);
+//     console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
 //     return {
 //       status: STATUS.Error,
 //       message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
@@ -145,40 +196,92 @@ export async function getConnectedTableDictionary<T>(tableName: DbTables, docume
 //   }
 // };
 
+//Funkcja do pobierania wszystkich dokumentów
 export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
+  const functionName = getAllDocumentsName.name;
   try {
-    const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
-    const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
+    // --- Budowa zapytania SQL ---
+    let query = `
+      SELECT
+        AllDocuments.AllDocumentsId,
+        AllDocuments.DocumentId, 
+        AllDocuments.MainTypeId, 
+        AllDocuments.TypeId, 
+        AllDocuments.SubtypeId, 
+        AllDocuments.Price,
+        AllDocuments.IsDeleted,
+        DictionaryDocuments.DocumentName,
+        DictionaryMainType.MainTypeName,
+        DictionaryType.TypeName,
+        DictionarySubtype.SubtypeName
+      FROM AllDocuments
+      LEFT JOIN DictionaryDocuments ON AllDocuments.DocumentId = DictionaryDocuments.DocumentId
+      LEFT JOIN DictionaryMainType ON AllDocuments.MainTypeId = DictionaryMainType.MainTypeId
+      LEFT JOIN DictionaryType ON AllDocuments.TypeId = DictionaryType.TypeId
+      LEFT JOIN DictionarySubtype ON AllDocuments.SubtypeId = DictionarySubtype.SubtypeId
+    `;
+
+    const params: QueryParams = [];
+    if (isDeleted !== undefined) {
+      query += ` WHERE AllDocuments.IsDeleted = ?`;
+      params.push(isDeleted);
+    }
+
+    query += ` ORDER BY 
+      LOWER(DictionaryDocuments.DocumentName) ASC, 
+      LOWER(DictionaryMainType.MainTypeName) ASC, 
+      LOWER(DictionaryType.TypeName) ASC, 
+      LOWER(DictionarySubtype.SubtypeName) ASC
+    `;
+
+    // --- Wykonanie zapytania ---
     const rows = await db.all<AllDocumentsName>(query, params);
+
     return {
       status: STATUS.Success,
       data: rows ?? [],
     };
   } catch (err) {
-    log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
-    return {
-      status: STATUS.Error,
-      message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
-    };
+    const message = `Nieznany błąd podczas pobierania dokumentów.`;
+    log.error(logTitle(functionName, message), err);
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
-};
+}
 
-// Funkcja do zapisywania nowego dokumentu
-export async function saveNewDocument(
+// export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
+//   try {
+//     const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
+//     const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
+//     const rows = await db.all<AllDocumentsName>(query, params);
+//     return {
+//       status: STATUS.Success,
+//       data: rows ?? [],
+//     };
+//   } catch (err) {
+
+//     log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
+//     return {
+//       status: STATUS.Error,
+//       message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
+//     };
+//   }
+// };
+
+// Funkcja do zapisywania nowego dokumentu w tabeli AllDocuments
+export async function addDocument(
   document: AllDocumentsName
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  const functionName = addDocument.name;
   try {
     if (!document || !document.DocumentName) {
-      return {
-        status: STATUS.Error,
-        message: "DocumentName jest wymagane.",
-      };
+      const message = `DocumentName jest wymagane.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
     if (document.Price == null || isNaN(document.Price) || document.Price < 0) {
-      return {
-        status: STATUS.Error,
-        message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
-      };
+      const message = `Cena musi być wypełniona i mieć wartość równą lub większą od 0.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
     await db.beginTransaction();
 
@@ -198,10 +301,9 @@ export async function saveNewDocument(
       );
       if (!insertDocument.lastID) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
-        };
+        const message = `Nie udało się dodać DocumentName do DictionaryDocuments.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       documentId = insertDocument.lastID;
     }
@@ -222,10 +324,9 @@ export async function saveNewDocument(
         );
         if (!insertMainType.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
-          };
+          const message = `Nie udało się dodać MainTypeName do DictionaryMainType.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         mainTypeId = insertMainType.lastID;
       }
@@ -236,10 +337,9 @@ export async function saveNewDocument(
     if (document.TypeName) {
       if (!mainTypeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "MainTypeName musi być podane, jeśli TypeName jest wypełnione.",
-        };
+        const message = `MainTypeName musi być podane, jeśli TypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       const existingType = await db.get<{ TypeId: number }>(
         `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
@@ -254,10 +354,9 @@ export async function saveNewDocument(
         );
         if (!insertType.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać TypeName do DictionaryType.",
-          };
+          const message = `Nie udało się dodać TypeName do DictionaryType.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         typeId = insertType.lastID;
       }
@@ -268,10 +367,9 @@ export async function saveNewDocument(
     if (document.SubtypeName) {
       if (!typeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "TypeName musi być podane, jeśli SubtypeName jest wypełnione.",
-        };
+        const message = `TypeName musi być podane, jeśli SubtypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       const existingSubtype = await db.get<{ SubtypeId: number }>(
         `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
@@ -286,10 +384,9 @@ export async function saveNewDocument(
         );
         if (!insertSubtype.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
-          };
+          const message = `Nie udało się dodać SubtypeName do DictionarySubtype.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         subtypeId = insertSubtype.lastID;
       }
@@ -306,10 +403,9 @@ export async function saveNewDocument(
     );
     if (existingConfig) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Taki dokument już istnieje w bazie danych.",
-      };
+      const message = `Nie udało się zapisać nowego dokumentu. Taki dokument już istnieje w bazie danych.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
 
     // Krok 6: Wstawienie nowego rekordu do AllDocuments
@@ -320,207 +416,40 @@ export async function saveNewDocument(
     );
     if (!insertAllDocuments.lastID || !insertAllDocuments.changes) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się zapisać dokumentu w AllDocuments.",
-      };
+      const message = `Nie udało się zapisać nowego dokumentu.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
+    const message = "Zapisano dokument:";
+    log.info(logTitle(functionName, message), { ...document, AllDocumentsId: insertAllDocuments.lastID });
     return {
       status: STATUS.Success,
       data: { lastID: insertAllDocuments.lastID, changes: insertAllDocuments.changes },
     };
   } catch (err) {
-    await db.rollback();
-    log.error("Błąd podczas zapisywania nowego dokumentu:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
-    };
+    const message = "Nieznany błąd podczas zapisywania nowego dokumentu.";
+    log.error(logTitle(functionName, message), err, { document });
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
 
-// export async function saveNewDocument(
-//   document: AllDocumentsName
-// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-//   try {
-//     await db.beginTransaction();
-
-//     // Krok 1: Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
-//     let documentId: number;
-//     const existingDocument = await db.get<{ DocumentId: number }>(
-//       `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
-//       [document.DocumentName]
-//     );
-//     if (existingDocument) {
-//       documentId = existingDocument.DocumentId;
-//     } else {
-//       const insertDocument = await db.run(
-//         `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
-//         [document.DocumentName]
-//       );
-//       if (!insertDocument.lastID) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
-//         };
-//       }
-//       documentId = insertDocument.lastID;
-//     }
-
-//     // Krok 2: Sprawdzenie lub dodanie MainTypeName w DictionaryMainType (jeśli istnieje)
-//     let mainTypeId: number | null = null;
-//     if (document.MainTypeName) {
-//       const existingMainType = await db.get<{ MainTypeId: number }>(
-//         `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
-//         [document.MainTypeName]
-//       );
-//       if (existingMainType) {
-//         mainTypeId = existingMainType.MainTypeId;
-//       } else {
-//         const insertMainType = await db.run(
-//           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
-//           [document.MainTypeName]
-//         );
-//         if (!insertMainType.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
-//           };
-//         }
-//         mainTypeId = insertMainType.lastID;
-//       }
-//     }
-
-//     // Krok 3: Sprawdzenie lub dodanie TypeName w DictionaryType (jeśli istnieje)
-//     let typeId: number | null = null;
-//     if (document.TypeName) {
-//       if (!mainTypeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "MainTypeName musi być podane, jeśli TypeName jest wypełnione.",
-//         };
-//       }
-//       const existingType = await db.get<{ TypeId: number }>(
-//         `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
-//         [document.TypeName]
-//       );
-//       if (existingType) {
-//         typeId = existingType.TypeId;
-//       } else {
-//         const insertType = await db.run(
-//           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
-//           [document.TypeName]
-//         );
-//         if (!insertType.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać TypeName do DictionaryType.",
-//           };
-//         }
-//         typeId = insertType.lastID;
-//       }
-//     }
-
-//     // Krok 4: Sprawdzenie lub dodanie SubtypeName w DictionarySubtype (jeśli istnieje)
-//     let subtypeId: number | null = null;
-//     if (document.SubtypeName) {
-//       if (!typeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "TypeName musi być podane, jeśli SubtypeName jest wypełnione.",
-//         };
-//       }
-//       const existingSubtype = await db.get<{ SubtypeId: number }>(
-//         `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
-//         [document.SubtypeName]
-//       );
-//       if (existingSubtype) {
-//         subtypeId = existingSubtype.SubtypeId;
-//       } else {
-//         const insertSubtype = await db.run(
-//           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
-//           [document.SubtypeName]
-//         );
-//         if (!insertSubtype.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
-//           };
-//         }
-//         subtypeId = insertSubtype.lastID;
-//       }
-//     }
-
-//     // Krok 5: Sprawdzenie, czy konfiguracja istnieje w AllDocuments
-//     const existingConfig = await db.get<{ AllDocumentsId: number }>(
-//       `SELECT AllDocumentsId FROM AllDocuments
-//        WHERE DocumentId = ?
-//        AND (MainTypeId = ? OR (MainTypeId IS NULL AND ? IS NULL))
-//        AND (TypeId = ? OR (TypeId IS NULL AND ? IS NULL))
-//        AND (SubtypeId = ? OR (SubtypeId IS NULL AND ? IS NULL))`,
-//       [documentId, mainTypeId, mainTypeId, typeId, typeId, subtypeId, subtypeId]
-//     );
-//     if (existingConfig) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: "Nie udało się dodać nowego dokumentu. Taki dokument już istnieje w bazie danych.",
-//       };
-//     }
-
-//     // Krok 6: Wstawienie nowego rekordu do AllDocuments
-//     const insertAllDocuments = await db.run(
-//       `INSERT INTO AllDocuments (DocumentId, MainTypeId, TypeId, SubtypeId, Price, IsDeleted)
-//        VALUES (?, ?, ?, ?, ?, ?)`,
-//       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted ?? 0]
-//     );
-//     if (!insertAllDocuments.lastID || !insertAllDocuments.changes) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: "Nie udało się dodać nowego dokumentu. Nie udało się zapisać dokumentu w AllDocuments.",
-//       };
-//     }
-
-//     await db.commit();
-//     return {
-//       status: STATUS.Success,
-//       data: { lastID: insertAllDocuments.lastID, changes: insertAllDocuments.changes },
-//     };
-//   } catch (err) {
-//     await db.rollback();
-//     log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
-//     return {
-//       status: STATUS.Error,
-//       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
-//     };
-//   }
-// }
-
-// Funkcja do edytowania dokumentu
-export async function saveEditedDocument(
+// Funkcja do aktualizowania dokumentu w tabeli AllDocuments
+export async function updateDocument(
   document: AllDocumentsName
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+  const functionName = updateDocument.name;
   try {
     if (!document || !document.DocumentName) {
-      return {
-        status: STATUS.Error,
-        message: "DocumentName jest wymagane.",
-      };
+      const message = `DocumentName jest wymagane.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
     if (document.Price == null || isNaN(document.Price) || document.Price < 0) {
-      return {
-        status: STATUS.Error,
-        message: "Cena musi być wypełniona i mieć wartość równą lub większą od 0.",
-      };
+      const message = `Cena musi być wypełniona i mieć wartość równą lub większą od 0.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
     await db.beginTransaction();
 
@@ -534,10 +463,9 @@ export async function saveEditedDocument(
       );
       if (!updateDocument.changes) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: `Nie udało się zaktualizować DocumentName dla DocumentId: ${document.DocumentId}.`,
-        };
+        const message = `Nie udało się zaktualizować DocumentName dla DocumentId: ${document.DocumentId}.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       documentId = document.DocumentId;
     } else if (!document.DocumentId && document.DocumentName) {
@@ -555,19 +483,17 @@ export async function saveEditedDocument(
         );
         if (!insertDocument.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
-          };
+          const message = `Nie udało się dodać DocumentName do DictionaryDocuments.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         documentId = insertDocument.lastID;
       }
     } else {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "DocumentId lub DocumentName musi być podane.",
-      };
+      const message = `DocumentId lub DocumentName musi być podane..`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
 
     // Krok 2: Sprawdzenie i aktualizacja MainTypeName w DictionaryMainType
@@ -580,10 +506,9 @@ export async function saveEditedDocument(
       );
       if (!updateMainType.changes) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: `Nie udało się zaktualizować MainTypeName dla MainTypeId: ${document.MainTypeId}.`,
-        };
+        const message = `Nie udało się zaktualizować MainTypeName dla MainTypeId: ${document.MainTypeId}.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       mainTypeId = document.MainTypeId;
     } else if (!document.MainTypeId && document.MainTypeName) {
@@ -601,10 +526,9 @@ export async function saveEditedDocument(
         );
         if (!insertMainType.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
-          };
+          const message = `Nie udało się dodać MainTypeName do DictionaryMainType.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         mainTypeId = insertMainType.lastID;
       }
@@ -618,10 +542,9 @@ export async function saveEditedDocument(
     if (document.TypeId && document.TypeName) {
       if (!mainTypeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
-        };
+        const message = `MainTypeId musi być podane, jeśli TypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       // Aktualizacja istniejącego TypeName
       const updateType = await db.run(
@@ -630,19 +553,17 @@ export async function saveEditedDocument(
       );
       if (!updateType.changes) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: `Nie udało się zaktualizować TypeName dla TypeId: ${document.TypeId}.`,
-        };
+        const message = `Nie udało się zaktualizować TypeName dla TypeId: ${document.TypeId}.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       typeId = document.TypeId;
     } else if (!document.TypeId && document.TypeName) {
       if (!mainTypeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
-        };
+        const message = `MainTypeId musi być podane, jeśli TypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       // Wstawienie nowego TypeName
       const existingType = await db.get<{ TypeId: number }>(
@@ -658,10 +579,9 @@ export async function saveEditedDocument(
         );
         if (!insertType.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać TypeName do DictionaryType.",
-          };
+          const message = `Nie udało się dodać TypeName do DictionaryType.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         typeId = insertType.lastID;
       }
@@ -675,10 +595,9 @@ export async function saveEditedDocument(
     if (document.SubtypeId && document.SubtypeName) {
       if (!typeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
-        };
+        const message = `TypeId musi być podane, jeśli SubtypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       // Aktualizacja istniejącego SubtypeName
       const updateSubtype = await db.run(
@@ -687,19 +606,17 @@ export async function saveEditedDocument(
       );
       if (!updateSubtype.changes) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: `Nie udało się zaktualizować SubtypeName dla SubtypeId: ${document.SubtypeId}.`,
-        };
+        const message = `Nie udało się zaktualizować SubtypeName dla SubtypeId: ${document.SubtypeId}.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       subtypeId = document.SubtypeId;
     } else if (!document.SubtypeId && document.SubtypeName) {
       if (!typeId) {
         await db.rollback();
-        return {
-          status: STATUS.Error,
-          message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
-        };
+        const message = `TypeId musi być podane, jeśli SubtypeName jest wypełnione.`;
+        log.error(logTitle(functionName, message), { document });
+        return { status: STATUS.Error, message: message };
       }
       // Wstawienie nowego SubtypeName
       const existingSubtype = await db.get<{ SubtypeId: number }>(
@@ -715,10 +632,9 @@ export async function saveEditedDocument(
         );
         if (!insertSubtype.lastID) {
           await db.rollback();
-          return {
-            status: STATUS.Error,
-            message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
-          };
+          const message = `Nie udało się dodać SubtypeName ${document.SubtypeName} do DictionarySubtype.`;
+          log.error(logTitle(functionName, message), { document });
+          return { status: STATUS.Error, message: message };
         }
         subtypeId = insertSubtype.lastID;
       }
@@ -734,10 +650,9 @@ export async function saveEditedDocument(
     );
     if (!existingConfig) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: `Dokument o ID ${document.AllDocumentsId} nie istnieje w AllDocuments.`,
-      };
+      const message = `Dokument o ID ${document.AllDocumentsId} nie istnieje w bazie danych.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
 
     // Krok 6: Aktualizacja rekordu w AllDocuments
@@ -749,279 +664,26 @@ export async function saveEditedDocument(
     );
     if (!updateAllDocuments.changes) {
       await db.rollback();
-      return {
-        status: STATUS.Error,
-        message: "Nie udało się zaktualizować dokumentu w AllDocuments.",
-      };
+      const message = `Nie udało się zaktualizować dokumentu.`;
+      log.error(logTitle(functionName, message), { document });
+      return { status: STATUS.Error, message: message };
     }
 
     await db.commit();
-    log.info("saveEditedDocument: Edytowany dokument zapisany pomyślnie:", document);
+    const message = "Zaktualizowano dokument:";
+    log.info(logTitle(functionName, message), { document });
     return {
       status: STATUS.Success,
       data: { lastID: document.AllDocumentsId, changes: updateAllDocuments.changes },
     };
   } catch (err) {
-    await db.rollback();
-    log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
-    };
+    const message = "Nieznany błąd podczas aktualizacji dokumentu.";
+    log.error(logTitle(functionName, message), err, { document });
+    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-// export async function saveEditedDocument(
-//   document: AllDocumentsName
-// ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
-//   try {
-//     await db.beginTransaction();
-//     // Krok 1: Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
-//     let documentId: number;
-//     if (document.DocumentId && document.DocumentName) {
-//       // Aktualizacja istniejącego DocumentName
-//       const updateDocument = await db.run(
-//         `UPDATE DictionaryDocuments SET DocumentName = ? WHERE DocumentId = ?`,
-//         [document.DocumentName, document.DocumentId]
-//       );
-//       if (!updateDocument.changes) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: `Nie udało się zaktualizować DocumentName dla DocumentId: ${document.DocumentId}.`,
-//         };
-//       }
-//       documentId = document.DocumentId;
-//     } else if (!document.DocumentId && document.DocumentName) {
-//       // Wstawienie nowego DocumentName
-//       const existingDocument = await db.get<{ DocumentId: number }>(
-//         `SELECT DocumentId FROM DictionaryDocuments WHERE DocumentName = ?`,
-//         [document.DocumentName]
-//       );
-//       if (existingDocument) {
-//         documentId = existingDocument.DocumentId;
-//       } else {
-//         const insertDocument = await db.run(
-//           `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
-//           [document.DocumentName]
-//         );
-//         if (!insertDocument.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać DocumentName do DictionaryDocuments.",
-//           };
-//         }
-//         documentId = insertDocument.lastID;
-//       }
-//     } else {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: "DocumentId lub DocumentName musi być podane.",
-//       };
-//     }
 
-//     // Krok 2: Sprawdzenie i aktualizacja MainTypeName w DictionaryMainType
-//     let mainTypeId: number | null = null;
-//     if (document.MainTypeId && document.MainTypeName) {
-//       // Aktualizacja istniejącego MainTypeName
-//       const updateMainType = await db.run(
-//         `UPDATE DictionaryMainType SET MainTypeName = ? WHERE MainTypeId = ?`,
-//         [document.MainTypeName, document.MainTypeId]
-//       );
-//       if (!updateMainType.changes) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: `Nie udało się zaktualizować MainTypeName dla MainTypeId: ${document.MainTypeId}.`,
-//         };
-//       }
-//       mainTypeId = document.MainTypeId;
-//     } else if (!document.MainTypeId && document.MainTypeName) {
-//       // Wstawienie nowego MainTypeName
-//       const existingMainType = await db.get<{ MainTypeId: number }>(
-//         `SELECT MainTypeId FROM DictionaryMainType WHERE MainTypeName = ?`,
-//         [document.MainTypeName]
-//       );
-//       if (existingMainType) {
-//         mainTypeId = existingMainType.MainTypeId;
-//       } else {
-//         const insertMainType = await db.run(
-//           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
-//           [document.MainTypeName]
-//         );
-//         if (!insertMainType.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać MainTypeName do DictionaryMainType.",
-//           };
-//         }
-//         mainTypeId = insertMainType.lastID;
-//       }
-//     } else if (document.MainTypeId && !document.MainTypeName) {
-//       // Ustawienie MainTypeId na null w AllDocuments
-//       mainTypeId = null;
-//     }
-
-//     // Krok 3: Sprawdzenie i aktualizacja TypeName w DictionaryType
-//     let typeId: number | null = null;
-//     if (document.TypeId && document.TypeName) {
-//       if (!mainTypeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
-//         };
-//       }
-//       // Aktualizacja istniejącego TypeName
-//       const updateType = await db.run(
-//         `UPDATE DictionaryType SET TypeName = ? WHERE TypeId = ?`,
-//         [document.TypeName, document.TypeId]
-//       );
-//       if (!updateType.changes) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: `Nie udało się zaktualizować TypeName dla TypeId: ${document.TypeId}.`,
-//         };
-//       }
-//       typeId = document.TypeId;
-//     } else if (!document.TypeId && document.TypeName) {
-//       if (!mainTypeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "MainTypeId musi być podane, jeśli TypeName jest wypełnione.",
-//         };
-//       }
-//       // Wstawienie nowego TypeName
-//       const existingType = await db.get<{ TypeId: number }>(
-//         `SELECT TypeId FROM DictionaryType WHERE TypeName = ?`,
-//         [document.TypeName]
-//       );
-//       if (existingType) {
-//         typeId = existingType.TypeId;
-//       } else {
-//         const insertType = await db.run(
-//           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
-//           [document.TypeName]
-//         );
-//         if (!insertType.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać TypeName do DictionaryType.",
-//           };
-//         }
-//         typeId = insertType.lastID;
-//       }
-//     } else if (document.TypeId && !document.TypeName) {
-//       // Ustawienie TypeId na null w AllDocuments
-//       typeId = null;
-//     }
-
-//     // Krok 4: Sprawdzenie i aktualizacja SubtypeName w DictionarySubtype
-//     let subtypeId: number | null = null;
-//     if (document.SubtypeId && document.SubtypeName) {
-//       if (!typeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
-//         };
-//       }
-//       // Aktualizacja istniejącego SubtypeName
-//       const updateSubtype = await db.run(
-//         `UPDATE DictionarySubtype SET SubtypeName = ? WHERE SubtypeId = ?`,
-//         [document.SubtypeName, document.SubtypeId]
-//       );
-//       if (!updateSubtype.changes) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: `Nie udało się zaktualizować SubtypeName dla SubtypeId: ${document.SubtypeId}.`,
-//         };
-//       }
-//       subtypeId = document.SubtypeId;
-//     } else if (!document.SubtypeId && document.SubtypeName) {
-//       if (!typeId) {
-//         await db.rollback();
-//         return {
-//           status: STATUS.Error,
-//           message: "TypeId musi być podane, jeśli SubtypeName jest wypełnione.",
-//         };
-//       }
-//       // Wstawienie nowego SubtypeName
-//       const existingSubtype = await db.get<{ SubtypeId: number }>(
-//         `SELECT SubtypeId FROM DictionarySubtype WHERE SubtypeName = ?`,
-//         [document.SubtypeName]
-//       );
-//       if (existingSubtype) {
-//         subtypeId = existingSubtype.SubtypeId;
-//       } else {
-//         const insertSubtype = await db.run(
-//           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
-//           [document.SubtypeName]
-//         );
-//         if (!insertSubtype.lastID) {
-//           await db.rollback();
-//           return {
-//             status: STATUS.Error,
-//             message: "Nie udało się dodać SubtypeName do DictionarySubtype.",
-//           };
-//         }
-//         subtypeId = insertSubtype.lastID;
-//       }
-//     } else if (document.SubtypeId && !document.SubtypeName) {
-//       // Ustawienie SubtypeId na null w AllDocuments
-//       subtypeId = null;
-//     }
-
-//     // Krok 5: Sprawdzenie, czy rekord istnieje w AllDocuments
-//     const existingConfig = await db.get<{ AllDocumentsId: number }>(
-//       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ?`,
-//       [document.AllDocumentsId]
-//     );
-//       if (!existingConfig) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: `Dokument o ID ${document.AllDocumentsId} nie istnieje w AllDocuments.`,
-//       };
-//     }
-
-//     // Krok 6: Aktualizacja rekordu w AllDocuments
-//     const updateAllDocuments = await db.run(
-//       `UPDATE AllDocuments 
-//        SET DocumentId = ?, MainTypeId = ?, TypeId = ?, SubtypeId = ?, Price = ?, IsDeleted = ? 
-//        WHERE AllDocumentsId = ?`,
-//       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted, document.AllDocumentsId]
-//     );
-//     if (!updateAllDocuments.changes) {
-//       await db.rollback();
-//       return {
-//         status: STATUS.Error,
-//         message: "Nie udało się zaktualizować dokumentu w AllDocuments.",
-//       };
-//     }
-
-//     await db.commit();
-//     console.log("saveEditedDocument: Dokument zapisany pomyślnie:", document);
-//     return {
-//       status: STATUS.Success,
-//       data: { lastID:document.AllDocumentsId, changes: updateAllDocuments.changes },
-//     };
-//   } catch (err) {
-//     await db.rollback();
-//     log.error("Błąd podczas zapisywania edytowanego dokumentu:", err);
-//     return {
-//       status: STATUS.Error,
-//       message: err instanceof Error ? err.message : "Nieznany błąd podczas zapisywania dokumentu.",
-//     };
-//   }
-// }
-
+//Funkcja do usuwania (soft) lub przywracania (soft) dokumentu w tabeli AllDocuments
 export async function deleteRestoreDocument(
   documentId: number,
   isDeleted: 0 | 1
@@ -1167,10 +829,6 @@ export async function getAllInvoices(
 
     // --- Wykonanie zapytania ---
     const result = await db.all<AllInvoices>(query, params);
-    const message = `Pobranie faktur.`;
-    log.error(logTitle(functionName, message), {
-      Pierwsza_faktura: result[0] ?? []
-    });
     return {
       status: STATUS.Success,
       data: result ?? [],

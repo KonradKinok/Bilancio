@@ -177,8 +177,8 @@ declare global {
     //Documents
     getAllDocumentName: DataBaseResponse<AllDocumentsName[]>;
     deleteRestoreDocument: DataBaseResponse<AllDocumentsName>;
-    saveEditedDocument: DataBaseResponse<ReturnMessageFromDb>;
-    saveNewDocument: DataBaseResponse<ReturnMessageFromDb>;
+    updateDocument: DataBaseResponse<ReturnMessageFromDb>;
+    addDocument: DataBaseResponse<ReturnMessageFromDb>;
 
     //Invoices
     getAllInvoices: DataBaseResponse<AllInvoices[]>;
@@ -219,8 +219,8 @@ declare global {
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
       deleteRestoreDocument: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<AllDocumentsNameTable>>;
 
-      saveEditedDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      saveNewDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      updateDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
+      addDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       // getAllInvoices: (payload) => Promise<AllInvoices[]>;
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
       // addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;

@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
-export function useEditDocument() {
+export function useUpdateDocument() {
   const [data, setData] = useState<ReturnMessageFromDb | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const editDocument = async (
+  const updateDocument = async (
     editedDocument: AllDocumentsName
   ): Promise<DataBaseResponse<ReturnMessageFromDb>> => {
     setLoading(true);
     setError(null);
     setData(null);
-    
+
     try {
       const result: DataBaseResponse<ReturnMessageFromDb> =
-        await window.electron.saveEditedDocument(editedDocument);
+        await window.electron.updateDocument(editedDocument);
       if (result.status === STATUS.Success) {
         setData(result.data);
         setError(null);
@@ -36,5 +36,5 @@ export function useEditDocument() {
     }
   };
 
-  return { data, loading, error, editDocument };
+  return { data, loading, error, updateDocument };
 }

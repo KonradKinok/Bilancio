@@ -5,7 +5,7 @@ import { STATUS } from "../../../../electron/sharedTypes/status";
 import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
 import { useDeleteDocument } from "../../../hooks/useDeleteDocument";
 import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
-import { useEditDocument } from "../../../hooks/useEditDocument";
+import { useUpdateDocument } from "../../../hooks/useUpdateDocument";
 import { useAddDocument } from "../../../hooks/useAddDocument";
 import { displayErrorMessage } from "../../../components/GlobalFunctions/GlobalFunctions";
 import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
@@ -25,7 +25,7 @@ const DocumentsPage: React.FC = () => {
   const { addDocument } = useAddDocument();
 
   //Hook do edytowania dokumentów
-  const { editDocument } = useEditDocument();
+  const { updateDocument } = useUpdateDocument();
 
   //Hook do usuwania dokumentów
   const { deleteDocument } = useDeleteDocument();
@@ -82,17 +82,22 @@ const DocumentsPage: React.FC = () => {
     document: AllDocumentsName,
     onSuccess: () => void
   ) => {
+    const documentName = `${document.DocumentName} ${
+      document.MainTypeName ? document.MainTypeName : ""
+    } ${document.TypeName ? document.TypeName : ""} ${
+      document.SubtypeName ? document.SubtypeName : ""
+    }`.trim();
     const successText = `${
       isNewDocument ? "Nowy" : "Edytowany"
-    } dokument został pomyślnie zapisany.`;
+    } dokument ${documentName} został pomyślnie zapisany.`;
     const errorText = `Nie udało się zapisać ${
       isNewDocument ? "nowego" : "edytowanego"
-    } dokumentu.`;
+    } dokumentu ${documentName}.`;
 
     try {
       const result = await (isNewDocument
         ? addDocument(document)
-        : editDocument(document));
+        : updateDocument(document));
       if (result.status === STATUS.Success) {
         getAllDocuments(); // Odśwież listę dokumentów
         toast.success(`${successText}`);
