@@ -116,6 +116,7 @@ export function configureBackupDb(): void {
     log.error('[config] [configureBackupDb]: Plik nie został znaleziony po kopiowaniu:', dataBaseDestinationFilePath);
   }
 }
+
 // Funkcja do formatowania daty w formacie dd.mm.yyyy
 export function getFormattedDate(): string {
   const today = new Date();

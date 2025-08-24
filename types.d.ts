@@ -213,7 +213,7 @@ declare global {
   type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
   interface Window {
     electron: {
-      getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
+      // getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
 
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
@@ -237,7 +237,7 @@ declare global {
 
 
       getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
-      getUserBySystemName: (systemUserName: string) => Promise<DataBaseResponse<User>>;
+      getUserBySystemName: () => Promise<DataBaseResponse<User>>;
       // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
       // getLastRowFromTable: () => Promise<unknown>;

@@ -7,7 +7,7 @@ import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, get
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getTableDictionaryDocuments, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser } from "./dataBase/dbFunction.js";
+import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, displayUserNameForLog } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
 
 // Deklaracja mainWindow na poziomie globalnym
@@ -37,7 +37,9 @@ if (!gotTheLock) {
 app.on("ready", () => {
   if (!gotTheLock) return;
   configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
+  Object.assign(console, log.functions);
   defaultLogs();
+  initDb();
   configureBackupDb();
 
   mainWindow = new BrowserWindow({
@@ -89,9 +91,9 @@ app.on("ready", () => {
   // pollResources(mainWindow);
 
 
-  ipcMainHandle2('getTableDictionaryDocuments', (payload) => {
-    return getTableDictionaryDocuments(payload);
-  });
+  // ipcMainHandle2('getTableDictionaryDocuments', (payload) => {
+  //   return getTableDictionaryDocuments(payload);
+  // });
   ipcMainHandle2('getConnectedTableDictionary', (tableName, documentId, mainTypeId, typeId, subTypeId) => {
     return getConnectedTableDictionary(tableName, documentId, mainTypeId, typeId, subTypeId);
   });
@@ -147,8 +149,8 @@ app.on("ready", () => {
   ipcMainHandle('getWindowsUsernameHostname', () => {
     return getWindowsUsernameHostname();
   });
-  ipcMainHandle2('getUserBySystemName', (systemUserName) => {
-    return getUserBySystemName(systemUserName);
+  ipcMainHandle2('getUserBySystemName', () => {
+    return getUserBySystemName();
   });
 
   // Nowe IPC dla konfiguracji

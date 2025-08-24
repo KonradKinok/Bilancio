@@ -5,7 +5,7 @@ const electron = require('electron');
 
 electron.contextBridge.exposeInMainWorld('electron', {
 
-  getTableDictionaryDocuments: (payload) => ipcInvoke2('getTableDictionaryDocuments', payload),
+  // getTableDictionaryDocuments: (payload) => ipcInvoke2('getTableDictionaryDocuments', payload),
   getConnectedTableDictionary: (tableName, documentId, mainTypeId, typeId, subTypeId) => ipcInvoke2('getConnectedTableDictionary', tableName, documentId, mainTypeId, typeId, subTypeId),
   getDBbBilancioPath: () => ipcInvoke('getDBbBilancioPath'),
   getAllDocumentsName: (isDeleted) => ipcInvoke2('getAllDocumentName', isDeleted),
@@ -29,7 +29,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
 
   //Auth
   getWindowsUsernameHostname: () => ipcInvoke('getWindowsUsernameHostname'),
-  getUserBySystemName: (systemUserName) => ipcInvoke2('getUserBySystemName', systemUserName),
+  getUserBySystemName: () => ipcInvoke('getUserBySystemName'),
   // loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
 
   // getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),

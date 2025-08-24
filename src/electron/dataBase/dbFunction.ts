@@ -1,55 +1,35 @@
-import log from "electron-log"; // Dodaj import
+import log from "electron-log";
 import { fileURLToPath } from 'url';
 import path from 'path';
-import { getWindowsUsernameElektron, } from '../util.js';
+import os from 'os';
+import { getWindowsUsernameElektron, getWindowsUsernameHostname, } from '../util.js';
 import { DbTables } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
 import Database, { QueryParams } from './dbClass.js';
 
 // Tworzymy instancję bazy danych
-const db = new Database();
+let db: Database | null = null;
+
+export function initDb() {
+  if (!db) {
+    db = new Database();
+  }
+}
+
+function getDb(): Database {
+  if (!db) {
+    throw new Error("Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb().");
+  }
+  return db;
+}
 
 // Pobieranie nazwy użytkownika systemu Windows
-const displayUserName = await getWindowsUsernameElektron();
+const displayUserName = await displayUserNameForLog()
 
 // Pobieranie nazwy pliku w module ES
 const __filename = fileURLToPath(import.meta.url);
 const fileName = path.basename(__filename);
 
-export async function getTableDictionaryDocuments<T>(tableName: DbTables) {
-  try {
-    const query = "";
-    switch (tableName) {
-      // case DbTables.DictionaryDocuments:
-      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-      //   break;
-      // case DbTables.DictionaryMainType:
-      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-      //   break;
-      // case DbTables.DictionaryType:
-      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-      //   break;
-      // case DbTables.DictionarySubtype:
-      //   query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-      //   break;
-      default:
-        throw new Error(`Nieznana tabela: ${tableName}`);
-    }
-
-    const rows = await db.all<T>(query);
-    console.log("dbFunction.ts getTableDictionaryDocuments()", tableName, rows);
-    return {
-      status: STATUS.Success,
-      data: rows ?? [],
-    };
-  } catch (err) {
-    console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
-    return {
-      status: STATUS.Error,
-      message: "Błąd podczas pobierania dokumentów z bazy danych.",
-    };
-  }
-};
 // Pobierz połączone dane ze słowników
 export async function getConnectedTableDictionary<T>(
   tableName: DbTables,
@@ -139,7 +119,7 @@ export async function getConnectedTableDictionary<T>(
     if (typeId) params.push(typeId);
 
     // --- Wykonanie zapytania ---
-    const rows = await db.all<T>(query, params);
+    const rows = await getDb().all<T>(query, params);
 
     return {
       status: STATUS.Success,
@@ -151,50 +131,6 @@ export async function getConnectedTableDictionary<T>(
     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-// Funkcja do obsługi zapisu edytowanego dokumentu
-// export async function getConnectedTableDictionary<T>(tableName: DbTables, documentId?: number, mainTypeId?: number, typeId?: number, subTypeId?: number) {
-//   try {
-//     let query = "";
-//     switch (tableName) {
-//       case DbTables.DictionaryDocuments:
-//         query = sqlString.getTableDictionaryDocumentsSqlString(tableName);
-//         break;
-//       case DbTables.DictionaryMainType:
-//         if (!documentId) {
-//           throw new Error("documentName is required for DictionaryMainType");
-//         }
-//         query = sqlString.getConnectedTableDictionaryDocumentsDictionaryMainTypeSqlString(documentId);
-//         break;
-//       case DbTables.DictionaryType:
-//         if (!documentId || !mainTypeId) {
-//           throw new Error("documentName and mainTypeId is required for DictionaryType");
-//         }
-//         query = sqlString.getConnectedTableDictionaryMainTypeDictionaryTypeSqlString(documentId, mainTypeId);
-//         break;
-//       case DbTables.DictionarySubtype:
-//         if (!documentId || !mainTypeId || !typeId) {
-//           throw new Error("documentName, mainTypeId  and typeId is required for DictionarySubtype");
-//         }
-//         query = sqlString.getConnectedTableDictionaryTypeDictionarySubtypeSqlString(documentId, mainTypeId, typeId);
-//         break;
-//       default:
-//         throw new Error(`Nieznana tabela: ${tableName}`);
-//     }
-//     console.log("getConnectedTableDictionary", query);
-//     const rows = await db.all<T>(query);
-//     console.log("dbFunction.ts getConnectedTableDictionary()", tableName, rows);
-//     return {
-//       status: STATUS.Success,
-//       data: rows ?? [],
-//     };
-//   } catch (err) {
-//     console.error("getTableDictionaryDocuments() Błąd podczas pobierania dokumentów:", err);
-//     return {
-//       status: STATUS.Error,
-//       message: `Błąd podczas pobierania dokumentów z bazy danych. ${err} coś tam`,
-//     };
-//   }
-// };
 
 //Funkcja do pobierania wszystkich dokumentów
 export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
@@ -235,7 +171,7 @@ export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseR
     `;
 
     // --- Wykonanie zapytania ---
-    const rows = await db.all<AllDocumentsName>(query, params);
+    const rows = await getDb().all<AllDocumentsName>(query, params);
 
     return {
       status: STATUS.Success,
@@ -247,25 +183,6 @@ export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseR
     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
   }
 }
-
-// export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
-//   try {
-//     const query = sqlString.getAllDocumentsNameSqlString(isDeleted);
-//     const params: QueryParams = isDeleted !== undefined ? [isDeleted] : [];
-//     const rows = await db.all<AllDocumentsName>(query, params);
-//     return {
-//       status: STATUS.Success,
-//       data: rows ?? [],
-//     };
-//   } catch (err) {
-
-//     log.error('getAllDocumentsName() Błąd podczas pobierania dokumentów:', err);
-//     return {
-//       status: STATUS.Error,
-//       message: `Błąd podczas pobierania dokumentów z bazy danych: ${err}`,
-//     };
-//   }
-// };
 
 // Funkcja do zapisywania nowego dokumentu w tabeli AllDocuments
 export async function addDocument(
@@ -283,11 +200,11 @@ export async function addDocument(
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Krok 1: Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
     let documentId: number;
-    const existingDocument = await db.get<{ DocumentId: number }>(
+    const existingDocument = await getDb().get<{ DocumentId: number }>(
       `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
       [document.DocumentName]
     );
@@ -295,12 +212,12 @@ export async function addDocument(
       documentId = existingDocument.DocumentId;
     } else {
 
-      const insertDocument = await db.run(
+      const insertDocument = await getDb().run(
         `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
         [document.DocumentName]
       );
       if (!insertDocument.lastID) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się dodać DocumentName do DictionaryDocuments.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
@@ -311,19 +228,19 @@ export async function addDocument(
     // Krok 2: Sprawdzenie lub dodanie MainTypeName w DictionaryMainType (jeśli istnieje)
     let mainTypeId: number | null = null;
     if (document.MainTypeName) {
-      const existingMainType = await db.get<{ MainTypeId: number }>(
+      const existingMainType = await getDb().get<{ MainTypeId: number }>(
         `SELECT MainTypeId FROM DictionaryMainType WHERE LOWER(MainTypeName) = LOWER(?)`,
         [document.MainTypeName]
       );
       if (existingMainType) {
         mainTypeId = existingMainType.MainTypeId;
       } else {
-        const insertMainType = await db.run(
+        const insertMainType = await getDb().run(
           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
           [document.MainTypeName]
         );
         if (!insertMainType.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać MainTypeName do DictionaryMainType.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -336,24 +253,24 @@ export async function addDocument(
     let typeId: number | null = null;
     if (document.TypeName) {
       if (!mainTypeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `MainTypeName musi być podane, jeśli TypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      const existingType = await db.get<{ TypeId: number }>(
+      const existingType = await getDb().get<{ TypeId: number }>(
         `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
         [document.TypeName]
       );
       if (existingType) {
         typeId = existingType.TypeId;
       } else {
-        const insertType = await db.run(
+        const insertType = await getDb().run(
           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
           [document.TypeName]
         );
         if (!insertType.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać TypeName do DictionaryType.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -366,24 +283,24 @@ export async function addDocument(
     let subtypeId: number | null = null;
     if (document.SubtypeName) {
       if (!typeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `TypeName musi być podane, jeśli SubtypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      const existingSubtype = await db.get<{ SubtypeId: number }>(
+      const existingSubtype = await getDb().get<{ SubtypeId: number }>(
         `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
         [document.SubtypeName]
       );
       if (existingSubtype) {
         subtypeId = existingSubtype.SubtypeId;
       } else {
-        const insertSubtype = await db.run(
+        const insertSubtype = await getDb().run(
           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
           [document.SubtypeName]
         );
         if (!insertSubtype.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać SubtypeName do DictionarySubtype.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -393,7 +310,7 @@ export async function addDocument(
     }
 
     // Krok 5: Sprawdzenie, czy konfiguracja istnieje w AllDocuments
-    const existingConfig = await db.get<{ AllDocumentsId: number }>(
+    const existingConfig = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments 
        WHERE DocumentId = ? 
        AND (MainTypeId = ? OR (MainTypeId IS NULL AND ? IS NULL))
@@ -402,26 +319,26 @@ export async function addDocument(
       [documentId, mainTypeId, mainTypeId, typeId, typeId, subtypeId, subtypeId]
     );
     if (existingConfig) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zapisać nowego dokumentu. Taki dokument już istnieje w bazie danych.`;
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
 
     // Krok 6: Wstawienie nowego rekordu do AllDocuments
-    const insertAllDocuments = await db.run(
+    const insertAllDocuments = await getDb().run(
       `INSERT INTO AllDocuments (DocumentId, MainTypeId, TypeId, SubtypeId, Price, IsDeleted) 
        VALUES (?, ?, ?, ?, ?, ?)`,
       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted ?? 0]
     );
     if (!insertAllDocuments.lastID || !insertAllDocuments.changes) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zapisać nowego dokumentu.`;
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Zapisano dokument:";
     log.info(logTitle(functionName, message), { ...document, AllDocumentsId: insertAllDocuments.lastID });
     return {
@@ -451,18 +368,18 @@ export async function updateDocument(
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Krok 1: Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
     let documentId: number;
     if (document.DocumentId && document.DocumentName) {
       // Aktualizacja istniejącego DocumentName
-      const updateDocument = await db.run(
+      const updateDocument = await getDb().run(
         `UPDATE DictionaryDocuments SET DocumentName = ? WHERE DocumentId = ?`,
         [document.DocumentName, document.DocumentId]
       );
       if (!updateDocument.changes) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się zaktualizować DocumentName dla DocumentId: ${document.DocumentId}.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
@@ -470,19 +387,19 @@ export async function updateDocument(
       documentId = document.DocumentId;
     } else if (!document.DocumentId && document.DocumentName) {
       // Wstawienie nowego DocumentName
-      const existingDocument = await db.get<{ DocumentId: number }>(
+      const existingDocument = await getDb().get<{ DocumentId: number }>(
         `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
         [document.DocumentName]
       );
       if (existingDocument) {
         documentId = existingDocument.DocumentId;
       } else {
-        const insertDocument = await db.run(
+        const insertDocument = await getDb().run(
           `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
           [document.DocumentName]
         );
         if (!insertDocument.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać DocumentName do DictionaryDocuments.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -490,7 +407,7 @@ export async function updateDocument(
         documentId = insertDocument.lastID;
       }
     } else {
-      await db.rollback();
+      await getDb().rollback();
       const message = `DocumentId lub DocumentName musi być podane..`;
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
@@ -500,12 +417,12 @@ export async function updateDocument(
     let mainTypeId: number | null = null;
     if (document.MainTypeId && document.MainTypeName) {
       // Aktualizacja istniejącego MainTypeName
-      const updateMainType = await db.run(
+      const updateMainType = await getDb().run(
         `UPDATE DictionaryMainType SET MainTypeName = ? WHERE MainTypeId = ?`,
         [document.MainTypeName, document.MainTypeId]
       );
       if (!updateMainType.changes) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się zaktualizować MainTypeName dla MainTypeId: ${document.MainTypeId}.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
@@ -513,19 +430,19 @@ export async function updateDocument(
       mainTypeId = document.MainTypeId;
     } else if (!document.MainTypeId && document.MainTypeName) {
       // Wstawienie nowego MainTypeName
-      const existingMainType = await db.get<{ MainTypeId: number }>(
+      const existingMainType = await getDb().get<{ MainTypeId: number }>(
         `SELECT MainTypeId FROM DictionaryMainType WHERE LOWER(MainTypeName) = LOWER(?)`,
         [document.MainTypeName]
       );
       if (existingMainType) {
         mainTypeId = existingMainType.MainTypeId;
       } else {
-        const insertMainType = await db.run(
+        const insertMainType = await getDb().run(
           `INSERT INTO DictionaryMainType (MainTypeName) VALUES (?)`,
           [document.MainTypeName]
         );
         if (!insertMainType.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać MainTypeName do DictionaryMainType.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -541,18 +458,18 @@ export async function updateDocument(
     let typeId: number | null = null;
     if (document.TypeId && document.TypeName) {
       if (!mainTypeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `MainTypeId musi być podane, jeśli TypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
       // Aktualizacja istniejącego TypeName
-      const updateType = await db.run(
+      const updateType = await getDb().run(
         `UPDATE DictionaryType SET TypeName = ? WHERE TypeId = ?`,
         [document.TypeName, document.TypeId]
       );
       if (!updateType.changes) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się zaktualizować TypeName dla TypeId: ${document.TypeId}.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
@@ -560,25 +477,25 @@ export async function updateDocument(
       typeId = document.TypeId;
     } else if (!document.TypeId && document.TypeName) {
       if (!mainTypeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `MainTypeId musi być podane, jeśli TypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
       // Wstawienie nowego TypeName
-      const existingType = await db.get<{ TypeId: number }>(
+      const existingType = await getDb().get<{ TypeId: number }>(
         `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
         [document.TypeName]
       );
       if (existingType) {
         typeId = existingType.TypeId;
       } else {
-        const insertType = await db.run(
+        const insertType = await getDb().run(
           `INSERT INTO DictionaryType (TypeName) VALUES (?)`,
           [document.TypeName]
         );
         if (!insertType.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać TypeName do DictionaryType.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -594,18 +511,18 @@ export async function updateDocument(
     let subtypeId: number | null = null;
     if (document.SubtypeId && document.SubtypeName) {
       if (!typeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `TypeId musi być podane, jeśli SubtypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
       // Aktualizacja istniejącego SubtypeName
-      const updateSubtype = await db.run(
+      const updateSubtype = await getDb().run(
         `UPDATE DictionarySubtype SET SubtypeName = ? WHERE SubtypeId = ?`,
         [document.SubtypeName, document.SubtypeId]
       );
       if (!updateSubtype.changes) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się zaktualizować SubtypeName dla SubtypeId: ${document.SubtypeId}.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
@@ -613,25 +530,25 @@ export async function updateDocument(
       subtypeId = document.SubtypeId;
     } else if (!document.SubtypeId && document.SubtypeName) {
       if (!typeId) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `TypeId musi być podane, jeśli SubtypeName jest wypełnione.`;
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
       // Wstawienie nowego SubtypeName
-      const existingSubtype = await db.get<{ SubtypeId: number }>(
+      const existingSubtype = await getDb().get<{ SubtypeId: number }>(
         `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
         [document.SubtypeName]
       );
       if (existingSubtype) {
         subtypeId = existingSubtype.SubtypeId;
       } else {
-        const insertSubtype = await db.run(
+        const insertSubtype = await getDb().run(
           `INSERT INTO DictionarySubtype (SubtypeName) VALUES (?)`,
           [document.SubtypeName]
         );
         if (!insertSubtype.lastID) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać SubtypeName ${document.SubtypeName} do DictionarySubtype.`;
           log.error(logTitle(functionName, message), { document });
           return { status: STATUS.Error, message: message };
@@ -644,32 +561,32 @@ export async function updateDocument(
     }
 
     // Krok 5: Sprawdzenie, czy rekord istnieje w AllDocuments
-    const existingConfig = await db.get<{ AllDocumentsId: number }>(
+    const existingConfig = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ?`,
       [document.AllDocumentsId]
     );
     if (!existingConfig) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Dokument o ID ${document.AllDocumentsId} nie istnieje w bazie danych.`;
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
 
     // Krok 6: Aktualizacja rekordu w AllDocuments
-    const updateAllDocuments = await db.run(
+    const updateAllDocuments = await getDb().run(
       `UPDATE AllDocuments 
        SET DocumentId = ?, MainTypeId = ?, TypeId = ?, SubtypeId = ?, Price = ?, IsDeleted = ? 
        WHERE AllDocumentsId = ?`,
       [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted, document.AllDocumentsId]
     );
     if (!updateAllDocuments.changes) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zaktualizować dokumentu.`;
       log.error(logTitle(functionName, message), { document });
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Zaktualizowano dokument:";
     log.info(logTitle(functionName, message), { document });
     return {
@@ -706,15 +623,15 @@ export async function deleteRestoreDocument(
   const updateParams: QueryParams = [isDeleted, documentId];
 
   try {
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Sprawdzenie, czy faktura istnieje i ma odpowiedni status IsDeleted
-    const existingDocument = await db.get<{ AllDocumentsId: number }>(
+    const existingDocument = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ? AND IsDeleted = ?`,
       [documentId, isDeleted === 0 ? 1 : 0]
     );
     if (!existingDocument) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Dokument o ID ${documentId} nie istnieje lub jest już oznaczony jako ${isDeleted === 0 ? "przywrócona" : "usunięta"
         }.`;
       log.error(logTitle(functionName, message));
@@ -722,16 +639,16 @@ export async function deleteRestoreDocument(
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await db.get<AllDocumentsNameTable>(updateSql, updateParams);
+    const result = await getDb().get<AllDocumentsNameTable>(updateSql, updateParams);
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się ${isDeleted === 0 ? "przywrócić" : "usunąć"
         } dokumentu o Id: ${documentId}.`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = `${isDeleted === 0 ? "Przywrócono" : "Usunięto"
       } dokument Id: ${result.DocumentId}.`;
     log.info(logTitle(functionName, message), { result });
@@ -828,7 +745,7 @@ export async function getAllInvoices(
     params.push(rowsPerPage, offset);
 
     // --- Wykonanie zapytania ---
-    const result = await db.all<AllInvoices>(query, params);
+    const result = await getDb().all<AllInvoices>(query, params);
     return {
       status: STATUS.Success,
       data: result ?? [],
@@ -856,7 +773,7 @@ async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<Retur
   ];
 
   try {
-    const result = await db.run(sql, params);
+    const result = await getDb().run(sql, params);
     if (!result.lastID || !result.changes) {
       const message = `Nie udało się dodać faktury ${invoice.InvoiceName} do bazy danych: .`;
       log.error(logTitle(functionName, message), { invoice });
@@ -885,12 +802,12 @@ export async function addInvoiceDetails(
   `;
 
   try {
-    await db.beginTransaction();
+    await getDb().beginTransaction();
     const resultAddInvoice = await addInvoice(invoice);
     if (resultAddInvoice.status === STATUS.Success && resultAddInvoice.data) {
       for (const detail of invoiceDetails) {
         if (!detail.DocumentId || detail.Quantity <= 0) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nieprawidłowe dane szczegółów faktury ${invoice.InvoiceName} (DocumentId ${detail.DocumentId} lub Quantity ${invoice.InvoiceName}).`;
           log.error(logTitle(functionName, message), { invoice, invoiceDetails });
           return { status: STATUS.Error, message: message };
@@ -904,20 +821,20 @@ export async function addInvoiceDetails(
           detail.Quantity,
           detail.Price,
         ];
-        const resultDetail = await db.run(sql, params);
+        const resultDetail = await getDb().run(sql, params);
         if (!resultDetail.changes) {
-          await db.rollback();
+          await getDb().rollback();
           const message = `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId} ${invoice.InvoiceName}.`;
           log.error(logTitle(functionName, message), { invoice, invoiceDetails });
           return { status: STATUS.Error, message: message };
         }
       }
-      await db.commit();
+      await getDb().commit();
       const message = "Dodano fakturę:";
       log.info(logTitle(functionName, message), { invoice }, { invoiceDetails });
       return resultAddInvoice;
     }
-    await db.rollback();
+    await getDb().rollback();
     return resultAddInvoice;
   } catch (err) {
     const message = `Nieznany błąd podczas dodawania szczegółów faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
@@ -967,36 +884,36 @@ export async function updateInvoice(
   `;
 
   try {
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Sprawdzenie, czy faktura istnieje
-    const existingInvoice = await db.get<{ InvoiceId: number }>(
+    const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ?`,
       [invoice.InvoiceId]
     );
     if (!existingInvoice) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zaktualizować faktury ${invoice.InvoiceName}. Faktura o ID ${invoice.InvoiceId} nie istnieje.`;
       log.error(logTitle(functionName, message), { invoice, invoiceDetails });
       return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja faktury
-    const updateResult = await db.run(updateInvoiceSql, updateInvoiceParams);
+    const updateResult = await getDb().run(updateInvoiceSql, updateInvoiceParams);
     if (!updateResult.changes) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zaktualizować faktury ${invoice.InvoiceName}.`;
       log.error(logTitle(functionName, message), { invoice, invoiceDetails });
       return { status: STATUS.Error, message: message };
     }
 
     // Usunięcie istniejących szczegółów
-    await db.run(deleteDetailsSql, deleteDetailsParams);
+    await getDb().run(deleteDetailsSql, deleteDetailsParams);
 
     // Wstawianie nowych szczegółów
     for (const detail of invoiceDetails) {
       if (!detail.DocumentId || detail.Quantity <= 0) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nieprawidłowe dane szczegółów faktury ${invoice.InvoiceName} (DocumentId ${detail.DocumentId} lub Quantity ${invoice.InvoiceName}).`;
         log.error(logTitle(functionName, message), { invoice, invoiceDetails });
         return { status: STATUS.Error, message: message };
@@ -1010,16 +927,16 @@ export async function updateInvoice(
         detail.Quantity,
         detail.Price,
       ];
-      const insertResult = await db.run(insertDetailsSql, insertParams);
+      const insertResult = await getDb().run(insertDetailsSql, insertParams);
       if (!insertResult.changes) {
-        await db.rollback();
+        await getDb().rollback();
         const message = `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId} ${invoice.InvoiceName}.`;
         log.error(logTitle(functionName, message), { invoice, invoiceDetails });
         return { status: STATUS.Error, message: message };
       }
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Zaktualizowano fakturę:";
     log.info(logTitle(functionName, message), { invoice }, { invoiceDetails });
     return {
@@ -1054,30 +971,30 @@ export async function deleteInvoice(
   const deleteInvoiceParams: QueryParams = [invoiceId];
 
   try {
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Sprawdzenie, czy faktura istnieje
-    const existingInvoice = await db.get<{ InvoiceId: number }>(
+    const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ? AND IsDeleted = 0`,
       [invoiceId]
     );
     if (!existingInvoice) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await db.get<InvoiceTable>(deleteInvoiceSql, deleteInvoiceParams);
+    const result = await getDb().get<InvoiceTable>(deleteInvoiceSql, deleteInvoiceParams);
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się usunąć faktury o ID ${invoiceId}`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Usunięto fakturę:";
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
@@ -1110,31 +1027,31 @@ export async function restoreInvoice(
   const restoreInvoiceParams: QueryParams = [invoiceId];
 
   try {
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     // Sprawdzenie, czy faktura istnieje i jest oznaczona jako usunięta
-    const existingInvoice = await db.get<{ InvoiceId: number }>(
+    const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ? AND IsDeleted = 1`,
       [invoiceId]
     );
     if (!existingInvoice) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Faktura o ID ${invoiceId} nie istnieje lub nie jest oznaczona jako usunięta.`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await db.get<InvoiceTable>(restoreInvoiceSql, restoreInvoiceParams);
+    const result = await getDb().get<InvoiceTable>(restoreInvoiceSql, restoreInvoiceParams);
 
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się przywrócić faktury o ID ${invoiceId}`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Przywrócono usuniętą fakturę:";
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
@@ -1165,7 +1082,7 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
       params.push(formValuesHomePage.isDeleted);
     }
 
-    const result = await db.get<{ total: number }>(query, params);
+    const result = await getDb().get<{ total: number }>(query, params);
     return {
       status: STATUS.Success,
       data: result?.total ?? 0,
@@ -1190,7 +1107,7 @@ export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<
       params.push(isDeleted);
     }
 
-    const rows = await db.all<User>(query, params);
+    const rows = await getDb().all<User>(query, params);
 
     return {
       status: STATUS.Success,
@@ -1224,7 +1141,7 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
       log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
-    const existingUser = await db.get<{ UserId: number }>(
+    const existingUser = await getDb().get<{ UserId: number }>(
       `SELECT UserId FROM Users WHERE LOWER(UserSystemName) = LOWER(?)`,
       [user.UserSystemName.trim()]
     );
@@ -1233,7 +1150,7 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
       log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     const query = `
       INSERT INTO Users (UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted)
@@ -1247,15 +1164,15 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
       user.UserRole
     ];
 
-    const result = await db.get<User>(query, params);
+    const result = await getDb().get<User>(query, params);
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = "Nie udało się zapisać użytkownika.";
       log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Zapisano użytkownika:";
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
@@ -1293,7 +1210,7 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
       return { status: STATUS.Error, message: message };
     }
 
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     const query = `
       UPDATE Users
@@ -1309,15 +1226,15 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
       user.UserId
     ];
 
-    const result = await db.get<User>(query, params);
+    const result = await getDb().get<User>(query, params);
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się zaktualizować użytkownika.`;
       log.error(logTitle(functionName, message), { user: userWithoutPassword });
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Zaktualizowano użytkownika:";
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
@@ -1338,7 +1255,7 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
       return { status: STATUS.Error, message: message };
     }
 
-    await db.beginTransaction();
+    await getDb().beginTransaction();
 
     const query = `
       DELETE FROM Users
@@ -1347,15 +1264,15 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
     `;
     const params: QueryParams = [userId];
 
-    const result = await db.get<User>(query, params);
+    const result = await getDb().get<User>(query, params);
     if (!result) {
-      await db.rollback();
+      await getDb().rollback();
       const message = `Nie udało się usunąć użytkownika lub użytkownik nie istnieje.`;
       log.error(logTitle(functionName, message));
       return { status: STATUS.Error, message: message };
     }
 
-    await db.commit();
+    await getDb().commit();
     const message = "Usunięto użytkownika:"
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
@@ -1367,14 +1284,26 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
 }
 
 // Weryfikacja użytkownika na podstawie UserSystemName
-export async function getUserBySystemName(systemUserName: string): Promise<DataBaseResponse<User>> {
+export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
   const functionName = getUserBySystemName.name;
+  let systemUserName = "nieznany użytkownik";
+  let systemHostName = "nieznany host";
   try {
+    systemUserName = os.userInfo().username.toLowerCase();
+    systemHostName = os.hostname();
+    if (!systemUserName) {
+      const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`
+      log.error(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`);
+      return {
+        status: STATUS.Error,
+        message: message,
+      };
+    }
     const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
                    FROM Users 
                    WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
     const params: QueryParams = [systemUserName];
-    const result = await db.get<User>(query, params);
+    const result = await getDb().get<User>(query, params);
 
     if (!result) {
       const message = `Brak użytkownika ${systemUserName} w bazie danych.`
@@ -1384,11 +1313,16 @@ export async function getUserBySystemName(systemUserName: string): Promise<DataB
         message: message,
       };
     }
+    //Dodajemy wartość Host do User
+    const enrichedUser = {
+      ...result,
+      Hostname: systemHostName,
+    };
     const message = `Użytkownik ${result.UserDisplayName} został pomyślnie zalogowany.`
     log.info(`[dbFunction.js] [${functionName}] [${result.UserDisplayName}] ${message}`);
     return {
       status: STATUS.Success,
-      data: result,
+      data: enrichedUser,
     };
   } catch (err) {
     const message = `Błąd podczas pobierania użytkownika: ${systemUserName}.`
@@ -1397,11 +1331,44 @@ export async function getUserBySystemName(systemUserName: string): Promise<DataB
   }
 }
 
+export async function displayUserNameForLog(): Promise<string> {
+  const functionName = displayUserNameForLog.name;
+  let displayUserNameLog = "nieznany użytkownik";
+
+  try {
+    if (!db) {
+      const systemUserName = os.userInfo().username.toLowerCase();
+      if (!systemUserName) return displayUserNameLog
+      displayUserNameLog = systemUserName;
+    }
+    else {
+      const result = await getUserBySystemName();
+      if (result.status === STATUS.Success) {
+        displayUserNameLog = result.data.UserDisplayName;
+      }
+    }
+    return displayUserNameLog;
+  } catch (err) {
+    const message = `Błąd podczas pobierania użytkownika: ${displayUserNameLog}.`
+    log.error(`[dbFunction.js] [${functionName}] [${displayUserNameLog}] ${message}`, err);
+    return displayUserNameLog;
+  }
+
+}
+
+//Funkcja do konstrukcji logów
+export function logTitle(functionName: string, message: string, displayUserNameLog: string = displayUserName): string {
+  const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
+  return title;
+}
+
 // Przykładowa funkcja
 export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);
   return Promise.resolve("getConfigBilancio text");
 }
+
+
 // import { app } from 'electron';
 // app.on('before-quit', async () => {
 //   try {
@@ -1411,8 +1378,3 @@ export async function getConfigBilancio1(tekst: string): Promise<string> {
 //     console.error('Błąd przy zamykaniu bazy danych:', err);
 //   }
 // });
-
-export function logTitle(functionName: string, message: string, displayUserNameLog: string = displayUserName): string {
-  const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
-  return title;
-}
