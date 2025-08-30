@@ -11,40 +11,40 @@ export function isDev(): boolean {
 }
 
 //Pobierz nazwę użytkownika oraz hostname z systemu
-export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<WindowsUsername>> {
-  const functionName = getWindowsUsernameHostname.name;
-  try {
-    const username = os.userInfo().username.toLowerCase();
-    const hostname = os.hostname();
-    return {
-      status: STATUS.Success,
-      data: { username, hostname },
-    };
-  } catch (err) {
-    const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`;
-    log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
-  }
-}
+// export async function getWindowsUsernameHostname(): Promise<DataBaseResponse<WindowsUsername>> {
+//   const functionName = getWindowsUsernameHostname.name;
+//   try {
+//     const username = os.userInfo().username.toLowerCase();
+//     const hostname = os.hostname();
+//     return {
+//       status: STATUS.Success,
+//       data: { username, hostname },
+//     };
+//   } catch (err) {
+//     const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`;
+//     log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
+//     return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+//   }
+// }
 
-//Pobierz nazwę użytkownika oraz hostname z systemu
-export async function getWindowsUsernameElektron(): Promise<string> {
-  const functionName = getWindowsUsernameElektron.name;
-  try {
-    const username = os.userInfo().username.toLowerCase();
-    const displayUserName = await getUserBySystemName();
-    if (!displayUserName || displayUserName.status === STATUS.Error) {
-      const message = `Nie udało się pobrać nazwy użytkownika z bazy danych.`;
-      log.error(`[utils.js] [${functionName}] [${username}] ${message}`);
-      return "defaultUser";
-    }
-    return displayUserName.data.UserDisplayName;
-  } catch (err) {
-    const message = `Nieznany błąd przy pobieraniu użytkownika z bazy danych.`;
-    log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
-    return "defaultUser";
-  }
-}
+// //Pobierz nazwę użytkownika oraz hostname z systemu
+// export async function getWindowsUsernameElektron(): Promise<string> {
+//   const functionName = getWindowsUsernameElektron.name;
+//   try {
+//     const username = os.userInfo().username.toLowerCase();
+//     const displayUserName = await getUserBySystemName();
+//     if (!displayUserName || displayUserName.status === STATUS.Error) {
+//       const message = `Nie udało się pobrać nazwy użytkownika z bazy danych.`;
+//       log.error(`[utils.js] [${functionName}] [${username}] ${message}`);
+//       return "defaultUser";
+//     }
+//     return displayUserName.data.UserDisplayName;
+//   } catch (err) {
+//     const message = `Nieznany błąd przy pobieraniu użytkownika z bazy danych.`;
+//     log.error(`[utils.js] [${functionName}] [nieznany użytkownik] ${message}`, err);
+//     return "defaultUser";
+//   }
+// }
 // export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
 //   key: Key,
 //   handler: () => EventPayloadMapping[Key]

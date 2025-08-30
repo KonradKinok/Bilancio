@@ -1,14 +1,26 @@
 import { use, useEffect, useState } from "react";
 import { NavLink, redirect, useNavigate } from "react-router-dom";
 import { IoSettingsSharp } from "react-icons/io5";
+import { FaDatabase } from "react-icons/fa";
 import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import scss from "./Navigation.module.scss";
+import { useCheckStatusDatabase } from "../../hooks/useCheckStatusDatabase";
 
 export const Navigation: React.FC = () => {
+  const temp = 0;
   const { auth } = useMainDataContext();
   const { userDb } = auth;
+  const {
+    data: dataStatusDatabase,
+    loading: loadingStatusDatabase,
+    error: errorStatusDatabase,
+    checkStatusDatabase,
+  } = useCheckStatusDatabase();
   const [animation, setAnimation] = useState(true);
+  useEffect(() => {
+    console.log(dataStatusDatabase);
+  }, [dataStatusDatabase, loadingStatusDatabase]);
 
   useEffect(() => {
     function triggerAnimation() {
@@ -28,9 +40,7 @@ export const Navigation: React.FC = () => {
   return (
     <nav className={scss["navigation-main-container"]}>
       <div className={scss["navigation-container"]}>
-        <div className={scss["logo-container"]}>
-          <LogoBilancio />
-        </div>
+        <div className={scss["logo-container"]}>{/* <LogoBilancio /> */}</div>
         <NavLink
           to="/"
           className={({ isActive }) => (isActive ? scss.active : "")}
@@ -85,6 +95,15 @@ export const Navigation: React.FC = () => {
             <IoSettingsSharp />
           </NavLink>
         </div>
+
+        {!loadingStatusDatabase && (
+          <div
+            className={`${scss["icon-container-db"]}`}
+            data-status={dataStatusDatabase?.status}
+          >
+            <FaDatabase />
+          </div>
+        )}
       </div>
     </nav>
   );

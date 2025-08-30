@@ -9,7 +9,7 @@ export function createMenu(mainWindow: BrowserWindow) {
         type: 'submenu',
         submenu: [
           {
-            label: 'Quit',
+            label: 'Zamknij',
             click: app.quit,
           },
           {

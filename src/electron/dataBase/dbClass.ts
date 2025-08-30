@@ -1,12 +1,22 @@
 import sqlite3 from 'sqlite3';
-const { Database: SQLiteDatabase, OPEN_READWRITE, OPEN_CREATE } = sqlite3;
+const { Database: SQLiteDatabase, OPEN_READWRITE } = sqlite3;
 import log from 'electron-log';
 import { getDBbBilancioPath } from '../pathResolver.js';
-
+// Rejestr sprzątania pamięci
+const dbFinalizer = new FinalizationRegistry((db: sqlite3.Database) => {
+  db.close((err) => {
+    if (err) {
+      log.error("[Database] Finalizer - błąd przy zamykaniu bazy:", err.message);
+    } else {
+      log.info("[Database] Finalizer - baza została zamknięta automatycznie.");
+    }
+  });
+});
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 
-export const isDatabaseExists: ReturnStatusMessage = { status: false, message: '' };
+export const isDatabaseExists: ReturnStatusDbMessage = { status: 0, message: '' };
+
 class Database {
   private db: sqlite3.Database;
 
@@ -14,30 +24,59 @@ class Database {
     // Tworzymy ścieżkę do pliku bazy danych
     const dbPath = getDBbBilancioPath();
     // Inicjalizujemy połączenie z bazą danych
-    this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE | OPEN_CREATE, (err: Error | null) => {
+    this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE, (err: Error | null) => {
       if (err) {
         log.error('[dbClass.js] [class Database]: Błąd połączenia z bazą danych:', err.message);
-        isDatabaseExists.status = false;
+        isDatabaseExists.status = 0;
         isDatabaseExists.message = `Błąd połączenia z bazą danych: ${err.message}`;
       } else {
-        isDatabaseExists.status = true;
+        isDatabaseExists.status = 1;
         isDatabaseExists.message = `Połączono z bazą danych: ${dbPath}`;
         log.info('[dbClass.js] [class Database]: Połączono z bazą danych.', dbPath);
 
         // Dodane: Optymalizacje PRAGMA dla dysku sieciowego
+        // PRAGMA journal_mode = DELETE;
+        //     PRAGMA synchronous = NORMAL;;
         try {
           this.db.exec(`
             PRAGMA journal_mode = DELETE;
-            PRAGMA synchronous = OFF;
+            PRAGMA synchronous = NORMAL;
           `);
-          log.info('[dbClass.js] [class Database]: Zastosowano PRAGMA dla sieci: journal_mode=DELETE, synchronous=OFF');
+          log.info('[dbClass.js] [class Database]: Zastosowano PRAGMA dla sieci: journal_mode=DELETE, synchronous=NORMAL');
+          // W konstruktorze Database, po otwarciu bazy i PRAGMA
+          try {
+            this.db.exec('PRAGMA user_version = 0;');  // Nieszkodliwy zapis (zmienia metadane, ale można zignorować)
+            isDatabaseExists.status = 2;
+            console.log('Baza danych jest Writable (można zapisywać)');
+            log.info('[dbClass.js] [class Database]: Baza jest writable');
+          } catch (err) {
+            interface SqliteError extends Error {
+              code?: string;
+              message: string;
+            }
+            const sqliteErr = err as SqliteError;
+            if (typeof err === 'object' && err !== null && 'code' in sqliteErr && sqliteErr.code === 'SQLITE_READONLY') {
+              isDatabaseExists.status = 1;
+              console.log('Baza danych jest Read-Only (tylko do odczytu)');
+              log.error('[dbClass.js] [class Database]: Baza jest read-only');
+            } else {
+              const message = typeof err === 'object' && err !== null && 'message' in sqliteErr ? sqliteErr.message : String(err);
+              isDatabaseExists.status = 0;
+              console.log('Inny błąd przy sprawdzaniu bazy:', message);
+              log.error('[dbClass.js] [class Database]: Błąd sprawdzania bazy', err);
+            }
+          }
         } catch (pragmaErr) {
           log.error('[dbClass.js] [class Database]: Błąd stosowania PRAGMA:', (pragmaErr as Error).message);
           // Opcjonalnie: throw pragmaErr;  // Jeśli krytyczne
         }
       }
     });
+    // Rejestrujemy obiekt do cleanupu
+    dbFinalizer.register(this, this.db);
   }
+
+
   // Metoda do ponownego załadowania połączenia z nową ścieżką
   public reinitialize(dbPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -48,7 +87,7 @@ class Database {
           reject(err);
           return;
         }
-        this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE | OPEN_CREATE, (err: Error | null) => {
+        this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE, (err: Error | null) => {
           if (err) {
             log.error('Błąd połączenia z nową bazą danych:', err.message);
             console.error('Błąd połączenia z nową bazą danych:', err.message);

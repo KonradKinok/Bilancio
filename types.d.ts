@@ -12,8 +12,8 @@ declare global {
     lastPage: number;
     paginationPage: number;
   }
-  export interface ReturnStatusMessage {
-    status: boolean;
+  export interface ReturnStatusDbMessage {
+    status: number;
     message: string;
   }
 
@@ -204,7 +204,7 @@ declare global {
 
     getDBbBilancioPath: string;
 
-    checkDatabaseExists: ReturnStatusMessage;
+    checkStatusDatabase: ReturnStatusDbMessage;
     getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
 
 
@@ -236,14 +236,14 @@ declare global {
       deleteUser: (userId: number) => Promise<DataBaseResponse<User>>;
 
 
-      getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
+      // getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: () => Promise<DataBaseResponse<User>>;
       // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
 
       // getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
 
-      checkDatabaseExists: () => Promise<ReturnStatusMessage>;
+      checkStatusDatabase: () => Promise<ReturnStatusDbMessage>;
 
       getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
 

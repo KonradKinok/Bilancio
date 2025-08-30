@@ -41,10 +41,38 @@
 
     .status-container {
         display: flex;
+        gap: 1rem;
+
+        align-items: center;
+
+        .icon-container-db {
+            font-size: 2rem;
+            color: gray;
+            display: inline-flex;
+            /* Dodajemy flex dla lepszego wyrównania */
+            align-items: center;
+            cursor: not-allowed;
+
+
+            &.icon-container-db[data-status="0"] {
+                color: red;
+            }
+
+            &.icon-container-db[data-status="1"] {
+                color: orange;
+            }
+
+            &.icon-container-db[data-status="2"] {
+                color: var(--header-text-color);
+            }
+        }
+
+
 
         .user-label-container {
             display: grid;
             grid-template-columns: 1fr;
+
 
             @keyframes shine {
                 0% {
@@ -69,7 +97,7 @@
 
                 .first-span {
                     justify-self: flex-end;
-                    --button-gradient-first-color: rgb(17 145 15);
+                    --button-gradient-first-color: rgb(17, 145, 15);
                     --button-gradient-second-color: rgb(20, 252, 12);
 
                     @supports ((background-clip: text) or (-webkit-background-clip: text)) {

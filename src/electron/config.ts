@@ -71,6 +71,8 @@ export const defaultLogs = async () => {
   log.info("11. Ścieżka do database\\backup:", defaultDirConfig.backupDbPath);
   log.info('12. Ścieżka do katalogu z plikami konfiguracyjnymi:', getUserDataDirPath());
 }
+
+//Tworzenie pliku bazy danych
 export function configureBackupDb(): void {
   // Utwórz katalog dla kopii bazy danych, jeśli nie istnieje
   if (!fs.existsSync(dbPatch)) {
@@ -82,12 +84,13 @@ export function configureBackupDb(): void {
   const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
 
   if (fs.existsSync(dataBaseDestinationFilePath)) {
+    log.error('[config] [defaultLogs]: Plik bazy danych już istnieje:', dataBaseDestinationFilePath);
     return;
   }
 
   // Sprawdzanie liczby plików kopii bazy danych
   const dbBackUpFiles = fs.readdirSync(defaultDirConfig.backupDbPath)
-    .filter(file => /^BilancioDataBase-\d{2}-\d{2}-\d{4}\.db$/.test(file))
+    .filter(file => /^BilancioDataBase-\d{2}\.\d{2}\.\d{4}\.db$/.test(file))
     .map(file => ({
       name: file,
       time: fs.statSync(path.join(defaultDirConfig.backupDbPath, file)).mtime.getTime()

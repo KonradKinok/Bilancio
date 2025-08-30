@@ -1,14 +1,19 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import path from "path";
 import fs from "fs"
-import { getWindowsUsernameHostname, ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
+import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
-import { checkDatabaseExists, checkDirs, getDBbBilancioPath, getPreloadPath, getUIPath, } from "./pathResolver.js";
+import { getDBbBilancioPath, getPreloadPath, getUIPath, } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
-import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, displayUserNameForLog } from "./dataBase/dbFunction.js";
+import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, displayUserNameForLog, db, checkDatabaseExists as checkStatusDatabase } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
+
+//Potrzebne do działania na dysku sieciowym
+app.commandLine.appendSwitch("no-sandbox");
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch('disable-gpu');  // Opcjonalnie dla starszych wersji
 
 // Deklaracja mainWindow na poziomie globalnym
 let mainWindow: BrowserWindow | null = null;
@@ -39,19 +44,23 @@ app.on("ready", () => {
   configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
   Object.assign(console, log.functions);
   defaultLogs();
-  initDb();
   configureBackupDb();
+  initDb();
 
   mainWindow = new BrowserWindow({
     width: 1024,
     height: 768,
     resizable: true,
+
+    // autoHideMenuBar: true,
+    backgroundColor: "rgb(0, 128, 0)",  // tło okna podczas ładowania
     webPreferences: {
       preload: getPreloadPath(),
       // contextIsolation: false, // Wyłącz contextIsolation (NIEBEZPIECZNE W PRODUKCJI)
       // nodeIntegration: true, // Włącz nodeIntegration (NIEBEZPIECZNE W PRODUKCJI)
       contextIsolation: true,
       nodeIntegration: false,
+      spellcheck: false,
       additionalArguments: [
         `--content-security-policy="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline';"`
       ],
@@ -146,9 +155,9 @@ app.on("ready", () => {
   });
 
   //Auth
-  ipcMainHandle('getWindowsUsernameHostname', () => {
-    return getWindowsUsernameHostname();
-  });
+  // ipcMainHandle('getWindowsUsernameHostname', () => {
+  //   return getWindowsUsernameHostname();
+  // });
   ipcMainHandle2('getUserBySystemName', () => {
     return getUserBySystemName();
   });
@@ -156,8 +165,8 @@ app.on("ready", () => {
   // Nowe IPC dla konfiguracji
 
 
-  ipcMainHandle('checkDatabaseExists', () => {
-    return checkDatabaseExists();
+  ipcMainHandle('checkStatusDatabase', () => {
+    return checkStatusDatabase();
   });
 
   ipcMainHandle('getDBbBilancioPath', () => {
@@ -211,10 +220,20 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
       app.dock.hide();
     }
   });
-
-  app.on('before-quit', () => {
-    willClose = true;
+  app.on("before-quit", async () => {
+    try {
+      if (db) {
+        willClose = true;
+        await db.close();
+        log.info("[main.js] [handleCloseEvents]: Baza danych została zamknięta.");
+      }
+    } catch (err) {
+      log.error("[main.js] [handleCloseEvents] Błąd przy zamykaniu bazy:", err);
+    }
   });
+  // app.on('before-quit', () => {
+  //   willClose = true;
+  // });
 
   mainWindow.on('show', () => {
     willClose = false;

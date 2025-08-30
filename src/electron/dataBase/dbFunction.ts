@@ -2,33 +2,37 @@ import log from "electron-log";
 import { fileURLToPath } from 'url';
 import path from 'path';
 import os from 'os';
-import { getWindowsUsernameElektron, getWindowsUsernameHostname, } from '../util.js';
 import { DbTables } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
-import Database, { QueryParams } from './dbClass.js';
+import Database, { isDatabaseExists, QueryParams } from './dbClass.js';
+
+
+// Pobieranie nazwy pliku w module ES
+const __filename = fileURLToPath(import.meta.url);
+const fileName = path.basename(__filename);
 
 // Tworzymy instancję bazy danych
-let db: Database | null = null;
-
+export let db: Database | null = null;
+// Pobieranie nazwy użytkownika systemu Windows
+let displayUserName = await displayUserNameForLog()
 export function initDb() {
   if (!db) {
     db = new Database();
+    log.info('[dbFunction.js] [initDb]: Utworzono instancję bazy danych.', db);
   }
 }
 
 function getDb(): Database {
   if (!db) {
-    throw new Error("Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb().");
+    throw new Error("[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb().");
   }
   return db;
 }
 
-// Pobieranie nazwy użytkownika systemu Windows
-const displayUserName = await displayUserNameForLog()
-
-// Pobieranie nazwy pliku w module ES
-const __filename = fileURLToPath(import.meta.url);
-const fileName = path.basename(__filename);
+// Funkcja do sprawdzania istnienia bazy danych
+export function checkDatabaseExists(): ReturnStatusDbMessage {
+  return isDatabaseExists;
+}
 
 // Pobierz połączone dane ze słowników
 export async function getConnectedTableDictionary<T>(
@@ -1318,6 +1322,7 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
       ...result,
       Hostname: systemHostName,
     };
+    displayUserName = result.UserDisplayName;
     const message = `Użytkownik ${result.UserDisplayName} został pomyślnie zalogowany.`
     log.info(`[dbFunction.js] [${functionName}] [${result.UserDisplayName}] ${message}`);
     return {
@@ -1334,19 +1339,10 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
 export async function displayUserNameForLog(): Promise<string> {
   const functionName = displayUserNameForLog.name;
   let displayUserNameLog = "nieznany użytkownik";
-
   try {
-    if (!db) {
-      const systemUserName = os.userInfo().username.toLowerCase();
-      if (!systemUserName) return displayUserNameLog
-      displayUserNameLog = systemUserName;
-    }
-    else {
-      const result = await getUserBySystemName();
-      if (result.status === STATUS.Success) {
-        displayUserNameLog = result.data.UserDisplayName;
-      }
-    }
+    const systemUserName = os.userInfo().username.toLowerCase();
+    if (!systemUserName) return displayUserNameLog
+    displayUserNameLog = systemUserName;
     return displayUserNameLog;
   } catch (err) {
     const message = `Błąd podczas pobierania użytkownika: ${displayUserNameLog}.`

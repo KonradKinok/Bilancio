@@ -121,7 +121,3 @@ export function getBackupDbPath() {
   }
   return pathToBackupDbPath;
 }
-// Funkcja do sprawdzania istnienia bazy danych
-export function checkDatabaseExists(): ReturnStatusMessage {
-  return isDatabaseExists;
-}

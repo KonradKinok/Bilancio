@@ -66,8 +66,8 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
 
   const [formValuesHomePage, setFormValuesHomePage] =
     useState<FormValuesHomePage>({
-      // firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      firstDate: new Date(Date.UTC(2010, 0, 1)),
+      firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      // firstDate: new Date(Date.UTC(2010, 0, 1)),
       secondDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
       isDeleted: 0,
     });
