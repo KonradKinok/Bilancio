@@ -3,13 +3,15 @@ import path from "path";
 import fs from "fs"
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
-import { getDBbBilancioPath, getPreloadPath, getUIPath, } from "./pathResolver.js";
+import { getDBbBilancioPath, getPreloadPath, getSplashPath, getUIPath, } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import log from "electron-log"; // Dodaj import
 import { addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, displayUserNameForLog, db, checkDatabaseExists as checkStatusDatabase } from "./dataBase/dbFunction.js";
 import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
-
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 //Potrzebne do działania na dysku sieciowym
 app.commandLine.appendSwitch("no-sandbox");
 app.disableHardwareAcceleration();
@@ -17,6 +19,7 @@ app.commandLine.appendSwitch('disable-gpu');  // Opcjonalnie dla starszych wersj
 
 // Deklaracja mainWindow na poziomie globalnym
 let mainWindow: BrowserWindow | null = null;
+let splash: BrowserWindow | null = null;
 const gotTheLock = app.requestSingleInstanceLock();
 
 Menu.setApplicationMenu(null);
@@ -41,6 +44,28 @@ if (!gotTheLock) {
 }
 app.on("ready", () => {
   if (!gotTheLock) return;
+  // 🔹 Splash screen
+  splash = new BrowserWindow({
+    width: 512,
+    height: 478,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    center: true,
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  // splash.loadFile(path.join(app.getAppPath(), isDev() ? '.' : '..', 'splash.html'));
+
+  splash.loadFile(getSplashPath());
+  console.log("Sciezka do html: ", getSplashPath())
+  const temp2 = path.join(app.getAppPath(), isDev() ? '.' : '..', 'splash.html');
+  console.log("Sciezka do html2: ", temp2)
+
+
   configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
   Object.assign(console, log.functions);
   defaultLogs();
@@ -51,7 +76,7 @@ app.on("ready", () => {
     width: 1024,
     height: 768,
     resizable: true,
-
+    show: false,
     // autoHideMenuBar: true,
     backgroundColor: "rgb(0, 128, 0)",  // tło okna podczas ładowania
     webPreferences: {
@@ -84,9 +109,17 @@ app.on("ready", () => {
       ];
       callback({ responseHeaders });
     });
+
+
   }
 
-
+  mainWindow!.once("ready-to-show", () => {
+    if (splash) {
+      splash.close();
+      splash = null;
+    }
+    mainWindow!.show();
+  });
 
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123");

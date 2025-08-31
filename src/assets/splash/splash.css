@@ -1,0 +1,85 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --body-background: rgb(84, 110, 255);
+  --navigation-background: rgb(210, 230, 190);
+  --link-hover-forecolor: rgb(224, 237, 248);
+  --section-background: rgb(99, 113, 192);
+  --section-boxes: rgb(96, 103, 146);
+  --section-margin: rgb(43, 48, 77);
+  --white: rgb(255, 255, 255);
+  --black: rgb(0, 0, 0);
+  --blue: rgb(0, 0, 255);
+  --red: rgb(255, 0, 0);
+  --yellow: rgb(255, 255, 0);
+}
+
+/* Globalne resetowanie stylow */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+}
+
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.splash-screen-main-container {
+  width: 512px;
+  height: 478px;
+  background-color: blue;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.splash-screen-img-container {
+  object-fit: contain;
+}
+
+.splash-screen-title-container {
+  position: absolute;
+  top: 5px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+.splash-screen-text-container {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  font-family: "Helvetica Neue", "Roboto", "Verdana", "Tahoma", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: white;
+}

@@ -19,7 +19,11 @@ export function getUIPath() {
   const uiPatch = path.join(app.getAppPath(), '/dist-react/index.html');
   return uiPatch
 }
-
+// Funkcja do pobierania ścieżki do pliku index.html
+export function getSplashPath() {
+  const splashPath = path.join(app.getAppPath(), isDev() ? '.' : '..', '/src/assets/splash/splash.html');
+  return splashPath
+}
 // Funkcja do pobierania ścieżki do folderu assets
 export function getAssetPath() {
   const assetPatch = path.join(app.getAppPath(), isDev() ? '.' : '..', '/src/assets');

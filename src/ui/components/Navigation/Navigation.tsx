@@ -8,7 +8,6 @@ import scss from "./Navigation.module.scss";
 import { useCheckStatusDatabase } from "../../hooks/useCheckStatusDatabase";
 
 export const Navigation: React.FC = () => {
-  const temp = 0;
   const { auth } = useMainDataContext();
   const { userDb } = auth;
   const {
