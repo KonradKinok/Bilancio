@@ -4,7 +4,7 @@ import path from 'path';
 import os from 'os';
 import { DbTables } from './enum.js';
 import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
-import Database, { isDatabaseExists, QueryParams } from './dbClass.js';
+import Database, { statusDatabase, QueryParams } from './dbClass.js';
 
 
 // Pobieranie nazwy pliku w module ES
@@ -30,8 +30,8 @@ function getDb(): Database {
 }
 
 // Funkcja do sprawdzania istnienia bazy danych
-export function checkDatabaseExists(): ReturnStatusDbMessage {
-  return isDatabaseExists;
+export function checkStatusDatabase(): ReturnStatusDbMessage {
+  return statusDatabase;
 }
 
 // Pobierz połączone dane ze słowników

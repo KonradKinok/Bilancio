@@ -15,7 +15,7 @@ const dbFinalizer = new FinalizationRegistry((db: sqlite3.Database) => {
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 
-export const isDatabaseExists: ReturnStatusDbMessage = { status: 0, message: '' };
+export const statusDatabase: ReturnStatusDbMessage = { status: 0, message: '' };
 
 class Database {
   private db: sqlite3.Database;
@@ -27,11 +27,11 @@ class Database {
     this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE, (err: Error | null) => {
       if (err) {
         log.error('[dbClass.js] [class Database]: Błąd połączenia z bazą danych:', err.message);
-        isDatabaseExists.status = 0;
-        isDatabaseExists.message = `Błąd połączenia z bazą danych: ${err.message}`;
+        statusDatabase.status = 0;
+        statusDatabase.message = `Błąd połączenia z bazą danych: ${err.message}`;
       } else {
-        isDatabaseExists.status = 1;
-        isDatabaseExists.message = `Połączono z bazą danych: ${dbPath}`;
+        statusDatabase.status = 1;
+        statusDatabase.message = `Połączono z bazą danych: ${dbPath}`;
         log.info('[dbClass.js] [class Database]: Połączono z bazą danych.', dbPath);
 
         // Dodane: Optymalizacje PRAGMA dla dysku sieciowego
@@ -46,7 +46,7 @@ class Database {
           // W konstruktorze Database, po otwarciu bazy i PRAGMA
           try {
             this.db.exec('PRAGMA user_version = 0;');  // Nieszkodliwy zapis (zmienia metadane, ale można zignorować)
-            isDatabaseExists.status = 2;
+            statusDatabase.status = 2;
             console.log('Baza danych jest Writable (można zapisywać)');
             log.info('[dbClass.js] [class Database]: Baza jest writable');
           } catch (err) {
@@ -56,12 +56,12 @@ class Database {
             }
             const sqliteErr = err as SqliteError;
             if (typeof err === 'object' && err !== null && 'code' in sqliteErr && sqliteErr.code === 'SQLITE_READONLY') {
-              isDatabaseExists.status = 1;
+              statusDatabase.status = 1;
               console.log('Baza danych jest Read-Only (tylko do odczytu)');
               log.error('[dbClass.js] [class Database]: Baza jest read-only');
             } else {
               const message = typeof err === 'object' && err !== null && 'message' in sqliteErr ? sqliteErr.message : String(err);
-              isDatabaseExists.status = 0;
+              statusDatabase.status = 0;
               console.log('Inny błąd przy sprawdzaniu bazy:', message);
               log.error('[dbClass.js] [class Database]: Błąd sprawdzania bazy', err);
             }

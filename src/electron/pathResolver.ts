@@ -3,7 +3,7 @@ import path from "path";
 import { app } from "electron";
 import log from "electron-log";
 import { isDev } from "./util.js";
-import { isDatabaseExists } from "./dataBase/dbClass.js";
+import { statusDatabase } from "./dataBase/dbClass.js";
 
 // Funkcja do pobierania ścieżki do pliku preload
 export function getPreloadPath() {
