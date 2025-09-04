@@ -60,7 +60,7 @@ export const FormAddInvoiceDocuments: React.FC<
   const [inputInvoicePriceError, setInputInvoicePriceError] =
     useState<string>("");
   const [isPriceManuallyEdited, setIsPriceManuallyEdited] =
-    useState<boolean>(false); // Nowy stan
+    useState<boolean>(true);
 
   // Inicjalizacja wybranych opcji na podstawie detail
   useEffect(() => {
