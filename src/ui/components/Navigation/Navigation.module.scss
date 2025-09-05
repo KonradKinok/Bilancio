@@ -51,7 +51,7 @@
             display: inline-flex;
             /* Dodajemy flex dla lepszego wyrównania */
             align-items: center;
-            cursor: not-allowed;
+            cursor: help;
 
 
             &.icon-container-db[data-status="0"] {
@@ -67,6 +67,19 @@
             }
         }
 
+        .icon-container-font-size {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--header-text-color);
+            display: inline-flex;
+            /* Dodajemy flex dla lepszego wyrównania */
+            align-items: center;
+            cursor: pointer;
+
+            &:hover {
+                color: var(--header-text-active-color);
+            }
+        }
 
 
         .user-label-container {
@@ -124,6 +137,12 @@
 
     .icon-container a svg {
         font-size: 2rem;
+    }
+
+    .tooltip {
+        z-index: 2;
+        font-size: 0.8rem;
+        font-weight: 400;
     }
 }
 

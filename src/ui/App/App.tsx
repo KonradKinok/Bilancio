@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { LayoutPage } from "../pages/LayoutPage/LayoutPage";
 import { RestrictedRoute } from "../components/RestrictedRoute/RestrictedRoute";
+import { Loader } from "../components/Loader/Loader";
 
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
 const ReportDataPage = lazy(
@@ -21,14 +22,7 @@ const NotLoggedInPage = lazy(
 );
 const App: React.FC = () => {
   return (
-    <Suspense
-      fallback={
-        <div>
-          Ładowanie... Ładowanie... Ładowanie... Ładowanie... Ładowanie...
-          Ładowanie... Ładowanie... Ładowanie... Ładowanie... Ładowanie...
-        </div>
-      }
-    >
+    <Suspense fallback={<Loader />}>
       <Routes>
         <Route
           path="/"

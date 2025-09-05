@@ -31,7 +31,10 @@ export class ErrorBoundary extends Component<
     // import * as Sentry from "@sentry/react";
     // Sentry.captureException(error, { extra: errorInfo });
   }
-
+  handleRestart = () => {
+    // Wysyła sygnał do głównego procesu Electron, aby zrestartować aplikację
+    window.electron.restartApp();
+  };
   render() {
     if (this.state.hasError) {
       // Domyślny fallback UI lub przekazany przez props
@@ -41,7 +44,8 @@ export class ErrorBoundary extends Component<
             <h2>Wystąpił błąd</h2>
             <p>{this.state.error?.message || "Nieznany błąd"}</p>
             <button
-              onClick={() => this.setState({ hasError: false, error: null })}
+              // onClick={() => this.setState({ hasError: false, error: null })}
+              onClick={this.handleRestart}
             >
               Spróbuj ponownie
             </button>

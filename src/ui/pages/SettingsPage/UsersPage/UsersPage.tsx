@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Tooltip } from "react-tooltip";
 import { STATUS } from "../../../../electron/sharedTypes/status";
+import { useMainDataContext } from "../../../components/Context/useMainDataContext";
 import { useAllUsers } from "../../../hooks/useAllUsers";
 import { useAddUser } from "../../../hooks/useAddUser";
 import { useUpdateUser } from "../../../hooks/useUpdateUser";
@@ -15,6 +16,7 @@ import { ModalSelectionWindow } from "../../../components/ModalSelectionWindow/M
 import scss from "./UsersPage.module.scss";
 
 const UsersPage: React.FC = () => {
+  const { options } = useMainDataContext();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Hook do modala
@@ -141,7 +143,11 @@ const UsersPage: React.FC = () => {
       />
       <ConditionalWrapper isLoading={loadingUsers}>
         <div>
-          <table className={scss["table"]}>
+          <table
+            className={`${scss["table"]} ${
+              scss[`${options.fontSize.en}-font`]
+            }`}
+          >
             <thead>
               <tr>
                 <th>Lp.</th>

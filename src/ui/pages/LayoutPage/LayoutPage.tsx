@@ -25,7 +25,7 @@ export const LayoutPage: React.FC = () => {
         toastOptions={{
           success: { duration: 4000 },
           error: { duration: 6000 },
-          loading: { duration: 3000 }, //Infinity- Nie znika, dopóki nie zakończy się ładowanie
+          loading: { duration: 3000 },
         }}
       />
     </div>

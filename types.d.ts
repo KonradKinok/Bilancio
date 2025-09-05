@@ -16,7 +16,14 @@ declare global {
     status: number;
     message: string;
   }
-
+  export interface Lang {
+    en: string;
+    pl: string;
+  }
+  export interface Options {
+    fontSize: Lang;
+    color: string;
+  }
   //Table
   export type DictionaryDocuments = {
     DocumentId: number;

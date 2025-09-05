@@ -20,11 +20,14 @@ type AllDocumentsNameHook = {
 //   SubtypeName: string;
 //   Price: number;
 // };
-export interface Options {
-  orientation: string;
-  color: string;
-}
-
+// interface Lang {
+//   en: string;
+//   pl: string;
+// }
+// export interface Options {
+//   fontSize: Lang;
+//   color: string;
+// }
 type Auth = {
   userDb: User | null;
   loadingAuth: boolean;
@@ -47,7 +50,6 @@ export interface ElectronContextType {
   setDotsNumber: React.Dispatch<React.SetStateAction<number>>; // Funkcja zmiany opcji
   auth: Auth;
 
-  // Funkcja zmiany opcji
   // allDocumentsData: AllDocumentsNameHook;
 }
 // Typ dla propsów w providerze
@@ -59,8 +61,9 @@ interface ElectronProviderProps {
 export const ElectronProvider: React.FC<ElectronProviderProps> = ({
   children,
 }) => {
+  // Funkcja zmiany opcji
   const [options, setOptions] = useLocalStorage(
-    { orientation: "", color: "" }, // Wartość początkowa
+    { fontSize: { en: "large", pl: "duża" }, color: "" }, // Wartość początkowa
     "__options_storage_key" // Klucz w localStorage
   );
 

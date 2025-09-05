@@ -37,7 +37,9 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
-  const { dotsNumber, setDotsNumber } = useMainDataContext();
+  const { dotsNumber, setDotsNumber, options } = useMainDataContext();
+
+  // Synchronizacja dotsNumber z totalCount
   useEffect(() => {
     if (dotsNumber !== totalCount && totalCount > 0) {
       setDotsNumber(totalCount);
@@ -63,6 +65,7 @@ export const MainTable: React.FC<MainTableProps> = ({
   const [invoiceToChangeTemp, setInvoiceToChangeTemp] = useState<
     InvoiceSave | undefined
   >(undefined);
+
   //Delete/Restore Invoice hooks
   const { restoreInvoice } = useRestoreInvoice();
   const { deleteInvoice } = useDeleteInvoice();
@@ -152,9 +155,11 @@ export const MainTable: React.FC<MainTableProps> = ({
   );
 
   return (
-    <div className={scss["mainTable-main-container"]}>
+    <div className={`${scss["mainTable-main-container"]}`}>
       <div>
-        <table className={scss["table"]}>
+        <table
+          className={`${scss["table"]} ${scss[`${options.fontSize.en}-font`]}`}
+        >
           <thead>
             <tr>
               <th>Lp.</th>

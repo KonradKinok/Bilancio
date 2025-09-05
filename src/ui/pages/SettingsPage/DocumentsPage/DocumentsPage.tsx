@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../../electron/sharedTypes/status";
+import { useMainDataContext } from "../../../components/Context/useMainDataContext";
 import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
 import { useDeleteDocument } from "../../../hooks/useDeleteDocument";
 import { useRestoreDocument } from "../../../hooks/useRestoreDocument";
@@ -14,6 +15,7 @@ import { ConditionalWrapper } from "../../../components/ConditionalWrapper/Condi
 import scss from "./DocumentsPage.module.scss";
 
 const DocumentsPage: React.FC = () => {
+  const { options } = useMainDataContext();
   // Hook do pobierania wszystkich dokumentów
   const {
     data: dataAllDocumentsName,
@@ -173,7 +175,11 @@ const DocumentsPage: React.FC = () => {
       />
       <ConditionalWrapper isLoading={loadingDataAllDocumentsName}>
         <div>
-          <table className={scss["table"]}>
+          <table
+            className={`${scss["table"]} ${
+              scss[`${options.fontSize.en}-font`]
+            }`}
+          >
             <thead>
               <tr>
                 <th>Lp.</th>
