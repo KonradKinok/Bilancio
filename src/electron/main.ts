@@ -7,7 +7,7 @@ import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import { db } from "./dataBase/dbFunction.js";
 // import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
-
+import { Notification } from 'electron';
 
 //Potrzebne do działania na dysku sieciowym
 app.commandLine.appendSwitch("no-sandbox");
@@ -16,6 +16,7 @@ app.commandLine.appendSwitch('disable-gpu');  // Opcjonalnie dla starszych wersj
 
 // Deklaracja mainWindow na poziomie globalnym
 let mainWindow: BrowserWindow | null = null;
+let tray: Tray | null = null;
 let splash: BrowserWindow | null = null;
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -239,7 +240,7 @@ app.on("ready", async () => {
       app.exit(0);      // Zamknięcie obecnej instancji
     });
 
-    createTray(mainWindow); //Utworzenie tray
+    tray = createTray(mainWindow); //Utworzenie tray
     handleCloseEvents(mainWindow); //Handler do zamykania okna aplikacji
     createMenu(mainWindow); //Utworzenie menu
   } catch (error) {
@@ -263,6 +264,36 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     if (app.dock) {
       app.dock.hide();
     }
+    // Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
+    if (process.platform === 'win32' && tray) {
+      console.log("Wyświetlanie balonika w trayu");
+      tray.displayBalloon({
+        title: 'Bilancio',
+        content: 'Aplikacja działa w tle. Kliknij ikonę, aby otworzyć okno.',
+        iconType: 'info',
+        noSound: true,
+      });
+    }
+    // if (process.platform === 'win32' && tray) {
+    //   console.log("Wyświetlanie powiadomienia");
+    //   try {
+    //     const notification = new Notification({
+    //       title: 'Bilancio',
+    //       body: 'Aplikacja działa w tle. Kliknij ikonę, aby otworzyć okno.',
+    //       // icon: path.join(getAssetPath(), 'trayIcon.png'), // Opcjonalna ikona
+    //     });
+    //     notification.show();
+    //     notification.on('click', () => {
+    //       mainWindow.show();
+    //       if (app.dock) {
+    //         app.dock.show();
+    //       }
+    //     });
+    //     console.log("Powiadomienie wyświetlone pomyślnie");
+    //   } catch (error) {
+    //     console.error("Błąd podczas wyświetlania powiadomienia:", error);
+    //   }
+    // }
   });
 
   app.on("before-quit", async () => {

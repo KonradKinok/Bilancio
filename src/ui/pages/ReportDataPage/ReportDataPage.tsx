@@ -38,9 +38,9 @@ const ReportDataPage: React.FC = () => {
 
   return (
     <div className={scss["reportDataPage-main-container"]}>
-      <h1>ReportDataPage</h1>
+      <h1>Strona raportów - do implementacji</h1>
 
-      <button
+      {/* <button
         name="orientation-toggle-switch"
         onClick={handleOptionChange}
         className={scss["font-size-button"]}
@@ -59,7 +59,7 @@ const ReportDataPage: React.FC = () => {
         adipisicing elit. Nemo quo sunt nulla soluta dolore! Accusantium
         cupiditate reprehenderit repellendus, quae quasi, maiores explicabo iste
         unde fuga rerum velit earum iusto repellat.
-      </p>
+      </p> */}
 
       {/* <Toaster position="top-right" reverseOrder={false} /> */}
     </div>

@@ -2,7 +2,8 @@ import path from "path";
 import fs from "fs"
 import log from "electron-log";
 import { isDev } from "./util.js";
-import { checkDirs, getDBbBilancioPath, getLogDir, getPreloadPath, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
+import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
+import { BrowserWindow, dialog, shell } from "electron";
 
 const defaultDirConfig = checkDirs();
 const logDir = getLogDir();
@@ -119,6 +120,24 @@ export function configureBackupDb(): void {
     log.error('[config] [configureBackupDb]: Plik nie został znaleziony po kopiowaniu:', dataBaseDestinationFilePath);
   }
 }
+
+//Menu i Tray "O aplikacji"
+export async function showAboutDialog(mainWindow: BrowserWindow) {
+  const response = await dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: '© 2026 Bilancio',
+    message: 'Bilancio',
+    detail: 'Wersja: 1.0.0\nAutor: Konrad Konik\nE-mail: 3K.nexgen@gmail.com',
+    icon: path.join(getAssetPath(), 'trayIcon.png'),
+    buttons: ['OK', 'Skontaktuj się'],
+    defaultId: 0,
+  });
+
+  if (response.response === 1) {
+    shell.openExternal('mailto:3K.nexgen@gmail.com?subject=Kontakt%20z%20Bilancio');
+  }
+}
+
 
 // Funkcja do formatowania daty w formacie dd.mm.yyyy
 export function getFormattedDate(): string {

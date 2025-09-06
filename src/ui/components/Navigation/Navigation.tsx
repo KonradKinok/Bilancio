@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, redirect, useNavigate } from "react-router-dom";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaDatabase } from "react-icons/fa";
@@ -26,7 +26,6 @@ export const Navigation: React.FC = () => {
     error: errorStatusDatabase,
     checkStatusDatabase,
   } = useCheckStatusDatabase();
-  const [animation, setAnimation] = useState(true);
 
   const handleOptionFontSizeChange = () => {
     setOptions((prev) => {
@@ -44,21 +43,6 @@ export const Navigation: React.FC = () => {
   useEffect(() => {
     console.log("dataStatusDatabase: ", dataStatusDatabase);
   }, [dataStatusDatabase, loadingStatusDatabase]);
-
-  useEffect(() => {
-    function triggerAnimation() {
-      setAnimation(true);
-      setTimeout(() => {
-        setAnimation(false);
-      }, 8000); // Usuń klasę po 2 sekundach (czas trwania animacji)
-    }
-
-    triggerAnimation(); // Uruchom od razu po załadowaniu
-    const interval = setInterval(triggerAnimation, 12000); // Uruchamiaj co 12 sekund
-
-    // Czyszczenie interwału przy odmontowaniu komponentu
-    return () => clearInterval(interval);
-  }, []); // Pusty dependency array, aby useEffect wykonał się tylko raz
 
   return (
     <nav className={scss["navigation-main-container"]}>
@@ -80,37 +64,11 @@ export const Navigation: React.FC = () => {
       </div>
 
       <div className={scss["status-container"]}>
-        <div className={scss["user-label-container"]}>
-          <p className={`${scss["user-label"]}`}>
-            <span
-              className={`${scss["first-span"]} ${
-                animation ? scss["animate"] : ""
-              }`}
-            >
-              {userDb?.UserRole
-                ? userDb?.UserRole === "admin"
-                  ? "Admin:"
-                  : "User:"
-                : "None:"}
-            </span>
-            <span className={scss["second-span"]}>
-              {userDb?.UserDisplayName || "None"}
-            </span>
-          </p>
-          <p className={scss["user-label"]}>
-            <span
-              className={`${scss["first-span"]} ${
-                animation ? scss["animate"] : ""
-              }`}
-            >
-              Hostname:
-            </span>{" "}
-            <span className={scss["second-span"]}>
-              {userDb?.Hostname || "None"}
-            </span>
-          </p>
-        </div>
-        <div className={scss["icon-container"]}>
+        <div
+          className={scss["icon-container"]}
+          data-tooltip-id={"tooltip-navigation-settings"}
+          data-tooltip-content={tooltipNavigationSettings()}
+        >
           <NavLink
             to="settingsPage"
             className={({ isActive }) => (isActive ? scss.active : "")}
@@ -122,7 +80,9 @@ export const Navigation: React.FC = () => {
           onClick={handleOptionFontSizeChange}
           className={`${scss["icon-container-font-size"]}`}
           data-tooltip-id={"tooltip-navigation-font-size"}
-          data-tooltip-content={tooltipNavigationFontSize(options.fontSize.pl)}
+          data-tooltip-content={tooltipNavigationFontSize(
+            options.fontSize.pl || "nieznany"
+          )}
         >
           <RxFontSize />
         </div>
@@ -139,8 +99,33 @@ export const Navigation: React.FC = () => {
           <FaDatabase />
         </div>
         {/* </ConditionalWrapper> */}
+        <div className={scss["user-label-container"]}>
+          <p className={`${scss["user-label"]}`}>
+            <span className={`${scss["first-span"]} ${scss["animate"]}`}>
+              {userDb?.UserRole
+                ? userDb?.UserRole === "admin"
+                  ? "Admin:"
+                  : "User:"
+                : "None:"}
+            </span>
+            <span className={scss["second-span"]}>
+              {userDb?.UserDisplayName || "None"}
+            </span>
+          </p>
+          <p className={scss["user-label"]}>
+            <span className={`${scss["first-span"]} ${scss["animate"]}`}>
+              Hostname:
+            </span>{" "}
+            <span className={scss["second-span"]}>
+              {userDb?.Hostname || "None"}
+            </span>
+          </p>
+        </div>
       </div>
-
+      <Tooltip
+        id="tooltip-navigation-settings"
+        className={`${scss["tooltip"]}`}
+      />
       <Tooltip
         id="tooltip-navigation-font-size"
         className={`${scss["tooltip"]}`}
@@ -152,11 +137,20 @@ export const Navigation: React.FC = () => {
     </nav>
   );
 };
-function tooltipNavigationFontSize(fontSizeText: string) {
-  const text = `Wielkość czcionki: ${fontSizeText}`;
-  return text.replace(/\n/g, "<br/>");
+
+//Tooltip Ustawienia
+function tooltipNavigationSettings(): string {
+  const text = `Ustawienia`;
+  return text;
 }
 
+//Tooltip Wielkość czcionki
+function tooltipNavigationFontSize(fontSizeText: string) {
+  const text = `Wielkość czcionki: ${fontSizeText}`;
+  return text;
+}
+
+//Tooltip Status bazy danych
 function tooltipNavigationDatabaseStatus(
   dataStatusDatabase: ReturnStatusDbMessage | null,
   errorStatusDatabase: string | null
