@@ -5,6 +5,10 @@
   --tr-even-background-color: var(--maintable-tr-even-background);
   --tr-hover-background-color: var(--maintable-tr-hover-background);
   --tr-hover-color: var(--maintable-tr-hover-color);
+  --font-size-small: var(--small-font-size);
+  --font-size-medium: var(--medium-font-size);
+  --font-size-large: var(--large-font-size);
+
 
   position: relative;
   display: flex;
@@ -51,15 +55,15 @@
   }
 
   .small-font {
-    font-size: 0.5rem;
+    font-size: var(--font-size-small);
   }
 
   .medium-font {
-    font-size: 0.8rem;
+    font-size: var(--medium-font-size);
   }
 
   .large-font {
-    font-size: 1rem;
+    font-size: var(--large-font-size);
   }
 
   .maintable-footer-container {
