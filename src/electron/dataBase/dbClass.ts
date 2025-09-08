@@ -28,10 +28,10 @@ class Database {
       if (err) {
         log.error('[dbClass.js] [class Database]: Błąd połączenia z bazą danych:', err.message);
         statusDatabase.status = 0;
-        statusDatabase.message = `Błąd połączenia z bazą danych: ${err.message}`;
+        statusDatabase.message = `[dbClass.js] [class Database] Błąd połączenia z bazą danych: ${err.message}`;
       } else {
         statusDatabase.status = 1;
-        statusDatabase.message = `Połączono z bazą danych: ${dbPath}`;
+        statusDatabase.message = `[dbClass.js] [class Database] Połączono z bazą danych: ${dbPath}`;
         log.info('[dbClass.js] [class Database]: Połączono z bazą danych.', dbPath);
 
         // Dodane: Optymalizacje PRAGMA dla dysku sieciowego
@@ -47,8 +47,7 @@ class Database {
           try {
             this.db.exec('PRAGMA user_version = 0;');  // Nieszkodliwy zapis (zmienia metadane, ale można zignorować)
             statusDatabase.status = 2;
-            console.log('Baza danych jest Writable (można zapisywać)');
-            log.info('[dbClass.js] [class Database]: Baza jest writable');
+            log.info('[dbClass.js] [class Database]: Baza danych jest gotowa do odczytu-zapisu');
           } catch (err) {
             interface SqliteError extends Error {
               code?: string;
@@ -57,18 +56,14 @@ class Database {
             const sqliteErr = err as SqliteError;
             if (typeof err === 'object' && err !== null && 'code' in sqliteErr && sqliteErr.code === 'SQLITE_READONLY') {
               statusDatabase.status = 1;
-              console.log('Baza danych jest Read-Only (tylko do odczytu)');
-              log.error('[dbClass.js] [class Database]: Baza jest read-only');
+              log.error('[dbClass.js] [class Database]: Baza danych jest tylko do odczytu');
             } else {
-              const message = typeof err === 'object' && err !== null && 'message' in sqliteErr ? sqliteErr.message : String(err);
               statusDatabase.status = 0;
-              console.log('Inny błąd przy sprawdzaniu bazy:', message);
-              log.error('[dbClass.js] [class Database]: Błąd sprawdzania bazy', err);
+              log.error('[dbClass.js] [class Database]: Błąd bazy danych: ', err);
             }
           }
         } catch (pragmaErr) {
-          log.error('[dbClass.js] [class Database]: Błąd stosowania PRAGMA:', (pragmaErr as Error).message);
-          // Opcjonalnie: throw pragmaErr;  // Jeśli krytyczne
+          log.error('[dbClass.js] [class Database]: Błąd stosowania PRAGMA: ', (pragmaErr as Error).message);
         }
       }
     });

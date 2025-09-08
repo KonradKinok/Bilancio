@@ -22,11 +22,11 @@ export function createMenu(mainWindow: BrowserWindow) {
         submenu: [
           {
             label: 'Cofnij',
-            role: 'undo', // Używa natywnej funkcjonalności cofania
+            role: 'undo',
           },
           {
             label: 'Ponów',
-            role: 'redo', // Używa natywnej funkcjonalności ponawiania
+            role: 'redo',
           },
           {
             type: 'separator',

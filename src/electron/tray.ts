@@ -1,6 +1,6 @@
 import { BrowserWindow, Menu, Tray, app, dialog, shell } from 'electron';
-import { getAssetPath } from './pathResolver.js';
 import path from 'path';
+import { getAssetPath } from './pathResolver.js';
 import { showAboutDialog } from './config.js';
 
 export function createTray(mainWindow: BrowserWindow) {
@@ -16,7 +16,7 @@ export function createTray(mainWindow: BrowserWindow) {
 
   // Funkcja do płynnego pokazywania okna
   const showWindowWithAnimation = () => {
-    // Ustaw początkową przezroczystość na 0
+    // Ustawienie początkowej przezroczystości na 0
     mainWindow.setOpacity(0);
     mainWindow.show();
     if (app.dock) {
@@ -26,20 +26,20 @@ export function createTray(mainWindow: BrowserWindow) {
     // Animacja fade-in
     let opacity = 0;
     const fadeInInterval = setInterval(() => {
-      opacity += 0.05; // Zwiększaj przezroczystość o 0.05 co 30ms
+      opacity += 0.05; // Zwiększenie przezroczystości o 0.05 co 20ms
       if (opacity >= 1) {
         mainWindow.setOpacity(1);
-        clearInterval(fadeInInterval); // Zakończ animację
+        clearInterval(fadeInInterval); // Zakończenie animacji
       } else {
         mainWindow.setOpacity(opacity);
       }
-    }, 20); // Interwał 30ms dla płynnego efektu
+    }, 20); // Interwał 20ms dla płynnego efektu
   };
 
   // Obsługa kliknięcia lewym przyciskiem myszy
   tray.on('click', () => {
     if (!mainWindow.isVisible()) {
-      showWindowWithAnimation(); // Pokaż okno z animacją
+      showWindowWithAnimation();
     }
   });
 
@@ -50,7 +50,7 @@ export function createTray(mainWindow: BrowserWindow) {
         label: 'Pokaż',
         click: () => {
           if (!mainWindow.isVisible()) {
-            showWindowWithAnimation(); // Pokaż okno z animacją
+            showWindowWithAnimation();
           }
         },
       },
