@@ -231,7 +231,6 @@ app.on("ready", async () => {
     ipcMain.on('reload-window', () => {
       if (mainWindow) {
         mainWindow.reload();
-        log.info('Okno aplikacji zostało odświeżone');
       }
     });
     //Przeładowanie aplikacji
@@ -244,10 +243,10 @@ app.on("ready", async () => {
     handleCloseEvents(mainWindow); //Handler do zamykania okna aplikacji
     createMenu(mainWindow); //Utworzenie menu
   } catch (error) {
-    log.error("[main.ts] Błąd podczas dynamicznego importu modułów:", error);
+    log.error("[main.js] Błąd podczas dynamicznego importu modułów:", error);
     // Opcjonalnie: Zamknięcie splash i pokazanie błędu
     if (splash) splash.close();
-    dialog.showErrorBox("Błąd inicjalizacji", "Nie udało się załadować modułów aplikacji.");
+    dialog.showErrorBox("[main.js] Błąd inicjalizacji", "Nie udało się załadować modułów aplikacji.");
     app.quit();
   }
 });
@@ -266,7 +265,6 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     }
     // Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
     if (process.platform === 'win32' && tray) {
-      console.log("Wyświetlanie balonika w trayu");
       tray.displayBalloon({
         title: 'Bilancio',
         content: 'Aplikacja działa w tle. Kliknij ikonę, aby otworzyć okno.',
