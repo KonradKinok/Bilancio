@@ -1,17 +1,19 @@
 import sqlite3 from 'sqlite3';
-const { Database: SQLiteDatabase, OPEN_READWRITE } = sqlite3;
 import log from 'electron-log';
+const { Database: SQLiteDatabase, OPEN_READWRITE } = sqlite3;
 import { getDBbBilancioPath } from '../pathResolver.js';
+
 // Rejestr sprzątania pamięci
 const dbFinalizer = new FinalizationRegistry((db: sqlite3.Database) => {
   db.close((err) => {
     if (err) {
-      log.error("[Database] Finalizer - błąd przy zamykaniu bazy:", err.message);
+      log.error("[dbClass.js] [class Database] Finalizer - błąd przy zamykaniu bazy:", err.message);
     } else {
-      log.info("[Database] Finalizer - baza została zamknięta automatycznie.");
+      log.info("[dbClass.js] [class Database] Finalizer - baza została zamknięta automatycznie.");
     }
   });
 });
+
 // Definicja typu parametrów zapytań
 export type QueryParams = Array<string | number | boolean | null>;
 
