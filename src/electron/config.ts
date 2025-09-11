@@ -138,7 +138,20 @@ export async function showAboutDialog(mainWindow: BrowserWindow) {
   }
 }
 
+export async function showCaptureScreenPdfDialog(mainWindow: BrowserWindow, filePath: string, title: string, message: string, detail: string) {
+  const response = await dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: title,
+    message: message,
+    detail: `${detail}\n${filePath}`,
+    buttons: ['OK', 'Otwórz folder'],
+    defaultId: 0,
+  });
 
+  if (response.response === 1) {
+    shell.showItemInFolder(filePath);
+  }
+}
 // Funkcja do formatowania daty w formacie dd.mm.yyyy
 export function getFormattedDate(): string {
   const today = new Date();

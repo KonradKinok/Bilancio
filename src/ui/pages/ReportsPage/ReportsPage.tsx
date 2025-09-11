@@ -2,7 +2,9 @@ import { Suspense, useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { useMainDataContext } from "../../components/Context/useMainDataContext";
-import scss from "./ReportDataPage.module.scss";
+import scss from "./ReportsPage.module.scss";
+import { NavigationReports } from "../../components/NavigationReports/NavigationReports";
+import { Loader } from "../../components/Loader/Loader";
 
 const sizes: Lang[] = [
   { en: "small", pl: "mała" },
@@ -37,31 +39,20 @@ const ReportDataPage: React.FC = () => {
   };
 
   return (
-    <div className={scss["reportDataPage-main-container"]}>
-      <h1>Strona raportów - do implementacji</h1>
-
-      {/* <button
-        name="orientation-toggle-switch"
-        onClick={handleOptionChange}
-        className={scss["font-size-button"]}
-      >
-        Zmień rozmiar czcionki
-      </button>
-      <p>
-        Aktualny rozmiar czcionki: {options.fontSize.pl}{" "}
-        {sizes.findIndex((size) => size.en === options.fontSize.en)}
-      </p>
-      <p className={`${scss["table"]} ${scss[`${options.fontSize.en}-font`]}`}>
-        Lorem ipsum, dolor sit amet consectetur adipisicing elit. Repellat
-        voluptatem inventore, explicabo fuga velit voluptate, totam, nulla
-        quibusdam est quam culpa vel excepturi ut similique deleniti cumque
-        fugit. Harum, exercitationem?Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Nemo quo sunt nulla soluta dolore! Accusantium
-        cupiditate reprehenderit repellendus, quae quasi, maiores explicabo iste
-        unde fuga rerum velit earum iusto repellat.
-      </p> */}
-
-      {/* <Toaster position="top-right" reverseOrder={false} /> */}
+    <div className={scss[""]}>
+      <div>
+        <div className={scss[""]}>
+          <div>
+            <NavigationReports />
+          </div>
+          <div className={scss["settings-outlet-container"]}>
+            <Suspense fallback={<Loader />}>
+              <Outlet />
+            </Suspense>
+          </div>
+        </div>
+        {/* <Toaster position="top-right" reverseOrder={false} /> */}
+      </div>
     </div>
   );
 };

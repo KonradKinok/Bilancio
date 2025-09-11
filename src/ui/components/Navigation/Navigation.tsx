@@ -17,7 +17,6 @@ const sizes: Lang[] = [
 ];
 
 export const Navigation: React.FC = () => {
-  console.log("Rendering Navigation");
   const { auth, options, setOptions } = useMainDataContext();
   const { userDb } = auth;
   const {
@@ -56,7 +55,7 @@ export const Navigation: React.FC = () => {
         </NavLink>
 
         <NavLink
-          to="reportDataPage"
+          to="reportsPage"
           className={({ isActive }) => (isActive ? scss.active : "")}
         >
           Raporty

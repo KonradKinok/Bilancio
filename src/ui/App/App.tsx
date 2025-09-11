@@ -5,8 +5,12 @@ import { RestrictedRoute } from "../components/RestrictedRoute/RestrictedRoute";
 import { Loader } from "../components/Loader/Loader";
 
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
-const ReportDataPage = lazy(
-  () => import("../pages/ReportDataPage/ReportDataPage")
+const ReportsPage = lazy(() => import("../pages/ReportsPage/ReportsPage"));
+const ReportsStandardPage = lazy(
+  () => import("../pages/ReportsPage/ReportsStandardPage/ReportsStandardPage")
+);
+const ReportsCustomPage = lazy(
+  () => import("../pages/ReportsPage/ReportsCustomPage/ReportsCustomPage")
 );
 const SettingsPage = lazy(() => import("../pages/SettingsPage/SettingsPage"));
 
@@ -34,7 +38,17 @@ const App: React.FC = () => {
           }
         >
           <Route index element={<HomePage />} />
-          <Route path="reportDataPage" element={<ReportDataPage />} />
+          <Route path="reportsPage" element={<ReportsPage />}>
+            <Route
+              index
+              element={<Navigate to="reportsStandardPage" replace />}
+            />
+            <Route
+              path="reportsStandardPage"
+              element={<ReportsStandardPage />}
+            />
+            <Route path="reportsCustomPage" element={<ReportsCustomPage />} />
+          </Route>
           <Route path="settingsPage" element={<SettingsPage />}>
             <Route index element={<Navigate to="documentsPage" replace />} />
             <Route path="documentsPage" element={<DocumentsPage />} />

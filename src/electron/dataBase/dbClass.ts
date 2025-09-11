@@ -30,10 +30,10 @@ class Database {
       if (err) {
         log.error('[dbClass.js] [class Database]: Błąd połączenia z bazą danych:', err.message);
         statusDatabase.status = 0;
-        statusDatabase.message = `[dbClass.js] [class Database] Błąd połączenia z bazą danych: ${err.message}`;
+        statusDatabase.message = `Błąd połączenia z bazą danych: ${err.message}`;
       } else {
         statusDatabase.status = 1;
-        statusDatabase.message = `[dbClass.js] [class Database] Połączono z bazą danych: ${dbPath}`;
+        statusDatabase.message = `Połączono z bazą danych: ${dbPath}`;
         log.info('[dbClass.js] [class Database]: Połączono z bazą danych.', dbPath);
 
         // Dodane: Optymalizacje PRAGMA dla dysku sieciowego

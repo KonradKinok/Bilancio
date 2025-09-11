@@ -115,7 +115,15 @@ export function getSavedDocumentsPath() {
   }
   return pathToSavedDocumentsPath;
 }
+// Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów z nazwą pliku
+export function getSavedDocumentsPathWithCustomFile(file: string) {
+  const pathToSavedDocumentsPath = path.join(getSavedDocumentsPath(), file);
 
+  if (!fs.existsSync(getSavedDocumentsPath())) {
+    log.error('[pathResolver.js] [getSavedDocumentsPathWithCustomFile]: Katalog zapisane dokumenty nie istnieje w ścieżce:', pathToSavedDocumentsPath);
+  }
+  return pathToSavedDocumentsPath;
+}
 // Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów
 export function getBackupDbPath() {
   const pathToBackupDbPath = path.join(getUserDataDirPath(), "database", "backup");
