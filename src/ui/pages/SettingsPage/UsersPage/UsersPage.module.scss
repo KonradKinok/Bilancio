@@ -25,6 +25,10 @@
     border-top-left-radius: 0.5rem;
     border-top-right-radius: 0.5rem;
 
+    @supports (overflow: clip) {
+      overflow: clip;
+    }
+
     th {
       text-align: left;
       padding: 2px 5px;
@@ -34,6 +38,9 @@
       text-transform: uppercase;
       text-align: center;
       font-weight: 600;
+      top: -1px;
+      z-index: 1;
+      position: sticky;
     }
 
     tr {
