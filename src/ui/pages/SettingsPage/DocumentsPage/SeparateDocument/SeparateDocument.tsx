@@ -105,23 +105,33 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     if (currentName === "DocumentName") {
       if (!currentValue.trim()) {
         errorTextInput = "Musisz wypełnić to pole";
+        setInputDocumentNameError(errorTextInput);
+      } else if (currentValue.trim() && editedDocument.MainTypeName.trim()) {
+        setInputDocumentNameError("");
+        setInputMainTypeNameError("");
+      } else {
+        setInputDocumentNameError("");
       }
-      setInputDocumentNameError(errorTextInput);
     }
     if (currentName === "MainTypeName") {
-      if (!currentValue.trim() && !editedDocument.TypeName) {
-        errorTextInput = "Musisz wypełnić pole MainTypeName";
+      if (!currentValue.trim() && editedDocument.TypeName.trim()) {
+        console.log(`editedDocument.TypeName: "${editedDocument.TypeName}"`);
+        errorTextInput = "Musisz wypełnić pole Główny Typ Dokumentu";
         setInputMainTypeNameError(errorTextInput);
+      } else if (currentValue.trim() && !editedDocument.DocumentName.trim()) {
+        errorTextInput = "Musisz wypełnić pole Nazwa Dokumentu";
+        setInputDocumentNameError(errorTextInput);
       } else {
         setInputMainTypeNameError("");
+        setInputDocumentNameError("");
       }
     }
     if (currentName === "TypeName") {
-      if (currentValue.trim() && !editedDocument.MainTypeName) {
-        errorTextInput = "Musisz wypełnić pole MainTypeName";
+      if (currentValue.trim() && !editedDocument.MainTypeName.trim()) {
+        errorTextInput = "Musisz wypełnić pole Główny Typ Dokumentu";
         setInputMainTypeNameError(errorTextInput);
-      } else if (!currentValue.trim() && editedDocument.SubtypeName) {
-        errorTextInput = "Musisz wypełnić pole TypeName";
+      } else if (!currentValue.trim() && editedDocument.SubtypeName.trim()) {
+        errorTextInput = "Musisz wypełnić pole Typ Dokumentu";
         setInputTypeNameError(errorTextInput);
       } else {
         setInputMainTypeNameError("");
@@ -129,8 +139,8 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       }
     }
     if (currentName === "SubtypeName") {
-      if (currentValue.trim() && !editedDocument.TypeName) {
-        errorTextInput = "Musisz wypełnić pole TypeName";
+      if (currentValue.trim() && !editedDocument.TypeName.trim()) {
+        errorTextInput = "Musisz wypełnić pole Typ Dokumentu";
         setInputTypeNameError(errorTextInput);
       } else {
         setInputTypeNameError("");
@@ -152,13 +162,6 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       ...prevDokument,
       [currentName]: currentValue,
     }));
-
-    console.log(
-      "handleInputChange: ",
-      currentValue,
-      editedDocument.MainTypeName,
-      inputMainTypeNameError
-    );
   };
 
   return (
@@ -200,7 +203,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             inputName="MainTypeName"
             singleInputValue={editedDocument.MainTypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="MainTypeName ..."
+            inputPlaceholder="Główny typ dokumentu ..."
             singleInputError={inputMainTypeNameError}
             required={false}
             classNameInputContainer={scss["custom-input-container"]}
@@ -220,7 +223,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             inputName="TypeName"
             singleInputValue={editedDocument.TypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="TypeName ..."
+            inputPlaceholder="Typ dokumentu ..."
             singleInputError={inputTypeNameError}
             required={false}
             classNameInputContainer={scss["custom-input-container"]}
@@ -240,7 +243,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
             inputName="SubtypeName"
             singleInputValue={editedDocument.SubtypeName ?? ""}
             handleSingleInputChange={handleSingleInputChange}
-            inputPlaceholder="SubtypeName ..."
+            inputPlaceholder="Podtyp dokumentu ..."
             singleInputError={
               inputSubtypeNameError ? inputSubtypeNameError : ""
             }
