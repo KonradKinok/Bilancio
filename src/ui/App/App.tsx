@@ -6,6 +6,8 @@ import { Loader } from "../components/Loader/Loader";
 
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
 const ReportsPage = lazy(() => import("../pages/ReportsPage/ReportsPage"));
+
+// Główne strony
 const ReportsStandardPage = lazy(
   () => import("../pages/ReportsPage/ReportsStandardPage/ReportsStandardPage")
 );
@@ -14,6 +16,21 @@ const ReportsCustomPage = lazy(
 );
 const SettingsPage = lazy(() => import("../pages/SettingsPage/SettingsPage"));
 
+// Zagnieżdżone strony w ReportsStandardPage
+const ReportStandardInvoicePage = lazy(
+  () =>
+    import(
+      "../pages/ReportsPage/ReportsStandardPage/ReportStandardInvoicePage/ReportStandardInvoicePage"
+    )
+);
+const ReportStandardDocumentsPage = lazy(
+  () =>
+    import(
+      "../pages/ReportsPage/ReportsStandardPage/ReportStandardDocumentsPage/ReportStandardDocumentsPage"
+    )
+);
+
+// Zagnieżdżone strony w SettingsPage
 const DocumentsPage = lazy(
   () => import("../pages/SettingsPage/DocumentsPage/DocumentsPage")
 );
@@ -21,9 +38,11 @@ const UsersPage = lazy(
   () => import("../pages/SettingsPage/UsersPage/UsersPage")
 );
 
+// Inne strony
 const NotLoggedInPage = lazy(
   () => import("../pages/NotLoggedInPage/NotLoggedInPage")
 );
+
 const App: React.FC = () => {
   return (
     <Suspense fallback={<Loader />}>
@@ -43,10 +62,20 @@ const App: React.FC = () => {
               index
               element={<Navigate to="reportsStandardPage" replace />}
             />
-            <Route
-              path="reportsStandardPage"
-              element={<ReportsStandardPage />}
-            />
+            <Route path="reportsStandardPage" element={<ReportsStandardPage />}>
+              <Route
+                index
+                element={<Navigate to="reportsStandardInvoicesPage" replace />}
+              />
+              <Route
+                path="reportsStandardInvoicesPage"
+                element={<ReportStandardInvoicePage />}
+              />
+              <Route
+                path="reportsCustomDocumentsPage"
+                element={<ReportStandardDocumentsPage />}
+              />
+            </Route>
             <Route path="reportsCustomPage" element={<ReportsCustomPage />} />
           </Route>
           <Route path="settingsPage" element={<SettingsPage />}>

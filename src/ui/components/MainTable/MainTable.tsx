@@ -160,7 +160,7 @@ export const MainTable: React.FC<MainTableProps> = ({
         <table
           className={`${scss["table"]} ${scss[`${options.fontSize.en}-font`]}`}
         >
-          <thead>
+          <thead className={`${scss["table-header"]}`}>
             <tr>
               <th>Lp.</th>
               <th>Suma faktury</th>

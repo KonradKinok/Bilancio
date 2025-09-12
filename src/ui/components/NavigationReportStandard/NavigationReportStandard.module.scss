@@ -1,0 +1,37 @@
+.reportStandard-navigation {
+    display: flex;
+    flex-flow: row wrap;
+    font-weight: 800;
+    font-size: 1.3rem;
+
+    background-color: rgb(0, 115, 0);
+    padding: 1rem;
+
+
+    a {
+        color: var(--header-text-color);
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 800;
+        transition: color .75s cubic-bezier(.4, 0, .2, 1);
+        user-select: none;
+    }
+
+    a:hover {
+        color: var(--header-text-hover-color);
+        cursor: pointer;
+    }
+
+    a.active {
+        color: var(--header-text-active-color);
+        background-color: var(--header-text-active-background);
+    }
+}
+
+//media
+@media (min-width: 769px) {
+    .nav-navigation {
+        flex-flow: row wrap;
+    }
+}
