@@ -176,7 +176,27 @@ declare global {
     username: string | null;
     hostname: string | null;
   }
+  //Reports
+  type ReportCriteriaDtp = {
+    dtpDate: Date | null;
+    dtpLabelText: string;
+    dtpName: string;
+  }
+  type ReportCriteriaChB = {
+    checked: boolean;
+    name: string;
+  }
 
+  export type ReportCriteria = {
+    id: string;
+    checkbox: ReportCriteriaChB;
+    firstDtp: ReportCriteriaDtp;
+    secondDtp: ReportCriteriaDtp;
+    description: string;
+    errorMesage: string;
+  }
+
+  //IPC
   type EventPayloadMapping = {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
     getConnectedTableDictionary: DataBaseResponse<T[]>;

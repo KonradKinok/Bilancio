@@ -24,6 +24,7 @@ export function initDb() {
 
 function getDb(): Database {
   if (!db) {
+    log.error('[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb');
     throw new Error("[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb().");
   }
   return db;

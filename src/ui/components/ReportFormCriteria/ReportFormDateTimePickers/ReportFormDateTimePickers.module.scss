@@ -1,0 +1,36 @@
+.reportFormDateTimePickers-main-container {
+  display: grid;
+  grid-template-columns: auto minmax(200px, 1fr) 1fr 1fr;
+
+  align-items: center;
+  justify-content: center;
+
+  .checkbox-container {
+    justify-self: start;
+  }
+
+
+  .description-container {
+    justify-self: end;
+
+  }
+
+
+  .dateTimePicker-label {
+    margin-right: 0.5rem;
+
+    white-space: nowrap;
+  }
+
+
+
+
+
+
+
+  .dateTimePicker-container {
+    justify-self: center;
+  }
+
+
+}

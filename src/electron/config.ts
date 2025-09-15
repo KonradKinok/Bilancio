@@ -77,7 +77,7 @@ export const defaultLogs = async () => {
 export function configureBackupDb(): void {
   // Utwórz katalog dla kopii bazy danych, jeśli nie istnieje
   if (!fs.existsSync(dbPatch)) {
-    log.error('[config] [defaultLogs]: Plik bazy danych nie istnieje:', dbPatch);
+    log.error('[config] [configureBackupDb]: Plik bazy danych nie istnieje:', dbPatch);
     return;
   }
   // Nazwa pliku kopi bazy danych z aktualną datą
@@ -85,7 +85,6 @@ export function configureBackupDb(): void {
   const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
 
   if (fs.existsSync(dataBaseDestinationFilePath)) {
-    log.error('[config] [defaultLogs]: Plik bazy danych już istnieje:', dataBaseDestinationFilePath);
     return;
   }
 
@@ -138,6 +137,7 @@ export async function showAboutDialog(mainWindow: BrowserWindow) {
   }
 }
 
+//Menu "Drukuj do PDF"
 export async function showCaptureScreenPdfDialog(mainWindow: BrowserWindow, filePath: string, title: string, message: string, detail: string) {
   const response = await dialog.showMessageBox(mainWindow, {
     type: 'info',

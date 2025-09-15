@@ -62,6 +62,12 @@
   --checkbox-slider-unchecked-hover-background: var(--first-color-alpha-five);
   /* checkbox*/
   --vertical-line-color: var(--eighth-color);
+
+  /* checkbox-regular*/
+  --checkbox-regular-checked-background: var(--nineth-color);
+  --checkbox-regular-unchecked-background: var(--nineth-color);
+  --checkbox-regular-unchecked-border: var(--tenth-color);
+  --checkbox-regular-checkmark: var(--sixteenth-color);
   /* icon-info*/
   --icon-info-color: var(--first-color); /*Indygo */
   --icon-info-hover-color: var(--sixth-color); /*Indygo */

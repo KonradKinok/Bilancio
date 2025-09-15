@@ -129,7 +129,6 @@ app.on("ready", async () => {
         splash.close();
         splash = null;
       }
-      console.log("Start Main Window: ready-to-show")
       mainWindow!.show();
     });
 
@@ -267,7 +266,7 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     if (process.platform === 'win32' && tray) {
       tray.displayBalloon({
         title: 'Bilancio',
-        content: 'Aplikacja działa w tle. Kliknij ikonę, aby otworzyć okno.',
+        content: 'Aplikacja działa w tle. Kliknij ikonę programu, aby ponownie otworzyć okno.',
         iconType: 'info',
         noSound: true,
       });

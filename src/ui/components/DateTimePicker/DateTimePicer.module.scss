@@ -36,7 +36,7 @@
     border-radius: 5px;
     background-color: var(--dateTimePicker-input-button-background);
     color: var(--dateTimePicker-input-button-color);
-    width: 150px;
+    width: 145px;
     text-align: center;
     padding: 6px;
     cursor: pointer;
@@ -53,6 +53,7 @@
 .icon {
     cursor: pointer;
     color: var(--dateTimePicker-icon-color);
+    font-size: 1rem;
 }
 
 :global {
