@@ -2,6 +2,7 @@ import scss from "./ReportFormDateTimePickers.module.scss";
 import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
 import { use, useEffect, useState } from "react";
 import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
+import { Tooltip } from "react-tooltip";
 
 interface ReportFormDateTimePickersProps {
   reportCriteria: ReportCriteria;
@@ -22,41 +23,6 @@ export const ReportFormDateTimePickers: React.FC<
     useState<Date | null>(secondDtp.dtpDate);
   const [checked, setChecked] = useState(checkbox.checked);
 
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, type, checked, value } = event.target;
-  //   const currentName = event.target.name;
-  //   let errorTextInput = "";
-
-  //   if (type === "checkbox") {
-  //     if (name === checkbox.name) {
-  //       setReportCriteria((prev) =>
-  //         prev.map((criteria) =>
-  //           criteria.checkbox.name === name
-  //             ? { ...criteria, checkbox: { ...criteria.checkbox, checked } }
-  //             : criteria
-  //         )
-  //       );
-  //     }
-  //   } else {
-  //     // zwykły input/text
-  //     console.log(`Input ${name} -> ${value}`);
-  //     if (!value) {
-  //       errorTextInput = "Musisz wypełnić to pole";
-  //     }
-  //   }
-  // };
-  // const handleDateChange = (date: Date | null, name: string) => {
-  //   if (!date) return; // ignoruj null
-  //   setReportCriteria((prev) =>
-  //     prev.map((criteria) =>
-  //       criteria.firstDtp.dtpName === name
-  //         ? { ...criteria, firstDtp: { ...criteria.firstDtp, dtpDate: date } }
-  //         : criteria.secondDtp.dtpName === name
-  //         ? { ...criteria, secondDtp: { ...criteria.secondDtp, dtpDate: date } }
-  //         : criteria
-  //     )
-  //   );
-  // };
   useEffect(() => {
     if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
     let errorMesage = "";
@@ -93,49 +59,63 @@ export const ReportFormDateTimePickers: React.FC<
   ]);
 
   return (
-    <div className={scss["reportFormDateTimePickers-main-container"]}>
+    <div className={`${scss["reportFormDateTimePickers-main-container"]}`}>
       <div className={scss["checkbox-container"]}>
         <CheckboxRegular
           checked={checked}
-          // handleChange={handleChange}
           setChecked={setChecked}
           name={checkbox.name}
         />
       </div>
+      <div
+        className={`${scss["reportFormDateTimePickers-container"]} 
+      ${checked ? "" : scss["inactive-component"]} `}
+        data-tooltip-id={
+          errorMesage
+            ? "reportFormDateTimePickers-tooltip-error-date"
+            : undefined
+        }
+        data-tooltip-content={errorMesage}
+      >
+        <div className={scss["description-container"]}>
+          <p>{description}:</p>
+        </div>
 
-      <div className={scss["description-container"]}>
-        <p>{description}:</p>
+        <div className={scss["dateTimePicker-container"]}>
+          <label
+            htmlFor={firstDtp.dtpName}
+            className={scss["dateTimePicker-label"]}
+          >
+            {firstDtp.dtpLabelText}:
+          </label>
+          <DateTimePicker
+            dateTimePickerDate={dateTimePickerFirstDate}
+            setDateTimePickerDate={setDateTimePickerFirstDate}
+            isClearable={false}
+            id={firstDtp.dtpName}
+            name={firstDtp.dtpName}
+          />
+        </div>
+        <div className={scss["dateTimePicker-container"]}>
+          <label
+            htmlFor={secondDtp.dtpName}
+            className={scss["dateTimePicker-label"]}
+          >
+            {secondDtp.dtpLabelText}:
+          </label>
+          <DateTimePicker
+            dateTimePickerDate={dateTimePickerLastDate}
+            setDateTimePickerDate={setDateTimePickerLastDate}
+            isClearable={false}
+            name={secondDtp.dtpName}
+          />
+        </div>
       </div>
-
-      <div className={scss["dateTimePicker-container"]}>
-        <label
-          htmlFor={firstDtp.dtpName}
-          className={scss["dateTimePicker-label"]}
-        >
-          {firstDtp.dtpLabelText}:
-        </label>
-        <DateTimePicker
-          dateTimePickerDate={dateTimePickerFirstDate}
-          setDateTimePickerDate={setDateTimePickerFirstDate}
-          isClearable={false}
-          id={firstDtp.dtpName}
-          name={firstDtp.dtpName}
-        />
-      </div>
-      <div className={scss["dateTimePicker-container"]}>
-        <label
-          htmlFor={secondDtp.dtpName}
-          className={scss["dateTimePicker-label"]}
-        >
-          {secondDtp.dtpLabelText}:
-        </label>
-        <DateTimePicker
-          dateTimePickerDate={dateTimePickerLastDate}
-          setDateTimePickerDate={setDateTimePickerLastDate}
-          isClearable={false}
-          name={secondDtp.dtpName}
-        />
-      </div>
+      <Tooltip
+        id="reportFormDateTimePickers-tooltip-error-date"
+        className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
+        isOpen={errorMesage && checked ? true : false}
+      />
     </div>
   );
 };

@@ -36,6 +36,22 @@ const reportCriteriaArray: ReportCriteria[] = [
     },
     errorMesage: "",
   },
+  {
+    id: "paymentDate",
+    description: "Data płatności",
+    checkbox: { checked: true, name: "paymentDateCheckbox" },
+    firstDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      dtpLabelText: "od",
+      dtpName: "paymentFirstDate",
+    },
+    secondDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
+      dtpLabelText: "do",
+      dtpName: "paymentLastDate",
+    },
+    errorMesage: "",
+  },
 ];
 
 const ReportStandardInvoicePage: React.FC = () => {

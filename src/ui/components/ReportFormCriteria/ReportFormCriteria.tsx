@@ -1,7 +1,5 @@
-import { useState } from "react";
-import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
-import scss from "./ReportFormCriteria.module.scss";
 import { ReportFormDateTimePickers } from "./ReportFormDateTimePickers/ReportFormDateTimePickers";
+import scss from "./ReportFormCriteria.module.scss";
 
 interface ReportFormCriteriaProps {
   reportCriteria: ReportCriteria[];
