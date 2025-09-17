@@ -26,7 +26,7 @@ export const ReportFormDateTimePickers: React.FC<
   useEffect(() => {
     if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
     let errorMesage = "";
-    if (dateTimePickerFirstDate > dateTimePickerLastDate) {
+    if (dateTimePickerFirstDate > dateTimePickerLastDate && checked) {
       errorMesage = "Data początkowa nie może być późniejsza niż data końcowa.";
     } else {
       errorMesage = "";

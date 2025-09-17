@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
 import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
+import * as DataBaseTables from "../../../../../electron/dataBase/enum";
 import scss from "./ReportStandardInvoicePage.module.scss";
+import { useReportStandardInvoices } from "../../../../hooks/useReportStandardInvoices";
+import { STATUS } from "../../../../../electron/sharedTypes/status";
+import { displayErrorMessage } from "../../../../components/GlobalFunctions/GlobalFunctions";
+import toast from "react-hot-toast";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
-    id: "receiptDate",
+    id: DataBaseTables.InvoicesTable.ReceiptDate,
     description: "Data wystawienia faktury",
     checkbox: { checked: true, name: "receiptDateCheckbox" },
     firstDtp: {
@@ -21,7 +26,7 @@ const reportCriteriaArray: ReportCriteria[] = [
     errorMesage: "",
   },
   {
-    id: "deadlineDate",
+    id: DataBaseTables.InvoicesTable.DeadlineDate,
     description: "Termin płatności",
     checkbox: { checked: true, name: "deadlineDateCheckbox" },
     firstDtp: {
@@ -37,7 +42,7 @@ const reportCriteriaArray: ReportCriteria[] = [
     errorMesage: "",
   },
   {
-    id: "paymentDate",
+    id: DataBaseTables.InvoicesTable.PaymentDate,
     description: "Data płatności",
     checkbox: { checked: true, name: "paymentDateCheckbox" },
     firstDtp: {
@@ -57,24 +62,48 @@ const reportCriteriaArray: ReportCriteria[] = [
 const ReportStandardInvoicePage: React.FC = () => {
   const { options } = useMainDataContext();
   const [reportCriteria, setReportCriteria] = useState(reportCriteriaArray);
+  const [reportCriteriaToDb, setreportCriteriaToDb] = useState<
+    ReportCriteriaToDb[]
+  >([]);
 
-  const handleSingleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const currentValue = event.target.value;
-    const currentName = event.target.name;
-    let errorTextInput = "";
+  const { data, loading, error, getReportStandardInvoices } =
+    useReportStandardInvoices();
 
-    if (currentName === "invoiceName") {
-      // setInputInvoiceName(currentValue);
-      // setAddInvoiceData((prev) => ({
-      //   ...prev,
-      //   invoice: { ...prev.invoice, InvoiceName: currentValue },
-      // }));
-      if (!currentValue) {
-        errorTextInput = "Musisz wypełnić to pole";
+  //Wygenerowanie raportu
+  const handleButtonClick = async () => {
+    const filteredCriteria: ReportCriteriaToDb[] = reportCriteria
+      .filter(
+        (criteria) =>
+          criteria.checkbox.checked &&
+          criteria.firstDtp.dtpDate !== null &&
+          criteria.secondDtp.dtpDate !== null
+      )
+      .map((criteria) => ({
+        name: criteria.id,
+        firstDate: criteria.firstDtp.dtpDate as Date,
+        secondDate: criteria.secondDtp.dtpDate as Date,
+      }));
+    setreportCriteriaToDb(filteredCriteria);
+    const successText = `Raport został pomyślnie wygenerowany.`;
+    const errorText = `Nie udało się wygenerować raportu.`;
+
+    try {
+      const result = await getReportStandardInvoices(filteredCriteria);
+      if (result.status === STATUS.Success) {
+        toast.success(`${successText} (${result.data.length} rekordów)`);
+      } else {
+        displayErrorMessage(
+          "ReportStandardInvoicePage",
+          "handleButtonClick",
+          `${errorText} ${result.message}`
+        );
       }
-      // setInputInvoiceNameError(errorTextInput);
+    } catch (err) {
+      displayErrorMessage(
+        "ReportStandardInvoicePage",
+        "handleButtonClick",
+        err
+      );
     }
   };
   return (
@@ -88,10 +117,14 @@ const ReportStandardInvoicePage: React.FC = () => {
           <ReportFormCriteria
             reportCriteria={reportCriteria}
             setReportCriteria={setReportCriteria}
+            handleButtonClick={handleButtonClick}
           />
         </div>
       </div>
       <div>{JSON.stringify(reportCriteria)}</div>
+      <div>
+        <p>{JSON.stringify(reportCriteriaToDb)}</p>
+      </div>
     </div>
   );
 };

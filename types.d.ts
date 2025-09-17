@@ -195,7 +195,12 @@ declare global {
     description: string;
     errorMesage: string;
   }
-
+  //Reports DataBase
+  export type ReportCriteriaToDb = {
+    name: string;
+    firstDate: Date;
+    secondDate: Date;
+  }
   //IPC
   type EventPayloadMapping = {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
@@ -229,6 +234,8 @@ declare global {
     getUserBySystemName: DataBaseResponse<User>;
     loginUser: DataBaseResponse<User>;
 
+    //Reports
+    getReportStandardAllInvoices: DataBaseResponse<AllInvoices[]>;
     getDBbBilancioPath: string;
 
     checkStatusDatabase: ReturnStatusDbMessage;
@@ -266,7 +273,7 @@ declare global {
       // getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: () => Promise<DataBaseResponse<User>>;
       // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
-
+      getReportStandardAllInvoices: (reportCriteriaToDb: ReportCriteriaToDb[]) => Promise<DataBaseResponse<AllInvoices[]>>;
       // getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
 

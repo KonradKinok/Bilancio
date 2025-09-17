@@ -76,7 +76,7 @@ app.on("ready", async () => {
   try {
     const { configureLogs, defaultLogs, configureBackupDb } = await import("./config.js");
     const {
-      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
+      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase, getReportStandardAllInvoices
     } = await import("./dataBase/dbFunction.js");
 
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
@@ -206,7 +206,10 @@ app.on("ready", async () => {
     ipcMainHandle('getDBbBilancioPath', () => {
       return getDBbBilancioPath();
     });
-
+    //REPORTS
+    ipcMainHandle2('getReportStandardAllInvoices', (reportCriteriaToDb) => {
+      return getReportStandardAllInvoices(reportCriteriaToDb);
+    });
     ipcMainHandle2('getConfigBilancio1', (payload) => {
       log.info('FilesPage: Handler getDBbBilancioPath1 zarejestrowany i wywołany');
       return getConfigBilancio1(payload);

@@ -1,11 +1,10 @@
 import log from "electron-log";
-import { fileURLToPath } from 'url';
-import path from 'path';
-import os from 'os';
-import { DbTables } from './enum.js';
-import { STATUS, DataBaseResponse, isSuccess } from '../sharedTypes/status.js';
-import Database, { statusDatabase, QueryParams } from './dbClass.js';
-
+import { fileURLToPath } from "url";
+import path from "path";
+import os from "os";
+import { DbTables } from "./enum.js";
+import { STATUS, DataBaseResponse, isSuccess } from "../sharedTypes/status.js";
+import Database, { statusDatabase, QueryParams } from "./dbClass.js";
 
 // Pobieranie nazwy pliku w module ES
 const __filename = fileURLToPath(import.meta.url);
@@ -14,18 +13,22 @@ const fileName = path.basename(__filename);
 // Tworzymy instancję bazy danych
 export let db: Database | null = null;
 // Pobieranie nazwy użytkownika systemu Windows
-let displayUserName = await displayUserNameForLog()
+let displayUserName = await displayUserNameForLog();
 export function initDb() {
   if (!db) {
     db = new Database();
-    log.info('[dbFunction.js] [initDb]: Utworzono instancję bazy danych.', db);
+    log.info("[dbFunction.js] [initDb]: Utworzono instancję bazy danych.", db);
   }
 }
 
 function getDb(): Database {
   if (!db) {
-    log.error('[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb');
-    throw new Error("[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb().");
+    log.error(
+      "[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb"
+    );
+    throw new Error(
+      "[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb()."
+    );
   }
   return db;
 }
@@ -133,12 +136,17 @@ export async function getConnectedTableDictionary<T>(
   } catch (err) {
     const message = `Nieznany błąd podczas pobierania danych z ${tableName}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
 //Funkcja do pobierania wszystkich dokumentów
-export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseResponse<AllDocumentsName[]>> {
+export async function getAllDocumentsName(
+  isDeleted?: number
+): Promise<DataBaseResponse<AllDocumentsName[]>> {
   const functionName = getAllDocumentsName.name;
   try {
     // --- Budowa zapytania SQL ---
@@ -185,7 +193,10 @@ export async function getAllDocumentsName(isDeleted?: number): Promise<DataBaseR
   } catch (err) {
     const message = `Nieznany błąd podczas pobierania dokumentów.`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -216,7 +227,6 @@ export async function addDocument(
     if (existingDocument) {
       documentId = existingDocument.DocumentId;
     } else {
-
       const insertDocument = await getDb().run(
         `INSERT INTO DictionaryDocuments (DocumentName) VALUES (?)`,
         [document.DocumentName]
@@ -334,7 +344,14 @@ export async function addDocument(
     const insertAllDocuments = await getDb().run(
       `INSERT INTO AllDocuments (DocumentId, MainTypeId, TypeId, SubtypeId, Price, IsDeleted) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted ?? 0]
+      [
+        documentId,
+        mainTypeId,
+        typeId,
+        subtypeId,
+        document.Price,
+        document.IsDeleted ?? 0,
+      ]
     );
     if (!insertAllDocuments.lastID || !insertAllDocuments.changes) {
       await getDb().rollback();
@@ -345,15 +362,24 @@ export async function addDocument(
 
     await getDb().commit();
     const message = "Zapisano dokument:";
-    log.info(logTitle(functionName, message), { ...document, AllDocumentsId: insertAllDocuments.lastID });
+    log.info(logTitle(functionName, message), {
+      ...document,
+      AllDocumentsId: insertAllDocuments.lastID,
+    });
     return {
       status: STATUS.Success,
-      data: { lastID: insertAllDocuments.lastID, changes: insertAllDocuments.changes },
+      data: {
+        lastID: insertAllDocuments.lastID,
+        changes: insertAllDocuments.changes,
+      },
     };
   } catch (err) {
     const message = "Nieznany błąd podczas zapisywania nowego dokumentu.";
     log.error(logTitle(functionName, message), err, { document });
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -582,7 +608,15 @@ export async function updateDocument(
       `UPDATE AllDocuments 
        SET DocumentId = ?, MainTypeId = ?, TypeId = ?, SubtypeId = ?, Price = ?, IsDeleted = ? 
        WHERE AllDocumentsId = ?`,
-      [documentId, mainTypeId, typeId, subtypeId, document.Price, document.IsDeleted, document.AllDocumentsId]
+      [
+        documentId,
+        mainTypeId,
+        typeId,
+        subtypeId,
+        document.Price,
+        document.IsDeleted,
+        document.AllDocumentsId,
+      ]
     );
     if (!updateAllDocuments.changes) {
       await getDb().rollback();
@@ -596,12 +630,18 @@ export async function updateDocument(
     log.info(logTitle(functionName, message), { document });
     return {
       status: STATUS.Success,
-      data: { lastID: document.AllDocumentsId, changes: updateAllDocuments.changes },
+      data: {
+        lastID: document.AllDocumentsId,
+        changes: updateAllDocuments.changes,
+      },
     };
   } catch (err) {
     const message = "Nieznany błąd podczas aktualizacji dokumentu.";
     log.error(logTitle(functionName, message), err, { document });
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -644,7 +684,10 @@ export async function deleteRestoreDocument(
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await getDb().get<AllDocumentsNameTable>(updateSql, updateParams);
+    const result = await getDb().get<AllDocumentsNameTable>(
+      updateSql,
+      updateParams
+    );
     if (!result) {
       await getDb().rollback();
       const message = `Nie udało się ${isDeleted === 0 ? "przywrócić" : "usunąć"
@@ -665,7 +708,10 @@ export async function deleteRestoreDocument(
     const message = `Nieznany błąd podczas ${isDeleted === 0 ? "przywracania" : "usuwania"
       } dokumentu.`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -687,12 +733,22 @@ export async function getAllInvoices(
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
-  if (!(formValuesHomePage.firstDate instanceof Date && !isNaN(formValuesHomePage.firstDate.getTime()))) {
+  if (
+    !(
+      formValuesHomePage.firstDate instanceof Date &&
+      !isNaN(formValuesHomePage.firstDate.getTime())
+    )
+  ) {
     const message = `Pierwsza data ma nieprawidłowy format: ${formValuesHomePage.firstDate}`;
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
-  if (!(formValuesHomePage.secondDate instanceof Date && !isNaN(formValuesHomePage.secondDate.getTime()))) {
+  if (
+    !(
+      formValuesHomePage.secondDate instanceof Date &&
+      !isNaN(formValuesHomePage.secondDate.getTime())
+    )
+  ) {
     const message = `Druga data ma nieprawidłowy format: ${formValuesHomePage.secondDate}`;
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
@@ -758,12 +814,17 @@ export async function getAllInvoices(
   } catch (err) {
     const message = `Nieznany błąd podczas pobierania faktur z bazy danych.`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
-// Funkcja przygotowująca do dodawania faktury 
-async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<ReturnMessageFromDb>> {
+// Funkcja przygotowująca do dodawania faktury
+async function addInvoice(
+  invoice: InvoiceTable
+): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   const functionName = addInvoice.name;
   const sql = `
     INSERT INTO Invoices (InvoiceName, ReceiptDate, DeadlineDate, PaymentDate, IsDeleted)
@@ -791,7 +852,10 @@ async function addInvoice(invoice: InvoiceTable): Promise<DataBaseResponse<Retur
   } catch (err) {
     const message = `Nieznany błąd podczas dodawania faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -814,7 +878,10 @@ export async function addInvoiceDetails(
         if (!detail.DocumentId || detail.Quantity <= 0) {
           await getDb().rollback();
           const message = `Nieprawidłowe dane szczegółów faktury ${invoice.InvoiceName} (DocumentId ${detail.DocumentId} lub Quantity ${invoice.InvoiceName}).`;
-          log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+          log.error(logTitle(functionName, message), {
+            invoice,
+            invoiceDetails,
+          });
           return { status: STATUS.Error, message: message };
         }
         const params = [
@@ -830,13 +897,20 @@ export async function addInvoiceDetails(
         if (!resultDetail.changes) {
           await getDb().rollback();
           const message = `Nie udało się dodać szczegółów faktury dla DocumentId: ${detail.DocumentId} ${invoice.InvoiceName}.`;
-          log.error(logTitle(functionName, message), { invoice, invoiceDetails });
+          log.error(logTitle(functionName, message), {
+            invoice,
+            invoiceDetails,
+          });
           return { status: STATUS.Error, message: message };
         }
       }
       await getDb().commit();
       const message = "Dodano fakturę:";
-      log.info(logTitle(functionName, message), { invoice }, { invoiceDetails });
+      log.info(
+        logTitle(functionName, message),
+        { invoice },
+        { invoiceDetails }
+      );
       return resultAddInvoice;
     }
     await getDb().rollback();
@@ -844,7 +918,10 @@ export async function addInvoiceDetails(
   } catch (err) {
     const message = `Nieznany błąd podczas dodawania szczegółów faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -904,7 +981,10 @@ export async function updateInvoice(
     }
 
     // Aktualizacja faktury
-    const updateResult = await getDb().run(updateInvoiceSql, updateInvoiceParams);
+    const updateResult = await getDb().run(
+      updateInvoiceSql,
+      updateInvoiceParams
+    );
     if (!updateResult.changes) {
       await getDb().rollback();
       const message = `Nie udało się zaktualizować faktury ${invoice.InvoiceName}.`;
@@ -951,7 +1031,10 @@ export async function updateInvoice(
   } catch (err) {
     const message = `Nieznany błąd podczas aktualizacji faktury: Id: ${invoice.InvoiceId} Nazwa: ${invoice.InvoiceName}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -991,7 +1074,10 @@ export async function deleteInvoice(
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await getDb().get<InvoiceTable>(deleteInvoiceSql, deleteInvoiceParams);
+    const result = await getDb().get<InvoiceTable>(
+      deleteInvoiceSql,
+      deleteInvoiceParams
+    );
     if (!result) {
       await getDb().rollback();
       const message = `Nie udało się usunąć faktury o ID ${invoiceId}`;
@@ -1006,7 +1092,10 @@ export async function deleteInvoice(
   } catch (err) {
     const message = `Błąd podczas usuwania faktury o ID ${invoiceId}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -1047,7 +1136,10 @@ export async function restoreInvoice(
     }
 
     // Aktualizacja flagi IsDeleted
-    const result = await getDb().get<InvoiceTable>(restoreInvoiceSql, restoreInvoiceParams);
+    const result = await getDb().get<InvoiceTable>(
+      restoreInvoiceSql,
+      restoreInvoiceParams
+    );
 
     if (!result) {
       await getDb().rollback();
@@ -1063,12 +1155,17 @@ export async function restoreInvoice(
   } catch (err) {
     const message = `Błąd podczas przywracania faktury o ID ${invoiceId}`;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
 // Funkcja zwracająca liczbę faktur z bazy danych na podstawie filtrów z formularza
-export async function countInvoices(formValuesHomePage: FormValuesHomePage): Promise<DataBaseResponse<number>> {
+export async function countInvoices(
+  formValuesHomePage: FormValuesHomePage
+): Promise<DataBaseResponse<number>> {
   const functionName = countInvoices.name;
   try {
     let query = `SELECT COUNT(*) as total FROM Invoices WHERE 1=1`;
@@ -1095,13 +1192,18 @@ export async function countInvoices(formValuesHomePage: FormValuesHomePage): Pro
   } catch (err) {
     const message = "Błąd podczas zliczania faktur z bazy danych.";
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
 //USERS
 // Funkcja do pobierania wszystkich użytkowników z tabeli Users
-export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<User[]>> {
+export async function getAllUsers(
+  isDeleted?: number
+): Promise<DataBaseResponse<User[]>> {
   const functionName = getAllUsers.name;
   try {
     let query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole, IsDeleted FROM Users`;
@@ -1121,7 +1223,10 @@ export async function getAllUsers(isDeleted?: number): Promise<DataBaseResponse<
   } catch (err) {
     const message = "Błąd podczas pobierania użytkowników z bazy danych.";
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -1166,7 +1271,7 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
       user.UserSystemName.trim(),
       user.UserDisplayName.trim(),
       user.UserPassword || null,
-      user.UserRole
+      user.UserRole,
     ];
 
     const result = await getDb().get<User>(query, params);
@@ -1183,8 +1288,13 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
     return { status: STATUS.Success, data: result };
   } catch (err) {
     const message = "Błąd zapisu użytkownika.";
-    log.error(logTitle(functionName, message), err, { user: userWithoutPassword });
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    log.error(logTitle(functionName, message), err, {
+      user: userWithoutPassword,
+    });
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -1228,7 +1338,7 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
       user.UserDisplayName.trim(),
       user.UserPassword || null,
       user.UserRole,
-      user.UserId
+      user.UserId,
     ];
 
     const result = await getDb().get<User>(query, params);
@@ -1245,13 +1355,20 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
     return { status: STATUS.Success, data: result };
   } catch (err) {
     const message = "Błąd edycji użytkownika.";
-    log.error(logTitle(functionName, message), err, { user: userWithoutPassword });
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    log.error(logTitle(functionName, message), err, {
+      user: userWithoutPassword,
+    });
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
 // Funkcja do usuwania użytkownika z tabeli Users
-export async function deleteUser(userId: number): Promise<DataBaseResponse<User>> {
+export async function deleteUser(
+  userId: number
+): Promise<DataBaseResponse<User>> {
   const functionName = deleteUser.name;
   try {
     if (!userId) {
@@ -1278,13 +1395,16 @@ export async function deleteUser(userId: number): Promise<DataBaseResponse<User>
     }
 
     await getDb().commit();
-    const message = "Usunięto użytkownika:"
+    const message = "Usunięto użytkownika:";
     log.info(logTitle(functionName, message), { result });
     return { status: STATUS.Success, data: result };
   } catch (err) {
     const message = `Błąd usuwania użytkownika. `;
     log.error(logTitle(functionName, message), err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -1297,8 +1417,10 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
     systemUserName = os.userInfo().username.toLowerCase();
     systemHostName = os.hostname();
     if (!systemUserName) {
-      const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`
-      log.error(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`);
+      const message = `Nieznany błąd przy pobieraniu użytkownika z systemu.`;
+      log.error(
+        `[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`
+      );
       return {
         status: STATUS.Error,
         message: message,
@@ -1311,8 +1433,10 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
     const result = await getDb().get<User>(query, params);
 
     if (!result) {
-      const message = `Brak użytkownika ${systemUserName} w bazie danych.`
-      log.error(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`);
+      const message = `Brak użytkownika ${systemUserName} w bazie danych.`;
+      log.error(
+        `[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`
+      );
       return {
         status: STATUS.Error,
         message: message,
@@ -1324,16 +1448,24 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
       Hostname: systemHostName,
     };
     displayUserName = result.UserDisplayName;
-    const message = `Użytkownik ${result.UserDisplayName} został pomyślnie zalogowany.`
-    log.info(`[dbFunction.js] [${functionName}] [${result.UserDisplayName}] ${message}`);
+    const message = `Użytkownik ${result.UserDisplayName} został pomyślnie zalogowany.`;
+    log.info(
+      `[dbFunction.js] [${functionName}] [${result.UserDisplayName}] ${message}`
+    );
     return {
       status: STATUS.Success,
       data: enrichedUser,
     };
   } catch (err) {
-    const message = `Błąd podczas pobierania użytkownika: ${systemUserName}.`
-    log.info(`[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`, err);
-    return { status: STATUS.Error, message: err instanceof Error ? err.message : message };
+    const message = `Błąd podczas pobierania użytkownika: ${systemUserName}.`;
+    log.info(
+      `[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`,
+      err
+    );
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
   }
 }
 
@@ -1342,19 +1474,119 @@ export async function displayUserNameForLog(): Promise<string> {
   let displayUserNameLog = "nieznany użytkownik";
   try {
     const systemUserName = os.userInfo().username.toLowerCase();
-    if (!systemUserName) return displayUserNameLog
+    if (!systemUserName) return displayUserNameLog;
     displayUserNameLog = systemUserName;
     return displayUserNameLog;
   } catch (err) {
-    const message = `Błąd podczas pobierania użytkownika: ${displayUserNameLog}.`
-    log.error(`[dbFunction.js] [${functionName}] [${displayUserNameLog}] ${message}`, err);
+    const message = `Błąd podczas pobierania użytkownika: ${displayUserNameLog}.`;
+    log.error(
+      `[dbFunction.js] [${functionName}] [${displayUserNameLog}] ${message}`,
+      err
+    );
     return displayUserNameLog;
   }
+}
+//RAPORTY
+//Funkcja do pobierania wszystkich faktur z bazy danych do raportów
+export async function getReportStandardAllInvoices(
+  reportCriteriaToDb: ReportCriteriaToDb[]
+): Promise<DataBaseResponse<AllInvoices[]>> {
+  const functionName = getReportStandardAllInvoices.name;
+  // --- Walidacja danych wejściowych ---
+  console.log('getReportStandardAllInvoices called with:', reportCriteriaToDb);
+  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
+    const message = `Brak dat do pobrania raportu standardowego faktur z bazy danych`;
+    log.error(logTitle(functionName, message));
+    return { status: STATUS.Error, message: message };
+  }
 
+  reportCriteriaToDb.map((item) => {
+    if (!item.firstDate || !item.secondDate) {
+      const message = `Pierwsza albo druga data nie jest ustawiona. Pierwsza data: ${item.firstDate || "brak"}, druga data: ${item.secondDate || "brak"
+        }`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
+    }
+    if (!(item.firstDate instanceof Date && !isNaN(item.firstDate.getTime()))) {
+      const message = `Pierwsza data ma nieprawidłowy format: ${item.firstDate}`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
+    }
+    if (
+      !(item.secondDate instanceof Date && !isNaN(item.secondDate.getTime()))
+    ) {
+      const message = `Druga data ma nieprawidłowy format: ${item.secondDate}`;
+      log.error(logTitle(functionName, message));
+      return { status: STATUS.Error, message: message };
+    }
+  });
+
+  try {
+    // --- Budowa zapytania SQL ---
+    let query = `
+      SELECT 
+        Invoices.InvoiceId,
+        Invoices.InvoiceName,
+        Invoices.ReceiptDate,
+        Invoices.DeadlineDate,
+        Invoices.PaymentDate,
+        Invoices.IsDeleted,
+        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentId, ''), ';') AS DocumentIds,
+        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentName, ''), ';') AS DocumentNames,
+        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeId, ''), ';') AS MainTypeIds,
+        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeName, ''), ';') AS MainTypeNames,
+        GROUP_CONCAT(IFNULL(DictionaryType.TypeId, ''), ';') AS TypeIds,
+        GROUP_CONCAT(IFNULL(DictionaryType.TypeName, ''), ';') AS TypeNames,
+        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeId, ''), ';') AS SubtypeIds,
+        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeName, ''), ';') AS SubtypeNames,
+        GROUP_CONCAT(IFNULL(InvoiceDetails.Quantity, ''), ';') AS Quantities,
+        GROUP_CONCAT(IFNULL(InvoiceDetails.Price, ''), ';') AS Prices
+      FROM Invoices
+      LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
+      LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
+      LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
+      LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
+      LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
+      WHERE Invoices.IsDeleted = 0
+    `;
+    const params: QueryParams = [];
+
+    reportCriteriaToDb.map((item) => {
+      query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
+      params.push(
+        item.firstDate.toISOString().split("T")[0],
+        item.secondDate.toISOString().split("T")[0]
+      );
+    });
+
+    query += `
+  GROUP BY Invoices.InvoiceId
+  ORDER BY Invoices.ReceiptDate DESC
+`;
+
+    // --- Wykonanie zapytania ---
+    const result = await getDb().all<AllInvoices>(query, params);
+    console.log('getReportStandardAllInvoices result:', result[0]);
+    return {
+      status: STATUS.Success,
+      data: result ?? [],
+    };
+  } catch (err) {
+    const message = `Nieznany błąd podczas pobierania raportu standardowego faktur z bazy danych.`;
+    log.error(logTitle(functionName, message), err);
+    return {
+      status: STATUS.Error,
+      message: err instanceof Error ? err.message : message,
+    };
+  }
 }
 
 //Funkcja do konstrukcji logów
-export function logTitle(functionName: string, message: string, displayUserNameLog: string = displayUserName): string {
+export function logTitle(
+  functionName: string,
+  message: string,
+  displayUserNameLog: string = displayUserName
+): string {
   const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
   return title;
 }
@@ -1364,7 +1596,6 @@ export async function getConfigBilancio1(tekst: string): Promise<string> {
   console.log("getConfigBilancio1 called with text:", tekst);
   return Promise.resolve("getConfigBilancio text");
 }
-
 
 // import { app } from 'electron';
 // app.on('before-quit', async () => {

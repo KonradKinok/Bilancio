@@ -33,7 +33,8 @@ electron.contextBridge.exposeInMainWorld('electron', {
   // loginUser: (systemUserName, password) => ipcInvoke2('loginUser', systemUserName, password),
 
   // getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
-
+  //REPORTS
+  getReportStandardAllInvoices: (reportCriteriaToDb) => ipcInvoke2('getReportStandardAllInvoices', reportCriteriaToDb),
 
 
   checkStatusDatabase: () => ipcInvoke('checkStatusDatabase'),
