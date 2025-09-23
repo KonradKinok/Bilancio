@@ -4,8 +4,10 @@
   --text-color: rgb(0, 0, 255);
   --text-color-disabled: rgb(102, 102, 102);
   --background-color-disabled: rgb(204, 204, 204);
+  --width: 150px;
+  --icon-container-translate-x: 110px;
 
-  width: 150px;
+  width: var(--width);
   height: 34px;
   cursor: pointer;
   display: flex;
@@ -31,7 +33,7 @@
   }
 
   &:hover:not(:disabled) .icon-container {
-    width: 150px;
+    width: var(--width);
     border-left: none;
     transform: translateX(0);
   }
@@ -59,7 +61,7 @@
 
   .icon-container {
     position: absolute;
-    transform: translateX(110px);
+    transform: translateX(var(--icon-container-translate-x));
     width: 40px;
     display: flex;
     align-items: center;

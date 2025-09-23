@@ -4,6 +4,7 @@ import log from "electron-log";
 import { isDev } from "./util.js";
 import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
 import { BrowserWindow, dialog, shell } from "electron";
+import { getFormattedDate } from "./dataBase/dbFunction.js";
 
 const defaultDirConfig = checkDirs();
 const logDir = getLogDir();
@@ -18,7 +19,7 @@ export function configureLogs(): void {
   }
 
   // Nazwa pliku logów z aktualną datą
-  const logFileName = `log-${getFormattedDate()}.log`;
+  const logFileName = `log-${getFormattedDate(new Date())}.log`;
   const logFilePath = path.join(logDir, logFileName);
 
   // Konfiguracja electron-log
@@ -81,7 +82,7 @@ export function configureBackupDb(): void {
     return;
   }
   // Nazwa pliku kopi bazy danych z aktualną datą
-  const dataBaseBackupFileName = `BilancioDataBase-${getFormattedDate()}.db`;
+  const dataBaseBackupFileName = `BilancioDataBase-${getFormattedDate(new Date())}.db`;
   const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
 
   if (fs.existsSync(dataBaseDestinationFilePath)) {
@@ -153,10 +154,11 @@ export async function showCaptureScreenPdfDialog(mainWindow: BrowserWindow, file
   }
 }
 // Funkcja do formatowania daty w formacie dd.mm.yyyy
-export function getFormattedDate(): string {
-  const today = new Date();
-  const day = String(today.getDate()).padStart(2, '0');
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const year = today.getFullYear();
-  return `${day}.${month}.${year}`;
-}
+// export function getFormattedDate(): string {
+//   const today = new Date();
+//   const day = String(today.getDate()).padStart(2, '0');
+//   const month = String(today.getMonth() + 1).padStart(2, '0');
+//   const year = today.getFullYear();
+//   return `${day}.${month}.${year}`;
+// }
+

@@ -131,6 +131,7 @@ type FormattedDifference = {
 };
 
 
+
 export function formatDocumentDetailsFunction(
   dataAllDocumentsName: AllDocumentsName[] | null
 ) {
@@ -264,7 +265,84 @@ export function displayErrorMessage(componentName: string, functionName: string,
     toast.error(`${errorMessage}`);
   }
 }
+type ReportStandardInvoiceWithDocumentsName = {
+  InvoiceName: string;
+  ReceiptDate: string | null;
+  DeadlineDate: string | null;
+  PaymentDate: string | null;
+  TotalAmount: number;
+  Documents: [{
+    DocumentName: string;
+    MainTypeName: string;
+    TypeName: string;
+    SubtypeName: string;
+    Quantity: number;
+    Price: string;
+    Total: string;
+  }]
+}
+//REPORTS
+// export function reportStandardInvoicesAllDocumentsName(allInvoices: AllInvoices[]): ReportStandardInvoiceWithDocumentsName[] | null | undefined {
+//   if (!allInvoices || allInvoices.length === 0) {
+//     displayErrorMessage(
+//       "GlobalFunctions",
+//       "ReportStandardInvoicesAllDocumentsName",
+//       "allInvoices nie istnieje lub jest puste");
+//     return null
+//   };
+//   const reportStandardInvoiceWithDocumentsName = allInvoices.map((invoice) => {
 
+//     const reportStandardInvoiceWithDocumentsName = invoice.
+//     const invoiceName = dataAllDocumentsName.find(
+//       (doc) => doc.DocumentId === detail.DocumentId
+//     );
+//     return ({
+//       InvoiceName: invoice.InvoiceName,
+//       ReceiptDate: invoice.ReceiptDate,
+//       DeadlineDate: invoice.DeadlineDate,
+//     })
+//   }
+// const document = dataAllDocumentsName.find(
+//   (doc) => doc.DocumentId === detail.DocumentId
+// );
+// const mainType = detail.MainTypeId
+//   ? dataAllDocumentsName.find((doc) => doc.MainTypeId === detail.MainTypeId)
+//   : null;
+// const type = detail.TypeId
+//   ? dataAllDocumentsName.find((doc) => doc.TypeId === detail.TypeId)
+//   : null;
+// const subtype = detail.SubtypeId
+//   ? dataAllDocumentsName.find((doc) => doc.SubtypeId === detail.SubtypeId)
+//   : null;
+
+// return {
+//   documentName: document?.DocumentName ?? `Document Id: ${detail.DocumentId}`,
+//   mainTypeName: mainType?.MainTypeName ?? (detail.MainTypeId ? `Main Type ID: ${detail.MainTypeId}` : ""),
+//   typeName: type?.TypeName ?? (detail.TypeId ? `Type ID: ${detail.TypeId}` : ""),
+//   subtypeName: subtype?.SubtypeName ?? (detail.SubtypeId ? `Subtype ID: ${detail.SubtypeId}` : ""),
+//   quantity: detail.Quantity,
+//   price: detail.Price.toFixed(2),
+//   total: (detail.Quantity * detail.Price).toFixed(2),
+// };
+// }
+
+// Funkcja do poprawnej polskiej deklinacji słowa "pozycja"
+const pluralRules = new Intl.PluralRules("pl-PL");
+export function pluralizePozycja(count: number): string {
+  const forms: Record<string, string> = {
+    one: "pozycja",
+    few: "pozycje",
+    many: "pozycji",
+    other: "pozycji",
+  };
+
+  const rule = pluralRules.select(count);
+  return `${count} ${forms[rule]}`;
+}
+
+// Funkcja pomocnicza do opóźnienia
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// await delay(5000); // czekamy 5 sekund
 //ACTIVITIES
 enum ActivityType {
   addInvoice = "dodanie faktury",

@@ -1,0 +1,45 @@
+.buttonsExportData-main-container {
+  --font-size-small: var(--small-font-size);
+  --font-size-medium: var(--medium-font-size);
+  --font-size-large: var(--large-font-size);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem;
+
+  .buttonsExportData-container {
+    display: flex;
+    align-items: center;
+    flex-flow: column nowrap;
+    gap: 1rem;
+    box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+    border-radius: 1rem;
+    padding: 1rem;
+
+    .buttonsExportData-buttons-container {
+      display: flex;
+      gap: 1rem;
+
+      .button-export-report {
+        --background-color: rgb(17, 207, 11);
+        --background-hover-color: rgb(25 255 0);
+        --width: 100px;
+        --icon-container-translate-x: 60px;
+        --text-color: rgb(0 51 25);
+      }
+    }
+  }
+
+  .small-font {
+    font-size: var(--font-size-small);
+  }
+
+  .medium-font {
+    font-size: var(--font-size-medium);
+  }
+
+  .large-font {
+    font-size: var(--font-size-large);
+  }
+}

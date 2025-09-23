@@ -76,9 +76,11 @@ app.on("ready", async () => {
   try {
     const { configureLogs, defaultLogs, configureBackupDb } = await import("./config.js");
     const {
-      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase, getReportStandardAllInvoices
+      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
     } = await import("./dataBase/dbFunction.js");
-
+    const {
+      getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX
+    } = await import("./reportsFunctions.js");
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
     Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
@@ -210,6 +212,17 @@ app.on("ready", async () => {
     ipcMainHandle2('getReportStandardAllInvoices', (reportCriteriaToDb) => {
       return getReportStandardAllInvoices(reportCriteriaToDb);
     });
+    ipcMainHandle2('exportStandardInvoiceReportToPDF', (dataReportStandardInvoices) => {
+      return exportStandardInvoiceReportToPDF(dataReportStandardInvoices);
+    });
+    ipcMainHandle2('exportStandardInvoiceReportToXLSX', (dataReportStandardInvoices, reportCriteriaToDb) => {
+      return exportStandardInvoiceReportToXLSX(dataReportStandardInvoices, reportCriteriaToDb);
+    });
+
+
+
+
+
     ipcMainHandle2('getConfigBilancio1', (payload) => {
       log.info('FilesPage: Handler getDBbBilancioPath1 zarejestrowany i wywołany');
       return getConfigBilancio1(payload);

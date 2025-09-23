@@ -1,4 +1,5 @@
 import log from "electron-log";
+
 import { fileURLToPath } from "url";
 import path from "path";
 import os from "os";
@@ -21,7 +22,7 @@ export function initDb() {
   }
 }
 
-function getDb(): Database {
+export function getDb(): Database {
   if (!db) {
     log.error(
       "[dbFunction.js] [getDb]: Baza danych nie została zainicjalizowana. Brak wywołania funkcji initDb"
@@ -1486,100 +1487,8 @@ export async function displayUserNameForLog(): Promise<string> {
     return displayUserNameLog;
   }
 }
-//RAPORTY
-//Funkcja do pobierania wszystkich faktur z bazy danych do raportów
-export async function getReportStandardAllInvoices(
-  reportCriteriaToDb: ReportCriteriaToDb[]
-): Promise<DataBaseResponse<AllInvoices[]>> {
-  const functionName = getReportStandardAllInvoices.name;
-  // --- Walidacja danych wejściowych ---
-  console.log('getReportStandardAllInvoices called with:', reportCriteriaToDb);
-  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
-    const message = `Brak dat do pobrania raportu standardowego faktur z bazy danych`;
-    log.error(logTitle(functionName, message));
-    return { status: STATUS.Error, message: message };
-  }
 
-  reportCriteriaToDb.map((item) => {
-    if (!item.firstDate || !item.secondDate) {
-      const message = `Pierwsza albo druga data nie jest ustawiona. Pierwsza data: ${item.firstDate || "brak"}, druga data: ${item.secondDate || "brak"
-        }`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
-    }
-    if (!(item.firstDate instanceof Date && !isNaN(item.firstDate.getTime()))) {
-      const message = `Pierwsza data ma nieprawidłowy format: ${item.firstDate}`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
-    }
-    if (
-      !(item.secondDate instanceof Date && !isNaN(item.secondDate.getTime()))
-    ) {
-      const message = `Druga data ma nieprawidłowy format: ${item.secondDate}`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
-    }
-  });
 
-  try {
-    // --- Budowa zapytania SQL ---
-    let query = `
-      SELECT 
-        Invoices.InvoiceId,
-        Invoices.InvoiceName,
-        Invoices.ReceiptDate,
-        Invoices.DeadlineDate,
-        Invoices.PaymentDate,
-        Invoices.IsDeleted,
-        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentId, ''), ';') AS DocumentIds,
-        GROUP_CONCAT(IFNULL(DictionaryDocuments.DocumentName, ''), ';') AS DocumentNames,
-        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeId, ''), ';') AS MainTypeIds,
-        GROUP_CONCAT(IFNULL(DictionaryMainType.MainTypeName, ''), ';') AS MainTypeNames,
-        GROUP_CONCAT(IFNULL(DictionaryType.TypeId, ''), ';') AS TypeIds,
-        GROUP_CONCAT(IFNULL(DictionaryType.TypeName, ''), ';') AS TypeNames,
-        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeId, ''), ';') AS SubtypeIds,
-        GROUP_CONCAT(IFNULL(DictionarySubtype.SubtypeName, ''), ';') AS SubtypeNames,
-        GROUP_CONCAT(IFNULL(InvoiceDetails.Quantity, ''), ';') AS Quantities,
-        GROUP_CONCAT(IFNULL(InvoiceDetails.Price, ''), ';') AS Prices
-      FROM Invoices
-      LEFT JOIN InvoiceDetails ON Invoices.InvoiceId = InvoiceDetails.InvoiceId
-      LEFT JOIN DictionaryDocuments ON InvoiceDetails.DocumentId = DictionaryDocuments.DocumentId
-      LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
-      LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
-      LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
-      WHERE Invoices.IsDeleted = 0
-    `;
-    const params: QueryParams = [];
-
-    reportCriteriaToDb.map((item) => {
-      query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
-      params.push(
-        item.firstDate.toISOString().split("T")[0],
-        item.secondDate.toISOString().split("T")[0]
-      );
-    });
-
-    query += `
-  GROUP BY Invoices.InvoiceId
-  ORDER BY Invoices.ReceiptDate DESC
-`;
-
-    // --- Wykonanie zapytania ---
-    const result = await getDb().all<AllInvoices>(query, params);
-    console.log('getReportStandardAllInvoices result:', result[0]);
-    return {
-      status: STATUS.Success,
-      data: result ?? [],
-    };
-  } catch (err) {
-    const message = `Nieznany błąd podczas pobierania raportu standardowego faktur z bazy danych.`;
-    log.error(logTitle(functionName, message), err);
-    return {
-      status: STATUS.Error,
-      message: err instanceof Error ? err.message : message,
-    };
-  }
-}
 
 //Funkcja do konstrukcji logów
 export function logTitle(
@@ -1590,6 +1499,16 @@ export function logTitle(
   const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
   return title;
 }
+
+export const getFormattedDate = (date: Date | null, separator: string = "."): string | null => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${day}${separator}${month}${separator}${year}`; // YYYY-MM-DD
+};
+
+
 
 // Przykładowa funkcja
 export async function getConfigBilancio1(tekst: string): Promise<string> {

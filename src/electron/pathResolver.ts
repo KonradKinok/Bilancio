@@ -4,7 +4,7 @@ import { app } from "electron";
 import log from "electron-log";
 import { isDev } from "./util.js";
 import { statusDatabase } from "./dataBase/dbClass.js";
-
+import { exec } from "child_process";
 // Funkcja do pobierania ścieżki do pliku preload
 export function getPreloadPath() {
   return path.join(
@@ -132,4 +132,25 @@ export function getBackupDbPath() {
     log.error('[pathResolver.js] [getBackupDbPath]: Katalog database/backup nie istnieje w ścieżce:', pathToBackupDbPath);
   }
   return pathToBackupDbPath;
+}
+
+//Funkcja do otwierania plików
+export function openFile(filePath: string) {
+  let command: string;
+
+  if (process.platform === "win32") {
+    command = `start "" "${filePath}"`;
+  } else if (process.platform === "darwin") {
+    command = `open "${filePath}"`;
+  } else {
+    command = `xdg-open "${filePath}"`;
+  }
+
+  exec(command, (err) => {
+    if (err) {
+      log.error(`[pathResolver.js] [openFile]: Nie udało się otworzyć pliku: ${err.message}`);
+      // Opcjonalnie: pokaż użytkownikowi komunikat w UI
+      // showMessage("Plik zapisano, ale nie udało się go otworzyć automatycznie.");
+    }
+  });
 }

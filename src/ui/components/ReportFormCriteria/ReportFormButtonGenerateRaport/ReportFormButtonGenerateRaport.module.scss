@@ -1,0 +1,58 @@
+  .button-generate-raport-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .button-generate-raport {
+      --button-gradient-first-color: rgb(17 145 15);
+      --button-gradient-second-color: rgb(17, 207, 11);
+      flex-shrink: 0;
+      width: 100%;
+      // margin: 10px;
+      padding: 15px 30px;
+      text-align: center;
+      text-transform: uppercase;
+      transition: 0.5s;
+      background-size: 200% auto;
+      color: white;
+      border-radius: 10px;
+      display: block;
+      border: 0px;
+      font-weight: 700;
+      box-shadow: 0px 0px 14px -7px var(--button-gradient-second-color);
+      background-image: linear-gradient(45deg, var(--button-gradient-first-color) 0%, var(--button-gradient-second-color) 51%, var(--button-gradient-first-color) 100%);
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .button-generate-raport:hover {
+      background-position: right center;
+      /* change the direction of the change here */
+      color: #fff;
+      text-decoration: none;
+    }
+
+    // .button:active {
+    //   transform: scale(0.95);
+    // }
+
+    .button-generate-raport:not(:disabled):focus,
+    .button-generate-raport:not(:disabled):hover {
+      background-position: right center;
+      /* change the direction of the change here */
+      color: rgb(255, 255, 255);
+      text-decoration: none;
+    }
+
+    .button-generate-raport:not(:disabled):active {
+      transform: scale(0.95);
+    }
+
+    .button-generate-raport:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }

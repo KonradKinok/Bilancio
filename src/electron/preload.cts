@@ -35,7 +35,8 @@ electron.contextBridge.exposeInMainWorld('electron', {
   // getLastRowFromTable: () => ipcInvoke('getLastRowFromTable'),
   //REPORTS
   getReportStandardAllInvoices: (reportCriteriaToDb) => ipcInvoke2('getReportStandardAllInvoices', reportCriteriaToDb),
-
+  exportStandardInvoiceReportToPDF: (dataReportStandardInvoices) => ipcInvoke2('exportStandardInvoiceReportToPDF', dataReportStandardInvoices),
+  exportStandardInvoiceReportToXLSX: (dataReportStandardInvoices, reportCriteriaToDb) => ipcInvoke2('exportStandardInvoiceReportToXLSX', dataReportStandardInvoices, reportCriteriaToDb),
 
   checkStatusDatabase: () => ipcInvoke('checkStatusDatabase'),
   getConfigBilancio1: (payload) => ipcInvoke2('getConfigBilancio1', payload),

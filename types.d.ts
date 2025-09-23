@@ -176,7 +176,7 @@ declare global {
     username: string | null;
     hostname: string | null;
   }
-  //Reports
+  //REPORTS
   type ReportCriteriaDtp = {
     dtpDate: Date | null;
     dtpLabelText: string;
@@ -186,7 +186,24 @@ declare global {
     checked: boolean;
     name: string;
   }
-
+  type AllInvoicesReport = {
+    InvoiceId: number;
+    InvoiceName: string;
+    ReceiptDate: string;
+    DeadlineDate: string | null;
+    PaymentDate: string;
+    IsDeleted: 0 | 1;
+    DocumentIds: string;
+    DocumentNames: string;
+    MainTypeIds: string;
+    MainTypeNames: string;
+    TypeIds: string;
+    TypeNames: string;
+    SubtypeIds: string;
+    SubtypeNames: string;
+    Quantities: string;
+    Prices: string;
+  }
   export type ReportCriteria = {
     id: string;
     checkbox: ReportCriteriaChB;
@@ -198,8 +215,26 @@ declare global {
   //Reports DataBase
   export type ReportCriteriaToDb = {
     name: string;
+    description: string;
     firstDate: Date;
     secondDate: Date;
+  }
+  type ReportStandardInvoice = {
+    InvoiceId: number;
+    InvoiceName: string;
+    ReceiptDate: string | null;
+    DeadlineDate: string | null;
+    PaymentDate: string | null;
+    TotalAmount: number;
+    Documents: {
+      DocumentName: string;
+      MainTypeName: string;
+      TypeName: string;
+      SubtypeName: string;
+      Quantity: number;
+      Price: string;
+      Total: string;
+    }[];
   }
   //IPC
   type EventPayloadMapping = {
@@ -235,7 +270,10 @@ declare global {
     loginUser: DataBaseResponse<User>;
 
     //Reports
-    getReportStandardAllInvoices: DataBaseResponse<AllInvoices[]>;
+    getReportStandardAllInvoices: DataBaseResponse<ReportStandardInvoice[]>;
+    exportStandardInvoiceReportToPDF: ReturnStatusDbMessage;
+    exportStandardInvoiceReportToXLSX: ReturnStatusDbMessage;
+
     getDBbBilancioPath: string;
 
     checkStatusDatabase: ReturnStatusDbMessage;
@@ -272,8 +310,13 @@ declare global {
 
       // getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: () => Promise<DataBaseResponse<User>>;
-      // loginUser: (systemUserName: string, password: string) => Promise<DataBaseResponse<User>>;
-      getReportStandardAllInvoices: (reportCriteriaToDb: ReportCriteriaToDb[]) => Promise<DataBaseResponse<AllInvoices[]>>;
+      //RAPORTY
+      getReportStandardAllInvoices: (reportCriteriaToDb: ReportCriteriaToDb[]) => Promise<DataBaseResponse<ReportStandardInvoice[]>>;
+      exportStandardInvoiceReportToPDF: (dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
+      exportStandardInvoiceReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
+
+
+
       // getLastRowFromTable: () => Promise<unknown>;
       getDBbBilancioPath: () => Promise<string>;
 
