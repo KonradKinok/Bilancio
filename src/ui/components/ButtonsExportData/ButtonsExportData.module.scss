@@ -21,11 +21,17 @@
       display: flex;
       gap: 1rem;
 
-      .button-export-report {
+      .button-export-clipboard {
         --background-color: rgb(17, 207, 11);
         --background-hover-color: rgb(25 255 0);
-        --width: 100px;
-        --icon-container-translate-x: 60px;
+        --button-width: 180px;
+        --text-color: rgb(0 51 25);
+      }
+
+      .button-export-xlsx {
+        --background-color: rgb(17, 207, 11);
+        --background-hover-color: rgb(25 255 0);
+        --button-width: 100px;
         --text-color: rgb(0 51 25);
       }
     }

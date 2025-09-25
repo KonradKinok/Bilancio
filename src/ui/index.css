@@ -37,6 +37,7 @@
   --fourteenth-color: rgb(2, 247, 153); /*Red*/
   --fifteenth-color: rgb(50, 205, 50); /*MediumSpringGreen*/
   --sixteenth-color: rgb(0, 255, 127); /*MediumSpringGreen*/
+  --seventeenth-color: rgb(0, 255, 10); /*MediumSpringGreen*/
   /* radio-button */
 
   /* dateTimePicker */
@@ -98,6 +99,10 @@
   /* Pagination */
   --pagination-item-hover-disabled-select-background: var(--thirteenth-color);
   --pagination-item-color: var(--fourteenth-color); /*Indygo */
+
+  /* ReportPage */
+  --reportPage-text-color: var(--seventeenth-color);
+  --reportPage-text-color-hover: var(--fourteenth-color);
 
   /* form */
   --form-color: rgb(0, 100, 255);

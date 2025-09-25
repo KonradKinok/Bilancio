@@ -2,10 +2,13 @@
   --font-size-small: var(--small-font-size);
   --font-size-medium: var(--medium-font-size);
   --font-size-large: var(--large-font-size);
+  --text-color: var(--reportPage-text-color);
+
   display: flex;
   flex-direction: column;
   align-items: center;
   margin: 1rem;
+  color: var(--text-color);
 
   .container {
     max-width: 90%;
@@ -20,9 +23,6 @@
       padding: 1rem;
 
     }
-
-    // color: rgb(181 181 181);
-
   }
 
   .small-font {

@@ -4,10 +4,11 @@
   --text-color: rgb(0, 0, 255);
   --text-color-disabled: rgb(102, 102, 102);
   --background-color-disabled: rgb(204, 204, 204);
-  --width: 150px;
-  --icon-container-translate-x: 110px;
+  --button-width: 150px;
+  --icon-container-width: 40px;
+  --icon-container-translate-x: calc(var(--button-width) - var(--icon-container-width));
 
-  width: var(--width);
+  width: var(--button-width);
   height: 34px;
   cursor: pointer;
   display: flex;
@@ -22,10 +23,12 @@
   .text,
   .icon-container {
     transition: all .500s cubic-bezier(.4, 0, .2, 1);
+
   }
 
   &:hover:not(:disabled) {
     background: var(--background-hover-color);
+
   }
 
   &:hover:not(:disabled) .text {
@@ -33,9 +36,10 @@
   }
 
   &:hover:not(:disabled) .icon-container {
-    width: var(--width);
+    width: var(--button-width);
     border-left: none;
     transform: translateX(0);
+
   }
 
   &:focus {
@@ -57,12 +61,13 @@
     color: var(--text-color);
     font-weight: bold;
     padding: 0.5rem;
+    text-align: center;
   }
 
   .icon-container {
     position: absolute;
     transform: translateX(var(--icon-container-translate-x));
-    width: 40px;
+    width: var(--icon-container-width);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -22,11 +22,11 @@ export function calculateTotalAmount(quantities: string[], prices: string[]): st
 }
 
 //Formater do ceny
-export function currencyFormater(value: string | number | null | undefined): string {
+export function currencyFormater(value: string | number | null | undefined, maximumFractionDigits: number = 4): string {
   const currencyFormatter = new Intl.NumberFormat("pl-PL", {
     style: "currency",
     currency: "PLN",
-    maximumFractionDigits: 4, // Maksymalna liczba cyfr po przecinku
+    maximumFractionDigits: maximumFractionDigits, // Maksymalna liczba cyfr po przecinku
   });
 
   if (value === null || value === undefined) {

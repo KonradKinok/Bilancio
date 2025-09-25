@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
 import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
 import * as DataBaseTables from "../../../../../electron/dataBase/enum";
@@ -7,16 +7,14 @@ import { useReportStandardInvoices } from "../../../../hooks/useReportStandardIn
 import { STATUS } from "../../../../../electron/sharedTypes/status";
 import {
   displayErrorMessage,
-  formatDocumentDetailsFunction,
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
 import toast from "react-hot-toast";
-import { useAllDocumentsName } from "../../../../hooks/useAllDocumentName";
 import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
 import { Loader } from "../../../../components/Loader/Loader";
 import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
-import { useExportStandardInvoiceReportToPDF } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToPDF";
+
 import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
 
 const reportCriteriaArray: ReportCriteria[] = [
@@ -73,7 +71,9 @@ const reportCriteriaArray: ReportCriteria[] = [
 ];
 
 const ReportStandardInvoicePage: React.FC = () => {
+  const tableRef = useRef<HTMLTableElement>(null);
   const { options } = useMainDataContext();
+  const [totalPriceAllInvoices, setTotalPriceAllInvoices] = useState(0);
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
@@ -89,21 +89,26 @@ const ReportStandardInvoicePage: React.FC = () => {
     getReportStandardInvoices,
   } = useReportStandardInvoices();
 
-  //Hook do exportu raportu do PDF
-  const {
-    data: dataExportPdfReportStandardInvoices,
-    loading: loadingExportPdfReportStandardInvoices,
-    error: errorExportPdfReportStandardInvoices,
-    exportPdfReportStandardInvoices,
-  } = useExportStandardInvoiceReportToPDF();
+  //Hook do exportu raportu do XLSX
   const {
     data: dataExportStandardInvoiceReportToXLSX,
     loading: loadingExportStandardInvoiceReportToXLSX,
     error: errorExportStandardInvoiceReportToXLSX,
     exportStandardInvoiceReportToXLSX,
   } = useExportStandardInvoiceReportToXLSX();
+
+  useEffect(() => {
+    if (dataReportStandardInvoices) {
+      const totalAmount = dataReportStandardInvoices.reduce(
+        (sum, doc) => sum + parseFloat(doc.TotalAmount.toString()),
+        0
+      );
+      setTotalPriceAllInvoices(totalAmount);
+    }
+  }, [dataReportStandardInvoices]);
+
   //Wygenerowanie danych do raportu
-  const handleButtonClick = async () => {
+  const handleGenerateReportButtonClick = async () => {
     const filteredCriteria: ReportCriteriaToDb[] = reportCriteria
       .filter(
         (criteria) =>
@@ -148,38 +153,42 @@ const ReportStandardInvoicePage: React.FC = () => {
     }
   };
 
-  //Wygenerowanie raportu
-  const handleExportButtonClick = async () => {
+  //Exportowanie raportu do schowka i do pliku XLSX
+  const handleExportButtonClick = async (btnName: string) => {
     if (!dataReportStandardInvoices) {
       return;
     }
-    const successText = `Eksport do PDF został pomyślnie wykonany.`;
-    const errorText = `Nie udało się wykonać eksportu do PDF.`;
-    try {
-      setIsRaportGenerating(true);
-      const result = await exportStandardInvoiceReportToXLSX(
-        reportCriteriaToDb,
-        dataReportStandardInvoices
-      );
-      if (result.status === 0) {
-        toast.success(`${successText} `);
-
-        console.log("result", result);
-      } else {
+    if (btnName === "exportToSystemStorage" && tableRef.current) {
+      copyTableToClipboard(tableRef);
+      return;
+    }
+    if (btnName === "exportToXls") {
+      const successText = `Eksport do XLSX został pomyślnie wykonany.`;
+      const errorText = `Nie udało się wykonać eksportu do XLSX.`;
+      try {
+        setIsRaportGenerating(true);
+        const result = await exportStandardInvoiceReportToXLSX(
+          reportCriteriaToDb,
+          dataReportStandardInvoices
+        );
+        if (result.status === 0) {
+          toast.success(`${successText} `);
+        } else {
+          displayErrorMessage(
+            "ReportStandardInvoicePage",
+            "handleExportButtonClick",
+            `${errorText} ${result.message}`
+          );
+        }
+      } catch (err) {
         displayErrorMessage(
           "ReportStandardInvoicePage",
           "handleExportButtonClick",
-          `${errorText} ${result.message}`
+          err
         );
+      } finally {
+        setIsRaportGenerating(false);
       }
-    } catch (err) {
-      displayErrorMessage(
-        "ReportStandardInvoicePage",
-        "handleExportButtonClick",
-        err
-      );
-    } finally {
-      setIsRaportGenerating(false);
     }
   };
 
@@ -194,7 +203,7 @@ const ReportStandardInvoicePage: React.FC = () => {
           <ReportFormCriteria
             reportCriteria={reportCriteria}
             setReportCriteria={setReportCriteria}
-            handleButtonClick={handleButtonClick}
+            handleButtonClick={handleGenerateReportButtonClick}
             isRaportGenerating={isRaportGenerating}
           />
         </div>
@@ -212,7 +221,9 @@ const ReportStandardInvoicePage: React.FC = () => {
             )}
           <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />
           <TableReportStandardInvoice
+            ref={tableRef}
             dataReportStandardInvoices={dataReportStandardInvoices}
+            totalPriceAllInvoices={totalPriceAllInvoices}
           />
         </>
       )}
@@ -220,3 +231,36 @@ const ReportStandardInvoicePage: React.FC = () => {
   );
 };
 export default ReportStandardInvoicePage;
+
+const copyTableToClipboard = (
+  tableRef: React.RefObject<HTMLTableElement | null>
+) => {
+  try {
+    if (tableRef.current) {
+      // Klonujemy tabelę
+      const tableClone = tableRef.current.cloneNode(true) as HTMLTableElement;
+
+      // Dodanie obramowań
+      tableClone.style.borderCollapse = "collapse";
+      tableClone.querySelectorAll("th, td").forEach((cell) => {
+        (cell as HTMLElement).style.border = "1px solid black";
+        (cell as HTMLElement).style.padding = "4px"; // opcjonalnie padding
+      });
+
+      const htmlClean = tableClone.outerHTML;
+      const textClean = tableClone.innerText;
+
+      window.electron.clipboard(htmlClean, textClean);
+      const successTextToast =
+        "Tabela została skopiowana do schowka. Użyj skrótu Ctr+V żeby wkleić tabelę do pliku Word lub Excell";
+      toast.success(`${successTextToast} `);
+    }
+  } catch (err) {
+    const errorTextToast = "Błąd podczas kopiowania tabeli do schowka:";
+    displayErrorMessage(
+      "ReportStandardInvoicePage",
+      "handleExportButtonClick",
+      ` ${errorTextToast} ${err}`
+    );
+  }
+};

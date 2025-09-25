@@ -1,14 +1,19 @@
 import scss from "./TableReportStandardInvoice.module.scss";
 import { useMainDataContext } from "../Context/useMainDataContext";
+import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
+import { forwardRef } from "react";
 
 interface TableReportStandardInvoiceProps {
   dataReportStandardInvoices: ReportStandardInvoice[] | null;
+  totalPriceAllInvoices: number;
 }
 
-export const TableReportStandardInvoice = ({
-  dataReportStandardInvoices,
-}: TableReportStandardInvoiceProps) => {
+export const TableReportStandardInvoice = forwardRef<
+  HTMLTableElement,
+  TableReportStandardInvoiceProps
+>(({ dataReportStandardInvoices, totalPriceAllInvoices }, ref) => {
   const { options } = useMainDataContext();
+
   if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
     return <div></div>;
   }
@@ -17,11 +22,13 @@ export const TableReportStandardInvoice = ({
     <div className={`${scss["mainTable-main-container"]}`}>
       <div>
         <table
+          ref={ref}
           className={`${scss["table"]} ${scss[`${options.fontSize.en}-font`]}`}
         >
           <thead className={`${scss["table-header"]}`}>
             <tr>
               <th>Lp.</th>
+              <th>Suma faktury</th>
               <th>Nazwa faktury</th>
               <th>Data wpływu</th>
               <th>Termin płatności</th>
@@ -36,6 +43,7 @@ export const TableReportStandardInvoice = ({
               return (
                 <tr key={invoice.InvoiceId}>
                   <td>{String(index + 1).padStart(3, "0")}.</td>
+                  <td>{currencyFormater(invoice.TotalAmount)}</td>
                   <td>{invoice.InvoiceName}</td>
                   <td>{invoice.ReceiptDate}</td>
                   <td>{invoice.DeadlineDate}</td>
@@ -68,7 +76,9 @@ export const TableReportStandardInvoice = ({
                     {Array.isArray(invoice.Documents) &&
                     invoice.Documents.length > 0 ? (
                       invoice.Documents.map((documentName, i) => (
-                        <div key={i}>{documentName.Price}</div>
+                        <div key={i}>
+                          {currencyFormater(documentName.Price)}
+                        </div>
                       ))
                     ) : (
                       <div></div>
@@ -80,13 +90,13 @@ export const TableReportStandardInvoice = ({
           </tbody>
         </table>
         <div className={scss["maintable-footer-container"]}>
-          <div className={scss["maintable-controls-container"]}>
-            <div className={scss["total-invoices"]}>
-              <p>Liczba faktur: {dataReportStandardInvoices?.length}</p>
-            </div>
-          </div>
+          <p>Liczba faktur: {dataReportStandardInvoices?.length}</p>
+          <p>Suma cen faktur: {currencyFormater(totalPriceAllInvoices)}</p>
         </div>
       </div>
     </div>
   );
-};
+});
+
+// opcjonalnie dodaj nazwę komponentu (przydatne w devtools)
+TableReportStandardInvoice.displayName = "TableReportStandardInvoice";

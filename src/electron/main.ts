@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Tray, dialog, clipboard } from "electron";
 import log from "electron-log"; // Dodaj import
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
 // import { getStaticData, pollResources } from "./resourceManager.js";
@@ -253,7 +253,12 @@ app.on("ready", async () => {
       app.relaunch();   // Uruchamienie nowej instancji
       app.exit(0);      // Zamknięcie obecnej instancji
     });
-
+    // ipcMain.on("clipboard", (event, { html, text }) => {
+    //   clipboard.write({ html, text });
+    // });
+    ipcMainOn("clipboard", ({ html, text }) => {
+      clipboard.write({ html, text });
+    });
     tray = createTray(mainWindow); //Utworzenie tray
     handleCloseEvents(mainWindow); //Handler do zamykania okna aplikacji
     createMenu(mainWindow); //Utworzenie menu

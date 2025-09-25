@@ -43,6 +43,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   //Electron
   reloadWindow: () => ipcRenderer.send('reload-window'),
   restartApp: () => ipcRenderer.send("restart-app"),
+  clipboard: (html, text) => ipcSend("clipboard", { html, text })
 
 } satisfies Window["electron"]);
 

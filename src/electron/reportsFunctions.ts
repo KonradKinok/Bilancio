@@ -112,11 +112,11 @@ export async function getReportStandardAllInvoices(
 
       return {
         InvoiceId: invoice.InvoiceId,
+        TotalAmount: totalAmount,
         InvoiceName: invoice.InvoiceName,
         ReceiptDate: invoice.ReceiptDate,
         DeadlineDate: invoice.DeadlineDate,
         PaymentDate: invoice.PaymentDate,
-        TotalAmount: totalAmount,
         Documents: documents,
       };
     });

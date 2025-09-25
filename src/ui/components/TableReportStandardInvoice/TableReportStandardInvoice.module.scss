@@ -104,63 +104,26 @@
 
   .maintable-footer-container {
     display: flex;
+    justify-content: space-around;
     background-color: var(--th-background-color);
     box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
     border-bottom-left-radius: 0.5rem;
     border-bottom-right-radius: 0.5rem;
     padding: 0.5rem;
+    color: rgb(2, 247, 153);
+    font-size: 0.8rem;
+    // .maintable-controls-container {
+    //   display: flex;
+    //   align-self: start;
+    //   justify-content: space-between;
+    //   gap: 50px;
+    // }
 
 
-    .maintable-controls-container {
-      display: flex;
-      align-self: start;
-      justify-content: space-between;
-      gap: 50px;
-    }
 
-    .controls {
-      display: flex;
-      align-self: start;
-      align-items: center;
-      gap: 10px;
 
-      .label {
-        font-size: 0.8rem;
-        color: rgb(2, 247, 153);
-      }
 
-      .select {
-        padding: 5px;
-        border: 1px solid rgb(2, 247, 153);
-        color: rgb(2, 247, 153);
-        background-color: var(--th-background-color);
-        border-radius: 4px;
-        font-size: 0.8rem;
-        ;
-        cursor: pointer;
 
-        &:focus {
-          outline: none;
-          border-color: #2e7d32;
-        }
-      }
-    }
-
-    .total-invoices {
-      align-self: center;
-      justify-self: center;
-      font-size: 0.8rem;
-      color: rgb(2, 247, 153);
-      text-align: center;
-    }
-
-    .pagination {
-      display: flex;
-      gap: 3px;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto
-    }
   }
 
   .small-font {

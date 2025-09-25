@@ -273,7 +273,7 @@ declare global {
     getReportStandardAllInvoices: DataBaseResponse<ReportStandardInvoice[]>;
     exportStandardInvoiceReportToPDF: ReturnStatusDbMessage;
     exportStandardInvoiceReportToXLSX: ReturnStatusDbMessage;
-
+    clipboard: { html: string; text: string };
     getDBbBilancioPath: string;
 
     checkStatusDatabase: ReturnStatusDbMessage;
@@ -327,6 +327,7 @@ declare global {
       //Electron
       reloadWindow: () => void;
       restartApp: () => void;
+      clipboard: (html: string, text: string) => void;
     };
   }
 }

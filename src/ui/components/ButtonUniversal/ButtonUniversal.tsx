@@ -1,6 +1,7 @@
 import { Tooltip } from "react-tooltip";
 import scss from "./ButtonUniversal.module.scss";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { useEffect, useRef } from "react";
 
 type ButtonType = "button" | "submit" | "reset" | undefined;
 
