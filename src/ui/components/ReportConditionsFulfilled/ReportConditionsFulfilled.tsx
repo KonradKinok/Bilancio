@@ -2,7 +2,6 @@ import { useToggle } from "../../hooks/useToggle";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import { getFormatedDate } from "../GlobalFunctions/GlobalFunctions";
 import scss from "./ReportConditionsFulfilled.module.scss";
-import { useEffect, useState } from "react";
 import { FaMinus } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
@@ -19,7 +18,12 @@ export const ReportConditionsFulfilled = ({
   if (!reportCriteriaToDb?.length) return null;
 
   const hasCriteria = reportCriteriaToDb.length > 0;
-
+  console.log(
+    "ReportConditionsFulfilled",
+    reportCriteriaToDb[0].firstDate,
+    "Typ: ",
+    reportCriteriaToDb[0].firstDate instanceof Date
+  );
   return (
     <div className={`${scss["reportConditionsFulfilled-main-container"]}`}>
       <div

@@ -82,7 +82,7 @@ app.on("ready", async () => {
       getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX
     } = await import("./reportsFunctions.js");
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
-    Object.assign(console, log.functions); //Przeniesienie console.log do log
+    // Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
     configureBackupDb(); //Utworzenie kopii bazu danych
     initDb(); //Zainicjalizowanie bazy danych

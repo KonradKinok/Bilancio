@@ -16,7 +16,6 @@ export async function getReportStandardAllInvoices(
 ): Promise<DataBaseResponse<ReportStandardInvoice[]>> {
   const functionName = getReportStandardAllInvoices.name;
   // --- Walidacja danych wejściowych ---
-  console.log('getReportStandardAllInvoices called with:', reportCriteriaToDb);
   if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
     const message = `Brak dat do pobrania raportu standardowego faktur z bazy danych`;
     log.error(logTitle(functionName, message));
@@ -120,7 +119,6 @@ export async function getReportStandardAllInvoices(
         Documents: documents,
       };
     });
-    console.log('getReportStandardAllInvoices parsedResult:', parsedResult[0]);
     return {
       status: STATUS.Success,
       data: parsedResult ?? [],
@@ -135,6 +133,221 @@ export async function getReportStandardAllInvoices(
   }
 }
 
+
+
+
+type ExcelCellTypeAndAligment = "string" | "number" | "date" | "currency2" | "currency4" | "general";
+
+const typeToStyle: Record<string, Partial<ExcelJS.Style>> = {
+  string: { numFmt: '@', alignment: { horizontal: 'left', vertical: "middle" } },
+  number: { numFmt: '#,##0', alignment: { horizontal: 'right', vertical: "middle" } },
+  date: { numFmt: 'dd/mm/yyyy', alignment: { horizontal: 'right', vertical: "middle" } },
+  currency2: { numFmt: '#,##0.00 [$zł-415]', alignment: { horizontal: 'right', vertical: "middle" } },
+  currency4: { numFmt: '#,##0.0000 [$zł-415]', alignment: { horizontal: 'right', vertical: "middle" } },
+  general: { numFmt: 'General' },
+};
+
+type ColumnType = {
+  name: string;
+  width: number;
+  type: ExcelCellTypeAndAligment;
+}
+//Export standard invoice report do XLSX
+export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
+  const functionName = exportStandardInvoiceReportToXLSX.name;
+  if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
+    const message = 'Brak danych do raportu.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: message,
+    };
+  }
+  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
+    const message = 'Brak kryteriów do raportu.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: message,
+    };
+  }
+  try { // Zapis pliku
+    const workbook = new ExcelJS.Workbook();
+    const sheetData = workbook.addWorksheet("Raport");
+    const sheetCriteria = workbook.addWorksheet("Kryteria");
+
+    //SHEET CRITERIA
+    sheetCriteria.addRow(["Kryteria raportu", "", getFormattedDate(new Date())]);
+    sheetCriteria.mergeCells(`A1:B1`); //Kryteria raportu
+    sheetCriteria.addRow([]);
+    const headersCriteria: ColumnType[] = [
+      { name: "Lp.", width: 4, type: "number" },
+      { name: "Nazwa", width: 22, type: "string" },
+      { name: "Data początkowa", width: 16, type: "date" },
+      { name: "Data końcowa", width: 14, type: "date" },
+    ];
+    //Nagłówek Sheet Criteria
+    const headerRowSheetCriteria = sheetCriteria.addRow(headersCriteria.map((column) => column.name));
+    styleHeaderRow(headerRowSheetCriteria);
+    sheetCriteria.columns = headersCriteria.map(column => ({
+      width: column.width,
+      style: typeToStyle[column.type] || typeToStyle.general
+    }));
+    //Zawartość sheet criteria
+    reportCriteriaToDb.forEach((item, index) => {
+      const rowSheetCriteria = sheetCriteria.addRow([
+        index + 1,
+        item.description,
+        new Date(item.firstDate),
+        new Date(item.secondDate),
+      ]);
+
+      // Stylizowanie wiersza od razu po utworzeniu
+      styleContentRow(rowSheetCriteria);
+    });
+
+    // SHEET DATA
+    //Dane
+    const headersData = [
+      { name: "Lp.", width: 4, type: "number" },
+      { name: "Suma faktury", width: 14, type: "currency2" },
+      { name: "Nazwa faktury", width: 14, type: "string" },
+      { name: "Data wpływu", width: 12, type: "date" },
+      { name: "Termin płatności", width: 16, type: "date" },
+      { name: "Data płatności", width: 14, type: "date" },
+      { name: "Dokument", width: 76, type: "string" },
+      { name: "Liczba", width: 7, type: "number" },
+      { name: "Cena", width: 12, type: "currency4" },
+      { name: "Razem", width: 11, type: "currency2" },
+    ];
+
+    //Stylowanie kolumn + wypisanie nazw kolumn
+    sheetData.columns = headersData.map(column => ({
+      header: column.name,
+      width: column.width,
+      style: typeToStyle[column.type] || typeToStyle.general
+    }));
+
+    // Pobranie pierwszego wiersza (nazwy kolumn)
+    const headerRowSheetData = sheetData.getRow(1);
+
+    //Stylowanie nazw kolumn
+    styleHeaderRow(headerRowSheetData);
+
+    //Zawartość sheet data
+    //Pobranie pierwszego pustego wiersza pod nazwami kolumn
+    let currentRow = sheetData.rowCount + 1;
+
+    //Dodanie wartości zawartości tabeli + stylowanie komórek
+    dataReportStandardInvoices.forEach((invoice, invoiceIndex) => {
+      const startRow = currentRow;
+
+      invoice.Documents.forEach((doc) => {
+        const rowSheetData = sheetData.addRow([
+          invoiceIndex + 1, // Lp. (może też być scalone)
+          invoice.TotalAmount,
+          invoice.InvoiceName,
+          invoice.ReceiptDate ? new Date(invoice.ReceiptDate) : "",
+          invoice.DeadlineDate ? new Date(invoice.DeadlineDate) : "",
+          invoice.PaymentDate ? new Date(invoice.PaymentDate) : "",
+          `${doc.DocumentName} ${doc.MainTypeName} ${doc.TypeName} ${doc.SubtypeName}`,
+          doc.Quantity,
+          Number(doc.Price),
+          Number(doc.Total)
+        ]);
+        currentRow++;
+        styleContentRow(rowSheetData);
+
+      });
+      const totalAmountAllInvoices = dataReportStandardInvoices.reduce((sum, invoice) => sum + invoice.TotalAmount, 0);
+      const endRow = currentRow - 1;
+      //Scalanie kolumn z danymi faktury
+      if (invoice.Documents.length > 1) {
+        sheetData.mergeCells(`A${startRow}: A${endRow}`); // Lp.
+        sheetData.mergeCells(`B${startRow}: B${endRow}`); // Suma faktury
+        sheetData.mergeCells(`C${startRow}: C${endRow}`); // Nazwa faktury
+        sheetData.mergeCells(`D${startRow}: D${endRow}`); // Data wpływu
+        sheetData.mergeCells(`E${startRow}: E${endRow}`); // Termin płatności
+        sheetData.mergeCells(`F${startRow}: F${endRow}`); // Data płatności
+      }
+
+      //Pobranie wiersza który ma być dodatkowo ostylowany
+      const row = sheetData.getRow(endRow);
+      row.eachCell((cell) => {
+        cell.border = {
+          ...cell.border, // Zachowanie pozostałych krawędzi
+          bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+        };
+      });
+
+      if (invoiceIndex === dataReportStandardInvoices.length - 1) {
+        // Ustawienie wartości w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).value = totalAmountAllInvoices;
+        // Ustawienie pogrubienia tekstu w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).font = { bold: true };
+        // Ustawienie formatu liczbowego w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
+      }
+    });
+
+    // Wygenerowanie pliku xlsx
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const filePath = getSavedDocumentsPathWithCustomFile(`raport - ${timestamp}.xlsx`)
+    await workbook.xlsx.writeFile(filePath);
+
+    //Sprawdzenie czy zapisany plik xlsx istnieje
+    if (!fs.existsSync(filePath)) {
+      const message = `Plik xlsx nie istnieje w ścieżce: ${filePath}`
+      log.error(logTitle(functionName, message));
+      return { status: 2, message: message };
+    }
+
+    //Otworzenie pliku xlsx
+    openFile(filePath);
+
+    //Wiadomość zwrotna o poprawnym zapisaniu pliku xlsx
+    return { status: 0, message: `XLSX został poprawnie zapisany.` };
+  } catch (err) {
+    const message = 'Błąd podczas generowania pliku XLSX.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: err instanceof Error ? err.message : message,
+    };
+  }
+}
+
+// Funkcja pomocnicza do nadania stylu wierszowi nagłówka
+function styleHeaderRow(
+  row: ExcelJS.Row,
+) {
+  row.eachCell((cell) => {
+    cell.font = { name: "Arial", size: 10, bold: true };
+    cell.numFmt = "@";
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.border = {
+      top: { style: "medium" },
+      left: { style: "medium" },
+      bottom: { style: "medium" },
+      right: { style: "medium" },
+    };
+  });
+}
+
+// Funkcja pomocnicza do nadania stylu wierszowi zawartości
+function styleContentRow(
+  row: ExcelJS.Row
+) {
+  row.eachCell((cell) => {
+    cell.font = { name: "Arial", size: 10, bold: false };
+    cell.border = {
+      top: { style: "thin" },
+      left: { style: "medium" },
+      bottom: { style: "thin" },
+      right: { style: "medium" },
+    };
+  });
+}
 
 //Export standard invoice report do PDF
 export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
@@ -219,160 +432,3 @@ export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoice
     };
   }
 };
-
-export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
-  const functionName = exportStandardInvoiceReportToXLSX.name;
-  if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
-    const message = 'Brak danych do raportu.';
-    log.error(logTitle(functionName, message));
-    return {
-      status: 2,
-      message: message,
-    };
-  }
-  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
-    const message = 'Brak kryteriów do raportu.';
-    log.error(logTitle(functionName, message));
-    return {
-      status: 2,
-      message: message,
-    };
-  }
-  try { // Zapis pliku
-    const workbook = new ExcelJS.Workbook();
-    const sheetData = workbook.addWorksheet("Raport");
-    const sheetCriteria = workbook.addWorksheet("Kryteria");
-
-    //sheetCriteria
-    const titleRowSheetCriteria = sheetCriteria.addRow(["", "Kryteria raportu", getFormattedDate(new Date())]);
-    sheetCriteria.addRow([]);
-    const headerRowSheetCriteria = sheetCriteria.addRow(["Lp.", "Nazwa", "Data początkowa", "Data końcowa"]);
-    // headerSheetCryteria.eachCell((cell) => {
-    //   cell.font = { bold: true, size: 14 }; // pogrubienie + większa czcionka
-    //   cell.alignment = { horizontal: "center" }; // opcjonalnie wyśrodkowanie
-    //   cell.border = { // opcjonalnie obramowanie
-    //     top: { style: "thin" },
-    //     left: { style: "thin" },
-    //     bottom: { style: "thin" },
-    //     right: { style: "thin" },
-    //   };
-    // });
-
-    styleHeaderRow(headerRowSheetCriteria)
-    // reportCriteriaToDb.map((item, index) => sheetCriteria.addRow([index + 1, item.description, getFormattedDate(item.firstDate), getFormattedDate(item.secondDate)]))
-    // const contentRowSheetCriteria = reportCriteriaToDb.map((item, index) => {
-    //   const row = sheetCriteria.addRow([
-    //     index + 1,
-    //     item.description,
-    //     getFormattedDate(item.firstDate),
-    //     getFormattedDate(item.secondDate),
-    //   ]);
-
-    //   // Dodaj obramowanie do wszystkich komórek w wierszu
-    //   row.eachCell((cell) => {
-    //     cell.border = {
-    //       top: { style: "thin" },
-    //       left: { style: "thin" },
-    //       bottom: { style: "thin" },
-    //       right: { style: "thin" },
-    //     };
-    //   });
-    // });
-    reportCriteriaToDb.forEach((item, index) => {
-      const row = sheetCriteria.addRow([
-        index + 1,
-        item.description,
-        getFormattedDate(item.firstDate),
-        getFormattedDate(item.secondDate),
-      ]);
-
-      // Stylizowanie wiersza od razu po utworzeniu
-      styleContentRow(row, ["number", "string", "date", "date"]);
-    });
-    // Dodaj nagłówki
-    const headerRowSheetData = sheetData.addRow(["Lp.", "Nazwa faktury", "Data wpływu", "Termin płatności", "Data płatności", "Dokumenty", "Liczba", "Cena"]);
-    styleHeaderRow(headerRowSheetData)
-
-    // Dodaj przykładowe dane
-    sheetData.addRow([1, "FV/0714", "2025-07-14"]);
-    sheetData.addRow([2, "Produkt B", 456.78]);
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.xlsx`)
-    await workbook.xlsx.writeFile(filePath);
-
-    //Sprawdzenie czy zapisany plik xlsx istnieje
-    if (!fs.existsSync(filePath)) {
-      const message = `Plik xlsx nie istnieje w ścieżce: ${filePath}`
-      log.error(logTitle(functionName, message));
-      return { status: 2, message: message };
-    }
-
-    //Otwórz plik
-    openFile(filePath);
-
-    return { status: 0, message: `XLSX został poprawnie zapisany.` };
-  } catch (err) {
-    const message = 'Błąd podczas generowania pliku XLSX.';
-    log.error(logTitle(functionName, message));
-    return {
-      status: 2,
-      message: err instanceof Error ? err.message : message,
-    };
-  }
-}
-
-// Funkcja pomocnicza do nadania stylu wierszowi
-function styleHeaderRow(
-  row: ExcelJS.Row,
-) {
-  row.eachCell((cell) => {
-    // Styl
-    cell.font = { name: "Arial", size: 11, bold: true };
-    cell.alignment = { horizontal: "center", vertical: "middle" }; // wrapText przy długim tekście
-    cell.border = {
-      top: { style: "thin" },
-      left: { style: "medium" },
-      bottom: { style: "thin" },
-      right: { style: "medium" },
-    };
-  });
-}
-
-function styleContentRow(
-  row: ExcelJS.Row,
-  cellFormats?: ("string" | "number" | "date" | "currency" | "general")[]
-) {
-  row.eachCell((cell, colNumber) => {
-    // Formatowanie komórki
-    if (cellFormats && cellFormats[colNumber - 1]) {
-      switch (cellFormats[colNumber - 1]) {
-        case "string":
-          cell.numFmt = "@";
-          break;
-        case "number":
-          cell.numFmt = "#,##0";
-          break;
-        case "date":
-          cell.numFmt = "yyyy.mm.dd";
-          break;
-        case "currency":
-          cell.numFmt = '"zł"#,##0.0000'; // format walutowy PLN cztery miejsca po przecinku
-          break;
-        case "general":
-        default:
-          cell.numFmt = "General"; // domyślny format Excela
-          break;
-      }
-    }
-
-    // Styl
-    cell.font = { name: "Arial", size: 10, bold: false };
-    cell.alignment = { horizontal: "left", vertical: "middle" };
-    cell.border = {
-      top: { style: "thin" },
-      left: { style: "medium" },
-      bottom: { style: "thin" },
-      right: { style: "medium" },
-    };
-  });
-}

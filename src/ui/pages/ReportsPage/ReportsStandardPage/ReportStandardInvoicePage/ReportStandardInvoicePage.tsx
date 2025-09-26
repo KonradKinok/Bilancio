@@ -107,6 +107,11 @@ const ReportStandardInvoicePage: React.FC = () => {
     }
   }, [dataReportStandardInvoices]);
 
+  useEffect(() => {
+    clearReport();
+    setReportCriteriaToDb([]);
+  }, [clearReport, reportCriteria]);
+
   //Wygenerowanie danych do raportu
   const handleGenerateReportButtonClick = async () => {
     const filteredCriteria: ReportCriteriaToDb[] = reportCriteria

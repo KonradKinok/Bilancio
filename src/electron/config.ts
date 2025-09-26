@@ -26,7 +26,15 @@ export function configureLogs(): void {
   log.transports.file.level = 'info';
   log.transports.file.resolvePathFn = () => logFilePath;
   log.transports.console.level = isDev() ? false : false;
-
+  if (isDev()) {
+    // Dev: logi w konsoli, nie w pliku
+    log.transports.console.level = false;
+    log.transports.file.level = false; // wyłącza zapis do pliku
+  } else {
+    // Prod: logi w pliku, nie w konsoli
+    log.transports.console.level = false;
+    log.transports.file.level = 'info';
+  }
   // Sprawdzanie liczby plików logów
   const logFiles = fs.readdirSync(logDir)
     .filter(file => file.startsWith('log-') && file.endsWith('.log'))
