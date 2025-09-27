@@ -244,7 +244,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
 
       invoice.Documents.forEach((doc) => {
         const rowSheetData = sheetData.addRow([
-          invoiceIndex + 1, // Lp. (może też być scalone)
+          invoiceIndex + 1,
           invoice.TotalAmount,
           invoice.InvoiceName,
           invoice.ReceiptDate ? new Date(invoice.ReceiptDate) : "",

@@ -1,21 +1,21 @@
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
-import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
-import * as DataBaseTables from "../../../../../electron/dataBase/enum";
-import scss from "./ReportStandardInvoicePage.module.scss";
 import { useReportStandardInvoices } from "../../../../hooks/useReportStandardInvoices";
+import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
 import { STATUS } from "../../../../../electron/sharedTypes/status";
+import * as DataBaseTables from "../../../../../electron/dataBase/enum";
 import {
+  copyTableToClipboard,
   displayErrorMessage,
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
-import toast from "react-hot-toast";
-import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
 import { Loader } from "../../../../components/Loader/Loader";
+import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
+import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
 import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
-
-import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
+import scss from "./ReportStandardInvoicePage.module.scss";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -23,8 +23,7 @@ const reportCriteriaArray: ReportCriteria[] = [
     description: "Data wystawienia faktury",
     checkbox: { checked: true, name: "receiptDateCheckbox" },
     firstDtp: {
-      // dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 8, 18)),
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
       dtpLabelText: "od",
       dtpName: "receiptFirstDate",
     },
@@ -39,7 +38,7 @@ const reportCriteriaArray: ReportCriteria[] = [
   {
     id: DataBaseTables.InvoicesTable.DeadlineDate,
     description: "Termin płatności",
-    checkbox: { checked: false, name: "deadlineDateCheckbox" },
+    checkbox: { checked: true, name: "deadlineDateCheckbox" },
     firstDtp: {
       dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
       dtpLabelText: "od",
@@ -55,7 +54,7 @@ const reportCriteriaArray: ReportCriteria[] = [
   {
     id: DataBaseTables.InvoicesTable.PaymentDate,
     description: "Data płatności",
-    checkbox: { checked: false, name: "paymentDateCheckbox" },
+    checkbox: { checked: true, name: "paymentDateCheckbox" },
     firstDtp: {
       dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
       dtpLabelText: "od",
@@ -236,36 +235,3 @@ const ReportStandardInvoicePage: React.FC = () => {
   );
 };
 export default ReportStandardInvoicePage;
-
-const copyTableToClipboard = (
-  tableRef: React.RefObject<HTMLTableElement | null>
-) => {
-  try {
-    if (tableRef.current) {
-      // Klonujemy tabelę
-      const tableClone = tableRef.current.cloneNode(true) as HTMLTableElement;
-
-      // Dodanie obramowań
-      tableClone.style.borderCollapse = "collapse";
-      tableClone.querySelectorAll("th, td").forEach((cell) => {
-        (cell as HTMLElement).style.border = "1px solid black";
-        (cell as HTMLElement).style.padding = "4px"; // opcjonalnie padding
-      });
-
-      const htmlClean = tableClone.outerHTML;
-      const textClean = tableClone.innerText;
-
-      window.electron.clipboard(htmlClean, textClean);
-      const successTextToast =
-        "Tabela została skopiowana do schowka. Użyj skrótu Ctr+V żeby wkleić tabelę do pliku Word lub Excell";
-      toast.success(`${successTextToast} `);
-    }
-  } catch (err) {
-    const errorTextToast = "Błąd podczas kopiowania tabeli do schowka:";
-    displayErrorMessage(
-      "ReportStandardInvoicePage",
-      "handleExportButtonClick",
-      ` ${errorTextToast} ${err}`
-    );
-  }
-};

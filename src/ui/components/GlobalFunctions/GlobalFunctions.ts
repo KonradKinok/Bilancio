@@ -265,22 +265,41 @@ export function displayErrorMessage(componentName: string, functionName: string,
     toast.error(`${errorMessage}`);
   }
 }
-type ReportStandardInvoiceWithDocumentsName = {
-  InvoiceName: string;
-  ReceiptDate: string | null;
-  DeadlineDate: string | null;
-  PaymentDate: string | null;
-  TotalAmount: number;
-  Documents: [{
-    DocumentName: string;
-    MainTypeName: string;
-    TypeName: string;
-    SubtypeName: string;
-    Quantity: number;
-    Price: string;
-    Total: string;
-  }]
-}
+
+
+export function copyTableToClipboard(
+  tableRef: React.RefObject<HTMLTableElement | null>
+) {
+  try {
+    if (tableRef.current) {
+      // Klonujemy tabelę
+      const tableClone = tableRef.current.cloneNode(true) as HTMLTableElement;
+
+      // Dodanie obramowań
+      tableClone.style.borderCollapse = "collapse";
+      tableClone.querySelectorAll("th, td").forEach((cell) => {
+        (cell as HTMLElement).style.border = "1px solid black";
+        (cell as HTMLElement).style.padding = "4px"; // opcjonalnie padding
+      });
+
+      const htmlClean = tableClone.outerHTML;
+      const textClean = tableClone.innerText;
+
+      window.electron.clipboard(htmlClean, textClean);
+      const successTextToast =
+        "Tabela została skopiowana do schowka. Użyj skrótu Ctr+V żeby wkleić tabelę do pliku Word lub Excell";
+      toast.success(`${successTextToast} `);
+    }
+  } catch (err) {
+    const errorTextToast = "Błąd podczas kopiowania tabeli do schowka:";
+    displayErrorMessage(
+      "ReportStandardInvoicePage",
+      "handleExportButtonClick",
+      ` ${errorTextToast} ${err}`
+    );
+  }
+};
+
 //REPORTS
 // export function reportStandardInvoicesAllDocumentsName(allInvoices: AllInvoices[]): ReportStandardInvoiceWithDocumentsName[] | null | undefined {
 //   if (!allInvoices || allInvoices.length === 0) {

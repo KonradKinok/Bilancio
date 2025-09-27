@@ -1,53 +1,27 @@
 .reportStandardDocumentsPage-main-container {
-  --th-background-color: var(--maintable-th-background);
-  --th-color: var(--maintable-th-color);
-  --tr-odd-background-color: var(--maintable-tr-odd-background);
-  --tr-even-background-color: var(--maintable-tr-even-background);
-  --tr-hover-background-color: var(--maintable-tr-hover-background);
-  --tr-hover-color: var(--maintable-tr-hover-color);
   --font-size-small: var(--small-font-size);
   --font-size-medium: var(--medium-font-size);
   --font-size-large: var(--large-font-size);
+  --text-color: var(--reportPage-text-color);
 
-  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 1rem;
   margin: 1rem;
+  color: var(--text-color);
 
-  .table {
-    border-collapse: collapse;
-    background-color: var(--tr-odd-background-color);
-    box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
-    margin: 1rem auto 0;
-    overflow: hidden; // Ukrywa wystające kanciaste rogi komórek
-    border-top-left-radius: 0.5rem;
-    border-top-right-radius: 0.5rem;
+  .container {
+    max-width: 90%;
 
-    th {
-      text-align: left;
-      padding: 2px 5px;
-      border: 1px solid rgb(0 117 21);
-      background-color: var(--th-background-color);
-      color: var(--th-color);
-      text-transform: uppercase;
-      text-align: center;
-      font-weight: 600;
-    }
+    .report-criteria-container {
+      display: flex;
+      align-items: center;
+      flex-flow: row nowrap;
+      gap: 1rem;
+      box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
+      border-radius: 1rem;
+      padding: 1rem;
 
-    tr {
-      color: black;
-      transition: background-color 0.2s ease, color 0.2s ease;
-
-      &:nth-child(even) {
-        background-color: var(--tr-even-background-color);
-      }
-
-      &:hover {
-        color: var(--tr-hover-color);
-        background-color: var(--tr-hover-background-color);
-      }
     }
   }
 
@@ -61,17 +35,5 @@
 
   .large-font {
     font-size: var(--large-font-size);
-  }
-
-  .maintable-footer-container {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-    background-color: var(--th-background-color);
-    box-shadow: 0 1px 3px #0003, 0 1px 1px #00000024, 0 2px 1px -1px #0000001f;
-    border-bottom-left-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
-    padding: 0.5rem;
-    color: rgb(2, 247, 153);
   }
 }
