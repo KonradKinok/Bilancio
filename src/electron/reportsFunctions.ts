@@ -4,7 +4,7 @@ import { jsPDF } from "jspdf";
 import { autoTable } from 'jspdf-autotable'
 import { STATUS, DataBaseResponse, isSuccess } from "./sharedTypes/status.js";
 
-import { getDb, getFormattedDate, logTitle } from "./dataBase/dbFunction.js";
+import { getDb, getFormattedDate, isValidDate, logTitle } from "./dataBase/dbFunction.js";
 import Database, { statusDatabase, QueryParams } from "./dataBase/dbClass.js";
 import log from "electron-log";
 import { getSavedDocumentsPathWithCustomFile, openFile } from "./pathResolver.js";
@@ -22,26 +22,21 @@ export async function getReportStandardAllInvoices(
     return { status: STATUS.Error, message: message };
   }
 
-  reportCriteriaToDb.map((item) => {
-    if (!item.firstDate || !item.secondDate) {
-      const message = `Pierwsza albo druga data nie jest ustawiona. Pierwsza data: ${item.firstDate || "brak"}, druga data: ${item.secondDate || "brak"
-        }`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
+  for (const item of reportCriteriaToDb) {
+    if (item.firstDate && item.secondDate) {
+      if (!(item.firstDate instanceof Date && !isNaN(item.firstDate.getTime()))) {
+        const message = `Pierwsza data ma nieprawidłowy format: ${item.firstDate}`;
+        log.error(logTitle(functionName, message));
+        return { status: STATUS.Error, message };
+      }
+
+      if (!(item.secondDate instanceof Date && !isNaN(item.secondDate.getTime()))) {
+        const message = `Druga data ma nieprawidłowy format: ${item.secondDate}`;
+        log.error(logTitle(functionName, message));
+        return { status: STATUS.Error, message };
+      }
     }
-    if (!(item.firstDate instanceof Date && !isNaN(item.firstDate.getTime()))) {
-      const message = `Pierwsza data ma nieprawidłowy format: ${item.firstDate}`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
-    }
-    if (
-      !(item.secondDate instanceof Date && !isNaN(item.secondDate.getTime()))
-    ) {
-      const message = `Druga data ma nieprawidłowy format: ${item.secondDate}`;
-      log.error(logTitle(functionName, message));
-      return { status: STATUS.Error, message: message };
-    }
-  });
+  }
 
   try {
     // --- Budowa zapytania SQL ---
@@ -74,11 +69,15 @@ export async function getReportStandardAllInvoices(
     const params: QueryParams = [];
 
     reportCriteriaToDb.map((item) => {
-      query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
-      params.push(
-        item.firstDate.toISOString().split("T")[0],
-        item.secondDate.toISOString().split("T")[0]
-      );
+      if (item.firstDate && item.secondDate) {
+        query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
+        params.push(
+          item.firstDate.toISOString().split("T")[0],
+          item.secondDate.toISOString().split("T")[0],
+        );
+      } else {
+        query += ` AND Invoices.${item.name} IS NULL`;
+      }
     });
 
     query += `
@@ -171,7 +170,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       message: message,
     };
   }
-  try { // Zapis pliku
+  try {
     const workbook = new ExcelJS.Workbook();
     const sheetData = workbook.addWorksheet("Raport");
     const sheetCriteria = workbook.addWorksheet("Kryteria");
@@ -198,8 +197,8 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       const rowSheetCriteria = sheetCriteria.addRow([
         index + 1,
         item.description,
-        new Date(item.firstDate),
-        new Date(item.secondDate),
+        isValidDate(item.firstDate) ? new Date(item.firstDate) : "brak daty",
+        isValidDate(item.secondDate) ? new Date(item.secondDate) : "brak daty",
       ]);
 
       // Stylizowanie wiersza od razu po utworzeniu

@@ -16,6 +16,7 @@ import { TableReportStandardInvoice } from "../../../../components/TableReportSt
 import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardInvoicePage.module.scss";
+import { IconInfo } from "../../../../components/IconInfo/IconInfo";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -28,8 +29,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpName: "receiptFirstDate",
     },
     secondDtp: {
-      // dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 8, 18)),
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
       dtpLabelText: "do",
       dtpName: "receiptLastDate",
     },
@@ -114,17 +114,18 @@ const ReportStandardInvoicePage: React.FC = () => {
   //Wygenerowanie danych do raportu
   const handleGenerateReportButtonClick = async () => {
     const filteredCriteria: ReportCriteriaToDb[] = reportCriteria
-      .filter(
-        (criteria) =>
-          criteria.checkbox.checked &&
-          criteria.firstDtp.dtpDate !== null &&
-          criteria.secondDtp.dtpDate !== null
-      )
+      // .filter(
+      //   (criteria) =>
+      //     criteria.checkbox.checked &&
+      //     criteria.firstDtp.dtpDate &&
+      //     criteria.secondDtp.dtpDate
+      // )
+      .filter((criteria) => criteria.checkbox.checked)
       .map((criteria) => ({
         name: criteria.id,
         description: criteria.description,
-        firstDate: criteria.firstDtp.dtpDate as Date,
-        secondDate: criteria.secondDtp.dtpDate as Date,
+        firstDate: criteria.firstDtp.dtpDate,
+        secondDate: criteria.secondDtp.dtpDate,
       }));
     setReportCriteriaToDb(filteredCriteria);
     const successText = `Raport został pomyślnie wygenerowany.`;
@@ -137,8 +138,6 @@ const ReportStandardInvoicePage: React.FC = () => {
         toast.success(
           `${successText} (${pluralizePozycja(result.data.length)})`
         );
-
-        console.log("result", result);
       } else {
         displayErrorMessage(
           "ReportStandardInvoicePage",
@@ -198,6 +197,10 @@ const ReportStandardInvoicePage: React.FC = () => {
 
   return (
     <div className={`${scss["reportStandardInvoicePage-main-container"]}`}>
+      <IconInfo
+        tooltipId="tooltip-formAddInvoice"
+        tooltipInfoTextHtml={tooltipReportStandardInvoicePage()}
+      />
       <div
         className={`${scss["container"]} ${
           scss[`${options.fontSize.en}-font`]
@@ -235,3 +238,18 @@ const ReportStandardInvoicePage: React.FC = () => {
   );
 };
 export default ReportStandardInvoicePage;
+
+function tooltipReportStandardInvoicePage() {
+  const text = `📈 Formularz raportu.
+  Pole wyboru (checkbox) umożliwia włączenie lub wyłączenie danego kryterium.
+  Jeżeli pole wyboru nie jest zaznaczone, pola dat pozostają nieaktywne i nie są brane pod uwagę w raporcie.
+  Pole "Data wystawienia faktury" umożliwia wybranie daty wystawienia faktury.
+  Pole "Termin płatności" umożliwia wybranie daty terminu płatności za fakturę
+  Pole "Data płatności" umożliwiają wybór daty płatności za fakturę.
+  Pole kalendarza daty początkowej umożliwia wybranie daty rozpoczęcia zakresu.
+  Pole kalendarza daty końcowej umożliwia wybranie daty zakończenia zakresu.
+  W przypadku usunięcia daty w którymkolwiek z pól, jako kryterium zostanie uznany brak daty w tym polu.
+  ⛔ Data początkowa nie może być późniejsza niż data końcowa.
+  ⚠️ Jeżeli w jednym z pól kalendarza zostanie usunięta data, w drugim polu również musi zostać usunięta.`;
+  return text.replace(/\n/g, "<br/>");
+}

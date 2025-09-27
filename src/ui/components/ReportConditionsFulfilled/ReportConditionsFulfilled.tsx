@@ -62,13 +62,23 @@ export const ReportConditionsFulfilled = ({
                   key={criteria.name}
                   className={`${scss["item-list-show-criteria"]}`}
                 >
-                  <span>{criteria.description}:</span>
+                  <span className={`${scss["criteria-description"]}`}>
+                    {criteria.description}:
+                  </span>
 
-                  <span>{getFormatedDate(criteria.firstDate)}</span>
+                  <span>
+                    {criteria.firstDate
+                      ? getFormatedDate(criteria.firstDate)
+                      : "brak daty"}
+                  </span>
                   <span>
                     <FaArrowRight />
                   </span>
-                  <span>{getFormatedDate(criteria.secondDate)}</span>
+                  <span>
+                    {criteria.secondDate
+                      ? getFormatedDate(criteria.secondDate)
+                      : "brak daty"}
+                  </span>
                 </li>
               ))
             ) : (

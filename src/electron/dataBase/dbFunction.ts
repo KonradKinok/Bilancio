@@ -1508,7 +1508,9 @@ export const getFormattedDate = (date: Date | null, separator: string = "."): st
   return `${day}${separator}${month}${separator}${year}`; // YYYY-MM-DD
 };
 
-
+export function isValidDate(value: unknown): value is Date {
+  return value instanceof Date && !isNaN(value.getTime());
+}
 
 // Przykładowa funkcja
 export async function getConfigBilancio1(tekst: string): Promise<string> {

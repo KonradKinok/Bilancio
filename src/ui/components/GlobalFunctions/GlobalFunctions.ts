@@ -253,6 +253,9 @@ export function getTodayFormattedDate(separator: string = "-"): string {
   return `${day}${separator}${month}${separator}${year}`;
 }
 
+
+
+
 export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast: boolean = true) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   console.error(

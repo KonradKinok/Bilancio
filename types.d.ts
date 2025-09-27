@@ -216,8 +216,8 @@ declare global {
   export type ReportCriteriaToDb = {
     name: string;
     description: string;
-    firstDate: Date;
-    secondDate: Date;
+    firstDate: Date | null;
+    secondDate: Date | null;
   }
   type ReportStandardInvoice = {
     InvoiceId: number;

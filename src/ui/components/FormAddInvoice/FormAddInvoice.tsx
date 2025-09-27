@@ -539,7 +539,7 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
 };
 
 function tooltipInfoFormAddInvoice(isEditMode: boolean) {
-  const text = `Formularz ${isEditMode ? "edycji" : "dodania nowej"} faktury.
+  const text = `📄 Formularz ${isEditMode ? "edycji" : "dodania nowej"} faktury.
   Pole "Nazwa faktury" (wymagane) umożliwia wpisanie nazwy faktury.
   Pole "Data wpływu" (wymagane) umożliwia wybranie daty wpływu faktury.
   Pole "Termin płatności" (opcjonalne) umożliwia wybranie daty terminu płatności za fakturę
@@ -549,7 +549,7 @@ function tooltipInfoFormAddInvoice(isEditMode: boolean) {
 }
 
 function tooltipInfoFormAddDocument() {
-  const text = `Formularz dodania nowego dokumentu do faktury.
+  const text = `📄 Formularz dodania nowego dokumentu do faktury.
   Pole wyboru dokumentu (wymagane) umożliwia wybranie dokumentu.
   Jeżeli pojawia się kolejne pole wyboru, również należy je uzupełnić.
   Po uzupełnieniu wymaganych pól dokumentu, kwota jednostkowa pojawia się automatycznie.
@@ -565,7 +565,7 @@ function tooltipInfoFormAddDocument() {
 }
 
 function tooltipButtonSaveInvoiceFormAddInvoice(isEditMode: boolean) {
-  const text = `Przycisk zapisu faktury zostanie uaktywniony
+  const text = `⛔ Przycisk zapisu faktury zostanie uaktywniony
   po prawidłowym uzupełnieniu pól formularza ${
     isEditMode ? " i wykryciu zmian w fakturze" : ""
   }`;

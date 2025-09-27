@@ -44,8 +44,13 @@
 
       .item-list-show-criteria {
         display: grid;
-        grid-template-columns: 1fr auto auto auto;
+        grid-template-columns: 1fr minmax(82px, auto) min-content minmax(82px, auto);
         gap: 1rem;
+        justify-items: center;
+
+        .criteria-description {
+          justify-self: start;
+        }
       }
 
       .item-list-show-criteria:first-child {

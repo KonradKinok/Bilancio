@@ -24,13 +24,25 @@ export const ReportFormDateTimePickers: React.FC<
   const [checked, setChecked] = useState(checkbox.checked);
 
   useEffect(() => {
-    if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
+    // if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
     let errorMesage = "";
-    if (dateTimePickerFirstDate > dateTimePickerLastDate && checked) {
+    if (
+      dateTimePickerFirstDate &&
+      dateTimePickerLastDate &&
+      dateTimePickerFirstDate > dateTimePickerLastDate &&
+      checked
+    ) {
       errorMesage = "Data początkowa nie może być późniejsza niż data końcowa.";
     } else {
       errorMesage = "";
     }
+    if (!dateTimePickerFirstDate && dateTimePickerLastDate && checked) {
+      errorMesage =
+        "Data końcowa nie może być pusta jeżeli data początkowa nie jest pusta.";
+    } else {
+      errorMesage = "";
+    }
+
     setReportCriteria((prev) =>
       prev.map((criteria) =>
         criteria.id === reportCriteria.id
@@ -57,6 +69,12 @@ export const ReportFormDateTimePickers: React.FC<
     checked,
     setReportCriteria,
   ]);
+
+  useEffect(() => {
+    if (!dateTimePickerFirstDate) {
+      setDateTimePickerLastDate(dateTimePickerFirstDate);
+    }
+  }, [dateTimePickerFirstDate]);
 
   return (
     <div className={`${scss["reportFormDateTimePickers-main-container"]}`}>
@@ -91,7 +109,6 @@ export const ReportFormDateTimePickers: React.FC<
           <DateTimePicker
             dateTimePickerDate={dateTimePickerFirstDate}
             setDateTimePickerDate={setDateTimePickerFirstDate}
-            isClearable={false}
             id={firstDtp.dtpName}
             name={firstDtp.dtpName}
           />
@@ -106,7 +123,7 @@ export const ReportFormDateTimePickers: React.FC<
           <DateTimePicker
             dateTimePickerDate={dateTimePickerLastDate}
             setDateTimePickerDate={setDateTimePickerLastDate}
-            isClearable={false}
+            isClearable={true}
             name={secondDtp.dtpName}
           />
         </div>
