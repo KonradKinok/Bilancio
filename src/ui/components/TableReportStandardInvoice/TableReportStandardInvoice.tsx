@@ -15,7 +15,7 @@ export const TableReportStandardInvoice = forwardRef<
   const { options } = useMainDataContext();
 
   if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
-    return <div></div>;
+    return null;
   }
 
   return (

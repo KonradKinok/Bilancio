@@ -29,7 +29,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "receiptLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
   {
     id: DataBaseTables.InvoicesTable.DeadlineDate,
@@ -45,7 +45,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "deadlineLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
   {
     id: DataBaseTables.InvoicesTable.PaymentDate,
@@ -61,7 +61,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "paymentLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
 ];
 

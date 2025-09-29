@@ -210,7 +210,7 @@ declare global {
     firstDtp: ReportCriteriaDtp;
     secondDtp: ReportCriteriaDtp;
     description: string;
-    errorMesage: string;
+    errorMessage: string;
   }
   //Reports DataBase
   export type ReportCriteriaToDb = {

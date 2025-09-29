@@ -1,6 +1,6 @@
 import scss from "./ReportFormDateTimePickers.module.scss";
 import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
 import { Tooltip } from "react-tooltip";
 
@@ -13,7 +13,7 @@ export const ReportFormDateTimePickers: React.FC<
   ReportFormDateTimePickersProps
 > = ({ reportCriteria, setReportCriteria }) => {
   // Destrukturyzacja obiektu reportCriteria w celu uzyskania indywidualnych kryteriów
-  const { id, checkbox, firstDtp, secondDtp, description, errorMesage } =
+  const { id, checkbox, firstDtp, secondDtp, description, errorMessage } =
     reportCriteria;
 
   // Lokalne stany dla komponentów DateTimePicker
@@ -25,22 +25,20 @@ export const ReportFormDateTimePickers: React.FC<
 
   useEffect(() => {
     // if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
-    let errorMesage = "";
+    let errorMessage = "";
     if (
       dateTimePickerFirstDate &&
       dateTimePickerLastDate &&
       dateTimePickerFirstDate > dateTimePickerLastDate &&
       checked
     ) {
-      errorMesage = "Data początkowa nie może być późniejsza niż data końcowa.";
-    } else {
-      errorMesage = "";
-    }
-    if (!dateTimePickerFirstDate && dateTimePickerLastDate && checked) {
-      errorMesage =
+      errorMessage =
+        "Data początkowa nie może być późniejsza niż data końcowa.";
+    } else if (!dateTimePickerFirstDate && dateTimePickerLastDate && checked) {
+      errorMessage =
         "Data początkowa nie może być pusta jeżeli data końcowa nie jest pusta.";
     } else {
-      errorMesage = "";
+      errorMessage = "";
     }
 
     setReportCriteria((prev) =>
@@ -57,7 +55,7 @@ export const ReportFormDateTimePickers: React.FC<
                 dtpDate: dateTimePickerLastDate,
               },
               checkbox: { ...criteria.checkbox, checked: checked },
-              errorMesage: errorMesage,
+              errorMessage: errorMessage,
             }
           : criteria
       )
@@ -89,11 +87,11 @@ export const ReportFormDateTimePickers: React.FC<
         className={`${scss["reportFormDateTimePickers-container"]} 
       ${checked ? "" : scss["inactive-component"]} `}
         data-tooltip-id={
-          errorMesage
+          errorMessage
             ? "reportFormDateTimePickers-tooltip-error-date"
             : undefined
         }
-        data-tooltip-content={errorMesage}
+        data-tooltip-content={errorMessage}
       >
         <div className={scss["description-container"]}>
           <p>{description}:</p>
@@ -131,7 +129,7 @@ export const ReportFormDateTimePickers: React.FC<
       <Tooltip
         id="reportFormDateTimePickers-tooltip-error-date"
         className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
-        isOpen={errorMesage && checked ? true : false}
+        isOpen={errorMessage && checked ? true : false}
       />
     </div>
   );

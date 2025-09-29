@@ -1,26 +1,27 @@
+import { useMemo } from "react";
 import scss from "./ReportFormButtonGenerateRaport.module.scss";
-import { use, useEffect, useState } from "react";
 
 interface ReportFormButtonGenerateRaportProps {
   reportCriteria: ReportCriteria[];
   handleButtonClick: () => void;
 }
 
-export const ReportFormButtonGenerateRaport: React.FC<
-  ReportFormButtonGenerateRaportProps
-> = ({ reportCriteria, handleButtonClick }) => {
-  const [buttonDisabled, setButtonDisabled] = useState(false);
-
-  useEffect(() => {
+export const ReportFormButtonGenerateRaport = ({
+  reportCriteria,
+  handleButtonClick,
+}: ReportFormButtonGenerateRaportProps) => {
+  //Ustawianie buttonDisabled
+  const buttonDisabled = useMemo(() => {
     const hasErrors = reportCriteria.some(
-      (criteria) => criteria.errorMesage !== ""
+      (criteria) => criteria.errorMessage !== ""
     );
     const allCheckboxUnchecked = !reportCriteria.some(
-      (criteria) => criteria.checkbox.checked == true
+      (criteria) => criteria.checkbox.checked
     );
-    setButtonDisabled(hasErrors || allCheckboxUnchecked);
+    return hasErrors || allCheckboxUnchecked;
   }, [reportCriteria]);
 
+  //Handler onButtonClick
   const onButtonClick = () => {
     handleButtonClick();
   };

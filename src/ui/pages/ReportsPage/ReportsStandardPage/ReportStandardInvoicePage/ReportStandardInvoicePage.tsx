@@ -33,7 +33,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "receiptLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
   {
     id: DataBaseTables.InvoicesTable.DeadlineDate,
@@ -49,7 +49,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "deadlineLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
   {
     id: DataBaseTables.InvoicesTable.PaymentDate,
@@ -65,21 +65,20 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpLabelText: "do",
       dtpName: "paymentLastDate",
     },
-    errorMesage: "",
+    errorMessage: "",
   },
 ];
 
 const ReportStandardInvoicePage: React.FC = () => {
   const tableRef = useRef<HTMLTableElement>(null);
   const { options } = useMainDataContext();
-  // const [totalPriceAllInvoices, setTotalPriceAllInvoices] = useState(0);
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
-  const [isRaportGenerating, setIsRaportGenerating] = useState(false);
+  const [isReportGenerating, setIsReportGenerating] = useState(false);
   const {
     data: dataReportStandardInvoices,
     loading: loadingReportStandardInvoices,
@@ -125,7 +124,7 @@ const ReportStandardInvoicePage: React.FC = () => {
     const errorText = `Nie udało się wygenerować raportu.`;
 
     try {
-      setIsRaportGenerating(true);
+      setIsReportGenerating(true);
       const result = await getReportStandardInvoices(filteredCriteria);
       if (result.status === STATUS.Success) {
         toast.success(
@@ -145,7 +144,7 @@ const ReportStandardInvoicePage: React.FC = () => {
         err
       );
     } finally {
-      setIsRaportGenerating(false);
+      setIsReportGenerating(false);
     }
   };
 
@@ -162,7 +161,7 @@ const ReportStandardInvoicePage: React.FC = () => {
       const successText = `Eksport do XLSX został pomyślnie wykonany.`;
       const errorText = `Nie udało się wykonać eksportu do XLSX.`;
       try {
-        setIsRaportGenerating(true);
+        setIsReportGenerating(true);
         const result = await exportStandardInvoiceReportToXLSX(
           reportCriteriaToDb,
           dataReportStandardInvoices
@@ -183,7 +182,7 @@ const ReportStandardInvoicePage: React.FC = () => {
           err
         );
       } finally {
-        setIsRaportGenerating(false);
+        setIsReportGenerating(false);
       }
     }
   };
@@ -204,12 +203,12 @@ const ReportStandardInvoicePage: React.FC = () => {
             reportCriteria={reportCriteria}
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
-            isRaportGenerating={isRaportGenerating}
+            isRaportGenerating={isReportGenerating}
           />
         </div>
       </div>
 
-      {loadingReportStandardInvoices && isRaportGenerating ? (
+      {loadingReportStandardInvoices && isReportGenerating ? (
         <Loader />
       ) : (
         <>
@@ -217,7 +216,7 @@ const ReportStandardInvoicePage: React.FC = () => {
             dataReportStandardInvoices.length > 0 && (
               <ButtonsExportData
                 handleExportButtonClick={handleExportButtonClick}
-                isRaportGenerating={isRaportGenerating}
+                isRaportGenerating={isReportGenerating}
               />
             )}
           <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />
