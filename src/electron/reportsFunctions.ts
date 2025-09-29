@@ -68,7 +68,7 @@ export async function getReportStandardAllInvoices(
     `;
     const params: QueryParams = [];
 
-    reportCriteriaToDb.map((item) => {
+    reportCriteriaToDb.forEach((item) => {
       if (item.firstDate && item.secondDate) {
         query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
         params.push(
@@ -84,10 +84,10 @@ export async function getReportStandardAllInvoices(
   GROUP BY Invoices.InvoiceId
   ORDER BY Invoices.ReceiptDate DESC
 `;
-    // --- Wykonanie zapytania ---
+    // Wykonanie zapytania
     const result = await getDb().all<AllInvoicesReport>(query, params);
 
-    // --- Mapowanie do formatu ReportStandardInvoiceWithDocumentsName ---
+    // Mapowanie do formatu ReportStandardInvoice
     const parsedResult: ReportStandardInvoice[] = result.map((invoice) => {
       const docNames = invoice.DocumentNames ? invoice.DocumentNames.split(";") : [];
       const mainTypes = invoice.MainTypeNames ? invoice.MainTypeNames.split(";") : [];
@@ -118,6 +118,7 @@ export async function getReportStandardAllInvoices(
         Documents: documents,
       };
     });
+
     return {
       status: STATUS.Success,
       data: parsedResult ?? [],
@@ -134,7 +135,7 @@ export async function getReportStandardAllInvoices(
 
 
 
-
+//EXPORT DANYCH DO EXCEL
 type ExcelCellTypeAndAligment = "string" | "number" | "date" | "currency2" | "currency4" | "general";
 
 const typeToStyle: Record<string, Partial<ExcelJS.Style>> = {
@@ -148,7 +149,6 @@ const typeToStyle: Record<string, Partial<ExcelJS.Style>> = {
 
 type ColumnType = {
   name: string;
-  width: number;
   type: ExcelCellTypeAndAligment;
 }
 //Export standard invoice report do XLSX
@@ -176,23 +176,25 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
     const sheetCriteria = workbook.addWorksheet("Kryteria");
 
     //SHEET CRITERIA
-    sheetCriteria.addRow(["Kryteria raportu", "", getFormattedDate(new Date())]);
-    sheetCriteria.mergeCells(`A1:B1`); //Kryteria raportu
-    sheetCriteria.addRow([]);
+    //Dane
     const headersCriteria: ColumnType[] = [
-      { name: "Lp.", width: 4, type: "number" },
-      { name: "Nazwa", width: 22, type: "string" },
-      { name: "Data początkowa", width: 16, type: "date" },
-      { name: "Data końcowa", width: 14, type: "date" },
+      { name: "Lp.", type: "number" },
+      { name: "Nazwa", type: "string" },
+      { name: "Data początkowa", type: "date" },
+      { name: "Data końcowa", type: "date" },
     ];
-    //Nagłówek Sheet Criteria
-    const headerRowSheetCriteria = sheetCriteria.addRow(headersCriteria.map((column) => column.name));
-    styleHeaderRow(headerRowSheetCriteria);
+    //Stylowanie kolumn + wypisanie nazw kolumn
     sheetCriteria.columns = headersCriteria.map(column => ({
-      width: column.width,
+      header: column.name,
       style: typeToStyle[column.type] || typeToStyle.general
     }));
-    //Zawartość sheet criteria
+
+    // Pobranie pierwszego wiersza (nazwy kolumn)
+    const headerRowSheetCriteria = sheetCriteria.getRow(1);
+
+    //Stylowanie nazw kolumn
+    styleHeaderRow(headerRowSheetCriteria);
+    //Dodanie wartości zawartości tabeli + stylowanie komórek
     reportCriteriaToDb.forEach((item, index) => {
       const rowSheetCriteria = sheetCriteria.addRow([
         index + 1,
@@ -205,25 +207,32 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       styleContentRow(rowSheetCriteria);
     });
 
+    //Wstawienie pierwszego wiersza
+    sheetCriteria.spliceRows(1, 0, ["", "Kryteria raportu", getFormattedDate(new Date())]);
+    //Wstawienie drugiego wiersza
+    sheetCriteria.spliceRows(2, 0, []);
+
     // SHEET DATA
     //Dane
-    const headersData = [
-      { name: "Lp.", width: 4, type: "number" },
-      { name: "Suma faktury", width: 14, type: "currency2" },
-      { name: "Nazwa faktury", width: 14, type: "string" },
-      { name: "Data wpływu", width: 12, type: "date" },
-      { name: "Termin płatności", width: 16, type: "date" },
-      { name: "Data płatności", width: 14, type: "date" },
-      { name: "Dokument", width: 76, type: "string" },
-      { name: "Liczba", width: 7, type: "number" },
-      { name: "Cena", width: 12, type: "currency4" },
-      { name: "Razem", width: 11, type: "currency2" },
+    const headersData: ColumnType[] = [
+      { name: "Lp.", type: "number" },
+      { name: "Suma faktury", type: "currency2" },
+      { name: "Nazwa faktury", type: "string" },
+      { name: "Data wpływu", type: "date" },
+      { name: "Termin płatności", type: "date" },
+      { name: "Data płatności", type: "date" },
+      { name: "Dokument", type: "string" },
+      { name: "Liczba", type: "number" },
+      { name: "Cena", type: "currency4" },
+      { name: "Razem", type: "currency2" },
     ];
+    //Ustawienia sheet data
+    sheetData.views = [{ state: 'frozen', ySplit: 1 }];
+    sheetData.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersData.length } };
 
     //Stylowanie kolumn + wypisanie nazw kolumn
     sheetData.columns = headersData.map(column => ({
       header: column.name,
-      width: column.width,
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
@@ -236,7 +245,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
     //Zawartość sheet data
     //Pobranie pierwszego pustego wiersza pod nazwami kolumn
     let currentRow = sheetData.rowCount + 1;
-
+    const totalAmountAllInvoices = dataReportStandardInvoices.reduce((sum, invoice) => sum + invoice.TotalAmount, 0);
     //Dodanie wartości zawartości tabeli + stylowanie komórek
     dataReportStandardInvoices.forEach((invoice, invoiceIndex) => {
       const startRow = currentRow;
@@ -258,7 +267,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
         styleContentRow(rowSheetData);
 
       });
-      const totalAmountAllInvoices = dataReportStandardInvoices.reduce((sum, invoice) => sum + invoice.TotalAmount, 0);
+
       const endRow = currentRow - 1;
       //Scalanie kolumn z danymi faktury
       if (invoice.Documents.length > 1) {
@@ -288,6 +297,10 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
         sheetData.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
       }
     });
+
+    //Automatyczne nadanie szerokości kolumn
+    autoSizeColumns(sheetCriteria);
+    autoSizeColumns(sheetData);
 
     // Wygenerowanie pliku xlsx
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -348,6 +361,42 @@ function styleContentRow(
   });
 }
 
+// Funkcja pomocnicza do nadania szerokości kolumn
+function autoSizeColumns(worksheet: ExcelJS.Worksheet, margin = 2) {
+  worksheet.columns.forEach((column) => {
+    let maxLength = 5; // minimalna szerokość
+
+    if (!column.eachCell) return;
+
+    column.eachCell({ includeEmpty: true }, (cell) => {
+      if (cell.value == null) return;
+
+      let cellValueLength = 0;
+
+      if (cell.value instanceof Date) {
+        // Daty liczone są po sformatowanym stringu
+        cellValueLength = cell.value.toLocaleDateString("pl-PL").length;
+      } else if (typeof cell.value === "number") {
+        // Liczba -> uwzględnia walutę "zł" jeśli kolumna jest walutowa
+        if (column.numFmt && column.numFmt.includes("[$zł")) {
+          cellValueLength = cell.value.toString().length + 4;
+        } else {
+          cellValueLength = cell.value.toString().length;
+        }
+      } else if (typeof cell.value === "object" && "richText" in cell.value) {
+        // RichText
+        cellValueLength = cell.value.richText.map((t) => t.text).join("").length;
+      } else {
+        // Wszystko inne jest traktowane jako string
+        cellValueLength = cell.value.toString().length;
+      }
+
+      maxLength = Math.max(maxLength, cellValueLength);
+    });
+
+    column.width = maxLength + margin;
+  });
+}
 //Export standard invoice report do PDF
 export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
   const functionName = exportStandardInvoiceReportToPDF.name;

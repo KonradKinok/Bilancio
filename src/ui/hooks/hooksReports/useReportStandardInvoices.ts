@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { DataBaseResponse, STATUS } from "../../electron/sharedTypes/status";
+import { DataBaseResponse, STATUS } from "../../../electron/sharedTypes/status";
 // Funkcja pomocnicza do opóźnienia
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export function useReportStandardInvoices() {
   const [data, setData] = useState<ReportStandardInvoice[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Funkcja do pobierania danych z użyciem useCallback

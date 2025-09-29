@@ -8,6 +8,7 @@ const NotLoggedInPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate(); // Użyj hooka useNavigate
   const { auth } = useMainDataContext();
+  const { errorAuth } = auth;
   const handleRefresh = () => {
     // Wysyła sygnał do głównego procesu Electron, aby odświeżyć okno
     window.electron.reloadWindow();
@@ -37,6 +38,7 @@ const NotLoggedInPage: React.FC = () => {
           <p>Zamknij program</p>
           <p>i skontaktuj się z administratorem.</p>
         </div>
+        <p>{errorAuth}</p>
       </div>
       <Footer />
     </div>

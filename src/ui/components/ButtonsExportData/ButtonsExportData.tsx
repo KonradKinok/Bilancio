@@ -23,16 +23,15 @@ const buttons = [
 
 interface ButtonsExportDataProps {
   handleExportButtonClick: (btnName: string) => void;
+  isRaportGenerating: boolean;
 }
 
 export const ButtonsExportData = ({
   handleExportButtonClick,
+  isRaportGenerating,
 }: ButtonsExportDataProps) => {
   const { options } = useMainDataContext();
 
-  // const onButtonClick = () => {
-  //   handleExportButtonClick();
-  // };
   return (
     <div className={`${scss["buttonsExportData-main-container"]}`}>
       <div
@@ -50,6 +49,7 @@ export const ButtonsExportData = ({
               buttonClick={() => handleExportButtonClick(btn.name)}
               buttonIcon={btn.icon}
               classNameButtonContainer={scss[btn.className]}
+              buttonDisabled={isRaportGenerating}
             />
           ))}
         </div>

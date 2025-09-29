@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 
 export function useExportStandardInvoiceReportToPDF() {
   const [data, setData] = useState<ReturnStatusDbMessage | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Funkcja do pobierania danych z użyciem useCallback

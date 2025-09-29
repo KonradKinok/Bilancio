@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
-import { useReportStandardInvoices } from "../../../../hooks/useReportStandardInvoices";
+import { useReportStandardInvoices } from "../../../../hooks/hooksReports/useReportStandardInvoices";
 import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
 import { STATUS } from "../../../../../electron/sharedTypes/status";
 import * as DataBaseTables from "../../../../../electron/dataBase/enum";
@@ -11,12 +11,12 @@ import {
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
 import { Loader } from "../../../../components/Loader/Loader";
+import { IconInfo } from "../../../../components/IconInfo/IconInfo";
 import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
 import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
 import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardInvoicePage.module.scss";
-import { IconInfo } from "../../../../components/IconInfo/IconInfo";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -72,7 +72,7 @@ const reportCriteriaArray: ReportCriteria[] = [
 const ReportStandardInvoicePage: React.FC = () => {
   const tableRef = useRef<HTMLTableElement>(null);
   const { options } = useMainDataContext();
-  const [totalPriceAllInvoices, setTotalPriceAllInvoices] = useState(0);
+  // const [totalPriceAllInvoices, setTotalPriceAllInvoices] = useState(0);
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
@@ -96,14 +96,13 @@ const ReportStandardInvoicePage: React.FC = () => {
     exportStandardInvoiceReportToXLSX,
   } = useExportStandardInvoiceReportToXLSX();
 
-  useEffect(() => {
-    if (dataReportStandardInvoices) {
-      const totalAmount = dataReportStandardInvoices.reduce(
-        (sum, doc) => sum + parseFloat(doc.TotalAmount.toString()),
-        0
-      );
-      setTotalPriceAllInvoices(totalAmount);
-    }
+  //Obliczanie sumy kwoty wszystkich faktur z raportu
+  const totalPriceAllInvoices = useMemo(() => {
+    if (!dataReportStandardInvoices) return 0;
+    return dataReportStandardInvoices.reduce((sum, doc) => {
+      const total = parseFloat(doc.TotalAmount?.toString() || "0");
+      return sum + total;
+    }, 0);
   }, [dataReportStandardInvoices]);
 
   useEffect(() => {
@@ -114,12 +113,6 @@ const ReportStandardInvoicePage: React.FC = () => {
   //Wygenerowanie danych do raportu
   const handleGenerateReportButtonClick = async () => {
     const filteredCriteria: ReportCriteriaToDb[] = reportCriteria
-      // .filter(
-      //   (criteria) =>
-      //     criteria.checkbox.checked &&
-      //     criteria.firstDtp.dtpDate &&
-      //     criteria.secondDtp.dtpDate
-      // )
       .filter((criteria) => criteria.checkbox.checked)
       .map((criteria) => ({
         name: criteria.id,
@@ -224,6 +217,7 @@ const ReportStandardInvoicePage: React.FC = () => {
             dataReportStandardInvoices.length > 0 && (
               <ButtonsExportData
                 handleExportButtonClick={handleExportButtonClick}
+                isRaportGenerating={isRaportGenerating}
               />
             )}
           <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />

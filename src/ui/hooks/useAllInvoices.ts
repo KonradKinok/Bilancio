@@ -9,7 +9,7 @@ export function useAllInvoices(
 ) {
   const [dataAllInvoices, setDataAllInvoices] = useState<AllInvoices[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchData = useCallback(async () => {

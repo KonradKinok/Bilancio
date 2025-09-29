@@ -3,11 +3,10 @@ import { STATUS } from '../../electron/sharedTypes/status';
 
 export function useAuth(login?: string, password?: string) {
   const [userDb, setUserDb] = useState<User | null>(null);
-  const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
+  const [loadingAuth, setLoadingAuth] = useState<boolean>(true); //musi być true
   const [errorAuth, setErrorAuth] = useState<string | null>(null);
 
   const autoLogin = useCallback(async () => {
-
     setLoadingAuth(true);
     setErrorAuth(null);
     setUserDb(null); // Reset danych
@@ -25,6 +24,7 @@ export function useAuth(login?: string, password?: string) {
       setLoadingAuth(false);
     }
   }, []);
+
   useEffect(() => {
     autoLogin();
   }, [autoLogin]);

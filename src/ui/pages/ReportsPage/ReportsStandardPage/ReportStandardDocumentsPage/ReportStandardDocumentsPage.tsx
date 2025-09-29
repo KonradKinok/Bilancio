@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
-import { useReportStandardInvoices } from "../../../../hooks/useReportStandardInvoices";
+import { useReportStandardInvoices } from "../../../../hooks/hooksReports/useReportStandardInvoices";
 import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
 import { STATUS } from "../../../../../electron/sharedTypes/status";
 import * as DataBaseTables from "../../../../../electron/dataBase/enum";
@@ -10,11 +10,7 @@ import {
   displayErrorMessage,
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
-import { Loader } from "../../../../components/Loader/Loader";
 import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
-import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
-import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
-import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardDocumentsPage.module.scss";
 
 const reportCriteriaArray: ReportCriteria[] = [
@@ -212,25 +208,6 @@ const ReportStandardDocumentsPage: React.FC = () => {
           />
         </div>
       </div>
-
-      {loadingReportStandardInvoices && isRaportGenerating ? (
-        <Loader />
-      ) : (
-        <>
-          {dataReportStandardInvoices &&
-            dataReportStandardInvoices.length > 0 && (
-              <ButtonsExportData
-                handleExportButtonClick={handleExportButtonClick}
-              />
-            )}
-          <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />
-          <TableReportStandardInvoice
-            ref={tableRef}
-            dataReportStandardInvoices={dataReportStandardInvoices}
-            totalPriceAllInvoices={totalPriceAllInvoices}
-          />
-        </>
-      )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { STATUS } from '../../electron/sharedTypes/status';
 
 export function useAllUsers(isDeleted?: 0 | 1) {
   const [data, setData] = useState<User[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Funkcja do pobierania danych z użyciem useCallback

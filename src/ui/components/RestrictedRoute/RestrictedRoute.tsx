@@ -20,6 +20,5 @@ export const RestrictedRoute: React.FC<RouteProps> = ({
   if (loadingAuth) {
     return <Loader />;
   }
-
   return userDb ? <Component /> : <Navigate to={redirectTo} />;
 };
