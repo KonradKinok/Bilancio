@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
 import { useReportStandardInvoices } from "../../../../hooks/hooksReports/useReportStandardInvoices";
@@ -10,7 +10,12 @@ import {
   displayErrorMessage,
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
+import { Loader } from "../../../../components/Loader/Loader";
+import { IconInfo } from "../../../../components/IconInfo/IconInfo";
 import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
+import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
+import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
+import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardDocumentsPage.module.scss";
 
 const reportCriteriaArray: ReportCriteria[] = [
@@ -24,8 +29,7 @@ const reportCriteriaArray: ReportCriteria[] = [
       dtpName: "receiptFirstDate",
     },
     secondDtp: {
-      // dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 8, 18)),
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
       dtpLabelText: "do",
       dtpName: "receiptLastDate",
     },
@@ -68,14 +72,13 @@ const reportCriteriaArray: ReportCriteria[] = [
 const ReportStandardDocumentsPage: React.FC = () => {
   const tableRef = useRef<HTMLTableElement>(null);
   const { options } = useMainDataContext();
-  const [totalPriceAllInvoices, setTotalPriceAllInvoices] = useState(0);
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
-  const [isRaportGenerating, setIsRaportGenerating] = useState(false);
+  const [isReportGenerating, setIsReportGenerating] = useState(false);
   const {
     data: dataReportStandardInvoices,
     loading: loadingReportStandardInvoices,
@@ -92,14 +95,13 @@ const ReportStandardDocumentsPage: React.FC = () => {
     exportStandardInvoiceReportToXLSX,
   } = useExportStandardInvoiceReportToXLSX();
 
-  useEffect(() => {
-    if (dataReportStandardInvoices) {
-      const totalAmount = dataReportStandardInvoices.reduce(
-        (sum, doc) => sum + parseFloat(doc.TotalAmount.toString()),
-        0
-      );
-      setTotalPriceAllInvoices(totalAmount);
-    }
+  //Obliczanie sumy kwoty wszystkich faktur z raportu
+  const totalPriceAllInvoices = useMemo(() => {
+    if (!dataReportStandardInvoices) return 0;
+    return dataReportStandardInvoices.reduce((sum, doc) => {
+      const total = parseFloat(doc.TotalAmount?.toString() || "0");
+      return sum + total;
+    }, 0);
   }, [dataReportStandardInvoices]);
 
   useEffect(() => {
@@ -110,31 +112,24 @@ const ReportStandardDocumentsPage: React.FC = () => {
   //Wygenerowanie danych do raportu
   const handleGenerateReportButtonClick = async () => {
     const filteredCriteria: ReportCriteriaToDb[] = reportCriteria
-      .filter(
-        (criteria) =>
-          criteria.checkbox.checked &&
-          criteria.firstDtp.dtpDate !== null &&
-          criteria.secondDtp.dtpDate !== null
-      )
+      .filter((criteria) => criteria.checkbox.checked)
       .map((criteria) => ({
         name: criteria.id,
         description: criteria.description,
-        firstDate: criteria.firstDtp.dtpDate as Date,
-        secondDate: criteria.secondDtp.dtpDate as Date,
+        firstDate: criteria.firstDtp.dtpDate,
+        secondDate: criteria.secondDtp.dtpDate,
       }));
     setReportCriteriaToDb(filteredCriteria);
     const successText = `Raport został pomyślnie wygenerowany.`;
     const errorText = `Nie udało się wygenerować raportu.`;
 
     try {
-      setIsRaportGenerating(true);
+      setIsReportGenerating(true);
       const result = await getReportStandardInvoices(filteredCriteria);
       if (result.status === STATUS.Success) {
         toast.success(
           `${successText} (${pluralizePozycja(result.data.length)})`
         );
-
-        console.log("result", result);
       } else {
         displayErrorMessage(
           "ReportStandardInvoicePage",
@@ -149,7 +144,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
         err
       );
     } finally {
-      setIsRaportGenerating(false);
+      setIsReportGenerating(false);
     }
   };
 
@@ -166,7 +161,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
       const successText = `Eksport do XLSX został pomyślnie wykonany.`;
       const errorText = `Nie udało się wykonać eksportu do XLSX.`;
       try {
-        setIsRaportGenerating(true);
+        setIsReportGenerating(true);
         const result = await exportStandardInvoiceReportToXLSX(
           reportCriteriaToDb,
           dataReportStandardInvoices
@@ -187,13 +182,17 @@ const ReportStandardDocumentsPage: React.FC = () => {
           err
         );
       } finally {
-        setIsRaportGenerating(false);
+        setIsReportGenerating(false);
       }
     }
   };
 
   return (
     <div className={`${scss["reportStandardDocumentsPage-main-container"]}`}>
+      <IconInfo
+        tooltipId="tooltip-formAddInvoice"
+        tooltipInfoTextHtml={tooltipReportStandardInvoicePage()}
+      />
       <div
         className={`${scss["container"]} ${
           scss[`${options.fontSize.en}-font`]
@@ -204,11 +203,46 @@ const ReportStandardDocumentsPage: React.FC = () => {
             reportCriteria={reportCriteria}
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
-            isRaportGenerating={isRaportGenerating}
+            isRaportGenerating={isReportGenerating}
           />
         </div>
       </div>
+
+      {loadingReportStandardInvoices && isReportGenerating ? (
+        <Loader />
+      ) : (
+        <>
+          {dataReportStandardInvoices &&
+            dataReportStandardInvoices.length > 0 && (
+              <ButtonsExportData
+                handleExportButtonClick={handleExportButtonClick}
+                isRaportGenerating={isReportGenerating}
+              />
+            )}
+          <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />
+          <TableReportStandardInvoice
+            ref={tableRef}
+            dataReportStandardInvoices={dataReportStandardInvoices}
+            totalPriceAllInvoices={totalPriceAllInvoices}
+          />
+        </>
+      )}
     </div>
   );
 };
 export default ReportStandardDocumentsPage;
+
+function tooltipReportStandardInvoicePage() {
+  const text = `📈 Formularz raportu.
+  Pole wyboru (checkbox) umożliwia włączenie lub wyłączenie danego kryterium.
+  Jeżeli pole wyboru nie jest zaznaczone, pola dat pozostają nieaktywne i nie są brane pod uwagę w raporcie.
+  Pole "Data wystawienia faktury" umożliwia wybranie daty wystawienia faktury.
+  Pole "Termin płatności" umożliwia wybranie daty terminu płatności za fakturę
+  Pole "Data płatności" umożliwiają wybór daty płatności za fakturę.
+  Pole kalendarza daty początkowej umożliwia wybranie daty rozpoczęcia zakresu.
+  Pole kalendarza daty końcowej umożliwia wybranie daty zakończenia zakresu.
+  W przypadku usunięcia daty w którymkolwiek z pól, jako kryterium zostanie uznany brak daty w tym polu.
+  ⛔ Data początkowa nie może być późniejsza niż data końcowa.
+  ⚠️ Jeżeli w jednym z pól kalendarza zostanie usunięta data, w drugim polu również musi zostać usunięta.`;
+  return text.replace(/\n/g, "<br/>");
+}
