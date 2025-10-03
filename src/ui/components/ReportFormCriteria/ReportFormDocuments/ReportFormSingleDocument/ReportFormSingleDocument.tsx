@@ -11,6 +11,7 @@ interface ReportFormSingleDocumentProps {
   id: string;
   name: string;
   checkbox: ReportCriteriaChB;
+  onToggleCheckbox?: (id: string, checked: boolean) => void;
   children?: ReportFormSingleDocumentProps[];
 }
 
@@ -18,9 +19,9 @@ export const ReportFormSingleDocument = ({
   id,
   name,
   checkbox,
+  onToggleCheckbox,
   children,
 }: ReportFormSingleDocumentProps) => {
-  // Destrukturyzacja obiektu reportCriteria w celu uzyskania indywidualnych kryteriów
   const { isOpenModal: isResizeText, toggleModal: toogleText } = useToggle();
   const [checked, setChecked] = useState(checkbox.checked);
   const [hasChildren, setHasChildren] = useState(false);
@@ -32,13 +33,25 @@ export const ReportFormSingleDocument = ({
       setHasChildren(false);
     }
   }, [children]);
+
+  const handleSetChecked: React.Dispatch<React.SetStateAction<boolean>> = (
+    val
+  ) => {
+    // ustaw lokalny stan
+    // setChecked(val as boolean);
+    // wywołaj callback do rodzica
+    if (typeof val === "boolean") {
+      onToggleCheckbox?.(id, val);
+    }
+  };
+
   return (
     <li className={`${scss["reportFormSingleDocument-main-container-li"]}`}>
       <div className={`${scss["reportFormSingleDocument-main-container"]}`}>
         <div className={scss["checkbox-container"]}>
           <CheckboxRegular
-            checked={checked}
-            setChecked={setChecked}
+            checked={checkbox.checked}
+            setChecked={handleSetChecked}
             name={checkbox.name}
           />
         </div>
@@ -62,6 +75,7 @@ export const ReportFormSingleDocument = ({
               id={child.id}
               name={child.name}
               checkbox={child.checkbox}
+              onToggleCheckbox={onToggleCheckbox}
               children={child.children}
             />
           ))}

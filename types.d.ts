@@ -212,26 +212,26 @@ declare global {
     description: string;
     errorMessage: string;
   }
-  export type ReportCriteriaDocument = {
-    DocumentId: string;
-    DocumentName: string;
-    Checkbox: ReportCriteriaChB,
-    MainTypes: {
-      MainTypeId: string | null;
-      MainTypeName: string | null;
-      Checkbox: ReportCriteriaChB,
-      Types: {
-        TypeId: string | null;
-        TypeName: string | null;
-        Checkbox: ReportCriteriaChB,
-        Subtypes: {
-          SubtypeId: string | null;
-          SubtypeName: string | null;
-          Checkbox: ReportCriteriaChB,
-        }[];
-      }[];
-    }[];
-  }
+  // type ReportCriteriaDocument = {
+  //   DocumentId: string;
+  //   DocumentName: string;
+  //   Checkbox: ReportCriteriaChB,
+  //   MainTypes: {
+  //     MainTypeId: string | null;
+  //     MainTypeName: string | null;
+  //     Checkbox: ReportCriteriaChB,
+  //     Types: {
+  //       TypeId: string | null;
+  //       TypeName: string | null;
+  //       Checkbox: ReportCriteriaChB,
+  //       Subtypes: {
+  //         SubtypeId: string | null;
+  //         SubtypeName: string | null;
+  //         Checkbox: ReportCriteriaChB,
+  //       }[];
+  //     }[];
+  //   }[];
+  // }
   export type ReportCriteriaAllDocuments = {
     id: string;
     name: string;

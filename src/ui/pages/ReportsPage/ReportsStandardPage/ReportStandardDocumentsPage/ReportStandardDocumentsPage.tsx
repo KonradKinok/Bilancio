@@ -76,9 +76,8 @@ const ReportStandardDocumentsPage: React.FC = () => {
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
-  const [reportDocumentsCriteria, setReportDocumentsCriteria] = useState<
-    ReportCriteriaAllDocuments[] | undefined
-  >(undefined);
+  const [reportDocumentsCriteria, setReportDocumentsCriteria] =
+    useState<ReportCriteriaAllDocuments[]>();
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
@@ -229,7 +228,8 @@ const ReportStandardDocumentsPage: React.FC = () => {
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
             isRaportGenerating={isReportGenerating}
-            documentsNameCriteria={reportDocumentsCriteria}
+            reportDocumentsCriteria={reportDocumentsCriteria}
+            setReportDocumentsCriteria={setReportDocumentsCriteria}
           />
         </div>
         <div>
@@ -345,7 +345,7 @@ function transformationAllDocumentsName(
             type.subtypes.push({
               subtypeId: subtypeId,
               subtypeName: document.SubtypeName,
-              checkbox: { checked: false, name: subtypeId },
+              checkbox: { checked: true, name: subtypeId },
             });
           }
         }

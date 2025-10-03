@@ -206,7 +206,8 @@ const ReportStandardInvoicePage: React.FC = () => {
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
             isRaportGenerating={isReportGenerating}
-            documentsNameCriteria2={undefined}
+            reportDocumentsCriteria={undefined}
+            setReportDocumentsCriteria={undefined}
           />
         </div>
       </div>
