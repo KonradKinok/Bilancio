@@ -212,6 +212,55 @@ declare global {
     description: string;
     errorMessage: string;
   }
+  export type ReportCriteriaDocument = {
+    DocumentId: string;
+    DocumentName: string;
+    Checkbox: ReportCriteriaChB,
+    MainTypes: {
+      MainTypeId: string | null;
+      MainTypeName: string | null;
+      Checkbox: ReportCriteriaChB,
+      Types: {
+        TypeId: string | null;
+        TypeName: string | null;
+        Checkbox: ReportCriteriaChB,
+        Subtypes: {
+          SubtypeId: string | null;
+          SubtypeName: string | null;
+          Checkbox: ReportCriteriaChB,
+        }[];
+      }[];
+    }[];
+  }
+  export type ReportCriteriaAllDocuments = {
+    id: string;
+    name: string;
+    checkbox: ReportCriteriaChB,
+    documents: {
+      documentId: string | null;
+      documentName: string | null;
+      checkbox: ReportCriteriaChB,
+      mainTypes: {
+        mainTypeId: string | null;
+        mainTypeName: string | null;
+        checkbox: ReportCriteriaChB,
+        types: {
+          typeId: string | null;
+          typeName: string | null;
+          checkbox: ReportCriteriaChB,
+          subtypes: {
+            subtypeId: string | null;
+            subtypeName: string | null;
+            checkbox: ReportCriteriaChB,
+          }[];
+        }[];
+      }[];
+    }[]
+  }
+  export type ReportCriteriaDocument = ReportCriteriaAllDocuments["documents"][number];
+  export type ReportCriteriaMainType = ReportCriteriaAllDocuments["mainTypes"][number];
+  export type ReportCriteriaType = ReportCriteriaAllDocuments["types"][number];
+  export type ReportCriteriaSubtype = ReportCriteriaAllDocuments["subtypes"][number];
   //Reports DataBase
   export type ReportCriteriaToDb = {
     name: string;

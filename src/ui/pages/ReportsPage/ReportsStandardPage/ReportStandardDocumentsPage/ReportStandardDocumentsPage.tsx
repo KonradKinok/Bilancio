@@ -17,6 +17,7 @@ import { TableReportStandardInvoice } from "../../../../components/TableReportSt
 import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardDocumentsPage.module.scss";
+import { useAllDocumentsName } from "../../../../hooks/useAllDocumentName";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -75,10 +76,21 @@ const ReportStandardDocumentsPage: React.FC = () => {
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
+  const [reportDocumentsCriteria, setReportDocumentsCriteria] = useState<
+    ReportCriteriaAllDocuments[] | undefined
+  >(undefined);
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
   const [isReportGenerating, setIsReportGenerating] = useState(false);
+
+  const {
+    data: dataAllDocumentsName,
+    loading: loadingDataAllDocumentsName,
+    getAllDocuments,
+  } = useAllDocumentsName();
+
+  //Hook do generowania raportu
   const {
     data: dataReportStandardInvoices,
     loading: loadingReportStandardInvoices,
@@ -94,6 +106,19 @@ const ReportStandardDocumentsPage: React.FC = () => {
     error: errorExportStandardInvoiceReportToXLSX,
     exportStandardInvoiceReportToXLSX,
   } = useExportStandardInvoiceReportToXLSX();
+
+  //Kryteria dokumentów
+  // const documentsNameCriteria = useMemo(() => {
+  //   if (dataAllDocumentsName)
+  //     return transformationAllDocumentsName(dataAllDocumentsName);
+  // }, [dataAllDocumentsName]);
+
+  useEffect(() => {
+    if (dataAllDocumentsName) {
+      const data = transformationAllDocumentsName(dataAllDocumentsName);
+      setReportDocumentsCriteria(data);
+    }
+  }, [dataAllDocumentsName]);
 
   //Obliczanie sumy kwoty wszystkich faktur z raportu
   const totalPriceAllInvoices = useMemo(() => {
@@ -204,7 +229,11 @@ const ReportStandardDocumentsPage: React.FC = () => {
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
             isRaportGenerating={isReportGenerating}
+            documentsNameCriteria={reportDocumentsCriteria}
           />
+        </div>
+        <div>
+          <pre>{JSON.stringify(reportDocumentsCriteria, null, 2)}</pre>
         </div>
       </div>
 
@@ -245,4 +274,84 @@ function tooltipReportStandardInvoicePage() {
   ⛔ Data początkowa nie może być późniejsza niż data końcowa.
   ⚠️ Jeżeli w jednym z pól kalendarza zostanie usunięta data, w drugim polu również musi zostać usunięta.`;
   return text.replace(/\n/g, "<br/>");
+}
+
+function transformationAllDocumentsName(
+  dataAllDocumentsName: AllDocumentsName[]
+) {
+  const grouped = new Map<string, ReportCriteriaAllDocuments>();
+  // Tworzymy tylko jeden root "Dokumenty"
+  grouped.set("Dokumenty", {
+    id: "0",
+    name: "Dokumenty",
+    checkbox: { checked: true, name: "0" },
+    documents: [],
+  });
+
+  const root = grouped.get("Dokumenty")!;
+
+  for (const document of dataAllDocumentsName) {
+    //IDs
+    const documentId = `${document.DocumentId}`;
+    const mainTypeId = `${documentId}-${document.MainTypeId ?? ""}`;
+    const typeId = `${mainTypeId}-${document.TypeId ?? ""}`;
+    const subtypeId = `${typeId}-${document.SubtypeId ?? ""}`;
+    // --- Level 1: DocumentName
+    // Szukamy dokumentu w root.document (czy już istnieje)
+    let documentGroup = root.documents.find((d) => d.documentId === documentId);
+    if (!documentGroup) {
+      documentGroup = {
+        documentId: document.DocumentId.toString(),
+        documentName: document.DocumentName,
+        checkbox: { checked: true, name: document.DocumentId.toString() },
+        mainTypes: [],
+      };
+      root.documents.push(documentGroup);
+    }
+
+    // --- Level 2: MainTypeName
+    if (document.MainTypeName) {
+      let mainType = documentGroup.mainTypes.find(
+        (mt) => mt.mainTypeName === document.MainTypeName
+      );
+      if (!mainType) {
+        mainType = {
+          mainTypeId: mainTypeId,
+          mainTypeName: document.MainTypeName,
+          checkbox: { checked: true, name: mainTypeId },
+          types: [],
+        };
+        documentGroup.mainTypes.push(mainType);
+      }
+
+      // --- Level 3: TypeName
+      if (document.TypeName) {
+        let type = mainType.types.find((t) => t.typeName === document.TypeName);
+        if (!type) {
+          type = {
+            typeId: typeId,
+            typeName: document.TypeName,
+            checkbox: { checked: true, name: typeId },
+            subtypes: [],
+          };
+          mainType.types.push(type);
+        }
+
+        // --- Level 4: SubtypeName
+        if (document.SubtypeName) {
+          if (
+            !type.subtypes.find((s) => s.subtypeName === document.SubtypeName)
+          ) {
+            type.subtypes.push({
+              subtypeId: subtypeId,
+              subtypeName: document.SubtypeName,
+              checkbox: { checked: false, name: subtypeId },
+            });
+          }
+        }
+      }
+    }
+  }
+  console.log("transformationAllDocumentsName", [...grouped.values()]);
+  return [...grouped.values()];
 }

@@ -79,6 +79,8 @@ const ReportStandardInvoicePage: React.FC = () => {
     ReportCriteriaToDb[]
   >([]);
   const [isReportGenerating, setIsReportGenerating] = useState(false);
+
+  //Hook do generowania raportu
   const {
     data: dataReportStandardInvoices,
     loading: loadingReportStandardInvoices,
@@ -204,6 +206,7 @@ const ReportStandardInvoicePage: React.FC = () => {
             setReportCriteria={setReportCriteria}
             handleButtonClick={handleGenerateReportButtonClick}
             isRaportGenerating={isReportGenerating}
+            documentsNameCriteria2={undefined}
           />
         </div>
       </div>
