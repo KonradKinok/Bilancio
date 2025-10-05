@@ -796,8 +796,8 @@ export async function getAllInvoices(
 
     // --- Parametry ---
     const params: QueryParams = [
-      formValuesHomePage.firstDate.toISOString().split("T")[0],
-      formValuesHomePage.secondDate.toISOString().split("T")[0],
+      getFormattedDate(formValuesHomePage.firstDate, "-", "year"),
+      getFormattedDate(formValuesHomePage.secondDate, "-", "year"),
       isDeleted,
     ];
 
@@ -1174,11 +1174,11 @@ export async function countInvoices(
 
     if (formValuesHomePage.firstDate) {
       query += ` AND ReceiptDate >= ?`;
-      params.push(formValuesHomePage.firstDate.toISOString().split("T")[0]);
+      params.push(getFormattedDate(formValuesHomePage.firstDate, "-", "year"));
     }
     if (formValuesHomePage.secondDate) {
       query += ` AND ReceiptDate <= ?`;
-      params.push(formValuesHomePage.secondDate.toISOString().split("T")[0]);
+      params.push(getFormattedDate(formValuesHomePage.secondDate, "-", "year"));
     }
     if (formValuesHomePage.isDeleted !== undefined) {
       query += ` AND IsDeleted = ?`;
@@ -1500,12 +1500,14 @@ export function logTitle(
   return title;
 }
 
-export const getFormattedDate = (date: Date | null, separator: string = "."): string | null => {
+export const getFormattedDate = (date: Date | null, separator: string = ".", format: "day" | "year" = "day"): string | null => {
   if (!date) return null;
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
   const day = String(date.getDate()).padStart(2, "0");
-  return `${day}${separator}${month}${separator}${year}`; // YYYY-MM-DD
+  return format === "year"
+    ? `${year}${separator}${month}${separator}${day}`
+    : `${day}${separator}${month}${separator}${year}`;
 };
 
 export function isValidDate(value: unknown): value is Date {

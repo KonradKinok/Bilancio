@@ -122,6 +122,7 @@ const ReportStandardInvoicePage: React.FC = () => {
         secondDate: criteria.secondDtp.dtpDate,
       }));
     setReportCriteriaToDb(filteredCriteria);
+    console.log("filteredCriteria", filteredCriteria);
     const successText = `Raport został pomyślnie wygenerowany.`;
     const errorText = `Nie udało się wygenerować raportu.`;
 

@@ -67,13 +67,21 @@ export async function getReportStandardAllInvoices(
       WHERE Invoices.IsDeleted = 0
     `;
     const params: QueryParams = [];
-
+    console.log('reportCriteriaToDb', reportCriteriaToDb);
     reportCriteriaToDb.forEach((item) => {
       if (item.firstDate && item.secondDate) {
         query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
+        console.log('item.firstDate', item.firstDate);
+        console.log('item.firstDate.toLocaleDateString', item.firstDate.toLocaleDateString().split("T")[0]);
+        console.log('item.firstDate.getFormattedDate', getFormattedDate(item.firstDate, "-", "year"));
+        // Dodajemy tylko datę w formacie YYYY-MM-DD, bez czasu
         params.push(
-          item.firstDate.toISOString().split("T")[0],
-          item.secondDate.toISOString().split("T")[0],
+          getFormattedDate(item.firstDate, "-", "year"),
+          getFormattedDate(item.secondDate, "-", "year"),
+          // item.firstDate.toISOString().split("T")[0],
+          // item.secondDate.toISOString().split("T")[0],
+          // item.firstDate.toLocaleDateString().split("T")[0],
+          // item.secondDate.toLocaleDateString().split("T")[0],
         );
       } else {
         query += ` AND Invoices.${item.name} IS NULL`;
@@ -199,8 +207,8 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       const rowSheetCriteria = sheetCriteria.addRow([
         index + 1,
         item.description,
-        isValidDate(item.firstDate) ? new Date(item.firstDate) : "brak daty",
-        isValidDate(item.secondDate) ? new Date(item.secondDate) : "brak daty",
+        isValidDate(item.firstDate) ? getFormattedDate(item.firstDate) : "brak daty",
+        isValidDate(item.secondDate) ? getFormattedDate(item.secondDate) : "brak daty",
       ]);
 
       // Stylizowanie wiersza od razu po utworzeniu
@@ -303,8 +311,8 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
     autoSizeColumns(sheetData);
 
     // Wygenerowanie pliku xlsx
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const filePath = getSavedDocumentsPathWithCustomFile(`raport - ${timestamp}.xlsx`)
+    const timestamp = new Date().toLocaleString().replace(/[[:., ]/g, '-');
+    const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.xlsx`)
     await workbook.xlsx.writeFile(filePath);
 
     //Sprawdzenie czy zapisany plik xlsx istnieje

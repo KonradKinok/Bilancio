@@ -257,10 +257,40 @@ declare global {
       }[];
     }[]
   }
-  export type ReportCriteriaDocument = ReportCriteriaAllDocuments["documents"][number];
-  export type ReportCriteriaMainType = ReportCriteriaAllDocuments["mainTypes"][number];
-  export type ReportCriteriaType = ReportCriteriaAllDocuments["types"][number];
-  export type ReportCriteriaSubtype = ReportCriteriaAllDocuments["subtypes"][number];
+  export type ReportAllDocumentsToTable = {
+    id: string;
+    name: string;
+    quantity: number;
+    totalPrice: number;
+    documents: {
+      documentId: string | null;
+      documentName: string | null;
+      quantity: number;
+      totalPrice: number;
+      mainTypes: {
+        mainTypeId: string | null;
+        mainTypeName: string | null;
+        quantity: number;
+        totalPrice: number;
+        types: {
+          typeId: string | null;
+          typeName: string | null;
+          quantity: number;
+          totalPrice: number;
+          subtypes: {
+            subtypeId: string | null;
+            subtypeName: string | null;
+            quantity: number;
+            totalPrice: number;
+          }[];
+        }[];
+      }[];
+    }[]
+  }
+  // export type ReportCriteriaDocument = ReportCriteriaAllDocuments["documents"][number];
+  // export type ReportCriteriaMainType = ReportCriteriaAllDocuments["mainTypes"][number];
+  // export type ReportCriteriaType = ReportCriteriaAllDocuments["types"][number];
+  // export type ReportCriteriaSubtype = ReportCriteriaAllDocuments["subtypes"][number];
   //Reports DataBase
   export type ReportCriteriaToDb = {
     name: string;

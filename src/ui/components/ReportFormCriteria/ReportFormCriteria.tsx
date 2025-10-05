@@ -89,49 +89,6 @@ export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
   );
 };
 
-// function getDocumentsToReportDb(reportDocumentsCriteria: ReportCriteriaAllDocuments[]) {
-//   const filteredCriteria = reportDocumentsCriteria
-//       .filter((root) => root.checkbox.checked).map((root) => ({
-//         name: root.id,
-//         description: criteria.description,
-//         firstDate: criteria.firstDtp.dtpDate,
-//         secondDate: criteria.secondDtp.dtpDate,
-//       }));
-//    const filteredCriteria1=reportDocumentsCriteria.map((root) => (
-
-//             id={root.id}
-//             name={root.name}
-//             checkbox={root.checkbox}
-//             onToggleCheckbox={(id, newChecked) => {
-//               setReportDocumentsCriteria?.((prev) =>
-//                 prev ? updateChecked(prev, id, newChecked) : prev
-//               );
-//             }}
-//             children={root.documents?.map((doc) => ({
-//               id: doc.documentId ?? "",
-//               name: doc.documentName ?? "",
-//               checkbox: doc.checkbox,
-//               children: doc.mainTypes?.map((mt) => ({
-//                 id: mt.mainTypeId ?? "",
-//                 name: mt.mainTypeName ?? "",
-//                 checkbox: mt.checkbox,
-//                 children: mt.types?.map((t) => ({
-//                   id: t.typeId ?? "",
-//                   name: t.typeName ?? "",
-//                   checkbox: t.checkbox,
-//                   children: t.subtypes?.map((st) => ({
-//                     id: st.subtypeId ?? "",
-//                     name: st.subtypeName ?? "",
-//                     checkbox: st.checkbox,
-//                   })),
-//                 })),
-//               })),
-//             }))}
-//           />
-//         ))}
-
-// }
-
 // Definiuj typ TreeNode, aby obsłużyć wszystkie poziomy drzewa
 type TreeNode =
   | ReportCriteriaAllDocuments
