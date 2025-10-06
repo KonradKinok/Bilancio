@@ -18,6 +18,7 @@ import { ReportConditionsFulfilled } from "../../../../components/ReportConditio
 import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardDocumentsPage.module.scss";
 import { useAllDocumentsName } from "../../../../hooks/useAllDocumentName";
+import { TableReportStandardDocuments } from "../../../../components/TableReportStandardDocuments/TableReportStandardDocuments";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -80,6 +81,8 @@ const ReportStandardDocumentsPage: React.FC = () => {
     useState<ReportCriteriaAllDocuments[]>();
   const [reportDocumentsToTable, setReportDocumentsToTable] =
     useState<ReportAllDocumentsToTable[]>();
+  const [reportDocumentsCriteriaToDb, setReportDocumentsCriteriaToDb] =
+    useState<ReportCriteriaAllDocuments[]>();
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
@@ -91,7 +94,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
     getAllDocuments,
   } = useAllDocumentsName();
 
-  //Hook do generowania raportu
+  //Hook do generowania raportu StandardInvoices
   const {
     data: dataReportStandardInvoices,
     loading: loadingReportStandardInvoices,
@@ -114,12 +117,21 @@ const ReportStandardDocumentsPage: React.FC = () => {
   //     return transformationAllDocumentsName(dataAllDocumentsName);
   // }, [dataAllDocumentsName]);
 
+  //Pobranie nazw dokumentów do kryteriów
   useEffect(() => {
     if (dataAllDocumentsName) {
       const data = transformationAllDocumentsName(dataAllDocumentsName);
       setReportDocumentsCriteria(data);
     }
   }, [dataAllDocumentsName]);
+
+  //Przefiltrowywanie kryteriów dokumentów do zapisu w bazie
+  useEffect(() => {
+    if (reportDocumentsCriteria) {
+      const data = filteredDocumentsToCriteria(reportDocumentsCriteria);
+      setReportDocumentsCriteriaToDb(data);
+    }
+  }, [reportDocumentsCriteria]);
 
   //Obliczanie sumy kwoty wszystkich faktur z raportu
   const totalPriceAllInvoices = useMemo(() => {
@@ -242,9 +254,6 @@ const ReportStandardDocumentsPage: React.FC = () => {
             setReportDocumentsCriteria={setReportDocumentsCriteria}
           />
         </div>
-        <div>
-          <pre>{JSON.stringify(reportDocumentsToTable, null, 2)}</pre>
-        </div>
       </div>
 
       {loadingReportStandardInvoices && isReportGenerating ? (
@@ -258,14 +267,21 @@ const ReportStandardDocumentsPage: React.FC = () => {
                 isRaportGenerating={isReportGenerating}
               />
             )}
-          <ReportConditionsFulfilled reportCriteriaToDb={reportCriteriaToDb} />
-          <TableReportStandardInvoice
+          <ReportConditionsFulfilled
+            reportCriteriaToDb={reportCriteriaToDb}
+            reportDocumentsCriteriaToDb={reportDocumentsCriteriaToDb}
+          />
+          <TableReportStandardDocuments
             ref={tableRef}
             dataReportStandardInvoices={dataReportStandardInvoices}
             totalPriceAllInvoices={totalPriceAllInvoices}
+            reportDocumentsToTable={reportDocumentsToTable}
           />
         </>
       )}
+      <div>
+        <pre>{JSON.stringify(reportDocumentsToTable, null, 2)}</pre>
+      </div>
     </div>
   );
 };
@@ -284,6 +300,38 @@ function tooltipReportStandardInvoicePage() {
   ⛔ Data początkowa nie może być późniejsza niż data końcowa.
   ⚠️ Jeżeli w jednym z pól kalendarza zostanie usunięta data, w drugim polu również musi zostać usunięta.`;
   return text.replace(/\n/g, "<br/>");
+}
+function filteredDocumentsToCriteria(
+  reportDocumentsCriteria: ReportCriteriaAllDocuments[]
+): ReportCriteriaAllDocuments[] {
+  const findedDocuments = reportDocumentsCriteria
+    .filter((root) => {
+      return root.checkbox.checked === true; // root musi być zaznaczony
+    })
+    .map((root) => {
+      return {
+        ...root,
+        documents: root.documents
+          .filter((doc) => doc.checkbox.checked === true) // tylko zaznaczone dokumenty
+          .map((doc) => ({
+            ...doc,
+            mainTypes: doc.mainTypes
+              ?.filter((mt) => mt.checkbox.checked === true) // tylko zaznaczone mainTypes
+              .map((mt) => ({
+                ...mt,
+                types: mt.types
+                  ?.filter((t) => t.checkbox.checked === true) // tylko zaznaczone types
+                  .map((t) => ({
+                    ...t,
+                    subtypes: t.subtypes?.filter(
+                      (st) => st.checkbox.checked === true
+                    ), // tylko zaznaczone subtypes
+                  })),
+              })),
+          })),
+      };
+    });
+  return findedDocuments;
 }
 
 function sumaKwotyDokumentow(
@@ -318,61 +366,6 @@ function sumaKwotyDokumentow(
       };
     });
 
-  console.log("sumaKwotyDokumentow findedDocuments", { findedDocuments });
-  // --- 2. Tworzymy strukturę do tabeli z obliczeniami
-  // const findedDocumentsToTable: ReportAllDocumentsToTable[] =
-  //   findedDocuments.map((root) => {
-  //     return {
-  //       id: root.id,
-  //       name: root.name,
-  //       quantity: 0,
-  //       totalPrice: 0,
-  //       documents: root.documents.map((doc) => ({
-  //         documentId: doc.documentId,
-  //         documentName: doc.documentName,
-  //         quantity: dataReportStandardInvoices.reduce((sum, inv) => {
-  //           const quantityTotal = inv.Documents.filter(
-  //             (invDoc) => invDoc.DocumentName === doc.documentName
-  //           ).reduce((docSum, invDoc) => docSum + invDoc.Quantity, 0);
-
-  //           return sum + quantityTotal;
-  //         }, 0),
-  //         totalPrice: dataReportStandardInvoices.reduce((sum, inv) => {
-  //           const priceTotal = inv.Documents.filter(
-  //             (invDoc) => invDoc.DocumentName === doc.documentName
-  //           ).reduce(
-  //             (docSum, invDoc) =>
-  //               docSum + parseFloat(invDoc.Price?.toString() || "0"),
-  //             0
-  //           );
-  //           return sum + priceTotal;
-  //         }, 0),
-  //         mainTypes: doc.mainTypes?.map((mt) => ({
-  //           mainTypeId: mt.mainTypeId,
-  //           mainTypeName: mt.mainTypeName,
-  //           quantity: dataReportStandardInvoices.reduce((sum, inv) => {
-  //             const quantityTotal = inv.Documents.filter(
-  //               (invDoc) => invDoc.MainTypeName === mt.mainTypeName
-  //             ).reduce((docSum, invDoc) => docSum + invDoc.Quantity, 0);
-  //             return sum + quantityTotal;
-  //           }, 0),
-  //           totalPrice: 0,
-  //           types: mt.types?.map((t) => ({
-  //             typeId: t.typeId,
-  //             typeName: t.typeName,
-  //             quantity: 0,
-  //             totalPrice: 0,
-  //             subtypes: t.subtypes?.map((st) => ({
-  //               subtypeId: st.subtypeId,
-  //               subtypeName: st.subtypeName,
-  //               quantity: 0,
-  //               totalPrice: 0,
-  //             })),
-  //           })),
-  //         })),
-  //       })),
-  //     };
-  //   });
   const findedDocumentsToTable: ReportAllDocumentsToTable[] =
     findedDocuments.map((root) => {
       return {
@@ -504,32 +497,39 @@ function sumaKwotyDokumentow(
   // --- 3. AGREGACJA SUM W GÓRĘ HIERARCHII ---
   for (const root of findedDocumentsToTable) {
     for (const doc of root.documents) {
-      for (const mt of doc.mainTypes) {
-        for (const t of mt.types) {
-          t.quantity = t.subtypes.reduce((sum, st) => sum + st.quantity, 0);
-          t.totalPrice = t.subtypes.reduce((sum, st) => sum + st.totalPrice, 0);
+      if (doc.mainTypes.length > 0) {
+        for (const mt of doc.mainTypes) {
+          if (mt.types.length > 0) {
+            for (const t of mt.types) {
+              if (t.subtypes.length > 0) {
+                t.quantity = t.subtypes.reduce(
+                  (sum, st) => sum + st.quantity,
+                  0
+                );
+                t.totalPrice = t.subtypes.reduce(
+                  (sum, st) => sum + st.totalPrice,
+                  0
+                );
+              }
+            }
+            mt.quantity = mt.types.reduce((sum, t) => sum + t.quantity, 0);
+            mt.totalPrice = mt.types.reduce((sum, t) => sum + t.totalPrice, 0);
+          }
         }
-        mt.quantity = mt.types.reduce((sum, t) => sum + t.quantity, 0);
-        mt.totalPrice = mt.types.reduce((sum, t) => sum + t.totalPrice, 0);
+        doc.quantity = doc.mainTypes.reduce((sum, mt) => sum + mt.quantity, 0);
+        doc.totalPrice = doc.mainTypes.reduce(
+          (sum, mt) => sum + mt.totalPrice,
+          0
+        );
       }
-      doc.quantity = doc.mainTypes.reduce((sum, mt) => sum + mt.quantity, 0);
-      doc.totalPrice = doc.mainTypes.reduce(
-        (sum, mt) => sum + mt.totalPrice,
+      root.quantity = root.documents.reduce((sum, d) => sum + d.quantity, 0);
+      root.totalPrice = root.documents.reduce(
+        (sum, d) => sum + d.totalPrice,
         0
       );
     }
-    root.quantity = root.documents.reduce((sum, d) => sum + d.quantity, 0);
-    root.totalPrice = root.documents.reduce((sum, d) => sum + d.totalPrice, 0);
   }
-
   return findedDocumentsToTable;
-
-  // return dataReportStandardInvoices.reduce((sum, inv) => {
-  //   const holowanieTotal = inv.Documents.filter(
-  //     (doc) => doc.DocumentName === "holowanie"
-  //   ).reduce((docSum, doc) => docSum + parseFloat(doc.Price || "0"), 0);
-  //   return sum + holowanieTotal;
-  // }, 0);
 }
 
 // function getDocumentsToReportDb(reportDocumentsCriteria: ReportCriteriaAllDocuments[]) {

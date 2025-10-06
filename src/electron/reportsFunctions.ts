@@ -337,6 +337,183 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
   }
 }
 
+//Export standard invoice report do XLSX
+export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
+  const functionName = exportStandardInvoiceReportToXLSX.name;
+  if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
+    const message = 'Brak danych do raportu.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: message,
+    };
+  }
+  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
+    const message = 'Brak kryteriów do raportu.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: message,
+    };
+  }
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const sheetData = workbook.addWorksheet("Raport");
+    const sheetCriteria = workbook.addWorksheet("Kryteria");
+
+    //SHEET CRITERIA
+    //Dane
+    const headersCriteria: ColumnType[] = [
+      { name: "Lp.", type: "number" },
+      { name: "Nazwa", type: "string" },
+      { name: "Data początkowa", type: "date" },
+      { name: "Data końcowa", type: "date" },
+    ];
+    //Stylowanie kolumn + wypisanie nazw kolumn
+    sheetCriteria.columns = headersCriteria.map(column => ({
+      header: column.name,
+      style: typeToStyle[column.type] || typeToStyle.general
+    }));
+
+    // Pobranie pierwszego wiersza (nazwy kolumn)
+    const headerRowSheetCriteria = sheetCriteria.getRow(1);
+
+    //Stylowanie nazw kolumn
+    styleHeaderRow(headerRowSheetCriteria);
+    //Dodanie wartości zawartości tabeli + stylowanie komórek
+    reportCriteriaToDb.forEach((item, index) => {
+      const rowSheetCriteria = sheetCriteria.addRow([
+        index + 1,
+        item.description,
+        isValidDate(item.firstDate) ? getFormattedDate(item.firstDate) : "brak daty",
+        isValidDate(item.secondDate) ? getFormattedDate(item.secondDate) : "brak daty",
+      ]);
+
+      // Stylizowanie wiersza od razu po utworzeniu
+      styleContentRow(rowSheetCriteria);
+    });
+
+    //Wstawienie pierwszego wiersza
+    sheetCriteria.spliceRows(1, 0, ["", "Kryteria raportu", getFormattedDate(new Date())]);
+    //Wstawienie drugiego wiersza
+    sheetCriteria.spliceRows(2, 0, []);
+
+    // SHEET DATA
+    //Dane
+    const headersData: ColumnType[] = [
+      { name: "Lp.", type: "number" },
+      { name: "Suma faktury", type: "currency2" },
+      { name: "Nazwa faktury", type: "string" },
+      { name: "Data wpływu", type: "date" },
+      { name: "Termin płatności", type: "date" },
+      { name: "Data płatności", type: "date" },
+      { name: "Dokument", type: "string" },
+      { name: "Liczba", type: "number" },
+      { name: "Cena", type: "currency4" },
+      { name: "Razem", type: "currency2" },
+    ];
+    //Ustawienia sheet data
+    sheetData.views = [{ state: 'frozen', ySplit: 1 }];
+    sheetData.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersData.length } };
+
+    //Stylowanie kolumn + wypisanie nazw kolumn
+    sheetData.columns = headersData.map(column => ({
+      header: column.name,
+      style: typeToStyle[column.type] || typeToStyle.general
+    }));
+
+    // Pobranie pierwszego wiersza (nazwy kolumn)
+    const headerRowSheetData = sheetData.getRow(1);
+
+    //Stylowanie nazw kolumn
+    styleHeaderRow(headerRowSheetData);
+
+    //Zawartość sheet data
+    //Pobranie pierwszego pustego wiersza pod nazwami kolumn
+    let currentRow = sheetData.rowCount + 1;
+    const totalAmountAllInvoices = dataReportStandardInvoices.reduce((sum, invoice) => sum + invoice.TotalAmount, 0);
+    //Dodanie wartości zawartości tabeli + stylowanie komórek
+    dataReportStandardInvoices.forEach((invoice, invoiceIndex) => {
+      const startRow = currentRow;
+
+      invoice.Documents.forEach((doc) => {
+        const rowSheetData = sheetData.addRow([
+          invoiceIndex + 1,
+          invoice.TotalAmount,
+          invoice.InvoiceName,
+          invoice.ReceiptDate ? new Date(invoice.ReceiptDate) : "",
+          invoice.DeadlineDate ? new Date(invoice.DeadlineDate) : "",
+          invoice.PaymentDate ? new Date(invoice.PaymentDate) : "",
+          `${doc.DocumentName} ${doc.MainTypeName} ${doc.TypeName} ${doc.SubtypeName}`,
+          doc.Quantity,
+          Number(doc.Price),
+          Number(doc.Total)
+        ]);
+        currentRow++;
+        styleContentRow(rowSheetData);
+
+      });
+
+      const endRow = currentRow - 1;
+      //Scalanie kolumn z danymi faktury
+      if (invoice.Documents.length > 1) {
+        sheetData.mergeCells(`A${startRow}: A${endRow}`); // Lp.
+        sheetData.mergeCells(`B${startRow}: B${endRow}`); // Suma faktury
+        sheetData.mergeCells(`C${startRow}: C${endRow}`); // Nazwa faktury
+        sheetData.mergeCells(`D${startRow}: D${endRow}`); // Data wpływu
+        sheetData.mergeCells(`E${startRow}: E${endRow}`); // Termin płatności
+        sheetData.mergeCells(`F${startRow}: F${endRow}`); // Data płatności
+      }
+
+      //Pobranie wiersza który ma być dodatkowo ostylowany
+      const row = sheetData.getRow(endRow);
+      row.eachCell((cell) => {
+        cell.border = {
+          ...cell.border, // Zachowanie pozostałych krawędzi
+          bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+        };
+      });
+
+      if (invoiceIndex === dataReportStandardInvoices.length - 1) {
+        // Ustawienie wartości w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).value = totalAmountAllInvoices;
+        // Ustawienie pogrubienia tekstu w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).font = { bold: true };
+        // Ustawienie formatu liczbowego w komórce B[ostatni wiersz]
+        sheetData.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
+      }
+    });
+
+    //Automatyczne nadanie szerokości kolumn
+    autoSizeColumns(sheetCriteria);
+    autoSizeColumns(sheetData);
+
+    // Wygenerowanie pliku xlsx
+    const timestamp = new Date().toLocaleString().replace(/[[:., ]/g, '-');
+    const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.xlsx`)
+    await workbook.xlsx.writeFile(filePath);
+
+    //Sprawdzenie czy zapisany plik xlsx istnieje
+    if (!fs.existsSync(filePath)) {
+      const message = `Plik xlsx nie istnieje w ścieżce: ${filePath}`
+      log.error(logTitle(functionName, message));
+      return { status: 2, message: message };
+    }
+
+    //Otworzenie pliku xlsx
+    openFile(filePath);
+
+    //Wiadomość zwrotna o poprawnym zapisaniu pliku xlsx
+    return { status: 0, message: `XLSX został poprawnie zapisany.` };
+  } catch (err) {
+    const message = 'Błąd podczas generowania pliku XLSX.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: err instanceof Error ? err.message : message,
+    };
+  }
+}
 // Funkcja pomocnicza do nadania stylu wierszowi nagłówka
 function styleHeaderRow(
   row: ExcelJS.Row,

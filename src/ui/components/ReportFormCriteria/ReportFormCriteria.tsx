@@ -2,9 +2,7 @@ import { ReportFormDateTimePickers } from "./ReportFormDateTimePickers/ReportFor
 import scss from "./ReportFormCriteria.module.scss";
 import { use, useEffect, useState } from "react";
 import { ReportFormButtonGenerateRaport } from "./ReportFormButtonGenerateRaport/ReportFormButtonGenerateRaport";
-import { ReportFormDocuments } from "./ReportFormDocuments/ReportFormDocuments";
-import { ReportFormSingleDocument } from "./ReportFormDocuments/ReportFormSingleDocument/ReportFormSingleDocument";
-import { ReportFormSingleDocuments } from "./ReportFormDocuments/ReportFormSingleDocuments/ReportFormSingleDocuments";
+import { ReportFormSingleDocument } from "./ReportFormSingleDocument/ReportFormSingleDocument";
 
 interface ReportFormCriteriaProps {
   reportCriteria: ReportCriteria[];

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import { FaPlus } from "react-icons/fa";
 import { FaMinus } from "react-icons/fa";
-import { DateTimePicker } from "../../../DateTimePicker/DateTimePicker";
-import { CheckboxRegular } from "../../../CheckboxRegular/CheckboxRegular";
+import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
+import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
 import scss from "./ReportFormSingleDocument.module.scss";
-import { useToggle } from "../../../../hooks/useToggle";
+import { useToggle } from "../../../hooks/useToggle";
 
 interface ReportFormSingleDocumentProps {
   id: string;
