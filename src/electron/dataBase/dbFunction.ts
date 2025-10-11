@@ -18,7 +18,6 @@ let displayUserName = await displayUserNameForLog();
 export function initDb() {
   if (!db) {
     db = new Database();
-    log.info("[dbFunction.js] [initDb]: Utworzono instancję bazy danych.", db);
   }
 }
 

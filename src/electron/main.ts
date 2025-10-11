@@ -74,7 +74,7 @@ app.on("ready", async () => {
 
   // Dynamiczne importowanie modułów po splash
   try {
-    const { configureLogs, defaultLogs, configureBackupDb } = await import("./config.js");
+    const { configureLogs, defaultLogs, configureBackupDb, deleteOldestFileInSavedDocuments } = await import("./config.js");
     const {
       addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
     } = await import("./dataBase/dbFunction.js");
@@ -82,11 +82,11 @@ app.on("ready", async () => {
       getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX, exportStandardDocumentsReportToXLSX
     } = await import("./reportsFunctions.js");
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
-    // Object.assign(console, log.functions); //Przeniesienie console.log do log
+    Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
     configureBackupDb(); //Utworzenie kopii bazu danych
     initDb(); //Zainicjalizowanie bazy danych
-
+    deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
     mainWindow = new BrowserWindow({
       width: 1024,
       height: 768,

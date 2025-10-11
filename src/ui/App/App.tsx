@@ -53,15 +53,15 @@ const App: React.FC = () => {
           <Route path="reportsPage" element={<ReportsPage />}>
             <Route
               index
-              element={<Navigate to="reportsStandardInvoicesPage" replace />}
-            />
-            <Route
-              path="reportsStandardInvoicesPage"
-              element={<ReportStandardInvoicePage />}
+              element={<Navigate to="reportsStandardDocumentsPage" replace />}
             />
             <Route
               path="reportsStandardDocumentsPage"
               element={<ReportStandardDocumentsPage />}
+            />
+            <Route
+              path="reportsStandardInvoicesPage"
+              element={<ReportStandardInvoicePage />}
             />
           </Route>
           <Route path="settingsPage" element={<SettingsPage />}>

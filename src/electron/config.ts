@@ -129,6 +129,25 @@ export function configureBackupDb(): void {
   }
 }
 
+// Funkcja do usuwania najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+export function deleteOldestFileInSavedDocuments(): void {
+  // Sprawdzanie liczby plików w katalogu zapisane dokumenty
+  const savedDocumentsFiles = fs.readdirSync(defaultDirConfig.savedDocumentsPath)
+    .filter(file => file !== "zapisane dokumenty.txt")
+    .map(file => ({
+      name: file,
+      time: fs.statSync(path.join(defaultDirConfig.savedDocumentsPath, file)).mtime.getTime()
+    }))
+    .sort((a, b) => a.time - b.time);
+
+  // Jeśli jest 50 lub więcej plików, usuń najstarszy
+  if (savedDocumentsFiles.length >= 50) {
+    const oldestFilePath = path.join(defaultDirConfig.savedDocumentsPath, savedDocumentsFiles[0].name);
+    fs.unlinkSync(oldestFilePath);
+    log.info('[config] [deleteOldestFileInSavedDocuments]: Usunięto najstarszy plik z katalogu "zapisane dokumenty":', oldestFilePath);
+  }
+}
+
 //Menu i Tray "O aplikacji"
 export async function showAboutDialog(mainWindow: BrowserWindow) {
   const response = await dialog.showMessageBox(mainWindow, {
