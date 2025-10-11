@@ -67,13 +67,10 @@ export async function getReportStandardAllInvoices(
       WHERE Invoices.IsDeleted = 0
     `;
     const params: QueryParams = [];
-    console.log('reportCriteriaToDb', reportCriteriaToDb);
     reportCriteriaToDb.forEach((item) => {
       if (item.firstDate && item.secondDate) {
         query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
-        console.log('item.firstDate', item.firstDate);
-        console.log('item.firstDate.toLocaleDateString', item.firstDate.toLocaleDateString().split("T")[0]);
-        console.log('item.firstDate.getFormattedDate', getFormattedDate(item.firstDate, "-", "year"));
+
         // Dodajemy tylko datę w formacie YYYY-MM-DD, bez czasu
         params.push(
           getFormattedDate(item.firstDate, "-", "year"),
@@ -337,18 +334,26 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
   }
 }
 
-//Export standard invoice report do XLSX
-export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
-  const functionName = exportStandardInvoiceReportToXLSX.name;
+//Export standard documents report do XLSX
+export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[]): Promise<ReturnStatusDbMessage> {
+  const functionName = exportStandardDocumentsReportToXLSX.name;
   if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
-    const message = 'Brak danych do raportu.';
+    const message = 'Brak danych faktur do raportu.';
     log.error(logTitle(functionName, message));
     return {
       status: 2,
       message: message,
     };
   }
-  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
+  if (!reportDocumentsToTable || reportDocumentsToTable.length === 0) {
+    const message = 'Brak danych dokumentów do raportu.';
+    log.error(logTitle(functionName, message));
+    return {
+      status: 2,
+      message: message,
+    };
+  }
+  if (!reportCriteriaToDb || reportCriteriaToDb.length === 0 || !documentsReadyForDisplay || documentsReadyForDisplay.length === 0) {
     const message = 'Brak kryteriów do raportu.';
     log.error(logTitle(functionName, message));
     return {
@@ -358,7 +363,8 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
   }
   try {
     const workbook = new ExcelJS.Workbook();
-    const sheetData = workbook.addWorksheet("Raport");
+    const sheetDocuments = workbook.addWorksheet("Dokumenty");
+    const sheetInvoices = workbook.addWorksheet("Faktury");
     const sheetCriteria = workbook.addWorksheet("Kryteria");
 
     //SHEET CRITERIA
@@ -368,6 +374,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       { name: "Nazwa", type: "string" },
       { name: "Data początkowa", type: "date" },
       { name: "Data końcowa", type: "date" },
+
     ];
     //Stylowanie kolumn + wypisanie nazw kolumn
     sheetCriteria.columns = headersCriteria.map(column => ({
@@ -393,9 +400,25 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       styleContentRow(rowSheetCriteria);
     });
 
+    //SHEET CRITERIA - DOKUMENTY
+    //Dodanie pustego wiersza
+    sheetCriteria.addRow([]);
+    //Dodanie nagłówka dla dokumentów
+    const headerDocumentsRowSheetCriteria = sheetCriteria.addRow(["Lp.", "Dokumenty wybrane do raportu"]);
+    styleHeaderRow(headerDocumentsRowSheetCriteria);
+    //Dodanie dokumentów do raportu
+    documentsReadyForDisplay.forEach((item, index) => {
+      const rowSheetCriteriaDocuments = sheetCriteria.addRow([
+        index + 1,
+        item,
+      ]);
+      // Stylizowanie wiersza od razu po utworzeniu
+      styleContentRow(rowSheetCriteriaDocuments);
+    });
+
     //Wstawienie pierwszego wiersza
     sheetCriteria.spliceRows(1, 0, ["", "Kryteria raportu", getFormattedDate(new Date())]);
-    //Wstawienie drugiego wiersza
+    //Wstawienie drugiego pustego wiersza
     sheetCriteria.spliceRows(2, 0, []);
 
     // SHEET DATA
@@ -413,31 +436,31 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       { name: "Razem", type: "currency2" },
     ];
     //Ustawienia sheet data
-    sheetData.views = [{ state: 'frozen', ySplit: 1 }];
-    sheetData.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersData.length } };
+    sheetInvoices.views = [{ state: 'frozen', ySplit: 1 }];
+    sheetInvoices.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersData.length } };
 
     //Stylowanie kolumn + wypisanie nazw kolumn
-    sheetData.columns = headersData.map(column => ({
+    sheetInvoices.columns = headersData.map(column => ({
       header: column.name,
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
     // Pobranie pierwszego wiersza (nazwy kolumn)
-    const headerRowSheetData = sheetData.getRow(1);
+    const headerRowSheetData = sheetInvoices.getRow(1);
 
     //Stylowanie nazw kolumn
     styleHeaderRow(headerRowSheetData);
 
     //Zawartość sheet data
     //Pobranie pierwszego pustego wiersza pod nazwami kolumn
-    let currentRow = sheetData.rowCount + 1;
+    let currentRow = sheetInvoices.rowCount + 1;
     const totalAmountAllInvoices = dataReportStandardInvoices.reduce((sum, invoice) => sum + invoice.TotalAmount, 0);
     //Dodanie wartości zawartości tabeli + stylowanie komórek
     dataReportStandardInvoices.forEach((invoice, invoiceIndex) => {
       const startRow = currentRow;
 
       invoice.Documents.forEach((doc) => {
-        const rowSheetData = sheetData.addRow([
+        const rowSheetData = sheetInvoices.addRow([
           invoiceIndex + 1,
           invoice.TotalAmount,
           invoice.InvoiceName,
@@ -457,16 +480,16 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       const endRow = currentRow - 1;
       //Scalanie kolumn z danymi faktury
       if (invoice.Documents.length > 1) {
-        sheetData.mergeCells(`A${startRow}: A${endRow}`); // Lp.
-        sheetData.mergeCells(`B${startRow}: B${endRow}`); // Suma faktury
-        sheetData.mergeCells(`C${startRow}: C${endRow}`); // Nazwa faktury
-        sheetData.mergeCells(`D${startRow}: D${endRow}`); // Data wpływu
-        sheetData.mergeCells(`E${startRow}: E${endRow}`); // Termin płatności
-        sheetData.mergeCells(`F${startRow}: F${endRow}`); // Data płatności
+        sheetInvoices.mergeCells(`A${startRow}: A${endRow}`); // Lp.
+        sheetInvoices.mergeCells(`B${startRow}: B${endRow}`); // Suma faktury
+        sheetInvoices.mergeCells(`C${startRow}: C${endRow}`); // Nazwa faktury
+        sheetInvoices.mergeCells(`D${startRow}: D${endRow}`); // Data wpływu
+        sheetInvoices.mergeCells(`E${startRow}: E${endRow}`); // Termin płatności
+        sheetInvoices.mergeCells(`F${startRow}: F${endRow}`); // Data płatności
       }
 
       //Pobranie wiersza który ma być dodatkowo ostylowany
-      const row = sheetData.getRow(endRow);
+      const row = sheetInvoices.getRow(endRow);
       row.eachCell((cell) => {
         cell.border = {
           ...cell.border, // Zachowanie pozostałych krawędzi
@@ -476,17 +499,207 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
 
       if (invoiceIndex === dataReportStandardInvoices.length - 1) {
         // Ustawienie wartości w komórce B[ostatni wiersz]
-        sheetData.getCell(`B${currentRow}`).value = totalAmountAllInvoices;
+        sheetInvoices.getCell(`B${currentRow}`).value = totalAmountAllInvoices;
         // Ustawienie pogrubienia tekstu w komórce B[ostatni wiersz]
-        sheetData.getCell(`B${currentRow}`).font = { bold: true };
+        sheetInvoices.getCell(`B${currentRow}`).font = { bold: true };
         // Ustawienie formatu liczbowego w komórce B[ostatni wiersz]
-        sheetData.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
+        sheetInvoices.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
       }
     });
 
-    //Automatyczne nadanie szerokości kolumn
+    // SHEET DOCUMENTS
+    //Dane
+    const headersDocumentsTable: ColumnType[] = [
+      { name: "Lp.", type: "number" },
+      { name: "Nazwa dokumentu", type: "string" },
+      { name: "Liczba dokumentów", type: "number" },
+      { name: "Suma cen dokumentu", type: "currency2" },
+      { name: "Nazwa głównego typu dokumentu", type: "string" },
+      { name: "Liczba głównego typu dokumentu", type: "number" },
+      { name: "Suma cen głównego typu dokumentu", type: "currency2" },
+      { name: "Nazwa typu dokumentu", type: "string" },
+      { name: "Liczba typu dokumentu", type: "number" },
+      { name: "Suma cen typu dokumentu", type: "currency2" },
+      { name: "Nazwa podtypu dokumentu", type: "string" },
+      { name: "Liczba podtypu dokumentu", type: "number" },
+      { name: "Suma cen podtypu dokumentu", type: "currency2" },
+    ];
+    //Ustawienia sheet documents
+    sheetDocuments.views = [{ state: 'frozen', ySplit: 1 }];
+    sheetDocuments.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersDocumentsTable.length } };
+
+    //Stylowanie kolumn + wypisanie nazw kolumn
+    sheetDocuments.columns = headersDocumentsTable.map(column => ({
+      header: column.name,
+      style: typeToStyle[column.type] || typeToStyle.general
+    }));
+
+    // Pobranie pierwszego wiersza (nazwy kolumn)
+    const headerRowSheetDocuments = sheetDocuments.getRow(1);
+
+    //Stylowanie nazw kolumn
+    styleHeaderRow(headerRowSheetDocuments);
+
+    //Zmienna do przechowywania sumy ilości i ceny dokumentów na najwyższym poziomie
+    const highLevelDocumentSumData = { quantity: 0, totalPrice: 0 }
+
+    // Zawartość sheetDocuments
+    //Pobranie pierwszego pustego wiersza pod nazwami kolumn
+    let currentRowSheetDocuments = sheetDocuments.rowCount + 1; // pierwszy pusty wiersz po nagłówkach
+    //Dodanie wartości zawartości tabeli + stylowanie komórek
+    reportDocumentsToTable.forEach((highLevelDocument, documentIndex) => {
+
+      //Przypisanie sumy ilości i ceny dokumentów na najwyższym poziomie do zmiennej
+      highLevelDocumentSumData.quantity = highLevelDocument.quantity;
+      highLevelDocumentSumData.totalPrice = highLevelDocument.totalPrice;
+
+      highLevelDocument.documents.forEach((doc, docIndex) => {
+        const startRowDoc = currentRowSheetDocuments; // gdzie zaczyna się dany dokument
+
+        if (doc.mainTypes.length > 0) {
+          doc.mainTypes.forEach((mainType) => {
+            const startRowMainType = currentRowSheetDocuments; // gdzie zaczyna się dany mainType
+
+            if (mainType.types.length > 0) {
+              mainType.types.forEach((type) => {
+                const startRowType = currentRowSheetDocuments; // gdzie zaczyna się dany type
+
+                if (type.subtypes.length > 0) {
+                  type.subtypes.forEach((subtype) => {
+                    const row = sheetDocuments.addRow([
+                      docIndex + 1,
+                      doc.documentName,
+                      doc.quantity,
+                      doc.totalPrice,
+                      mainType.mainTypeName,
+                      mainType.quantity,
+                      mainType.totalPrice,
+                      type.typeName,
+                      type.quantity,
+                      type.totalPrice,
+                      subtype.subtypeName,
+                      subtype.quantity,
+                      subtype.totalPrice,
+                    ]);
+                    styleContentRow(row);
+                    currentRowSheetDocuments++;
+                  });
+                } else {
+                  // brak subtypów
+                  const row = sheetDocuments.addRow([
+                    docIndex + 1,
+                    doc.documentName,
+                    doc.quantity,
+                    doc.totalPrice,
+                    mainType.mainTypeName,
+                    mainType.quantity,
+                    mainType.totalPrice,
+                    type.typeName,
+                    type.quantity,
+                    type.totalPrice,
+                    "",
+                    "",
+                    "",
+                  ]);
+                  styleContentRow(row);
+                  currentRowSheetDocuments++;
+                }
+
+                // scalanie TYPE, jeśli posiadał subtypy
+                const endRowType = currentRowSheetDocuments - 1;
+                if (endRowType > startRowType) {
+                  sheetDocuments.mergeCells(`H${startRowType}:H${endRowType}`); // Nazwa typu
+                  sheetDocuments.mergeCells(`I${startRowType}:I${endRowType}`); // Liczba typu
+                  sheetDocuments.mergeCells(`J${startRowType}:J${endRowType}`); // Suma typu
+                }
+              });
+            } else {
+              // brak typów
+              const row = sheetDocuments.addRow([
+                docIndex + 1,
+                doc.documentName,
+                doc.quantity,
+                doc.totalPrice,
+                mainType.mainTypeName,
+                mainType.quantity,
+                mainType.totalPrice,
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+              ]);
+              styleContentRow(row);
+              currentRowSheetDocuments++;
+            }
+
+            // scalanie MAIN TYPE, jeśli zawierał typy
+            const endRowMainType = currentRowSheetDocuments - 1;
+            if (endRowMainType > startRowMainType) {
+              sheetDocuments.mergeCells(`E${startRowMainType}:E${endRowMainType}`); // Nazwa głównego typu
+              sheetDocuments.mergeCells(`F${startRowMainType}:F${endRowMainType}`); // Liczba głównego typu
+              sheetDocuments.mergeCells(`G${startRowMainType}:G${endRowMainType}`); // Suma głównego typu
+            }
+          });
+        } else {
+          // brak mainTypes
+          const row = sheetDocuments.addRow([
+            docIndex + 1,
+            doc.documentName,
+            doc.quantity,
+            doc.totalPrice,
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+          ]);
+          styleContentRow(row);
+          currentRowSheetDocuments++;
+        }
+
+        // scalanie DOCUMENT (A-D)
+        const endRowDoc = currentRowSheetDocuments - 1;
+        if (endRowDoc > startRowDoc) {
+          sheetDocuments.mergeCells(`A${startRowDoc}:A${endRowDoc}`); // Lp.
+          sheetDocuments.mergeCells(`B${startRowDoc}:B${endRowDoc}`); // Nazwa dokumentu
+          sheetDocuments.mergeCells(`C${startRowDoc}:C${endRowDoc}`); // Liczba dokumentów
+          sheetDocuments.mergeCells(`D${startRowDoc}:D${endRowDoc}`); // Suma cen dokumentu
+        }
+        //Pobranie wiersza który ma być dodatkowo ostylowany
+        const row = sheetDocuments.getRow(endRowDoc);
+        row.eachCell((cell) => {
+          cell.border = {
+            ...cell.border, // Zachowanie pozostałych krawędzi
+            bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+          };
+        });
+        if (docIndex === highLevelDocument.documents.length - 1) {
+          // Ustawienie wartości w komórce C[ostatni wiersz]
+          sheetDocuments.getCell(`C${currentRowSheetDocuments}`).value = highLevelDocumentSumData.quantity;
+          // Ustawienie pogrubienia tekstu w komórce C[ostatni wiersz]
+          sheetDocuments.getCell(`C${currentRowSheetDocuments}`).font = { bold: true };
+          // Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
+          sheetDocuments.getCell(`C${currentRowSheetDocuments}`).numFmt = '#,##0';
+          // Ustawienie wartości w komórce D[ostatni wiersz]
+          sheetDocuments.getCell(`D${currentRowSheetDocuments}`).value = highLevelDocumentSumData.totalPrice;
+          // Ustawienie pogrubienia tekstu w komórce D[ostatni wiersz]
+          sheetDocuments.getCell(`D${currentRowSheetDocuments}`).font = { bold: true };
+          // Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
+          sheetDocuments.getCell(`D${currentRowSheetDocuments}`).numFmt = '#,##0.00 [$zł-415]';
+        }
+      });
+    });
+
+    //Automatyczne nadanie szerokości kolumn dla wszystkich sheetów
     autoSizeColumns(sheetCriteria);
-    autoSizeColumns(sheetData);
+    autoSizeColumns(sheetInvoices);
+    autoSizeColumns(sheetDocuments);
 
     // Wygenerowanie pliku xlsx
     const timestamp = new Date().toLocaleString().replace(/[[:., ]/g, '-');
@@ -514,6 +727,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
     };
   }
 }
+
 // Funkcja pomocnicza do nadania stylu wierszowi nagłówka
 function styleHeaderRow(
   row: ExcelJS.Row,

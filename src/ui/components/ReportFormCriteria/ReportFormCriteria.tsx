@@ -82,6 +82,7 @@ export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
       <ReportFormButtonGenerateRaport
         reportCriteria={reportCriteria}
         handleButtonClick={onButtonClick}
+        reportDocumentsCriteria={reportDocumentsCriteria}
       />
     </form>
   );

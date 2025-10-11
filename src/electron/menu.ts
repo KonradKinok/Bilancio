@@ -1,7 +1,7 @@
 import { BrowserWindow, Menu, app, dialog, shell } from 'electron';
 import { ipcWebContentsSend, isDev } from './util.js';
 import { showAboutDialog, showCaptureScreenPdfDialog } from './config.js';
-import { getSavedDocumentsPathWithCustomFile } from './pathResolver.js';
+import { getSavedDocumentsPath, getSavedDocumentsPathWithCustomFile } from './pathResolver.js';
 import fs from "fs";
 export function createMenu(mainWindow: BrowserWindow) {
   Menu.setApplicationMenu(
@@ -82,6 +82,16 @@ export function createMenu(mainWindow: BrowserWindow) {
                   dialog.showErrorBox('Błąd generowania zrzutu ekranu', 'Nie udało się wygenerować zrzutu ekranu.');
                 });;
             },
+          },
+          {
+            type: "separator",
+          },
+          {
+            label: 'Otwórz folder z dokumentami',
+            click: () => {
+              const documentsPath = getSavedDocumentsPath();
+              shell.openPath(documentsPath);
+            }
           },
           {
             type: 'separator',

@@ -8,7 +8,7 @@ import * as DataBaseTables from "../../../../../electron/dataBase/enum";
 import {
   copyTableToClipboard,
   displayErrorMessage,
-  pluralizePozycja,
+  pluralizeFaktura,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
 import { Loader } from "../../../../components/Loader/Loader";
 import { IconInfo } from "../../../../components/IconInfo/IconInfo";
@@ -131,7 +131,7 @@ const ReportStandardInvoicePage: React.FC = () => {
       const result = await getReportStandardInvoices(filteredCriteria);
       if (result.status === STATUS.Success) {
         toast.success(
-          `${successText} (${pluralizePozycja(result.data.length)})`
+          `${successText} (${pluralizeFaktura(result.data.length)})`
         );
       } else {
         displayErrorMessage(

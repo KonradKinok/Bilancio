@@ -362,6 +362,18 @@ export function pluralizePozycja(count: number): string {
   return `${count} ${forms[rule]}`;
 }
 
+// Funkcja do poprawnej polskiej deklinacji słowa "faktura"
+export function pluralizeFaktura(count: number): string {
+  const forms: Record<string, string> = {
+    one: "faktura",
+    few: "faktury",
+    many: "faktur",
+    other: "faktur",
+  };
+
+  const rule = pluralRules.select(count);
+  return `${count} ${forms[rule]}`;
+}
 // Funkcja pomocnicza do opóźnienia
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // await delay(5000); // czekamy 5 sekund

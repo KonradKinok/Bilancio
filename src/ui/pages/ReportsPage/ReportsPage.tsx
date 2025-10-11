@@ -5,6 +5,7 @@ import { useMainDataContext } from "../../components/Context/useMainDataContext"
 import scss from "./ReportsPage.module.scss";
 import { NavigationReports } from "../../components/NavigationReports/NavigationReports";
 import { Loader } from "../../components/Loader/Loader";
+import { ButtonUp } from "../../components/ButtonUp/ButtonUp";
 
 const ReportDataPage: React.FC = () => {
   const { options } = useMainDataContext();

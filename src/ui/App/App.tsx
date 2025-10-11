@@ -4,19 +4,12 @@ import { LayoutPage } from "../pages/LayoutPage/LayoutPage";
 import { RestrictedRoute } from "../components/RestrictedRoute/RestrictedRoute";
 import { Loader } from "../components/Loader/Loader";
 
+// Główne strony
 const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
 const ReportsPage = lazy(() => import("../pages/ReportsPage/ReportsPage"));
-
-// Główne strony
-const ReportsStandardPage = lazy(
-  () => import("../pages/ReportsPage/ReportsStandardPage/ReportsStandardPage")
-);
-const ReportsCustomPage = lazy(
-  () => import("../pages/ReportsPage/ReportsCustomPage/ReportsCustomPage")
-);
 const SettingsPage = lazy(() => import("../pages/SettingsPage/SettingsPage"));
 
-// Zagnieżdżone strony w ReportsStandardPage
+// Zagnieżdżone strony w ReportsPage
 const ReportStandardInvoicePage = lazy(
   () =>
     import(
@@ -60,23 +53,16 @@ const App: React.FC = () => {
           <Route path="reportsPage" element={<ReportsPage />}>
             <Route
               index
-              element={<Navigate to="reportsStandardPage" replace />}
+              element={<Navigate to="reportsStandardInvoicesPage" replace />}
             />
-            <Route path="reportsStandardPage" element={<ReportsStandardPage />}>
-              <Route
-                index
-                element={<Navigate to="reportsStandardInvoicesPage" replace />}
-              />
-              <Route
-                path="reportsStandardInvoicesPage"
-                element={<ReportStandardInvoicePage />}
-              />
-              <Route
-                path="reportsCustomDocumentsPage"
-                element={<ReportStandardDocumentsPage />}
-              />
-            </Route>
-            <Route path="reportsCustomPage" element={<ReportsCustomPage />} />
+            <Route
+              path="reportsStandardInvoicesPage"
+              element={<ReportStandardInvoicePage />}
+            />
+            <Route
+              path="reportsStandardDocumentsPage"
+              element={<ReportStandardDocumentsPage />}
+            />
           </Route>
           <Route path="settingsPage" element={<SettingsPage />}>
             <Route index element={<Navigate to="documentsPage" replace />} />

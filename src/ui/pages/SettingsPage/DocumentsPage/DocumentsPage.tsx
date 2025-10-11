@@ -13,6 +13,7 @@ import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
 import { ConditionalWrapper } from "../../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./DocumentsPage.module.scss";
+import { ButtonUp } from "../../../components/ButtonUp/ButtonUp";
 
 const DocumentsPage: React.FC = () => {
   const { options } = useMainDataContext();

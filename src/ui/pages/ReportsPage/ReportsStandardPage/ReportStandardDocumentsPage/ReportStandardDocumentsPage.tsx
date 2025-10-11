@@ -8,6 +8,7 @@ import * as DataBaseTables from "../../../../../electron/dataBase/enum";
 import {
   copyTableToClipboard,
   displayErrorMessage,
+  pluralizeFaktura,
   pluralizePozycja,
 } from "../../../../components/GlobalFunctions/GlobalFunctions";
 import { Loader } from "../../../../components/Loader/Loader";
@@ -19,6 +20,7 @@ import { ButtonsExportData } from "../../../../components/ButtonsExportData/Butt
 import scss from "./ReportStandardDocumentsPage.module.scss";
 import { useAllDocumentsName } from "../../../../hooks/useAllDocumentName";
 import { TableReportStandardDocuments } from "../../../../components/TableReportStandardDocuments/TableReportStandardDocuments";
+import { useExportStandardDocumentsReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardDocumentsReportToXLSX";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
@@ -77,15 +79,24 @@ const ReportStandardDocumentsPage: React.FC = () => {
   const [reportCriteria, setReportCriteria] = useState(
     () => reportCriteriaArray
   );
+
+  //Wszystkie możliwe kryteria dokumentów do raportu (zaznaczone i nie zaznaczone checkboxy)
   const [reportDocumentsCriteria, setReportDocumentsCriteria] =
     useState<ReportCriteriaAllDocuments[]>();
+  //Dokumenty do raportu z dodanymi kwotami
   const [reportDocumentsToTable, setReportDocumentsToTable] =
     useState<ReportAllDocumentsToTable[]>();
+
+  // Wybrane kryteria dokumentów do raportu (tylko zaznaczone chceckboxy)
   const [reportDocumentsCriteriaToDb, setReportDocumentsCriteriaToDb] =
-    useState<ReportCriteriaAllDocuments[]>();
+    useState<ReportCriteriaAllDocuments[]>([]);
+
+  // Wybrane kryteria dateTimePicker do raportu
   const [reportCriteriaToDb, setReportCriteriaToDb] = useState<
     ReportCriteriaToDb[]
   >([]);
+
+  //Stan czy raport jest generowany
   const [isReportGenerating, setIsReportGenerating] = useState(false);
 
   const {
@@ -110,12 +121,13 @@ const ReportStandardDocumentsPage: React.FC = () => {
     error: errorExportStandardInvoiceReportToXLSX,
     exportStandardInvoiceReportToXLSX,
   } = useExportStandardInvoiceReportToXLSX();
-
-  //Kryteria dokumentów
-  // const documentsNameCriteria = useMemo(() => {
-  //   if (dataAllDocumentsName)
-  //     return transformationAllDocumentsName(dataAllDocumentsName);
-  // }, [dataAllDocumentsName]);
+  //Hook do exportu raportu do XLSX
+  const {
+    data: dataExportStandardDocumentsReportToXLSX,
+    loading: loadingExportStandardDocumentsReportToXLSX,
+    error: errorExportStandardDocumentsReportToXLSX,
+    exportStandardDocumentsReportToXLSX,
+  } = useExportStandardDocumentsReportToXLSX();
 
   //Pobranie nazw dokumentów do kryteriów
   useEffect(() => {
@@ -133,6 +145,35 @@ const ReportStandardDocumentsPage: React.FC = () => {
     }
   }, [reportDocumentsCriteria]);
 
+  const documentsReadyForDisplay = useMemo(() => {
+    if (!reportDocumentsCriteriaToDb?.length) return [];
+
+    return reportDocumentsCriteriaToDb.flatMap((root) => {
+      return root.documents.flatMap((doc) => {
+        const docName = `${doc.documentName}`;
+
+        // brak mainTypes
+        if (!doc.mainTypes?.length) return [docName];
+
+        return doc.mainTypes.flatMap((mt) => {
+          const mtName = `${docName} ${mt.mainTypeName}`;
+
+          // brak types
+          if (!mt.types?.length) return [mtName];
+
+          return mt.types.flatMap((t) => {
+            const tName = `${mtName} ${t.typeName}`;
+
+            // brak subtypes
+            if (!t.subtypes?.length) return [tName];
+
+            return t.subtypes.map((st) => `${tName} ${st.subtypeName}`);
+          });
+        });
+      });
+    });
+  }, [reportDocumentsCriteriaToDb]);
+
   //Obliczanie sumy kwoty wszystkich faktur z raportu
   const totalPriceAllInvoices = useMemo(() => {
     if (!dataReportStandardInvoices) return 0;
@@ -145,7 +186,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
   useEffect(() => {
     clearReport();
     setReportCriteriaToDb([]);
-  }, [clearReport, reportCriteria]);
+  }, [clearReport, reportCriteria, reportDocumentsCriteria]);
 
   //Wygenerowanie danych do raportu
   const handleGenerateReportButtonClick = async () => {
@@ -166,26 +207,26 @@ const ReportStandardDocumentsPage: React.FC = () => {
       const result = await getReportStandardInvoices(filteredCriteria);
       if (result.status === STATUS.Success) {
         toast.success(
-          `${successText} (${pluralizePozycja(result.data.length)})`
+          `${successText} (${pluralizeFaktura(result.data.length)})`
         );
 
         if (reportDocumentsCriteria) {
-          const documentsToTable = sumaKwotyDokumentow(
+          const documentsToTable = addPricesToDocuments(
             result.data,
-            reportDocumentsCriteria
+            reportDocumentsCriteriaToDb
           );
           setReportDocumentsToTable(documentsToTable);
         }
       } else {
         displayErrorMessage(
-          "ReportStandardInvoicePage",
+          "ReportStandardDocumentsPage",
           "handleButtonClick",
           `${errorText} ${result.message}`
         );
       }
     } catch (err) {
       displayErrorMessage(
-        "ReportStandardInvoicePage",
+        "ReportStandardDocumentsPage",
         "handleButtonClick",
         err
       );
@@ -208,9 +249,11 @@ const ReportStandardDocumentsPage: React.FC = () => {
       const errorText = `Nie udało się wykonać eksportu do XLSX.`;
       try {
         setIsReportGenerating(true);
-        const result = await exportStandardInvoiceReportToXLSX(
+        const result = await exportStandardDocumentsReportToXLSX(
           reportCriteriaToDb,
-          dataReportStandardInvoices
+          dataReportStandardInvoices,
+          documentsReadyForDisplay,
+          reportDocumentsToTable || []
         );
         if (result.status === 0) {
           toast.success(`${successText} `);
@@ -269,7 +312,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
             )}
           <ReportConditionsFulfilled
             reportCriteriaToDb={reportCriteriaToDb}
-            reportDocumentsCriteriaToDb={reportDocumentsCriteriaToDb}
+            documentsReadyForDisplay={documentsReadyForDisplay}
           />
           <TableReportStandardDocuments
             ref={tableRef}
@@ -279,16 +322,13 @@ const ReportStandardDocumentsPage: React.FC = () => {
           />
         </>
       )}
-      <div>
-        <pre>{JSON.stringify(reportDocumentsToTable, null, 2)}</pre>
-      </div>
     </div>
   );
 };
 export default ReportStandardDocumentsPage;
 
 function tooltipReportStandardInvoicePage() {
-  const text = `📈 Formularz raportu.
+  const text = `📈 Formularz raportu dokumentów.
   Pole wyboru (checkbox) umożliwia włączenie lub wyłączenie danego kryterium.
   Jeżeli pole wyboru nie jest zaznaczone, pola dat pozostają nieaktywne i nie są brane pod uwagę w raporcie.
   Pole "Data wystawienia faktury" umożliwia wybranie daty wystawienia faktury.
@@ -296,11 +336,14 @@ function tooltipReportStandardInvoicePage() {
   Pole "Data płatności" umożliwiają wybór daty płatności za fakturę.
   Pole kalendarza daty początkowej umożliwia wybranie daty rozpoczęcia zakresu.
   Pole kalendarza daty końcowej umożliwia wybranie daty zakończenia zakresu.
+  Rozwijane pole "Dokumenty" umożliwia wybór dokumentów, które mają być uwzględnione w raporcie.
   W przypadku usunięcia daty w którymkolwiek z pól, jako kryterium zostanie uznany brak daty w tym polu.
   ⛔ Data początkowa nie może być późniejsza niż data końcowa.
   ⚠️ Jeżeli w jednym z pól kalendarza zostanie usunięta data, w drugim polu również musi zostać usunięta.`;
   return text.replace(/\n/g, "<br/>");
 }
+
+//Funkcja przefiltrowująca zaznaczone dokumenty do kryteriów
 function filteredDocumentsToCriteria(
   reportDocumentsCriteria: ReportCriteriaAllDocuments[]
 ): ReportCriteriaAllDocuments[] {
@@ -334,40 +377,14 @@ function filteredDocumentsToCriteria(
   return findedDocuments;
 }
 
-function sumaKwotyDokumentow(
+//Funkcja dodająca kwoty do tablicy dokumentów.
+function addPricesToDocuments(
   dataReportStandardInvoices: ReportStandardInvoice[],
-  reportDocumentsCriteria: ReportCriteriaAllDocuments[]
+  reportDocumentsCriteriaToDb: ReportCriteriaAllDocuments[] | undefined
 ): ReportAllDocumentsToTable[] {
-  const findedDocuments = reportDocumentsCriteria
-    .filter((root) => {
-      return root.checkbox.checked === true; // root musi być zaznaczony
-    })
-    .map((root) => {
-      return {
-        ...root,
-        documents: root.documents
-          .filter((doc) => doc.checkbox.checked === true) // tylko zaznaczone dokumenty
-          .map((doc) => ({
-            ...doc,
-            mainTypes: doc.mainTypes
-              ?.filter((mt) => mt.checkbox.checked === true) // tylko zaznaczone mainTypes
-              .map((mt) => ({
-                ...mt,
-                types: mt.types
-                  ?.filter((t) => t.checkbox.checked === true) // tylko zaznaczone types
-                  .map((t) => ({
-                    ...t,
-                    subtypes: t.subtypes?.filter(
-                      (st) => st.checkbox.checked === true
-                    ), // tylko zaznaczone subtypes
-                  })),
-              })),
-          })),
-      };
-    });
-
+  if (!reportDocumentsCriteriaToDb) return [];
   const findedDocumentsToTable: ReportAllDocumentsToTable[] =
-    findedDocuments.map((root) => {
+    reportDocumentsCriteriaToDb.map((root) => {
       return {
         id: root.id,
         name: root.name,
@@ -532,49 +549,7 @@ function sumaKwotyDokumentow(
   return findedDocumentsToTable;
 }
 
-// function getDocumentsToReportDb(reportDocumentsCriteria: ReportCriteriaAllDocuments[]) {
-//   const filteredCriteria = reportDocumentsCriteria
-//       .filter((root) => root.checkbox.checked).map((root) => ({
-//         name: root.id,
-//         description: criteria.description,
-//         firstDate: criteria.firstDtp.dtpDate,
-//         secondDate: criteria.secondDtp.dtpDate,
-//       }));
-//    const filteredCriteria1=reportDocumentsCriteria.map((root) => (
-
-//             id={root.id}
-//             name={root.name}
-//             checkbox={root.checkbox}
-//             onToggleCheckbox={(id, newChecked) => {
-//               setReportDocumentsCriteria?.((prev) =>
-//                 prev ? updateChecked(prev, id, newChecked) : prev
-//               );
-//             }}
-//             children={root.documents?.map((doc) => ({
-//               id: doc.documentId ?? "",
-//               name: doc.documentName ?? "",
-//               checkbox: doc.checkbox,
-//               children: doc.mainTypes?.map((mt) => ({
-//                 id: mt.mainTypeId ?? "",
-//                 name: mt.mainTypeName ?? "",
-//                 checkbox: mt.checkbox,
-//                 children: mt.types?.map((t) => ({
-//                   id: t.typeId ?? "",
-//                   name: t.typeName ?? "",
-//                   checkbox: t.checkbox,
-//                   children: t.subtypes?.map((st) => ({
-//                     id: st.subtypeId ?? "",
-//                     name: st.subtypeName ?? "",
-//                     checkbox: st.checkbox,
-//                   })),
-//                 })),
-//               })),
-//             }))}
-//           />
-//         ))}
-
-// }
-
+//Funkcja transformująca tablicę dokumentów z bazy danych na zagnieżdżoną strukturę do kryteriów wyboru dokumentów
 function transformationAllDocumentsName(
   dataAllDocumentsName: AllDocumentsName[]
 ) {

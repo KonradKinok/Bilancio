@@ -1,0 +1,44 @@
+.up-button {
+    position: fixed;
+    bottom: 10px;
+    right: 60px;
+    z-index: 99;
+    margin: 10px;
+    padding: 15px 15px;
+    text-align: center;
+    text-transform: uppercase;
+    transition: 0.5s;
+    background-size: 200% auto;
+    color: white;
+    border-radius: 10px;
+    border: 0px;
+    font-weight: 700;
+    box-shadow: 0px 0px 14px -7px var(--button-up-second-gradient);
+    background-image: linear-gradient(45deg, var(--button-up-first-gradient) 0%, var(--button-up-second-gradient) 51%, var(--button-up-first-gradient) 100%);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.up-button:hover {
+    background-position: right center;
+    /* change the direction of the change here */
+    color: #fff;
+    text-decoration: none;
+}
+
+//media
+@media (min-width: 769px) {
+    .up-button {
+        bottom: 80px;
+        right: 10px;
+    }
+}
+
+@media print {
+    // Ukrywane elementy
+    .up-button {
+        display: none;
+    }
+}

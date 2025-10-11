@@ -5,6 +5,7 @@ import { Navigation } from "../../components/Navigation/Navigation";
 import { Loader } from "../../components/Loader/Loader";
 import { Footer } from "../../components/Footer/Footer";
 import scss from "./LayoutPage.module.scss";
+import { ButtonUp } from "../../components/ButtonUp/ButtonUp";
 
 export const LayoutPage: React.FC = () => {
   console.log("Rendering LayoutPage");
@@ -28,6 +29,7 @@ export const LayoutPage: React.FC = () => {
           loading: { duration: 3000 },
         }}
       />
+      <ButtonUp />
     </div>
   );
 };

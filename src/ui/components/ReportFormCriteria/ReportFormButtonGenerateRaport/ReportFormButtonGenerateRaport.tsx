@@ -4,11 +4,13 @@ import scss from "./ReportFormButtonGenerateRaport.module.scss";
 interface ReportFormButtonGenerateRaportProps {
   reportCriteria: ReportCriteria[];
   handleButtonClick: () => void;
+  reportDocumentsCriteria?: ReportCriteriaAllDocuments[] | undefined;
 }
 
 export const ReportFormButtonGenerateRaport = ({
   reportCriteria,
   handleButtonClick,
+  reportDocumentsCriteria,
 }: ReportFormButtonGenerateRaportProps) => {
   //Ustawianie buttonDisabled
   const buttonDisabled = useMemo(() => {
@@ -18,8 +20,16 @@ export const ReportFormButtonGenerateRaport = ({
     const allCheckboxUnchecked = !reportCriteria.some(
       (criteria) => criteria.checkbox.checked
     );
-    return hasErrors || allCheckboxUnchecked;
-  }, [reportCriteria]);
+
+    let allDocumentsUnchecked = false;
+    if (reportDocumentsCriteria) {
+      allDocumentsUnchecked = !reportDocumentsCriteria?.some(
+        (doc) => doc.checkbox.checked
+      );
+    }
+
+    return hasErrors || allCheckboxUnchecked || allDocumentsUnchecked;
+  }, [reportCriteria, reportDocumentsCriteria]);
 
   //Handler onButtonClick
   const onButtonClick = () => {

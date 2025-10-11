@@ -38,6 +38,9 @@
   --fifteenth-color: rgb(50, 205, 50); /*MediumSpringGreen*/
   --sixteenth-color: rgb(0, 255, 127); /*MediumSpringGreen*/
   --seventeenth-color: rgb(0, 255, 10); /*MediumSpringGreen*/
+  --eighteenth-color: rgb(17, 145, 15); /*MediumSpringGreen*/
+  --nineteenth-color: rgb(17, 207, 11); /*MediumSpringGreen*/
+
   /* radio-button */
 
   /* dateTimePicker */
@@ -103,6 +106,9 @@
   /* ReportPage */
   --reportPage-text-color: var(--seventeenth-color);
   --reportPage-text-color-hover: var(--fourteenth-color);
+  /* button-up */
+  --button-up-first-gradient: var(--eighteenth-color);
+  --button-up-second-gradient: var(--nineteenth-color);
 
   /* form */
   --form-color: rgb(0, 100, 255);

@@ -10,19 +10,18 @@ export const NavigationReports: React.FC = () => {
     <ul className={scss["reports-navigation"]}>
       <li>
         <NavLink
-          to="reportsStandardPage"
+          to="reportsStandardInvoicesPage"
           className={(navData) => (navData.isActive ? scss.active : "")}
         >
-          Raporty standardowe
+          Faktury
         </NavLink>
       </li>
-
       <li>
         <NavLink
-          to="reportsCustomPage"
+          to="reportsStandardDocumentsPage"
           className={(navData) => (navData.isActive ? scss.active : "")}
         >
-          Raporty niestandardowe
+          Dokumenty
         </NavLink>
       </li>
     </ul>

@@ -1,7 +1,7 @@
 import scss from "./TableReportStandardDocuments.module.scss";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
-import { forwardRef, useMemo } from "react";
+import { forwardRef, useEffect, useMemo } from "react";
 
 interface TableReportStandardDocumentsProps {
   dataReportStandardInvoices: ReportStandardInvoice[] | null;
@@ -22,6 +22,25 @@ export const TableReportStandardDocuments = forwardRef<
     ref
   ) => {
     const { options } = useMainDataContext();
+
+    useEffect(() => {
+      console.log(
+        "TableReportStandardDocuments: ",
+        JSON.stringify(reportDocumentsToTable, null, 2)
+      );
+    }, [reportDocumentsToTable]);
+
+    useEffect(() => {
+      // upewniamy się, że ref jest typu React.RefObject<HTMLTableElement>
+      const tableRef = ref as React.RefObject<HTMLTableElement>;
+
+      if ((dataReportStandardInvoices?.length ?? 0) > 0 && tableRef.current) {
+        tableRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start", // lub "center"
+        });
+      }
+    }, [dataReportStandardInvoices, ref]);
 
     const dataDocument = useMemo(() => {
       if (reportDocumentsToTable && reportDocumentsToTable?.length > 0) {
@@ -44,8 +63,8 @@ export const TableReportStandardDocuments = forwardRef<
     }
 
     return (
-      <div className={`${scss["mainTable-main-container"]}`}>
-        <div>
+      <div className={`${scss["tableReportStandardDocuments-main-container"]}`}>
+        <div className={scss["table-wrapper"]}>
           <table
             ref={ref}
             className={`${scss["table"]} ${
@@ -67,6 +86,19 @@ export const TableReportStandardDocuments = forwardRef<
                 <th>Nazwa podtypu dokumentu</th>
                 <th>Liczba podtypu dokumentu</th>
                 <th>Suma cen podtypu dokumentu</th>
+                {/* <th>Lp.</th>
+                <th>Dokument</th>
+                <th>Ilość</th>
+                <th>Suma</th>
+                <th>Gł. typ</th>
+                <th>Ilość Gł. typ</th>
+                <th>Suma Gł. typ</th>
+                <th>Typ</th>
+                <th>Ilość Typ</th>
+                <th>Suma Typ</th>
+                <th>Podtyp</th>
+                <th>Ilość Podtyp</th>
+                <th>Suma Podtyp</th> */}
               </tr>
             </thead>
             <tbody>
@@ -83,10 +115,10 @@ export const TableReportStandardDocuments = forwardRef<
                       const emptyCols = totalColumns - 4; // 4 kolumny zajmuje dokument
                       return (
                         <tr key={doc.documentId}>
-                          <td>{String(docCounter).padStart(3, "0")}.</td>
+                          <td>{String(docCounter).padStart(2, "0")}.</td>
                           <td>{doc.documentName}</td>
                           <td>{doc.quantity}</td>
-                          <td>{doc.totalPrice.toFixed(2)} zł</td>
+                          <td>{currencyFormater(doc.totalPrice)}</td>
                           <td colSpan={emptyCols}></td>
                         </tr>
                       );
@@ -101,7 +133,7 @@ export const TableReportStandardDocuments = forwardRef<
                             {mtIndex === 0 && (
                               <>
                                 <td rowSpan={doc.mainTypes.length}>
-                                  {String(docCounter).padStart(3, "0")}.
+                                  {String(docCounter).padStart(2, "0")}.
                                 </td>
                                 <td rowSpan={doc.mainTypes.length}>
                                   {doc.documentName}
@@ -110,13 +142,13 @@ export const TableReportStandardDocuments = forwardRef<
                                   {doc.quantity}
                                 </td>
                                 <td rowSpan={doc.mainTypes.length}>
-                                  {doc.totalPrice.toFixed(2)} zł
+                                  {currencyFormater(doc.totalPrice)}
                                 </td>
                               </>
                             )}
                             <td>{mt.mainTypeName}</td>
                             <td>{mt.quantity}</td>
-                            <td>{mt.totalPrice.toFixed(2)} zł</td>
+                            <td>{currencyFormater(mt.totalPrice)}</td>
                             <td colSpan={emptyCols}></td>
                           </tr>
                         );
@@ -135,7 +167,7 @@ export const TableReportStandardDocuments = forwardRef<
                               {mtIndex === 0 && tIndex === 0 && (
                                 <>
                                   <td rowSpan={totalSubtypesInDoc}>
-                                    {String(docCounter).padStart(3, "0")}.
+                                    {String(docCounter).padStart(2, "0")}.
                                   </td>
                                   <td rowSpan={totalSubtypesInDoc}>
                                     {doc.documentName}
@@ -144,7 +176,7 @@ export const TableReportStandardDocuments = forwardRef<
                                     {doc.quantity}
                                   </td>
                                   <td rowSpan={totalSubtypesInDoc}>
-                                    {doc.totalPrice.toFixed(2)} zł
+                                    {currencyFormater(doc.totalPrice)}
                                   </td>
                                 </>
                               )}
@@ -155,11 +187,11 @@ export const TableReportStandardDocuments = forwardRef<
                                 {mt.quantity}
                               </td>
                               <td rowSpan={t.subtypes?.length || 1}>
-                                {mt.totalPrice.toFixed(2)} zł
+                                {currencyFormater(mt.totalPrice)}
                               </td>
                               <td>{t.typeName}</td>
                               <td>{t.quantity}</td>
-                              <td>{t.totalPrice.toFixed(2)} zł</td>
+                              <td>{currencyFormater(t.totalPrice)}</td>
                               <td colSpan={emptyCols}></td>
                             </tr>
                           );
@@ -186,7 +218,7 @@ export const TableReportStandardDocuments = forwardRef<
                             {mtIndex === 0 && tIndex === 0 && stIndex === 0 && (
                               <>
                                 <td rowSpan={totalSubtypesInDoc}>
-                                  {String(docCounter).padStart(3, "0")}.
+                                  {String(docCounter).padStart(2, "0")}.
                                 </td>
                                 <td rowSpan={totalSubtypesInDoc}>
                                   {doc.documentName}
@@ -195,7 +227,7 @@ export const TableReportStandardDocuments = forwardRef<
                                   {doc.quantity}
                                 </td>
                                 <td rowSpan={totalSubtypesInDoc}>
-                                  {doc.totalPrice.toFixed(2)} zł
+                                  {currencyFormater(doc.totalPrice)}
                                 </td>
                               </>
                             )}
@@ -210,7 +242,7 @@ export const TableReportStandardDocuments = forwardRef<
                                   {mt.quantity}
                                 </td>
                                 <td rowSpan={totalSubtypesInMainType}>
-                                  {mt.totalPrice.toFixed(2)} zł
+                                  {currencyFormater(mt.totalPrice)}
                                 </td>
                               </>
                             )}
@@ -225,7 +257,7 @@ export const TableReportStandardDocuments = forwardRef<
                                   {t.quantity}
                                 </td>
                                 <td rowSpan={t.subtypes.length}>
-                                  {t.totalPrice.toFixed(2)} zł
+                                  {currencyFormater(t.totalPrice)}
                                 </td>
                               </>
                             )}
@@ -233,7 +265,7 @@ export const TableReportStandardDocuments = forwardRef<
                             {/* Subtype */}
                             <td>{st.subtypeName}</td>
                             <td>{st.quantity}</td>
-                            <td>{st.totalPrice.toFixed(2)} zł</td>
+                            <td>{currencyFormater(st.totalPrice)}</td>
                           </tr>
                         ));
                       });

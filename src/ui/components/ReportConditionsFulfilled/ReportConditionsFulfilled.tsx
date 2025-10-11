@@ -9,48 +9,19 @@ import { use, useEffect, useMemo } from "react";
 
 interface ReportConditionsFulfilledProps {
   reportCriteriaToDb: ReportCriteriaToDb[];
-  reportDocumentsCriteriaToDb?: ReportCriteriaAllDocuments[] | undefined;
+  documentsReadyForDisplay?: string[];
 }
 
 export const ReportConditionsFulfilled = ({
   reportCriteriaToDb,
-  reportDocumentsCriteriaToDb = undefined,
+  documentsReadyForDisplay = [],
 }: ReportConditionsFulfilledProps) => {
   const { options } = useMainDataContext();
   const { isOpenModal: isResizeText, toggleModal: toogleText } = useToggle();
 
-  const documentsReadyForDisplay = useMemo(() => {
-    if (!reportDocumentsCriteriaToDb?.length) return [];
-
-    return reportDocumentsCriteriaToDb.flatMap((root) => {
-      return root.documents.flatMap((doc) => {
-        const docName = `${doc.documentName}`;
-
-        // brak mainTypes
-        if (!doc.mainTypes?.length) return [docName];
-
-        return doc.mainTypes.flatMap((mt) => {
-          const mtName = `${docName} ${mt.mainTypeName}`;
-
-          // brak types
-          if (!mt.types?.length) return [mtName];
-
-          return mt.types.flatMap((t) => {
-            const tName = `${mtName} ${t.typeName}`;
-
-            // brak subtypes
-            if (!t.subtypes?.length) return [tName];
-
-            return t.subtypes.map((st) => `${tName} ${st.subtypeName}`);
-          });
-        });
-      });
-    });
-  }, [reportDocumentsCriteriaToDb]);
-
   if (!reportCriteriaToDb?.length) return null;
-  if (reportDocumentsCriteriaToDb && reportDocumentsCriteriaToDb?.length === 0)
-    return null;
+  // if (documentsReadyForDisplay && documentsReadyForDisplay?.length === 0)
+  //   return null;
   const hasCriteria = reportCriteriaToDb.length > 0;
 
   return (

@@ -79,7 +79,7 @@ app.on("ready", async () => {
       addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
     } = await import("./dataBase/dbFunction.js");
     const {
-      getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX
+      getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX, exportStandardDocumentsReportToXLSX
     } = await import("./reportsFunctions.js");
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
     // Object.assign(console, log.functions); //Przeniesienie console.log do log
@@ -131,6 +131,7 @@ app.on("ready", async () => {
         splash.close();
         splash = null;
       }
+      mainWindow!.maximize();
       mainWindow!.show();
     });
 
@@ -218,7 +219,9 @@ app.on("ready", async () => {
     ipcMainHandle2('exportStandardInvoiceReportToXLSX', (dataReportStandardInvoices, reportCriteriaToDb) => {
       return exportStandardInvoiceReportToXLSX(dataReportStandardInvoices, reportCriteriaToDb);
     });
-
+    ipcMainHandle2('exportStandardDocumentsReportToXLSX', (reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable) => {
+      return exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable);
+    });
 
 
 

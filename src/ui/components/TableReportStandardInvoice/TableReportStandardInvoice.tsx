@@ -1,7 +1,7 @@
 import scss from "./TableReportStandardInvoice.module.scss";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
-import { forwardRef } from "react";
+import { forwardRef, useEffect } from "react";
 
 interface TableReportStandardInvoiceProps {
   dataReportStandardInvoices: ReportStandardInvoice[] | null;
@@ -13,6 +13,18 @@ export const TableReportStandardInvoice = forwardRef<
   TableReportStandardInvoiceProps
 >(({ dataReportStandardInvoices, totalPriceAllInvoices }, ref) => {
   const { options } = useMainDataContext();
+
+  useEffect(() => {
+    // Rzutowanie ref na typ React.RefObject<HTMLTableElement>
+    const tableRef = ref as React.RefObject<HTMLTableElement>;
+
+    if ((dataReportStandardInvoices?.length ?? 0) > 0 && tableRef.current) {
+      tableRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start", // lub "center"
+      });
+    }
+  }, [dataReportStandardInvoices, ref]);
 
   if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
     return null;
