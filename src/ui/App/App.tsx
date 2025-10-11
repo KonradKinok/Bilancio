@@ -13,13 +13,13 @@ const SettingsPage = lazy(() => import("../pages/SettingsPage/SettingsPage"));
 const ReportStandardInvoicePage = lazy(
   () =>
     import(
-      "../pages/ReportsPage/ReportsStandardPage/ReportStandardInvoicePage/ReportStandardInvoicePage"
+      "../pages/ReportsPage/ReportStandardInvoicePage/ReportStandardInvoicePage"
     )
 );
 const ReportStandardDocumentsPage = lazy(
   () =>
     import(
-      "../pages/ReportsPage/ReportsStandardPage/ReportStandardDocumentsPage/ReportStandardDocumentsPage"
+      "../pages/ReportsPage/ReportStandardDocumentsPage/ReportStandardDocumentsPage"
     )
 );
 

@@ -1,26 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useMainDataContext } from "../../../../components/Context/useMainDataContext";
-import { useReportStandardInvoices } from "../../../../hooks/hooksReports/useReportStandardInvoices";
-import { useExportStandardInvoiceReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
-import { STATUS } from "../../../../../electron/sharedTypes/status";
-import * as DataBaseTables from "../../../../../electron/dataBase/enum";
+import { useMainDataContext } from "../../../components/Context/useMainDataContext";
+import { useReportStandardInvoices } from "../../../hooks/hooksReports/useReportStandardInvoices";
+import { useExportStandardInvoiceReportToXLSX } from "../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
+import { STATUS } from "../../../../electron/sharedTypes/status";
+import * as DataBaseTables from "../../../../electron/dataBase/enum";
 import {
   copyTableToClipboard,
   displayErrorMessage,
   pluralizeFaktura,
   pluralizePozycja,
-} from "../../../../components/GlobalFunctions/GlobalFunctions";
-import { Loader } from "../../../../components/Loader/Loader";
-import { IconInfo } from "../../../../components/IconInfo/IconInfo";
-import { ReportFormCriteria } from "../../../../components/ReportFormCriteria/ReportFormCriteria";
-import { TableReportStandardInvoice } from "../../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
-import { ReportConditionsFulfilled } from "../../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
-import { ButtonsExportData } from "../../../../components/ButtonsExportData/ButtonsExportData";
+} from "../../../components/GlobalFunctions/GlobalFunctions";
+import { Loader } from "../../../components/Loader/Loader";
+import { IconInfo } from "../../../components/IconInfo/IconInfo";
+import { ReportFormCriteria } from "../../../components/ReportFormCriteria/ReportFormCriteria";
+import { TableReportStandardInvoice } from "../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
+import { ReportConditionsFulfilled } from "../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
+import { ButtonsExportData } from "../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardDocumentsPage.module.scss";
-import { useAllDocumentsName } from "../../../../hooks/useAllDocumentName";
-import { TableReportStandardDocuments } from "../../../../components/TableReportStandardDocuments/TableReportStandardDocuments";
-import { useExportStandardDocumentsReportToXLSX } from "../../../../hooks/hooksReports/useExportStandardDocumentsReportToXLSX";
+import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
+import { TableReportStandardDocuments } from "../../../components/TableReportStandardDocuments/TableReportStandardDocuments";
+import { useExportStandardDocumentsReportToXLSX } from "../../../hooks/hooksReports/useExportStandardDocumentsReportToXLSX";
 
 const reportCriteriaArray: ReportCriteria[] = [
   {
