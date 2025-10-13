@@ -1,8 +1,9 @@
-import { BrowserWindow, Menu, Tray, app, dialog, shell } from 'electron';
+import { BrowserWindow, Menu, Tray, app, } from 'electron';
 import path from 'path';
 import { getAssetPath } from './pathResolver.js';
 import { showAboutDialog } from './config.js';
 
+// Funkcja do tworzenia ikony w trayu
 export function createTray(mainWindow: BrowserWindow) {
   const tray = new Tray(
     path.join(
@@ -11,39 +12,39 @@ export function createTray(mainWindow: BrowserWindow) {
     )
   );
 
-  // Ustawienie tooltipa dla ikony w trayu
+  //Ustawienie tooltipa dla ikony w trayu
   tray.setToolTip('Bilancio');
 
-  // Funkcja do płynnego pokazywania okna
+  //Funkcja do płynnego pokazywania okna
   const showWindowWithAnimation = () => {
-    // Ustawienie początkowej przezroczystości na 0
+    //Ustawienie początkowej przezroczystości na 0
     mainWindow.setOpacity(0);
     mainWindow.show();
     if (app.dock) {
       app.dock.show();
     }
 
-    // Animacja fade-in
+    //Animacja fade-in
     let opacity = 0;
     const fadeInInterval = setInterval(() => {
-      opacity += 0.05; // Zwiększenie przezroczystości o 0.05 co 20ms
+      opacity += 0.05; //Zwiększenie przezroczystości o 0.05 co 20ms
       if (opacity >= 1) {
         mainWindow.setOpacity(1);
-        clearInterval(fadeInInterval); // Zakończenie animacji
+        clearInterval(fadeInInterval); //Zakończenie animacji
       } else {
         mainWindow.setOpacity(opacity);
       }
-    }, 20); // Interwał 20ms dla płynnego efektu
+    }, 20); //Interwał 20ms dla płynnego efektu
   };
 
-  // Obsługa kliknięcia lewym przyciskiem myszy
+  //Obsługa kliknięcia lewym przyciskiem myszy
   tray.on('click', () => {
     if (!mainWindow.isVisible()) {
       showWindowWithAnimation();
     }
   });
 
-  // Menu kontekstowe dla kliknięcia prawym przyciskiem myszy
+  //Menu kontekstowe dla kliknięcia prawym przyciskiem myszy
   tray.setContextMenu(
     Menu.buildFromTemplate([
       {

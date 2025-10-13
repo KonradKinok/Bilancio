@@ -23,12 +23,10 @@
   .text,
   .icon-container {
     transition: all .500s cubic-bezier(.4, 0, .2, 1);
-
   }
 
   &:hover:not(:disabled) {
     background: var(--background-hover-color);
-
   }
 
   &:hover:not(:disabled) .text {
@@ -39,7 +37,6 @@
     width: var(--button-width);
     border-left: none;
     transform: translateX(0);
-
   }
 
   &:focus {

@@ -1,41 +1,33 @@
+import { BrowserWindow, dialog, shell } from "electron";
+import log from "electron-log";
 import path from "path";
 import fs from "fs"
-import log from "electron-log";
 import { isDev } from "./util.js";
 import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
-import { BrowserWindow, dialog, shell } from "electron";
 import { getFormattedDate } from "./dataBase/dbFunction.js";
 
 const defaultDirConfig = checkDirs();
 const logDir = getLogDir();
 const dbPatch = getDBbBilancioPath();
 
-// Funkcja do zarządzania plikami logów
+//Funkcja do zarządzania plikami logów
 export function configureLogs(): void {
-  // Utwórz katalog dla logów, jeśli nie istnieje
+  //Utworzenie katalog dla logów, jeśli nie istnieje
   if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
     log.warn('[config] [configureLogs]: Utworzono katalog dla logów:', logDir);
   }
 
-  // Nazwa pliku logów z aktualną datą
+  //Nazwa pliku logów z aktualną datą
   const logFileName = `log-${getFormattedDate(new Date())}.log`;
   const logFilePath = path.join(logDir, logFileName);
 
-  // Konfiguracja electron-log
+  //Konfiguracja electron-log
   log.transports.file.level = 'info';
   log.transports.file.resolvePathFn = () => logFilePath;
   log.transports.console.level = isDev() ? false : false;
-  // if (isDev()) {
-  //   // Dev: logi w konsoli, nie w pliku
-  //   log.transports.console.level = false;
-  //   log.transports.file.level = false; // wyłącza zapis do pliku
-  // } else {
-  //   // Prod: logi w pliku, nie w konsoli
-  //   log.transports.console.level = false;
-  //   log.transports.file.level = 'info';
-  // }
-  // Sprawdzanie liczby plików logów
+
+  //Sprawdzanie liczby plików logów
   const logFiles = fs.readdirSync(logDir)
     .filter(file => file.startsWith('log-') && file.endsWith('.log'))
     .sort((a, b) => {
@@ -44,7 +36,7 @@ export function configureLogs(): void {
       return dateA.getTime() - dateB.getTime();
     });
 
-  // Jeśli jest 10 lub więcej plików, usuń najstarszy
+  //Jeśli jest 10 lub więcej plików, usunięcie najstarszego
   if (logFiles.length >= 10) {
     const oldestLogFile = path.join(logDir, logFiles[0]);
     fs.unlinkSync(oldestLogFile);
@@ -54,10 +46,9 @@ export function configureLogs(): void {
   log.info('00. Logi zapisywane do pliku:', logFilePath);
 }
 
-// Funkcja do logowania podstawowych informacji o aplikacji oraz sprawdzania istnienia plików preload i UI
+//Funkcja do logowania podstawowych informacji o aplikacji oraz sprawdzania istnienia plików preload i UI
 export const defaultLogs = async () => {
   log.info('01. Aplikacja uruchomiona w trybie', isDev() ? 'deweloperskim' : 'produkcyjnym');
-
   log.info(`02. Wersja Electron: ${process.versions.electron}`);
   log.info('03. Wersja Node.js:', process.versions.node);
   log.info('04. Wersja Chromium:', process.versions.chrome);
@@ -84,12 +75,12 @@ export const defaultLogs = async () => {
 
 //Tworzenie pliku bazy danych
 export function configureBackupDb(): void {
-  // Utwórz katalog dla kopii bazy danych, jeśli nie istnieje
+  //Utworzenie katalogu dla kopii bazy danych, jeśli nie istnieje
   if (!fs.existsSync(dbPatch)) {
     log.error('[config] [configureBackupDb]: Plik bazy danych nie istnieje:', dbPatch);
     return;
   }
-  // Nazwa pliku kopi bazy danych z aktualną datą
+  //Nazwa pliku kopi bazy danych z aktualną datą
   const dataBaseBackupFileName = `BilancioDataBase-${getFormattedDate(new Date())}.db`;
   const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
 
@@ -97,7 +88,7 @@ export function configureBackupDb(): void {
     return;
   }
 
-  // Sprawdzanie liczby plików kopii bazy danych
+  //Sprawdzanie liczby plików kopii bazy danych
   const dbBackUpFiles = fs.readdirSync(defaultDirConfig.backupDbPath)
     .filter(file => /^BilancioDataBase-\d{2}\.\d{2}\.\d{4}\.db$/.test(file))
     .map(file => ({
@@ -106,15 +97,15 @@ export function configureBackupDb(): void {
     }))
     .sort((a, b) => a.time - b.time);
 
-  // Jeśli jest 10 lub więcej plików, usuń najstarszy
+  //Jeśli jest 10 lub więcej plików, usunięcie najstarszego
   if (dbBackUpFiles.length >= 10) {
     const oldestDbBackupFile = path.join(defaultDirConfig.backupDbPath, dbBackUpFiles[0].name);
     fs.unlinkSync(oldestDbBackupFile);
     log.info('[config] [configureBackupDb]: Usunięto najstarszy plik kopii bazy danych:', oldestDbBackupFile);
   }
-  // Kopiowanie pliku
+  //Kopiowanie pliku
   fs.copyFileSync(dbPatch, dataBaseDestinationFilePath);
-  // Weryfikacja
+  //Weryfikacja
   if (fs.existsSync(dataBaseDestinationFilePath)) {
     const srcSize = fs.statSync(dbPatch).size;
     const destSize = fs.statSync(dataBaseDestinationFilePath).size;
@@ -129,7 +120,7 @@ export function configureBackupDb(): void {
   }
 }
 
-// Funkcja do usuwania najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+//Funkcja do usuwania najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
 export function deleteOldestFileInSavedDocuments(): void {
   // Sprawdzanie liczby plików w katalogu zapisane dokumenty
   const savedDocumentsFiles = fs.readdirSync(defaultDirConfig.savedDocumentsPath)
@@ -140,7 +131,7 @@ export function deleteOldestFileInSavedDocuments(): void {
     }))
     .sort((a, b) => a.time - b.time);
 
-  // Jeśli jest 50 lub więcej plików, usuń najstarszy
+  //Jeśli jest 50 lub więcej plików, usunięcie najstarszego
   if (savedDocumentsFiles.length >= 50) {
     const oldestFilePath = path.join(defaultDirConfig.savedDocumentsPath, savedDocumentsFiles[0].name);
     fs.unlinkSync(oldestFilePath);
@@ -180,12 +171,3 @@ export async function showCaptureScreenPdfDialog(mainWindow: BrowserWindow, file
     shell.showItemInFolder(filePath);
   }
 }
-// Funkcja do formatowania daty w formacie dd.mm.yyyy
-// export function getFormattedDate(): string {
-//   const today = new Date();
-//   const day = String(today.getDate()).padStart(2, '0');
-//   const month = String(today.getMonth() + 1).padStart(2, '0');
-//   const year = today.getFullYear();
-//   return `${day}.${month}.${year}`;
-// }
-

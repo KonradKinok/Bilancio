@@ -1,11 +1,11 @@
 import fs from "fs";
 import path from "path";
+import { exec } from "child_process";
 import { app } from "electron";
 import log from "electron-log";
 import { isDev } from "./util.js";
-import { statusDatabase } from "./dataBase/dbClass.js";
-import { exec } from "child_process";
-// Funkcja do pobierania ścieżki do pliku preload
+
+//Funkcja do pobierania ścieżki do pliku preload
 export function getPreloadPath() {
   return path.join(
     app.getAppPath(),
@@ -14,23 +14,25 @@ export function getPreloadPath() {
   );
 }
 
-// Funkcja do pobierania ścieżki do pliku index.html
+//Funkcja do pobierania ścieżki do pliku index.html
 export function getUIPath() {
   const uiPatch = path.join(app.getAppPath(), '/dist-react/index.html');
   return uiPatch
 }
-// Funkcja do pobierania ścieżki do pliku index.html
+
+//Funkcja do pobierania ścieżki do pliku index.html
 export function getSplashPath() {
   const splashPath = path.join(app.getAppPath(), isDev() ? '.' : '..', '/src/assets/splash/splash.html');
   return splashPath
 }
-// Funkcja do pobierania ścieżki do folderu assets
+
+//Funkcja do pobierania ścieżki do folderu assets
 export function getAssetPath() {
   const assetPatch = path.join(app.getAppPath(), isDev() ? '.' : '..', '/src/assets');
   return assetPatch;
 }
 
-// Funkcja do pobierania ścieżki do folderu userData
+//Funkcja do pobierania ścieżki do folderu userData
 export function getUserDataDirPath() {
   let userDataPath;
   if (isDev()) {
@@ -42,7 +44,7 @@ export function getUserDataDirPath() {
   return userDataPath;
 }
 
-// Funkcja do pobierania ścieżki do pliku logów
+//Funkcja do pobierania ścieżki do pliku logów
 export function getLogDir() {
   const logDir = path.join(getUserDataDirPath(), "logs");
 
@@ -52,8 +54,7 @@ export function getLogDir() {
   return logDir;
 }
 
-
-// Funkcja do pobierania i zapisywania konfiguracji
+//Funkcja do pobierania i zapisywania konfiguracji
 export function checkDirs() {
   const defaultDirConfig = {
     dbPath: path.join(getDBbBilancioPath()),
@@ -86,7 +87,7 @@ export function checkDirs() {
   }
 }
 
-// Funkcja do pobierania ścieżki do bazy danych BilancioDataBase.db
+//Funkcja do pobierania ścieżki do bazy danych BilancioDataBase.db
 export function getDBbBilancioPath() {
   const pathToDb = path.join(getUserDataDirPath(), "database", 'BilancioDataBase.db');
 
@@ -96,7 +97,7 @@ export function getDBbBilancioPath() {
   return pathToDb;
 }
 
-// Funkcja do pobierania ścieżki do katalogu szablonów dokumentów
+//Funkcja do pobierania ścieżki do katalogu szablonów dokumentów
 export function getDocumentTemplatesPath() {
   const pathToDocumentTemplates = path.join(getUserDataDirPath(), "szablony dokumentów");
 
@@ -106,7 +107,7 @@ export function getDocumentTemplatesPath() {
   return pathToDocumentTemplates;
 }
 
-// Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów
+//Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów
 export function getSavedDocumentsPath() {
   const pathToSavedDocumentsPath = path.join(getUserDataDirPath(), "zapisane dokumenty");
 
@@ -115,7 +116,8 @@ export function getSavedDocumentsPath() {
   }
   return pathToSavedDocumentsPath;
 }
-// Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów z nazwą pliku
+
+//Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów z nazwą pliku
 export function getSavedDocumentsPathWithCustomFile(file: string) {
   const pathToSavedDocumentsPath = path.join(getSavedDocumentsPath(), file);
 
@@ -124,7 +126,8 @@ export function getSavedDocumentsPathWithCustomFile(file: string) {
   }
   return pathToSavedDocumentsPath;
 }
-// Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów
+
+//Funkcja do pobierania ścieżki do katalogu zapisanych dokumentów
 export function getBackupDbPath() {
   const pathToBackupDbPath = path.join(getUserDataDirPath(), "database", "backup");
 

@@ -23,9 +23,9 @@ class Database {
   private db: sqlite3.Database;
 
   constructor() {
-    // Tworzymy ścieżkę do pliku bazy danych
+    //Utworzenie ścieżki do pliku bazy danych
     const dbPath = getDBbBilancioPath();
-    // Inicjalizujemy połączenie z bazą danych
+    //Inicjalizacja połączenia z bazą danych
     this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE, (err: Error | null) => {
       if (err) {
         log.error('[dbClass.js] [class Database]: Błąd połączenia z bazą danych:', err.message);
@@ -38,16 +38,16 @@ class Database {
 
         // Dodane: Optymalizacje PRAGMA dla dysku sieciowego
         // PRAGMA journal_mode = DELETE;
-        //     PRAGMA synchronous = NORMAL;;
+        // PRAGMA synchronous = NORMAL;;
         try {
           this.db.exec(`
             PRAGMA journal_mode = DELETE;
             PRAGMA synchronous = NORMAL;
           `);
           log.info('[dbClass.js] [class Database]: Zastosowano PRAGMA dla sieci: journal_mode=DELETE, synchronous=NORMAL');
-          // W konstruktorze Database, po otwarciu bazy i PRAGMA
+          //W konstruktorze Database, po otwarciu bazy i PRAGMA
           try {
-            this.db.exec('PRAGMA user_version = 0;');  // Nieszkodliwy zapis (zmienia metadane, ale można zignorować)
+            this.db.exec('PRAGMA user_version = 0;');  //Nieszkodliwy zapis (zmienia metadane, ale można zignorować) - test zapisu
             statusDatabase.status = 2;
             log.info('[dbClass.js] [class Database]: Baza danych jest gotowa do odczytu-zapisu');
           } catch (err) {
@@ -69,36 +69,34 @@ class Database {
         }
       }
     });
-    // Rejestrujemy obiekt do cleanupu
+    //Rejestracja obiektu do cleanupu
     dbFinalizer.register(this, this.db);
   }
 
 
-  // Metoda do ponownego załadowania połączenia z nową ścieżką
+  //Metoda do ponownego załadowania połączenia z nową ścieżką
   public reinitialize(dbPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.close((err) => {
         if (err) {
           log.error('Błąd zamykania bazy danych:', err.message);
-          console.error('Błąd zamykania bazy danych:', err.message);
           reject(err);
           return;
         }
         this.db = new SQLiteDatabase(dbPath, OPEN_READWRITE, (err: Error | null) => {
           if (err) {
             log.error('Błąd połączenia z nową bazą danych:', err.message);
-            console.error('Błąd połączenia z nową bazą danych:', err.message);
             reject(err);
           } else {
             log.info('Połączono z nową bazą danych:', dbPath);
-            console.log('Połączono z nową bazą danych:', dbPath);
             resolve();
           }
         });
       });
     });
   }
-  // Metoda do rozpoczynania transakcji
+
+  //Metoda do rozpoczynania transakcji
   public async beginTransaction(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run('BEGIN TRANSACTION', (err: Error | null) => {
@@ -111,7 +109,7 @@ class Database {
     });
   }
 
-  // Metoda do zatwierdzania transakcji
+  //Metoda do zatwierdzania transakcji
   public async commit(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run('COMMIT', (err: Error | null) => {
@@ -124,7 +122,7 @@ class Database {
     });
   }
 
-  // Metoda do cofania transakcji
+  //Metoda do cofania transakcji
   public async rollback(): Promise<void> {
     return new Promise((resolve, reject) => {
       this.db.run('ROLLBACK', (err: Error | null) => {
@@ -136,7 +134,8 @@ class Database {
       });
     });
   }
-  // Metoda do wykonywania zapytań SELECT
+
+  //Metoda do wykonywania zapytań SELECT
   public all<T>(sql: string, params: QueryParams = []): Promise<T[]> {
     return new Promise((resolve, reject) => {
       this.db.all(sql, params, (err, rows) => {
@@ -149,7 +148,7 @@ class Database {
     });
   }
 
-  // Metoda do pobierania jednego rekordu
+  //Metoda do pobierania jednego rekordu
   public get<T>(sql: string, params: QueryParams = []): Promise<T> {
     return new Promise((resolve, reject) => {
       this.db.get(sql, params, (err, row) => {
@@ -162,7 +161,7 @@ class Database {
     });
   }
 
-  // Metoda do wstawiania danych do bazy danych
+  //Metoda do wstawiania danych do bazy danych
   public run(sql: string, params: QueryParams = []): Promise<{ lastID: number; changes: number }> {
     return new Promise((resolve, reject) => {
       this.db.run(sql, params, function (this: sqlite3.RunResult, err: Error | null) {

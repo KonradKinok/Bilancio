@@ -12,34 +12,34 @@
   /* header */
   --header-background: rgba(0, 100, 0, 1); /*DarkGreen*/
   --header-text-color: rgb(50, 205, 50); /*SpringGreen*/
-  --header-text-hover-color: rgb(0, 255, 127); /*MediumSpringGreen*/
-  --header-text-active-color: rgb(0, 255, 127); /*MediumSpringGreen*/
+  --header-text-hover-color: rgb(0, 255, 127); /* SpringGreen */
+  --header-text-active-color: rgb(0, 255, 127); /* SpringGreen */
   --header-text-active-background: rgb(0, 128, 0); /*Green*/
   /* main */
   --main-background: rgb(0, 128, 0); /*Green*/
 
   /* form */
-  --first-color: rgb(0, 0, 255);
-  --first-color-alpha-two: rgba(0, 0, 255, 0.2);
-  --first-color-alpha-five: rgba(0, 0, 255, 0.5);
-  --second-color: rgb(0, 100, 255);
-  --third-color: rgb(224, 255, 255);
-  --fourth-color: rgb(175, 238, 238);
+  --first-color: rgb(0, 0, 255); /* Blue */
+  --first-color-alpha-two: rgba(0, 0, 255, 0.2); /* Blue with 20% opacity */
+  --first-color-alpha-five: rgba(0, 0, 255, 0.5); /* Blue with 50% opacity */
+  --second-color: rgb(0, 100, 255); /* DodgerBlue */
+  --third-color: rgb(224, 255, 255); /* LightCyan */
+  --fourth-color: rgb(175, 238, 238); /* PaleTurquoise */
   --fifth-color: rgb(255, 255, 255); /*White*/
   --sixth-color: rgb(0, 0, 139); /*DarkBlue*/
-  --seventh-color: rgb(255, 0, 0); /*DarkBlue*/
-  --eighth-color: rgba(0, 100, 0, 1); /*Yellow*/
-  --nineth-color: rgb(0, 128, 0); /*Red*/
-  --tenth-color: rgb(14 133 0); /*Red*/
-  --eleventh-color: rgb(0 91 0); /*Red*/
-  --twelfth-color: rgb(0 153 67); /*Red*/
-  --thirteenth-color: rgb(0, 140, 61); /*Red*/
-  --fourteenth-color: rgb(2, 247, 153); /*Red*/
-  --fifteenth-color: rgb(50, 205, 50); /*MediumSpringGreen*/
-  --sixteenth-color: rgb(0, 255, 127); /*MediumSpringGreen*/
-  --seventeenth-color: rgb(0, 255, 10); /*MediumSpringGreen*/
-  --eighteenth-color: rgb(17, 145, 15); /*MediumSpringGreen*/
-  --nineteenth-color: rgb(17, 207, 11); /*MediumSpringGreen*/
+  --seventh-color: rgb(255, 0, 0); /* Red */
+  --eighth-color: rgba(0, 100, 0, 1); /* DarkGreen */
+  --nineth-color: rgb(0, 128, 0); /* Green */
+  --tenth-color: rgb(14 133 0); /* ForestGreen */
+  --eleventh-color: rgb(0 91 0); /* Darker Green */
+  --twelfth-color: rgb(0 153 67); /* OliveGreen */
+  --thirteenth-color: rgb(0, 140, 61); /* EmeraldGreen */
+  --fourteenth-color: rgb(2, 247, 153); /* AquaGreen */
+  --fifteenth-color: rgb(50, 205, 50); /* LimeGreen */
+  --sixteenth-color: rgb(0, 255, 127); /* SpringGreen */
+  --seventeenth-color: rgb(0, 255, 10); /* BrightGreen */
+  --eighteenth-color: rgb(17, 145, 15); /* MediumGreen */
+  --nineteenth-color: rgb(17, 207, 11); /* VividGreen */
 
   /* radio-button */
 

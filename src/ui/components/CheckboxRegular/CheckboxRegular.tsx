@@ -20,6 +20,7 @@ export const CheckboxRegular: React.FC<CheckboxRegularProps> = ({
           name={name}
           checked={checked}
           onChange={(e) => setChecked(e.target.checked)}
+          aria-checked={checked}
         />
         <span className={scss["checkmark"]}></span>
       </label>

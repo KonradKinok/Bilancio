@@ -1,3 +1,4 @@
+//Nazwy tabel w bazie danych SQLite.
 export enum DbTables {
   DictionaryDocuments = "DictionaryDocuments",
   DictionaryMainType = "DictionaryMainType",
@@ -6,6 +7,7 @@ export enum DbTables {
   Invoices = "Invoices"
 }
 
+//Nazwy kolumn w tabeli Invoices.
 export enum InvoicesTable {
   InvoiceId = "InvoiceId",
   InvoiceName = "InvoiceName",

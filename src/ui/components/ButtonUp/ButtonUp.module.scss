@@ -7,9 +7,8 @@
     padding: 15px 15px;
     text-align: center;
     text-transform: uppercase;
-    transition: 0.5s;
     background-size: 200% auto;
-    color: white;
+    color: rgb(255, 255, 255);
     border-radius: 10px;
     border: 0px;
     font-weight: 700;
@@ -19,13 +18,25 @@
     user-select: none;
     -webkit-user-select: none;
     touch-action: manipulation;
-}
+    transition: opacity 0.3s ease-in-out, background-position 0.5s ease;
 
-.up-button:hover {
-    background-position: right center;
-    /* change the direction of the change here */
-    color: #fff;
-    text-decoration: none;
+    &.visible {
+        opacity: 1;
+    }
+
+    &.hidden {
+        opacity: 0;
+        pointer-events: none; // Zapobiega kliknięciom gdy przycisk jest niewidoczny
+    }
+
+    &:hover {
+        background-position: right center;
+        color: #fff;
+    }
+
+    &:focus {
+        outline: none;
+    }
 }
 
 //media
@@ -37,6 +48,7 @@
 }
 
 @media print {
+
     // Ukrywane elementy
     .up-button {
         display: none;

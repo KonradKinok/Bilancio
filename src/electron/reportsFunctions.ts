@@ -1,21 +1,19 @@
 import fs from "fs";
-import path from "path";
+import log from "electron-log";
 import { jsPDF } from "jspdf";
 import { autoTable } from 'jspdf-autotable'
-import { STATUS, DataBaseResponse, isSuccess } from "./sharedTypes/status.js";
-
-import { getDb, getFormattedDate, isValidDate, logTitle } from "./dataBase/dbFunction.js";
-import Database, { statusDatabase, QueryParams } from "./dataBase/dbClass.js";
-import log from "electron-log";
-import { getSavedDocumentsPathWithCustomFile, openFile } from "./pathResolver.js";
 import ExcelJS from "exceljs";
-import { exec } from "child_process";
+import { STATUS, DataBaseResponse, isSuccess } from "./sharedTypes/status.js";
+import { getDb, getFormattedDate, isValidDate, logTitle } from "./dataBase/dbFunction.js";
+import { QueryParams } from "./dataBase/dbClass.js";
+import { getSavedDocumentsPathWithCustomFile, openFile } from "./pathResolver.js";
+
 //Funkcja do pobierania wszystkich faktur z bazy danych do raportów
 export async function getReportStandardAllInvoices(
   reportCriteriaToDb: ReportCriteriaToDb[]
 ): Promise<DataBaseResponse<ReportStandardInvoice[]>> {
   const functionName = getReportStandardAllInvoices.name;
-  // --- Walidacja danych wejściowych ---
+  //Walidacja danych wejściowych
   if (!reportCriteriaToDb || reportCriteriaToDb.length === 0) {
     const message = `Brak dat do pobrania raportu standardowego faktur z bazy danych`;
     log.error(logTitle(functionName, message));
@@ -39,7 +37,7 @@ export async function getReportStandardAllInvoices(
   }
 
   try {
-    // --- Budowa zapytania SQL ---
+    //Budowa zapytania SQL
     let query = `
       SELECT 
         Invoices.InvoiceId,
@@ -71,14 +69,10 @@ export async function getReportStandardAllInvoices(
       if (item.firstDate && item.secondDate) {
         query += ` AND Invoices.${item.name} BETWEEN ? AND ?`;
 
-        // Dodajemy tylko datę w formacie YYYY-MM-DD, bez czasu
+        //Dodanie tylko daty w formacie YYYY-MM-DD, bez czasu
         params.push(
           getFormattedDate(item.firstDate, "-", "year"),
           getFormattedDate(item.secondDate, "-", "year"),
-          // item.firstDate.toISOString().split("T")[0],
-          // item.secondDate.toISOString().split("T")[0],
-          // item.firstDate.toLocaleDateString().split("T")[0],
-          // item.secondDate.toLocaleDateString().split("T")[0],
         );
       } else {
         query += ` AND Invoices.${item.name} IS NULL`;
@@ -89,10 +83,10 @@ export async function getReportStandardAllInvoices(
   GROUP BY Invoices.InvoiceId
   ORDER BY Invoices.ReceiptDate DESC
 `;
-    // Wykonanie zapytania
+    //Wykonanie zapytania
     const result = await getDb().all<AllInvoicesReport>(query, params);
 
-    // Mapowanie do formatu ReportStandardInvoice
+    //Mapowanie do formatu ReportStandardInvoice
     const parsedResult: ReportStandardInvoice[] = result.map((invoice) => {
       const docNames = invoice.DocumentNames ? invoice.DocumentNames.split(";") : [];
       const mainTypes = invoice.MainTypeNames ? invoice.MainTypeNames.split(";") : [];
@@ -138,8 +132,6 @@ export async function getReportStandardAllInvoices(
   }
 }
 
-
-
 //EXPORT DANYCH DO EXCEL
 type ExcelCellTypeAndAligment = "string" | "number" | "date" | "currency2" | "currency4" | "general";
 
@@ -156,6 +148,7 @@ type ColumnType = {
   name: string;
   type: ExcelCellTypeAndAligment;
 }
+
 //Export standard invoice report do XLSX
 export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
   const functionName = exportStandardInvoiceReportToXLSX.name;
@@ -194,7 +187,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
-    // Pobranie pierwszego wiersza (nazwy kolumn)
+    //Pobranie pierwszego wiersza (nazwy kolumn)
     const headerRowSheetCriteria = sheetCriteria.getRow(1);
 
     //Stylowanie nazw kolumn
@@ -208,7 +201,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
         isValidDate(item.secondDate) ? getFormattedDate(item.secondDate) : "brak daty",
       ]);
 
-      // Stylizowanie wiersza od razu po utworzeniu
+      //Stylizowanie wiersza od razu po utworzeniu
       styleContentRow(rowSheetCriteria);
     });
 
@@ -241,7 +234,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
-    // Pobranie pierwszego wiersza (nazwy kolumn)
+    //Pobranie pierwszego wiersza (nazwy kolumn)
     const headerRowSheetData = sheetData.getRow(1);
 
     //Stylowanie nazw kolumn
@@ -288,17 +281,17 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
       const row = sheetData.getRow(endRow);
       row.eachCell((cell) => {
         cell.border = {
-          ...cell.border, // Zachowanie pozostałych krawędzi
-          bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+          ...cell.border, //Zachowanie pozostałych krawędzi
+          bottom: { style: "medium" } //Nadpisanie tylko dolnej krawędzi
         };
       });
 
       if (invoiceIndex === dataReportStandardInvoices.length - 1) {
-        // Ustawienie wartości w komórce B[ostatni wiersz]
+        //Ustawienie wartości w komórce B[ostatni wiersz]
         sheetData.getCell(`B${currentRow}`).value = totalAmountAllInvoices;
-        // Ustawienie pogrubienia tekstu w komórce B[ostatni wiersz]
+        //Ustawienie pogrubienia tekstu w komórce B[ostatni wiersz]
         sheetData.getCell(`B${currentRow}`).font = { bold: true };
-        // Ustawienie formatu liczbowego w komórce B[ostatni wiersz]
+        //Ustawienie formatu liczbowego w komórce B[ostatni wiersz]
         sheetData.getCell(`B${currentRow}`).numFmt = '#,##0.00 [$zł-415]';
       }
     });
@@ -307,7 +300,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
     autoSizeColumns(sheetCriteria);
     autoSizeColumns(sheetData);
 
-    // Wygenerowanie pliku xlsx
+    //Wygenerowanie pliku xlsx
     const timestamp = new Date().toLocaleString().replace(/[[:., ]/g, '-');
     const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.xlsx`)
     await workbook.xlsx.writeFile(filePath);
@@ -382,7 +375,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
-    // Pobranie pierwszego wiersza (nazwy kolumn)
+    //Pobranie pierwszego wiersza (nazwy kolumn)
     const headerRowSheetCriteria = sheetCriteria.getRow(1);
 
     //Stylowanie nazw kolumn
@@ -396,7 +389,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
         isValidDate(item.secondDate) ? getFormattedDate(item.secondDate) : "brak daty",
       ]);
 
-      // Stylizowanie wiersza od razu po utworzeniu
+      //Stylizowanie wiersza od razu po utworzeniu
       styleContentRow(rowSheetCriteria);
     });
 
@@ -412,7 +405,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
         index + 1,
         item,
       ]);
-      // Stylizowanie wiersza od razu po utworzeniu
+      //Stylizowanie wiersza od razu po utworzeniu
       styleContentRow(rowSheetCriteriaDocuments);
     });
 
@@ -445,7 +438,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
-    // Pobranie pierwszego wiersza (nazwy kolumn)
+    //Pobranie pierwszego wiersza (nazwy kolumn)
     const headerRowSheetData = sheetInvoices.getRow(1);
 
     //Stylowanie nazw kolumn
@@ -492,8 +485,8 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       const row = sheetInvoices.getRow(endRow);
       row.eachCell((cell) => {
         cell.border = {
-          ...cell.border, // Zachowanie pozostałych krawędzi
-          bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+          ...cell.border, //Zachowanie pozostałych krawędzi
+          bottom: { style: "medium" } //Nadpisanie tylko dolnej krawędzi
         };
       });
 
@@ -534,7 +527,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       style: typeToStyle[column.type] || typeToStyle.general
     }));
 
-    // Pobranie pierwszego wiersza (nazwy kolumn)
+    //Pobranie pierwszego wiersza (nazwy kolumn)
     const headerRowSheetDocuments = sheetDocuments.getRow(1);
 
     //Stylowanie nazw kolumn
@@ -554,15 +547,15 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
       highLevelDocumentSumData.totalPrice = highLevelDocument.totalPrice;
 
       highLevelDocument.documents.forEach((doc, docIndex) => {
-        const startRowDoc = currentRowSheetDocuments; // gdzie zaczyna się dany dokument
+        const startRowDoc = currentRowSheetDocuments; //Gdzie zaczyna się dany dokument
 
         if (doc.mainTypes.length > 0) {
           doc.mainTypes.forEach((mainType) => {
-            const startRowMainType = currentRowSheetDocuments; // gdzie zaczyna się dany mainType
+            const startRowMainType = currentRowSheetDocuments; //Gdzie zaczyna się dany mainType
 
             if (mainType.types.length > 0) {
               mainType.types.forEach((type) => {
-                const startRowType = currentRowSheetDocuments; // gdzie zaczyna się dany type
+                const startRowType = currentRowSheetDocuments; //Gdzie zaczyna się dany type
 
                 if (type.subtypes.length > 0) {
                   type.subtypes.forEach((subtype) => {
@@ -585,7 +578,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
                     currentRowSheetDocuments++;
                   });
                 } else {
-                  // brak subtypów
+                  //Brak subtypów
                   const row = sheetDocuments.addRow([
                     docIndex + 1,
                     doc.documentName,
@@ -605,7 +598,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
                   currentRowSheetDocuments++;
                 }
 
-                // scalanie TYPE, jeśli posiadał subtypy
+                //Scalanie TYPE, jeśli posiadał subtypy
                 const endRowType = currentRowSheetDocuments - 1;
                 if (endRowType > startRowType) {
                   sheetDocuments.mergeCells(`H${startRowType}:H${endRowType}`); // Nazwa typu
@@ -614,7 +607,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
                 }
               });
             } else {
-              // brak typów
+              //Brak typów
               const row = sheetDocuments.addRow([
                 docIndex + 1,
                 doc.documentName,
@@ -634,7 +627,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
               currentRowSheetDocuments++;
             }
 
-            // scalanie MAIN TYPE, jeśli zawierał typy
+            //Scalanie MAIN TYPE, jeśli zawierał typy
             const endRowMainType = currentRowSheetDocuments - 1;
             if (endRowMainType > startRowMainType) {
               sheetDocuments.mergeCells(`E${startRowMainType}:E${endRowMainType}`); // Nazwa głównego typu
@@ -643,7 +636,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
             }
           });
         } else {
-          // brak mainTypes
+          //Brak mainTypes
           const row = sheetDocuments.addRow([
             docIndex + 1,
             doc.documentName,
@@ -663,7 +656,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
           currentRowSheetDocuments++;
         }
 
-        // scalanie DOCUMENT (A-D)
+        //Scalanie DOCUMENT (A-D)
         const endRowDoc = currentRowSheetDocuments - 1;
         if (endRowDoc > startRowDoc) {
           sheetDocuments.mergeCells(`A${startRowDoc}:A${endRowDoc}`); // Lp.
@@ -675,22 +668,22 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
         const row = sheetDocuments.getRow(endRowDoc);
         row.eachCell((cell) => {
           cell.border = {
-            ...cell.border, // Zachowanie pozostałych krawędzi
-            bottom: { style: "medium" } // Nadpisanie tylko dolnej krawędzi
+            ...cell.border, //Zachowanie pozostałych krawędzi
+            bottom: { style: "medium" } //Nadpisanie tylko dolnej krawędzi
           };
         });
         if (docIndex === highLevelDocument.documents.length - 1) {
-          // Ustawienie wartości w komórce C[ostatni wiersz]
+          //Ustawienie wartości w komórce C[ostatni wiersz]
           sheetDocuments.getCell(`C${currentRowSheetDocuments}`).value = highLevelDocumentSumData.quantity;
-          // Ustawienie pogrubienia tekstu w komórce C[ostatni wiersz]
+          //Ustawienie pogrubienia tekstu w komórce C[ostatni wiersz]
           sheetDocuments.getCell(`C${currentRowSheetDocuments}`).font = { bold: true };
-          // Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
+          //Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
           sheetDocuments.getCell(`C${currentRowSheetDocuments}`).numFmt = '#,##0';
-          // Ustawienie wartości w komórce D[ostatni wiersz]
+          //Ustawienie wartości w komórce D[ostatni wiersz]
           sheetDocuments.getCell(`D${currentRowSheetDocuments}`).value = highLevelDocumentSumData.totalPrice;
-          // Ustawienie pogrubienia tekstu w komórce D[ostatni wiersz]
+          //Ustawienie pogrubienia tekstu w komórce D[ostatni wiersz]
           sheetDocuments.getCell(`D${currentRowSheetDocuments}`).font = { bold: true };
-          // Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
+          //Ustawienie formatu liczbowego w komórce D[ostatni wiersz]
           sheetDocuments.getCell(`D${currentRowSheetDocuments}`).numFmt = '#,##0.00 [$zł-415]';
         }
       });
@@ -701,7 +694,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
     autoSizeColumns(sheetInvoices);
     autoSizeColumns(sheetDocuments);
 
-    // Wygenerowanie pliku xlsx
+    //Wygenerowanie pliku xlsx
     const timestamp = new Date().toLocaleString().replace(/[[:., ]/g, '-');
     const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.xlsx`)
     await workbook.xlsx.writeFile(filePath);
@@ -728,7 +721,7 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
   }
 }
 
-// Funkcja pomocnicza do nadania stylu wierszowi nagłówka
+//Funkcja pomocnicza do nadania stylu wierszowi nagłówka
 function styleHeaderRow(
   row: ExcelJS.Row,
 ) {
@@ -745,7 +738,7 @@ function styleHeaderRow(
   });
 }
 
-// Funkcja pomocnicza do nadania stylu wierszowi zawartości
+//Funkcja pomocnicza do nadania stylu wierszowi zawartości
 function styleContentRow(
   row: ExcelJS.Row
 ) {
@@ -760,10 +753,10 @@ function styleContentRow(
   });
 }
 
-// Funkcja pomocnicza do nadania szerokości kolumn
+//Funkcja pomocnicza do nadania szerokości kolumn
 function autoSizeColumns(worksheet: ExcelJS.Worksheet, margin = 2) {
   worksheet.columns.forEach((column) => {
-    let maxLength = 5; // minimalna szerokość
+    let maxLength = 5; //Minimalna szerokość
 
     if (!column.eachCell) return;
 
@@ -773,7 +766,7 @@ function autoSizeColumns(worksheet: ExcelJS.Worksheet, margin = 2) {
       let cellValueLength = 0;
 
       if (cell.value instanceof Date) {
-        // Daty liczone są po sformatowanym stringu
+        //Daty liczone są po sformatowanym stringu
         cellValueLength = cell.value.toLocaleDateString("pl-PL").length;
       } else if (typeof cell.value === "number") {
         // Liczba -> uwzględnia walutę "zł" jeśli kolumna jest walutowa
@@ -783,10 +776,10 @@ function autoSizeColumns(worksheet: ExcelJS.Worksheet, margin = 2) {
           cellValueLength = cell.value.toString().length;
         }
       } else if (typeof cell.value === "object" && "richText" in cell.value) {
-        // RichText
+        //RichText
         cellValueLength = cell.value.richText.map((t) => t.text).join("").length;
       } else {
-        // Wszystko inne jest traktowane jako string
+        //Wszystko inne jest traktowane jako string
         cellValueLength = cell.value.toString().length;
       }
 
@@ -796,6 +789,7 @@ function autoSizeColumns(worksheet: ExcelJS.Worksheet, margin = 2) {
     column.width = maxLength + margin;
   });
 }
+
 //Export standard invoice report do PDF
 export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoices: ReportStandardInvoice[]): Promise<ReturnStatusDbMessage> {
   const functionName = exportStandardInvoiceReportToPDF.name;
@@ -812,18 +806,18 @@ export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoice
     // // const autoTable = (await import('jspdf-autotable')).default;
     // const doc = new jsPDF();
 
-    // Nagłówek raportu
+    //Nagłówek raportu
     doc.setFontSize(10);
     doc.text('Raport faktur', 10, 10);
 
-    // Przygotowanie danych do tabeli
+    //Przygotowanie danych do tabeli
     const tableData: (string | number)[][] = [];
     const totalInvoices = dataReportStandardInvoices.length;
 
     dataReportStandardInvoices.forEach((invoice, index) => {
-      const rowCount = invoice.Documents.length || 1; // Minimum 1 wiersz, jeśli brak dokumentów
+      const rowCount = invoice.Documents.length || 1; //Minimum 1 wiersz, jeśli brak dokumentów
       const firstRow: (string | number)[] = [
-        String(index + 1).padStart(3, "0") + ".", // Lp.
+        String(index + 1).padStart(3, "0") + ".", //Lp.
         invoice.InvoiceName ?? "",
         invoice.ReceiptDate ?? "",
         invoice.DeadlineDate ?? "-",
@@ -836,10 +830,10 @@ export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoice
       ];
       tableData.push(firstRow);
 
-      // Dodaj kolejne dokumenty w osobnych wierszach
+      //Dodaj kolejne dokumenty w osobnych wierszach
       for (let i = 1; i < rowCount; i++) {
         tableData.push([
-          "", // Puste Lp. dla dodatkowych wierszy
+          "", //Puste Lp. dla dodatkowych wierszy
           "",
           "",
           "",
@@ -851,21 +845,21 @@ export async function exportStandardInvoiceReportToPDF(dataReportStandardInvoice
       }
     });
 
-    // Stopka z liczbą faktur
+    //Stopka z liczbą faktur
     tableData.push(['', 'Liczba faktur:', totalInvoices.toString(), '', '', '', '', '']);
 
-    // Generowanie tabeli
+    //Generowanie tabeli
     autoTable(doc, {
       head: [['Lp.', 'Nazwa faktury', 'Data wpływu', 'Termin płatności', 'Data płatności', 'Dokumenty', 'Liczba', 'Cena']],
       body: tableData,
       startY: 20,
       styles: { fontSize: 10 },
-      headStyles: { fillColor: [0, 128, 0], textColor: [255, 255, 255] }, // Zielone tło nagłówka
-      alternateRowStyles: { fillColor: [240, 240, 240] }, // Lekko szare tło co drugi wiersz
+      headStyles: { fillColor: [0, 128, 0], textColor: [255, 255, 255] }, //Zielone tło nagłówka
+      alternateRowStyles: { fillColor: [240, 240, 240] }, //Lekko szare tło co drugi wiersz
       margin: { top: 20 },
     });
 
-    // Zapis pliku
+    //Zapis pliku
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const filePath = getSavedDocumentsPathWithCustomFile(`raport-${timestamp}.pdf`);
     doc.save(filePath);

@@ -1,12 +1,12 @@
-import { BrowserWindow, Menu, app, dialog, shell } from 'electron';
-import { ipcWebContentsSend, isDev } from './util.js';
+import { BrowserWindow, Menu, dialog, shell } from 'electron';
+import fs from "fs";
 import { showAboutDialog, showCaptureScreenPdfDialog } from './config.js';
 import { getSavedDocumentsPath, getSavedDocumentsPathWithCustomFile } from './pathResolver.js';
-import fs from "fs";
+
+//Funkcja do tworzenia menu aplikacji
 export function createMenu(mainWindow: BrowserWindow) {
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
-
       {
         label: process.platform === 'darwin' ? undefined : 'Plik',
         type: 'submenu',
@@ -17,15 +17,15 @@ export function createMenu(mainWindow: BrowserWindow) {
             click: () => {
               mainWindow.webContents.print(
                 {
-                  silent: false, // Otwiera dialog drukowania (true = bez dialogu)
-                  printBackground: true, // Drukuje tło i kolory
-                  deviceName: '', // Opcjonalnie: nazwa drukarki, pusta = domyślna
+                  silent: false, //Otwiera dialog drukowania (true = bez dialogu)
+                  printBackground: true, //Drukuje tło i kolory
+                  deviceName: '', //Opcjonalnie: nazwa drukarki, pusta = domyślna
                   // color: true, // Drukuj w kolorze (domyślnie true)
                   // landscape: false, // Orientacja pozioma (domyślnie false)
                 },
                 (success, errorType) => {
                   if (!success && errorType !== 'Print job canceled') {
-                    console.error('[menu.js] Błąd drukowania:', errorType); // Obsługa błędów, np. brak drukarki
+                    console.error('[menu.js] Błąd drukowania:', errorType); //Obsługa błędów, np. brak drukarki
                     dialog.showErrorBox('Błąd drukowania', 'Nie udało się wydrukować.');
                   }
                 }
@@ -61,7 +61,6 @@ export function createMenu(mainWindow: BrowserWindow) {
           },
           {
             label: 'Zrzut ekranu',
-            // accelerator: process.platform === 'darwin' ? 'Cmd+P' : 'Ctrl+P',
             accelerator: process.platform === 'darwin' ? 'Cmd+Shift+S' : 'Ctrl+Shift+S',
             click: () => {
               mainWindow.webContents.capturePage()

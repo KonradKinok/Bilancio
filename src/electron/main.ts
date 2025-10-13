@@ -1,13 +1,10 @@
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog, clipboard } from "electron";
-import log from "electron-log"; // Dodaj import
+import log from "electron-log";
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
-// import { getStaticData, pollResources } from "./resourceManager.js";
 import { getDBbBilancioPath, getPreloadPath, getSplashPath, getUIPath, } from "./pathResolver.js";
 import { createTray } from "./tray.js";
 import { createMenu } from "./menu.js";
 import { db } from "./dataBase/dbFunction.js";
-// import { configureBackupDb, configureLogs, defaultLogs, } from "./config.js";
-import { Notification } from 'electron';
 
 //Potrzebne do działania na dysku sieciowym
 app.commandLine.appendSwitch("no-sandbox");
@@ -22,20 +19,20 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 Menu.setApplicationMenu(null);
 if (!gotTheLock) {
-  //Zamknij bieżącą instancję i nie wykonuj dalszego kodu
+  //Zamknięcie bieżącej instancji i nie wykonywaie dalszego kodu
   app.quit();
   process.exit(0);
 } else {
-  // Handler dla drugiej instancji
+  //Handler dla drugiej instancji
   app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) {
-        mainWindow.restore(); // Przywróć z minimalizacji
+        mainWindow.restore(); //Przywrócenie z minimalizacji
       }
-      mainWindow.show(); // Pokaż okno
-      mainWindow.focus(); // Ustaw fokus
+      mainWindow.show(); //Pokazanie okna
+      mainWindow.focus(); //Ustawienie fokus
       if (app.dock) {
-        app.dock.show(); // Pokaż dock na macOS jeśli ukryty
+        app.dock.show(); //Pokazanie dock na macOS jeśli ukryty
       }
     }
   });
@@ -69,14 +66,14 @@ app.on("ready", async () => {
     if (mainWindow) {
       mainWindow.show();
     }
-  }, 20000); // 20 sekund
+  }, 20000); //20 sekund
 
 
-  // Dynamiczne importowanie modułów po splash
+  //Dynamiczne importowanie modułów po splash
   try {
     const { configureLogs, defaultLogs, configureBackupDb, deleteOldestFileInSavedDocuments } = await import("./config.js");
     const {
-      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConfigBilancio1, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
+      addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
     } = await import("./dataBase/dbFunction.js");
     const {
       getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX, exportStandardDocumentsReportToXLSX
@@ -84,16 +81,18 @@ app.on("ready", async () => {
     configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
     Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
-    configureBackupDb(); //Utworzenie kopii bazu danych
+    configureBackupDb(); //Utworzenie kopii bazy danych
     initDb(); //Zainicjalizowanie bazy danych
     deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+
+    //Tworzenie okna głównego aplikacji
     mainWindow = new BrowserWindow({
       width: 1024,
       height: 768,
       resizable: true,
       show: false,
       // autoHideMenuBar: true,
-      backgroundColor: "rgb(0, 128, 0)",  // tło okna podczas ładowania
+      backgroundColor: "rgb(0, 128, 0)",  // Tło okna podczas ładowania
       webPreferences: {
         preload: getPreloadPath(),
         // contextIsolation: false, // Wyłącz contextIsolation (NIEBEZPIECZNE W PRODUKCJI)
@@ -109,7 +108,7 @@ app.on("ready", async () => {
       // frame: false,
     });
 
-    // Ustawienie polityki CSP dla trybu produkcyjnego
+    //Ustawienie polityki CSP dla trybu produkcyjnego
     if (!isDev()) {
       mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
         callback({ requestHeaders: details.requestHeaders });
@@ -126,7 +125,7 @@ app.on("ready", async () => {
     }
 
     mainWindow!.once("ready-to-show", () => {
-      clearTimeout(splashTimeout); // splash zamknięty wcześniej, nie trzeba backupu
+      clearTimeout(splashTimeout); // Splash zamknięty wcześniej, nie trzeba backupu
       if (splash) {
         splash.close();
         splash = null;
@@ -201,15 +200,7 @@ app.on("ready", async () => {
       return getUserBySystemName();
     });
 
-    // Nowe IPC dla konfiguracji
-    ipcMainHandle('checkStatusDatabase', () => {
-      return checkStatusDatabase();
-    });
-
-    ipcMainHandle('getDBbBilancioPath', () => {
-      return getDBbBilancioPath();
-    });
-    //REPORTS
+    //Reports
     ipcMainHandle2('getReportStandardAllInvoices', (reportCriteriaToDb) => {
       return getReportStandardAllInvoices(reportCriteriaToDb);
     });
@@ -223,13 +214,15 @@ app.on("ready", async () => {
       return exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable);
     });
 
-
-
-
-    ipcMainHandle2('getConfigBilancio1', (payload) => {
-      log.info('FilesPage: Handler getDBbBilancioPath1 zarejestrowany i wywołany');
-      return getConfigBilancio1(payload);
+    // Nowe IPC dla konfiguracji
+    ipcMainHandle('checkStatusDatabase', () => {
+      return checkStatusDatabase();
     });
+
+    ipcMainHandle('getDBbBilancioPath', () => {
+      return getDBbBilancioPath();
+    });
+
     // ipcMainOn('sendFrameAction', (payload) => {
     //   switch (payload) {
     //     case 'CLOSE':
@@ -251,17 +244,18 @@ app.on("ready", async () => {
         mainWindow.reload();
       }
     });
+
     //Przeładowanie aplikacji
     ipcMain.on("restart-app", () => {
-      app.relaunch();   // Uruchamienie nowej instancji
-      app.exit(0);      // Zamknięcie obecnej instancji
+      app.relaunch();   //Uruchamienie nowej instancji
+      app.exit(0);      //Zamknięcie obecnej instancji
     });
-    // ipcMain.on("clipboard", (event, { html, text }) => {
-    //   clipboard.write({ html, text });
-    // });
+
+    //Kopiowanie do schowka
     ipcMainOn("clipboard", ({ html, text }) => {
       clipboard.write({ html, text });
     });
+
     tray = createTray(mainWindow); //Utworzenie tray
     handleCloseEvents(mainWindow); //Handler do zamykania okna aplikacji
     createMenu(mainWindow); //Utworzenie menu
@@ -274,7 +268,7 @@ app.on("ready", async () => {
   }
 });
 
-
+//Funkcja do obsługi zdarzeń zamykania okna
 function handleCloseEvents(mainWindow: BrowserWindow) {
   let willClose = false;
   mainWindow.on("close", (e) => {
@@ -286,7 +280,7 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     if (app.dock) {
       app.dock.hide();
     }
-    // Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
+    //Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
     if (process.platform === 'win32' && tray) {
       tray.displayBalloon({
         title: 'Bilancio',
@@ -295,28 +289,9 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
         noSound: true,
       });
     }
-    // if (process.platform === 'win32' && tray) {
-    //   console.log("Wyświetlanie powiadomienia");
-    //   try {
-    //     const notification = new Notification({
-    //       title: 'Bilancio',
-    //       body: 'Aplikacja działa w tle. Kliknij ikonę, aby otworzyć okno.',
-    //       // icon: path.join(getAssetPath(), 'trayIcon.png'), // Opcjonalna ikona
-    //     });
-    //     notification.show();
-    //     notification.on('click', () => {
-    //       mainWindow.show();
-    //       if (app.dock) {
-    //         app.dock.show();
-    //       }
-    //     });
-    //     console.log("Powiadomienie wyświetlone pomyślnie");
-    //   } catch (error) {
-    //     console.error("Błąd podczas wyświetlania powiadomienia:", error);
-    //   }
-    // }
   });
 
+  //Zamykanie bazy danych przy zamykaniu aplikacji
   app.on("before-quit", async () => {
     try {
       if (db) {
@@ -329,6 +304,7 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
     }
   });
 
+  //Resetowanie willClose jeśli okno zostanie ponownie pokazane
   mainWindow.on('show', () => {
     willClose = false;
   });

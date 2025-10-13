@@ -1,10 +1,8 @@
-import { useMainDataContext } from "../Context/useMainDataContext";
-import { getFormatedDate } from "../GlobalFunctions/GlobalFunctions";
-import scss from "./ButtonsExportData.module.scss";
-import { useEffect, useState } from "react";
-import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
 import { BsFileEarmarkArrowUp } from "react-icons/bs";
 import { BsFiletypeXlsx } from "react-icons/bs";
+import { useMainDataContext } from "../Context/useMainDataContext";
+import { ButtonUniversal } from "../ButtonUniversal/ButtonUniversal";
+import scss from "./ButtonsExportData.module.scss";
 
 const buttons = [
   {
@@ -15,7 +13,7 @@ const buttons = [
   },
   {
     name: "exportToXls",
-    text: "Excell",
+    text: "Excel",
     icon: <BsFiletypeXlsx />,
     className: "button-export-xlsx",
   },

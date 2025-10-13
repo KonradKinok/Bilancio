@@ -62,7 +62,6 @@ declare global {
     savedDocumentsPath: string;
   };
 
-
   type AllInvoices = {
     InvoiceId: number;
     InvoiceName: string;
@@ -91,6 +90,7 @@ declare global {
     PaymentDate: string | null;
     IsDeleted: 0 | 1;
   }
+
   type InvoiceDetailsTable = {
     InvoiceId?: number;
     DocumentId: number;
@@ -99,18 +99,21 @@ declare global {
     SubtypeId: number | null;
     Quantity: number;
     Price: number;
-    isMainTypeRequired?: boolean; // Nowe pole
-    isTypeRequired?: boolean; // Nowe pole
-    isSubtypeRequired?: boolean; // Nowe pole
+    isMainTypeRequired?: boolean;
+    isTypeRequired?: boolean;
+    isSubtypeRequired?: boolean;
   }
+
   type InvoiceSave = {
     invoice: InvoiceTable;
     details: InvoiceDetailsTable[];
   };
+
   type ReturnMessageFromDb = {
     lastID: number;
     changes: number;
   }
+
   //ConnectedTable
   type AllDocumentsNameTable = {
     AllDocumentsId: number;
@@ -135,6 +138,7 @@ declare global {
     Price: number;
     IsDeleted: 0 | 1;
   }
+
   type AllDocumentsNameHook = {
     data: AllDocumentsName[] | null;
     loading: boolean;
@@ -171,11 +175,13 @@ declare global {
     PaymentDate: string | null;
     IsDeleted: 0 | 1;
   }
-  //Auth
+
+  //AUTH
   type WindowsUsername = {
     username: string | null;
     hostname: string | null;
   }
+
   //REPORTS
   type ReportCriteriaDtp = {
     dtpDate: Date | null;
@@ -212,26 +218,7 @@ declare global {
     description: string;
     errorMessage: string;
   }
-  // type ReportCriteriaDocument = {
-  //   DocumentId: string;
-  //   DocumentName: string;
-  //   Checkbox: ReportCriteriaChB,
-  //   MainTypes: {
-  //     MainTypeId: string | null;
-  //     MainTypeName: string | null;
-  //     Checkbox: ReportCriteriaChB,
-  //     Types: {
-  //       TypeId: string | null;
-  //       TypeName: string | null;
-  //       Checkbox: ReportCriteriaChB,
-  //       Subtypes: {
-  //         SubtypeId: string | null;
-  //         SubtypeName: string | null;
-  //         Checkbox: ReportCriteriaChB,
-  //       }[];
-  //     }[];
-  //   }[];
-  // }
+
   export type ReportCriteriaAllDocuments = {
     id: string;
     name: string;
@@ -257,6 +244,7 @@ declare global {
       }[];
     }[]
   }
+
   export type ReportAllDocumentsToTable = {
     id: string;
     name: string;
@@ -287,17 +275,14 @@ declare global {
       }[];
     }[]
   }
-  // export type ReportCriteriaDocument = ReportCriteriaAllDocuments["documents"][number];
-  // export type ReportCriteriaMainType = ReportCriteriaAllDocuments["mainTypes"][number];
-  // export type ReportCriteriaType = ReportCriteriaAllDocuments["types"][number];
-  // export type ReportCriteriaSubtype = ReportCriteriaAllDocuments["subtypes"][number];
-  //Reports DataBase
+
   export type ReportCriteriaToDb = {
     name: string;
     description: string;
     firstDate: Date | null;
     secondDate: Date | null;
   }
+
   type ReportStandardInvoice = {
     InvoiceId: number;
     InvoiceName: string;
@@ -315,6 +300,7 @@ declare global {
       Total: string;
     }[];
   }
+
   //IPC
   type EventPayloadMapping = {
     getTableDictionaryDocuments: DataBaseResponse<T[]>;
@@ -328,7 +314,6 @@ declare global {
 
     //Invoices
     getAllInvoices: DataBaseResponse<AllInvoices[]>;
-    // getLastRowFromTable: unknown;
     addInvoice: DataBaseResponse<ReturnMessageFromDb>;
     updateInvoice: DataBaseResponse<ReturnMessageFromDb>;
     addInvoiceDetails: DataBaseResponse<ReturnMessageFromDb>;
@@ -344,7 +329,6 @@ declare global {
 
     //Auth
     getWindowsUsernameHostname: DataBaseResponse<WindowsUsername>;
-
     getUserBySystemName: DataBaseResponse<User>;
     loginUser: DataBaseResponse<User>;
 
@@ -353,58 +337,42 @@ declare global {
     exportStandardInvoiceReportToPDF: ReturnStatusDbMessage;
     exportStandardInvoiceReportToXLSX: ReturnStatusDbMessage;
     exportStandardDocumentsReportToXLSX: ReturnStatusDbMessage;
+
+    //Other
     clipboard: { html: string; text: string };
     getDBbBilancioPath: string;
-
     checkStatusDatabase: ReturnStatusDbMessage;
-    getConfigBilancio1: string; // Przykładowy typ dla getConfigBilancio1
-
-
   };
-  type View = 'CPU' | 'RAM' | 'STORAGE';
-  type FrameWindowAction = 'CLOSE' | 'MAXIMIZE' | 'MINIMIZE';
+
   interface Window {
     electron: {
-      // getTableDictionaryDocuments: <T> (payload) => Promise<DataBaseResponse<T[]>>;
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
-
+      //Documents
       getAllDocumentsName: (isDeleted?: number) => Promise<DataBaseResponse<AllDocumentsName[]>>;
       deleteRestoreDocument: (documentId: number, isDeleted: 0 | 1) => Promise<DataBaseResponse<AllDocumentsNameTable>>;
-
       updateDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       addDocument: (document: AllDocumentsName) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
-      // getAllInvoices: (payload) => Promise<AllInvoices[]>;
+      //Invoices
       getAllInvoices: (payload, page, rowsPerPage) => Promise<DataBaseResponse<AllInvoices[]>>;
-      // addInvoice: (payload) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       updateInvoice: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       addInvoiceDetails: (invoice, invoiceDetails) => Promise<DataBaseResponse<ReturnMessageFromDb>>;
       deleteInvoice: (invoiceId: number) => Promise<DataBaseResponse<InvoiceTable>>;
       restoreInvoice: (invoiceId: number) => Promise<DataBaseResponse<InvoiceTable>>;
       countInvoices: (payload) => Promise<DataBaseResponse<number>>;
-
+      //Users
       getAllUsers: (isDeleted?: number) => Promise<DataBaseResponse<User[]>>;
       addUser: (user: User) => Promise<DataBaseResponse<User>>;
       updateUser: (user: User) => Promise<DataBaseResponse<User>>;
       deleteUser: (userId: number) => Promise<DataBaseResponse<User>>;
-
-
-      // getWindowsUsernameHostname: () => Promise<DataBaseResponse<WindowsUsername>>;
       getUserBySystemName: () => Promise<DataBaseResponse<User>>;
-      //RAPORTY
+      //Reports
       getReportStandardAllInvoices: (reportCriteriaToDb: ReportCriteriaToDb[]) => Promise<DataBaseResponse<ReportStandardInvoice[]>>;
       exportStandardInvoiceReportToPDF: (dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
       exportStandardInvoiceReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
       exportStandardDocumentsReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[]) => Promise<ReturnStatusDbMessage>;
-
-
-
-      // getLastRowFromTable: () => Promise<unknown>;
+      //Other
       getDBbBilancioPath: () => Promise<string>;
-
       checkStatusDatabase: () => Promise<ReturnStatusDbMessage>;
-
-      getConfigBilancio1: (payload) => Promise<string>; // Przykładowa funkcja zwracająca string
-
       //Electron
       reloadWindow: () => void;
       restartApp: () => void;
@@ -412,7 +380,7 @@ declare global {
     };
   }
 }
-
+//Oznacza plik jako moduł ES, aby zachować zgodność z tsconfig.isolatedModules
 export { };
 
 

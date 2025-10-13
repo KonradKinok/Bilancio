@@ -7,20 +7,23 @@ import { DbTables } from "./enum.js";
 import { STATUS, DataBaseResponse, isSuccess } from "../sharedTypes/status.js";
 import Database, { statusDatabase, QueryParams } from "./dbClass.js";
 
-// Pobieranie nazwy pliku w module ES
+//Pobieranie nazwy pliku w module ES
 const __filename = fileURLToPath(import.meta.url);
 const fileName = path.basename(__filename);
 
-// Tworzymy instancję bazy danych
+//Tworzenie instancji bazy danych
 export let db: Database | null = null;
-// Pobieranie nazwy użytkownika systemu Windows
+//Pobieranie nazwy użytkownika systemu Windows
 let displayUserName = await displayUserNameForLog();
+
+//Inicjalizacja bazy danych
 export function initDb() {
   if (!db) {
     db = new Database();
   }
 }
 
+//Sprawdzenie inicjalizacji bazy danych
 export function getDb(): Database {
   if (!db) {
     log.error(
@@ -33,12 +36,12 @@ export function getDb(): Database {
   return db;
 }
 
-// Funkcja do sprawdzania istnienia bazy danych
+//Funkcja do sprawdzania istnienia bazy danych
 export function checkStatusDatabase(): ReturnStatusDbMessage {
   return statusDatabase;
 }
 
-// Pobierz połączone dane ze słowników
+//Pobieranie połączonych danych ze słowników
 export async function getConnectedTableDictionary<T>(
   tableName: DbTables,
   documentId?: number,
@@ -218,7 +221,7 @@ export async function addDocument(
     }
     await getDb().beginTransaction();
 
-    // Krok 1: Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
+    //1️⃣ Sprawdzenie lub dodanie DocumentName w DictionaryDocuments
     let documentId: number;
     const existingDocument = await getDb().get<{ DocumentId: number }>(
       `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
@@ -240,7 +243,7 @@ export async function addDocument(
       documentId = insertDocument.lastID;
     }
 
-    // Krok 2: Sprawdzenie lub dodanie MainTypeName w DictionaryMainType (jeśli istnieje)
+    //2️⃣ Sprawdzenie lub dodanie MainTypeName w DictionaryMainType (jeśli istnieje)
     let mainTypeId: number | null = null;
     if (document.MainTypeName) {
       const existingMainType = await getDb().get<{ MainTypeId: number }>(
@@ -264,7 +267,7 @@ export async function addDocument(
       }
     }
 
-    // Krok 3: Sprawdzenie lub dodanie TypeName w DictionaryType (jeśli istnieje)
+    //3️⃣ Sprawdzenie lub dodanie TypeName w DictionaryType (jeśli istnieje)
     let typeId: number | null = null;
     if (document.TypeName) {
       if (!mainTypeId) {
@@ -294,7 +297,7 @@ export async function addDocument(
       }
     }
 
-    // Krok 4: Sprawdzenie lub dodanie SubtypeName w DictionarySubtype (jeśli istnieje)
+    //4️⃣ Sprawdzenie lub dodanie SubtypeName w DictionarySubtype (jeśli istnieje)
     let subtypeId: number | null = null;
     if (document.SubtypeName) {
       if (!typeId) {
@@ -324,7 +327,7 @@ export async function addDocument(
       }
     }
 
-    // Krok 5: Sprawdzenie, czy konfiguracja istnieje w AllDocuments
+    //5️⃣ Sprawdzenie, czy konfiguracja istnieje w AllDocuments
     const existingConfig = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments 
        WHERE DocumentId = ? 
@@ -340,7 +343,7 @@ export async function addDocument(
       return { status: STATUS.Error, message: message };
     }
 
-    // Krok 6: Wstawienie nowego rekordu do AllDocuments
+    //6️⃣ Wstawienie nowego rekordu do AllDocuments
     const insertAllDocuments = await getDb().run(
       `INSERT INTO AllDocuments (DocumentId, MainTypeId, TypeId, SubtypeId, Price, IsDeleted) 
        VALUES (?, ?, ?, ?, ?, ?)`,
@@ -383,7 +386,7 @@ export async function addDocument(
   }
 }
 
-// Funkcja do aktualizowania dokumentu w tabeli AllDocuments
+//Funkcja do aktualizowania dokumentu w tabeli AllDocuments
 export async function updateDocument(
   document: AllDocumentsName
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
@@ -401,7 +404,7 @@ export async function updateDocument(
     }
     await getDb().beginTransaction();
 
-    // Krok 1: Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
+    //1️ Sprawdzenie i aktualizacja DocumentName w DictionaryDocuments
     let documentId: number;
     if (document.DocumentId && document.DocumentName) {
       // Aktualizacja istniejącego DocumentName
@@ -417,7 +420,7 @@ export async function updateDocument(
       }
       documentId = document.DocumentId;
     } else if (!document.DocumentId && document.DocumentName) {
-      // Wstawienie nowego DocumentName
+      //Wstawienie nowego DocumentName
       const existingDocument = await getDb().get<{ DocumentId: number }>(
         `SELECT DocumentId FROM DictionaryDocuments WHERE LOWER(DocumentName) = LOWER(?)`,
         [document.DocumentName]
@@ -444,10 +447,10 @@ export async function updateDocument(
       return { status: STATUS.Error, message: message };
     }
 
-    // Krok 2: Sprawdzenie i aktualizacja MainTypeName w DictionaryMainType
+    //2️⃣ Sprawdzenie i aktualizacja MainTypeName w DictionaryMainType
     let mainTypeId: number | null = null;
     if (document.MainTypeId && document.MainTypeName) {
-      // Aktualizacja istniejącego MainTypeName
+      //Aktualizacja istniejącego MainTypeName
       const updateMainType = await getDb().run(
         `UPDATE DictionaryMainType SET MainTypeName = ? WHERE MainTypeId = ?`,
         [document.MainTypeName, document.MainTypeId]
@@ -460,7 +463,7 @@ export async function updateDocument(
       }
       mainTypeId = document.MainTypeId;
     } else if (!document.MainTypeId && document.MainTypeName) {
-      // Wstawienie nowego MainTypeName
+      //Wstawienie nowego MainTypeName
       const existingMainType = await getDb().get<{ MainTypeId: number }>(
         `SELECT MainTypeId FROM DictionaryMainType WHERE LOWER(MainTypeName) = LOWER(?)`,
         [document.MainTypeName]
@@ -481,11 +484,11 @@ export async function updateDocument(
         mainTypeId = insertMainType.lastID;
       }
     } else if (document.MainTypeId && !document.MainTypeName) {
-      // Ustawienie MainTypeId na null w AllDocuments
+      //Ustawienie MainTypeId na null w AllDocuments
       mainTypeId = null;
     }
 
-    // Krok 3: Sprawdzenie i aktualizacja TypeName w DictionaryType
+    //3️⃣ Sprawdzenie i aktualizacja TypeName w DictionaryType
     let typeId: number | null = null;
     if (document.TypeId && document.TypeName) {
       if (!mainTypeId) {
@@ -494,7 +497,7 @@ export async function updateDocument(
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      // Aktualizacja istniejącego TypeName
+      //Aktualizacja istniejącego TypeName
       const updateType = await getDb().run(
         `UPDATE DictionaryType SET TypeName = ? WHERE TypeId = ?`,
         [document.TypeName, document.TypeId]
@@ -513,7 +516,7 @@ export async function updateDocument(
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      // Wstawienie nowego TypeName
+      //Wstawienie nowego TypeName
       const existingType = await getDb().get<{ TypeId: number }>(
         `SELECT TypeId FROM DictionaryType WHERE LOWER(TypeName) = LOWER(?)`,
         [document.TypeName]
@@ -534,11 +537,11 @@ export async function updateDocument(
         typeId = insertType.lastID;
       }
     } else if (document.TypeId && !document.TypeName) {
-      // Ustawienie TypeId na null w AllDocuments
+      //Ustawienie TypeId na null w AllDocuments
       typeId = null;
     }
 
-    // Krok 4: Sprawdzenie i aktualizacja SubtypeName w DictionarySubtype
+    //4️⃣ Sprawdzenie i aktualizacja SubtypeName w DictionarySubtype
     let subtypeId: number | null = null;
     if (document.SubtypeId && document.SubtypeName) {
       if (!typeId) {
@@ -547,7 +550,7 @@ export async function updateDocument(
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      // Aktualizacja istniejącego SubtypeName
+      //Aktualizacja istniejącego SubtypeName
       const updateSubtype = await getDb().run(
         `UPDATE DictionarySubtype SET SubtypeName = ? WHERE SubtypeId = ?`,
         [document.SubtypeName, document.SubtypeId]
@@ -566,7 +569,7 @@ export async function updateDocument(
         log.error(logTitle(functionName, message), { document });
         return { status: STATUS.Error, message: message };
       }
-      // Wstawienie nowego SubtypeName
+      //Wstawienie nowego SubtypeName
       const existingSubtype = await getDb().get<{ SubtypeId: number }>(
         `SELECT SubtypeId FROM DictionarySubtype WHERE LOWER(SubtypeName) = LOWER(?)`,
         [document.SubtypeName]
@@ -587,11 +590,11 @@ export async function updateDocument(
         subtypeId = insertSubtype.lastID;
       }
     } else if (document.SubtypeId && !document.SubtypeName) {
-      // Ustawienie SubtypeId na null w AllDocuments
+      //Ustawienie SubtypeId na null w AllDocuments
       subtypeId = null;
     }
 
-    // Krok 5: Sprawdzenie, czy rekord istnieje w AllDocuments
+    //5️⃣ Sprawdzenie, czy rekord istnieje w AllDocuments
     const existingConfig = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ?`,
       [document.AllDocumentsId]
@@ -603,7 +606,7 @@ export async function updateDocument(
       return { status: STATUS.Error, message: message };
     }
 
-    // Krok 6: Aktualizacja rekordu w AllDocuments
+    //6️⃣ Aktualizacja rekordu w AllDocuments
     const updateAllDocuments = await getDb().run(
       `UPDATE AllDocuments 
        SET DocumentId = ?, MainTypeId = ?, TypeId = ?, SubtypeId = ?, Price = ?, IsDeleted = ? 
@@ -651,14 +654,14 @@ export async function deleteRestoreDocument(
   isDeleted: 0 | 1
 ): Promise<DataBaseResponse<AllDocumentsNameTable>> {
   const functionName = deleteRestoreDocument.name;
-  // Walidacja InvoiceId
+  //Walidacja InvoiceId
   if (!documentId || documentId <= 0) {
     const message = `Nieprawidłowy identyfikator dokumentu. Id: ${documentId}.`;
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
 
-  // SQL do ustawienia IsDeleted
+  //SQL do ustawienia IsDeleted
   const updateSql = `
     UPDATE AllDocuments 
     SET IsDeleted = ?
@@ -670,7 +673,7 @@ export async function deleteRestoreDocument(
   try {
     await getDb().beginTransaction();
 
-    // Sprawdzenie, czy faktura istnieje i ma odpowiedni status IsDeleted
+    //Sprawdzenie, czy faktura istnieje i ma odpowiedni status IsDeleted
     const existingDocument = await getDb().get<{ AllDocumentsId: number }>(
       `SELECT AllDocumentsId FROM AllDocuments WHERE AllDocumentsId = ? AND IsDeleted = ?`,
       [documentId, isDeleted === 0 ? 1 : 0]
@@ -683,7 +686,7 @@ export async function deleteRestoreDocument(
       return { status: STATUS.Error, message: message };
     }
 
-    // Aktualizacja flagi IsDeleted
+    //Aktualizacja flagi IsDeleted
     const result = await getDb().get<AllDocumentsNameTable>(
       updateSql,
       updateParams
@@ -722,7 +725,7 @@ export async function getAllInvoices(
   rowsPerPage: number = 10
 ): Promise<DataBaseResponse<AllInvoices[]>> {
   const functionName = getAllInvoices.name;
-  // --- Walidacja danych wejściowych ---
+  //Walidacja danych wejściowych
   if (!formValuesHomePage) {
     const message = `Brak dat do pobrania faktur z bazy danych (formValuesHomePage jest undefined)`;
     log.error(logTitle(functionName, message));
@@ -758,10 +761,10 @@ export async function getAllInvoices(
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
-  // Domyślna wartość isDeleted
+  //Domyślna wartość isDeleted
   const isDeleted = formValuesHomePage.isDeleted ?? 0;
   try {
-    // --- Budowa zapytania SQL ---
+    //Budowa zapytania SQL
     let query = `
       SELECT 
         Invoices.InvoiceId,
@@ -793,19 +796,19 @@ export async function getAllInvoices(
       ORDER BY Invoices.ReceiptDate DESC
     `;
 
-    // --- Parametry ---
+    //Parametry
     const params: QueryParams = [
       getFormattedDate(formValuesHomePage.firstDate, "-", "year"),
       getFormattedDate(formValuesHomePage.secondDate, "-", "year"),
       isDeleted,
     ];
 
-    // --- Paginacja ---
+    //Paginacja
     const offset = (page - 1) * rowsPerPage;
     query += ` LIMIT ? OFFSET ?`;
     params.push(rowsPerPage, offset);
 
-    // --- Wykonanie zapytania ---
+    //Wykonanie zapytania
     const result = await getDb().all<AllInvoices>(query, params);
     return {
       status: STATUS.Success,
@@ -821,7 +824,7 @@ export async function getAllInvoices(
   }
 }
 
-// Funkcja przygotowująca do dodawania faktury
+//Funkcja przygotowująca do dodawania faktury
 async function addInvoice(
   invoice: InvoiceTable
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
@@ -859,7 +862,7 @@ async function addInvoice(
   }
 }
 
-// Funkcja do dodawania faktury i jej szczegółów do bazy danych
+//Funkcja do dodawania faktury i jej szczegółów do bazy danych
 export async function addInvoiceDetails(
   invoice: InvoiceTable,
   invoiceDetails: InvoiceDetailsTable[]
@@ -931,14 +934,14 @@ export async function updateInvoice(
   invoiceDetails: InvoiceDetailsTable[]
 ): Promise<DataBaseResponse<ReturnMessageFromDb>> {
   const functionName = updateInvoice.name;
-  // Walidacja InvoiceId
+  //Walidacja InvoiceId
   if (invoice.InvoiceId === undefined) {
     const message = `Brak InvoiceId. Aktualizacja faktury ${invoice.InvoiceName} wymaga identyfikatora.`;
     log.error(logTitle(functionName, message), { invoice, invoiceDetails });
     return { status: STATUS.Error, message: message };
   }
 
-  // SQL do aktualizacji faktury
+  //SQL do aktualizacji faktury
   const updateInvoiceSql = `
     UPDATE Invoices 
     SET InvoiceName = ?, ReceiptDate = ?, DeadlineDate = ?, PaymentDate = ?, IsDeleted = ?
@@ -950,16 +953,16 @@ export async function updateInvoice(
     invoice.DeadlineDate ?? null,
     invoice.PaymentDate ?? null,
     invoice.IsDeleted ?? 0,
-    invoice.InvoiceId, // Teraz gwarantujemy, że jest to number
+    invoice.InvoiceId,
   ];
 
-  // SQL do usuwania istniejących szczegółów faktury
+  //SQL do usuwania istniejących szczegółów faktury
   const deleteDetailsSql = `
     DELETE FROM InvoiceDetails WHERE InvoiceId = ?
   `;
   const deleteDetailsParams: QueryParams = [invoice.InvoiceId];
 
-  // SQL do wstawiania nowych szczegółów faktury
+  //SQL do wstawiania nowych szczegółów faktury
   const insertDetailsSql = `
     INSERT INTO InvoiceDetails (InvoiceId, DocumentId, MainTypeId, TypeId, SubtypeId, Quantity, Price)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -968,7 +971,7 @@ export async function updateInvoice(
   try {
     await getDb().beginTransaction();
 
-    // Sprawdzenie, czy faktura istnieje
+    //Sprawdzenie, czy faktura istnieje
     const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ?`,
       [invoice.InvoiceId]
@@ -980,7 +983,7 @@ export async function updateInvoice(
       return { status: STATUS.Error, message: message };
     }
 
-    // Aktualizacja faktury
+    //Aktualizacja faktury
     const updateResult = await getDb().run(
       updateInvoiceSql,
       updateInvoiceParams
@@ -992,7 +995,7 @@ export async function updateInvoice(
       return { status: STATUS.Error, message: message };
     }
 
-    // Usunięcie istniejących szczegółów
+    //Usunięcie istniejących szczegółów
     await getDb().run(deleteDetailsSql, deleteDetailsParams);
 
     // Wstawianie nowych szczegółów
@@ -1043,13 +1046,13 @@ export async function deleteInvoice(
   invoiceId: number
 ): Promise<DataBaseResponse<InvoiceTable>> {
   const functionName = deleteInvoice.name;
-  // Walidacja InvoiceId
+  //Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
     const message = `Nieprawidłowy identyfikator faktury.`;
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
-  // SQL do ustawienia IsDeleted na 1
+  //SQL do ustawienia IsDeleted na 1
   const deleteInvoiceSql = `
     UPDATE Invoices 
     SET IsDeleted = 1
@@ -1061,7 +1064,7 @@ export async function deleteInvoice(
   try {
     await getDb().beginTransaction();
 
-    // Sprawdzenie, czy faktura istnieje
+    //Sprawdzenie, czy faktura istnieje
     const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ? AND IsDeleted = 0`,
       [invoiceId]
@@ -1073,7 +1076,7 @@ export async function deleteInvoice(
       return { status: STATUS.Error, message: message };
     }
 
-    // Aktualizacja flagi IsDeleted
+    //Aktualizacja flagi IsDeleted
     const result = await getDb().get<InvoiceTable>(
       deleteInvoiceSql,
       deleteInvoiceParams
@@ -1104,14 +1107,14 @@ export async function restoreInvoice(
   invoiceId: number
 ): Promise<DataBaseResponse<InvoiceTable>> {
   const functionName = restoreInvoice.name;
-  // Walidacja InvoiceId
+  //Walidacja InvoiceId
   if (!invoiceId || invoiceId <= 0) {
     const message = `Nieprawidłowy identyfikator faktury.`;
     log.error(logTitle(functionName, message));
     return { status: STATUS.Error, message: message };
   }
 
-  // SQL do ustawienia IsDeleted na 0
+  //SQL do ustawienia IsDeleted na 0
   const restoreInvoiceSql = `
     UPDATE Invoices 
     SET IsDeleted = 0
@@ -1123,7 +1126,7 @@ export async function restoreInvoice(
   try {
     await getDb().beginTransaction();
 
-    // Sprawdzenie, czy faktura istnieje i jest oznaczona jako usunięta
+    //Sprawdzenie, czy faktura istnieje i jest oznaczona jako usunięta
     const existingInvoice = await getDb().get<{ InvoiceId: number }>(
       `SELECT InvoiceId FROM Invoices WHERE InvoiceId = ? AND IsDeleted = 1`,
       [invoiceId]
@@ -1135,7 +1138,7 @@ export async function restoreInvoice(
       return { status: STATUS.Error, message: message };
     }
 
-    // Aktualizacja flagi IsDeleted
+    //Aktualizacja flagi IsDeleted
     const result = await getDb().get<InvoiceTable>(
       restoreInvoiceSql,
       restoreInvoiceParams
@@ -1162,7 +1165,7 @@ export async function restoreInvoice(
   }
 }
 
-// Funkcja zwracająca liczbę faktur z bazy danych na podstawie filtrów z formularza
+//Funkcja zwracająca liczbę faktur z bazy danych na podstawie filtrów z formularza
 export async function countInvoices(
   formValuesHomePage: FormValuesHomePage
 ): Promise<DataBaseResponse<number>> {
@@ -1200,7 +1203,7 @@ export async function countInvoices(
 }
 
 //USERS
-// Funkcja do pobierania wszystkich użytkowników z tabeli Users
+//Funkcja do pobierania wszystkich użytkowników z tabeli Users
 export async function getAllUsers(
   isDeleted?: number
 ): Promise<DataBaseResponse<User[]>> {
@@ -1230,7 +1233,7 @@ export async function getAllUsers(
   }
 }
 
-// Funkcja do zapisywania użytkownika w tabeli Users
+//Funkcja do zapisywania użytkownika w tabeli Users
 export async function addUser(user: User): Promise<DataBaseResponse<User>> {
   const functionName = addUser.name;
   const { UserPassword, ...userWithoutPassword } = user;
@@ -1298,12 +1301,12 @@ export async function addUser(user: User): Promise<DataBaseResponse<User>> {
   }
 }
 
-// Funkcja do aktualizowania użytkownika w tabeli Users
+//Funkcja do aktualizowania użytkownika w tabeli Users
 export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
   const functionName = updateUser.name;
   const { UserPassword, ...userWithoutPassword } = user;
   try {
-    // Walidacja
+    //Walidacja
     if (!user.UserId) {
       const message = `UserId jest wymagane do edycji.`;
       log.error(logTitle(functionName, message), { user: userWithoutPassword });
@@ -1365,7 +1368,7 @@ export async function updateUser(user: User): Promise<DataBaseResponse<User>> {
   }
 }
 
-// Funkcja do usuwania użytkownika z tabeli Users
+//Funkcja do usuwania użytkownika z tabeli Users
 export async function deleteUser(
   userId: number
 ): Promise<DataBaseResponse<User>> {
@@ -1408,7 +1411,7 @@ export async function deleteUser(
   }
 }
 
-// Weryfikacja użytkownika na podstawie UserSystemName
+//Weryfikacja użytkownika na podstawie UserSystemName
 export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
   const functionName = getUserBySystemName.name;
   let systemUserName = "nieznany użytkownik";
@@ -1442,7 +1445,7 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
         message: message,
       };
     }
-    //Dodajemy wartość Host do User
+    //Dodanie wartości Host do User
     const enrichedUser = {
       ...result,
       Hostname: systemHostName,
@@ -1469,6 +1472,7 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
   }
 }
 
+//Funkcja do pobierania nazwy użytkownika systemowego do logów
 export async function displayUserNameForLog(): Promise<string> {
   const functionName = displayUserNameForLog.name;
   let displayUserNameLog = "nieznany użytkownik";
@@ -1487,8 +1491,6 @@ export async function displayUserNameForLog(): Promise<string> {
   }
 }
 
-
-
 //Funkcja do konstrukcji logów
 export function logTitle(
   functionName: string,
@@ -1499,32 +1501,18 @@ export function logTitle(
   return title;
 }
 
+//Funkcja do formatowania daty (YYYY-MM-DD lub DD.MM.YYYY)
 export const getFormattedDate = (date: Date | null, separator: string = ".", format: "day" | "year" = "day"): string | null => {
   if (!date) return null;
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() zwraca 0-11, więc dodajemy 1
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return format === "year"
     ? `${year}${separator}${month}${separator}${day}`
     : `${day}${separator}${month}${separator}${year}`;
 };
 
+//Funkcja do sprawdzania, czy wartość jest prawidłową datą
 export function isValidDate(value: unknown): value is Date {
   return value instanceof Date && !isNaN(value.getTime());
 }
-
-// Przykładowa funkcja
-export async function getConfigBilancio1(tekst: string): Promise<string> {
-  console.log("getConfigBilancio1 called with text:", tekst);
-  return Promise.resolve("getConfigBilancio text");
-}
-
-// import { app } from 'electron';
-// app.on('before-quit', async () => {
-//   try {
-//     await db.close();
-//     console.log('Połączenie z bazą danych zostało zamknięte.');
-//   } catch (err) {
-//     console.error('Błąd przy zamykaniu bazy danych:', err);
-//   }
-// });
