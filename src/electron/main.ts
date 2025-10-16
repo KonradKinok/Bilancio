@@ -238,16 +238,20 @@ app.on("ready", async () => {
     // });
 
     // Electron
-    ipcMain.on('generatePdf', async () => {
+    //Generowanie pliku PDF
+    ipcMainOn('generatePdf', async () => {
       if (mainWindow) {
         await generatePdf(mainWindow);
       }
     });
-    ipcMain.on('generateScreenShot', async () => {
+
+    //Generowanie zrzutu ekranu
+    ipcMainOn('generateScreenShot', async () => {
       if (mainWindow) {
         await generateScreenShot(mainWindow);
       }
     });
+
     //Przeładowanie okna
     ipcMain.on('reload-window', () => {
       if (mainWindow) {

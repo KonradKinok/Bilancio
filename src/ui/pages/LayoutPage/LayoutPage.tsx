@@ -75,7 +75,7 @@ export const LayoutPage: React.FC = () => {
         toastOptions={{
           success: { duration: 4000 },
           error: { duration: 6000 },
-          loading: { duration: 3000 },
+          loading: { duration: Infinity },
         }}
       />
       <ButtonUp />

@@ -39,7 +39,7 @@ export function createMenu(mainWindow: BrowserWindow) {
             click: async (_, browserWindow) => {
               if (!browserWindow) return;
               try {
-                await generatePdf(browserWindow as BrowserWindow); // 👈 tu rzutowanie
+                await generatePdf(browserWindow as BrowserWindow); // rzutowanie na BrowserWindow
               } catch (error) {
                 console.error('[menu.ts] Błąd generowania PDF:', error);
                 dialog.showErrorBox('Błąd generowania PDF', 'Nie udało się wygenerować pliku PDF.');
@@ -52,7 +52,7 @@ export function createMenu(mainWindow: BrowserWindow) {
             click: async (_, browserWindow) => {
               if (!browserWindow) return;
               try {
-                await generateScreenShot(browserWindow as BrowserWindow); // 👈 tu rzutowanie
+                await generateScreenShot(browserWindow as BrowserWindow); // tu rzutowanie na BrowserWindow
               } catch (error) {
                 console.error('[menu.ts] Błąd generowania PNG:', error);
                 dialog.showErrorBox('Błąd generowania PNG', 'Nie udało się wygenerować pliku PNG.');
