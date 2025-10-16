@@ -12,6 +12,8 @@ declare global {
     lastPage: number;
     paginationPage: number;
   }
+
+  //0-pending, 1-success, 2-error
   export interface ReturnStatusDbMessage {
     status: number;
     message: string;
@@ -342,6 +344,9 @@ declare global {
     clipboard: { html: string; text: string };
     getDBbBilancioPath: string;
     checkStatusDatabase: ReturnStatusDbMessage;
+    onGeneratingDocumentStatus: ReturnStatusDbMessage;
+    generatePdf: undefined;
+    generateScreenShot: undefined;
   };
 
   interface Window {
@@ -374,6 +379,12 @@ declare global {
       getDBbBilancioPath: () => Promise<string>;
       checkStatusDatabase: () => Promise<ReturnStatusDbMessage>;
       //Electron
+      generatePdf: () => void;
+      generateScreenShot: () => void;
+      // onGeneratingDocumentStatus: (callback: (payload: ReturnStatusDbMessage) => void) => void;
+      onGeneratingDocumentStatus: (
+        callback: (payload: ReturnStatusDbMessage) => void
+      ) => () => void;
       reloadWindow: () => void;
       restartApp: () => void;
       clipboard: (html: string, text: string) => void;

@@ -35,8 +35,10 @@ electron.contextBridge.exposeInMainWorld('electron', {
   //Electron
   reloadWindow: () => ipcRenderer.send('reload-window'),
   restartApp: () => ipcRenderer.send("restart-app"),
-  clipboard: (html, text) => ipcSend("clipboard", { html, text })
-
+  clipboard: (html, text) => ipcSend("clipboard", { html, text }),
+  generatePdf: () => ipcSend('generatePdf'),
+  generateScreenShot: () => ipcSend('generateScreenShot'),
+  onGeneratingDocumentStatus: (callback) => ipcOn('onGeneratingDocumentStatus', callback),
 } satisfies Window["electron"]);
 
 
@@ -64,7 +66,7 @@ function ipcOn<Key extends keyof EventPayloadMapping>(
 
 function ipcSend<Key extends keyof EventPayloadMapping>(
   key: Key,
-  payload: EventPayloadMapping[Key]
+  payload?: EventPayloadMapping[Key]
 ) {
   electron.ipcRenderer.send(key, payload);
 }

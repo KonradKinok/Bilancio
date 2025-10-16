@@ -1492,15 +1492,27 @@ export async function displayUserNameForLog(): Promise<string> {
 }
 
 //Funkcja do konstrukcji logów
+// export function logTitle(
+//   functionName: string,
+//   message: string,
+//   displayUserNameLog: string = displayUserName
+// ): string {
+//   const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
+//   return title;
+// }
 export function logTitle(
   functionName: string,
   message: string,
-  displayUserNameLog: string = displayUserName
+  options?: {
+    displayUserName?: string;
+    fileName?: string;
+  }
 ): string {
-  const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
-  return title;
-}
+  const finalFileName = options?.fileName ?? fileName;
+  const finalDisplayUserName = options?.displayUserName ?? displayUserName;
 
+  return `[${finalFileName}] [${functionName}] [${finalDisplayUserName}]: ${message}`;
+}
 //Funkcja do formatowania daty (YYYY-MM-DD lub DD.MM.YYYY)
 export const getFormattedDate = (date: Date | null, separator: string = ".", format: "day" | "year" = "day"): string | null => {
   if (!date) return null;

@@ -71,7 +71,7 @@ app.on("ready", async () => {
 
   //Dynamiczne importowanie modułów po splash
   try {
-    const { configureLogs, defaultLogs, configureBackupDb, deleteOldestFileInSavedDocuments } = await import("./config.js");
+    const { configureLogs, defaultLogs, configureBackupDb, deleteOldestFileInSavedDocuments, generatePdf, generateScreenShot } = await import("./config.js");
     const {
       addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
     } = await import("./dataBase/dbFunction.js");
@@ -238,6 +238,16 @@ app.on("ready", async () => {
     // });
 
     // Electron
+    ipcMain.on('generatePdf', async () => {
+      if (mainWindow) {
+        await generatePdf(mainWindow);
+      }
+    });
+    ipcMain.on('generateScreenShot', async () => {
+      if (mainWindow) {
+        await generateScreenShot(mainWindow);
+      }
+    });
     //Przeładowanie okna
     ipcMain.on('reload-window', () => {
       if (mainWindow) {
@@ -268,7 +278,7 @@ app.on("ready", async () => {
   }
 });
 
-//Funkcja do obsługi zdarzeń zamykania okna
+//Funkcja do obsługi zdarzeń zamykania głównego okna aplikacji
 function handleCloseEvents(mainWindow: BrowserWindow) {
   let willClose = false;
   mainWindow.on("close", (e) => {

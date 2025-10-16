@@ -1,6 +1,6 @@
 import { BrowserWindow, Menu, dialog, shell } from 'electron';
 import fs from "fs";
-import { showAboutDialog, showCaptureScreenPdfDialog } from './config.js';
+import { generatePdf, generateScreenShot, showAboutDialog, showCaptureScreenPdfDialog } from './config.js';
 import { getSavedDocumentsPath, getSavedDocumentsPathWithCustomFile } from './pathResolver.js';
 
 //Funkcja do tworzenia menu aplikacji
@@ -19,7 +19,8 @@ export function createMenu(mainWindow: BrowserWindow) {
                 {
                   silent: false, //Otwiera dialog drukowania (true = bez dialogu)
                   printBackground: true, //Drukuje tło i kolory
-                  deviceName: '', //Opcjonalnie: nazwa drukarki, pusta = domyślna
+                  pageSize: 'A4', //Ustawia rozmiar papieru na A4
+                  // deviceName: '', //Opcjonalnie: nazwa drukarki, pusta = domyślna
                   // color: true, // Drukuj w kolorze (domyślnie true)
                   // landscape: false, // Orientacja pozioma (domyślnie false)
                 },
@@ -35,51 +36,27 @@ export function createMenu(mainWindow: BrowserWindow) {
           {
             label: 'Drukuj do PDF',
             accelerator: process.platform === 'darwin' ? 'Cmd+Shift+P' : 'Ctrl+Shift+P',
-            click: () => {
-              mainWindow.webContents.printToPDF({
-                printBackground: false,
-                landscape: false,
-                pageSize: 'A4',
-              }).then(data => {
-                const timestamp = new Date().toLocaleString().replace(/[:., ]/g, '-');
-                const filePath = getSavedDocumentsPathWithCustomFile(`widok-${timestamp}.pdf`)
-
-                fs.writeFile(filePath, data, (err) => {
-                  if (err) {
-                    console.error('[menu.js] Błąd zapisu PDF:', err);
-                    dialog.showErrorBox('Błąd zapisu PDF', 'Nie udało się zapisać pliku PDF.');
-                  } else {
-                    console.log('PDF zapisany:', filePath);
-                    showCaptureScreenPdfDialog(mainWindow, filePath, "Zapis do pliku PDF", "", "Plik PDF zapisano w:");
-                  }
-                });
-              }).catch(error => {
-                console.error('[menu.js] Błąd generowania PDF:', error);
-                dialog.showErrorBox('Błąd generowania PDF', 'Nie udało się wygenerowania pliku PDF.');
-              });
+            click: async (_, browserWindow) => {
+              if (!browserWindow) return;
+              try {
+                await generatePdf(browserWindow as BrowserWindow); // 👈 tu rzutowanie
+              } catch (error) {
+                console.error('[menu.ts] Błąd generowania PDF:', error);
+                dialog.showErrorBox('Błąd generowania PDF', 'Nie udało się wygenerować pliku PDF.');
+              }
             },
           },
           {
             label: 'Zrzut ekranu',
             accelerator: process.platform === 'darwin' ? 'Cmd+Shift+S' : 'Ctrl+Shift+S',
-            click: () => {
-              mainWindow.webContents.capturePage()
-                .then(image => {
-                  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-                  const filePath = getSavedDocumentsPathWithCustomFile(`zrzut-${timestamp}.png`)
-                  fs.writeFile(filePath, image.toPNG(), (err) => {
-                    if (err) {
-                      console.error('[menu.js] Błąd zapisu zrzutu:', err);
-                      dialog.showErrorBox('Błąd zapisu zrzutu', 'Nie udało się zapisać zrzutu ekranu.');
-                    } else {
-                      console.log('Zapisano zrzut:', filePath);
-                      showCaptureScreenPdfDialog(mainWindow, filePath, "Zrzut ekranu", "", "Zrzut ekranu zapisano w:");
-                    }
-                  });
-                }).catch(error => {
-                  console.error('[menu.js] Błąd generowania zrzutu ekranu:', error);
-                  dialog.showErrorBox('Błąd generowania zrzutu ekranu', 'Nie udało się wygenerować zrzutu ekranu.');
-                });;
+            click: async (_, browserWindow) => {
+              if (!browserWindow) return;
+              try {
+                await generateScreenShot(browserWindow as BrowserWindow); // 👈 tu rzutowanie
+              } catch (error) {
+                console.error('[menu.ts] Błąd generowania PNG:', error);
+                dialog.showErrorBox('Błąd generowania PNG', 'Nie udało się wygenerować pliku PNG.');
+              }
             },
           },
           {

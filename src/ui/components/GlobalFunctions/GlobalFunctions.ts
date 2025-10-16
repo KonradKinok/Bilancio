@@ -374,6 +374,8 @@ export function pluralizeFaktura(count: number): string {
   const rule = pluralRules.select(count);
   return `${count} ${forms[rule]}`;
 }
+
+
 // Funkcja pomocnicza do opóźnienia
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // await delay(5000); // czekamy 5 sekund

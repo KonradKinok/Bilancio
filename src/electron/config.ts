@@ -1,10 +1,10 @@
 import { BrowserWindow, dialog, shell } from "electron";
 import log from "electron-log";
 import path from "path";
-import fs from "fs"
-import { isDev } from "./util.js";
-import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
-import { getFormattedDate } from "./dataBase/dbFunction.js";
+import fs, { constants } from "fs"
+import { ipcWebContentsSend, isDev } from "./util.js";
+import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getSavedDocumentsPathWithCustomFile, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
+import { getFormattedDate, logTitle } from "./dataBase/dbFunction.js";
 
 const defaultDirConfig = checkDirs();
 const logDir = getLogDir();
@@ -170,4 +170,94 @@ export async function showCaptureScreenPdfDialog(mainWindow: BrowserWindow, file
   if (response.response === 1) {
     shell.showItemInFolder(filePath);
   }
+}
+
+// Generowanie pliku PDF z aktualnego widoku okna
+export async function generatePdf(mainWindow: BrowserWindow) {
+  const functionName = generatePdf.name;
+  const timestamp = new Date().toLocaleString().replace(/[:., ]/g, '-');
+  const fileName = `widok-${timestamp}.pdf`;
+  const filePath = getSavedDocumentsPathWithCustomFile(fileName);
+
+  // Generowanie pliku
+  ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, { status: 0, message: "Poczekaj trwa tworzenie pliku PDF ..." });
+
+  try {
+    const pdfData = await mainWindow.webContents.printToPDF({
+      printBackground: true,
+      landscape: false,
+      pageSize: 'A4',
+    });
+
+    // Zapisz plik PDF
+    await fs.promises.writeFile(filePath, pdfData);
+    // Sukces
+    ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+      status: 1, message: `Plik "${fileName}" został pomyślnie zapisany.`
+    });
+    // Otwórz PDF w domyślnym programie
+    const openResult = await shell.openPath(filePath);
+    if (openResult) {
+      // OpenPath zwraca treść błędu, jeśli się nie powiodło
+      const message = `Plik PDF "${fileName}" został zapisany ale nie udało się go otworzyć w domyślnym programie.`;
+      log.error(logTitle(functionName, message, { fileName: "config.js" }), openResult);
+      ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+        status: 2,
+        message: message,
+      });
+    }
+  } catch (err) {
+    // Error
+    const message = 'Błąd podczas generowania pliku PDF.';
+    log.error(logTitle(functionName, message, { fileName: "config.js" }), err);
+    ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+      status: 2,
+      message: err instanceof Error ? err.message : message,
+    });
+  }
+}
+
+// Generowanie zrzutu ekranu z aktualnego widoku okna
+export async function generateScreenShot(mainWindow: BrowserWindow) {
+  const functionName = generateScreenShot.name;
+  const timestamp = new Date().toLocaleString().replace(/[:., ]/g, '-');
+  const fileName = `zrzut-${timestamp}.png`;
+  const filePath = getSavedDocumentsPathWithCustomFile(fileName);
+
+  // Generowanie pliku
+  ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, { status: 0, message: "Poczekaj trwa tworzenie zrzutu ekranu ..." });
+
+  try {
+    const screenData = await mainWindow.webContents.capturePage()
+
+    // Zapisz plik PDF
+    await fs.promises.writeFile(filePath, screenData.toPNG());
+    // Sukces
+    ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+      status: 1, message: `Plik "${fileName}" został pomyślnie zapisany.`
+    });
+    // Otwórz PDF w domyślnym programie
+    const openResult = await shell.openPath(filePath);
+    if (openResult) {
+      // OpenPath zwraca treść błędu, jeśli się nie powiodło
+      const message = `Plik "${fileName}" został zapisany ale nie udało się go otworzyć w domyślnym programie.`;
+      log.error(logTitle(functionName, message, { fileName: "config.js" }), openResult);
+      ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+        status: 2,
+        message: message,
+      });
+    }
+  } catch (err) {
+    // Error
+    const message = 'Błąd podczas generowania pliku PNG.';
+    log.error(logTitle(functionName, message, { fileName: "config.js" }), err);
+    ipcWebContentsSend('onGeneratingDocumentStatus', mainWindow.webContents, {
+      status: 2,
+      message: err instanceof Error ? err.message : message,
+    });
+  }
+}
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
