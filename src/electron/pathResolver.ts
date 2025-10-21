@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
-import { app } from "electron";
+import { app, shell } from "electron";
 import log from "electron-log";
 import { isDev } from "./util.js";
 
@@ -16,8 +16,8 @@ export function getPreloadPath() {
 
 //Funkcja do pobierania ścieżki do pliku index.html
 export function getUIPath() {
-  const uiPatch = path.join(app.getAppPath(), '/dist-react/index.html');
-  return uiPatch
+  const uiPath = path.join(app.getAppPath(), '/dist-react/index.html');
+  return uiPath
 }
 
 //Funkcja do pobierania ścieżki do pliku index.html
@@ -138,22 +138,31 @@ export function getBackupDbPath() {
 }
 
 //Funkcja do otwierania plików
-export function openFile(filePath: string) {
-  let command: string;
+// export function openFile(filePath: string) {
+//   let command: string;
 
-  if (process.platform === "win32") {
-    command = `start "" "${filePath}"`;
-  } else if (process.platform === "darwin") {
-    command = `open "${filePath}"`;
-  } else {
-    command = `xdg-open "${filePath}"`;
+//   if (process.platform === "win32") {
+//     command = `start "" "${filePath}"`;
+//   } else if (process.platform === "darwin") {
+//     command = `open "${filePath}"`;
+//   } else {
+//     command = `xdg-open "${filePath}"`;
+//   }
+
+//   exec(command, (err) => {
+//     if (err) {
+//       log.error(`[pathResolver.js] [openFile]: Nie udało się otworzyć pliku: ${err.message}`);
+//       // Opcjonalnie: pokaż użytkownikowi komunikat w UI
+//       // showMessage("Plik zapisano, ale nie udało się go otworzyć automatycznie.");
+//     }
+//   });
+// }
+
+export async function openFile(filePath: string) {
+  try {
+    const result = await shell.openPath(filePath);
+    if (result) log.error('[pathResolver] [openFile]: Nie udało się otworzyć pliku:', result);
+  } catch (err) {
+    log.error('[pathResolver] [openFile]: Błąd przy otwieraniu pliku:', err);
   }
-
-  exec(command, (err) => {
-    if (err) {
-      log.error(`[pathResolver.js] [openFile]: Nie udało się otworzyć pliku: ${err.message}`);
-      // Opcjonalnie: pokaż użytkownikowi komunikat w UI
-      // showMessage("Plik zapisano, ale nie udało się go otworzyć automatycznie.");
-    }
-  });
 }

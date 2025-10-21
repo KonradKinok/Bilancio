@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog, clipboard } from "electron";
 import log from "electron-log";
 import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
@@ -78,12 +80,13 @@ app.on("ready", async () => {
     const {
       getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX, exportStandardDocumentsReportToXLSX
     } = await import("./reportsFunctions.js");
-    configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
+
+    await configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
     Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
-    configureBackupDb(); //Utworzenie kopii bazy danych
+    await configureBackupDb(); //Utworzenie kopii bazy danych
     initDb(); //Zainicjalizowanie bazy danych
-    deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+    await deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
 
     //Tworzenie okna głównego aplikacji
     mainWindow = new BrowserWindow({
@@ -125,6 +128,11 @@ app.on("ready", async () => {
     }
 
     mainWindow!.once("ready-to-show", () => {
+      mainWindow!.webContents.executeJavaScript(`
+            window.ENV = {
+                MAX_BACKUP_DATABASE_FILES: '${process.env.MAX_BACKUP_DATABASE_FILES || 5}'
+            };
+        `);
       clearTimeout(splashTimeout); // Splash zamknięty wcześniej, nie trzeba backupu
       if (splash) {
         splash.close();

@@ -1,7 +1,6 @@
 import { BrowserWindow, Menu, dialog, shell } from 'electron';
-import fs from "fs";
-import { generatePdf, generateScreenShot, showAboutDialog, showCaptureScreenPdfDialog } from './config.js';
-import { getSavedDocumentsPath, getSavedDocumentsPathWithCustomFile } from './pathResolver.js';
+import { generatePdf, generateScreenShot, showAboutDialog } from './config.js';
+import { getSavedDocumentsPath } from './pathResolver.js';
 
 //Funkcja do tworzenia menu aplikacji
 export function createMenu(mainWindow: BrowserWindow) {

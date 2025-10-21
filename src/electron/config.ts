@@ -1,50 +1,96 @@
 import { BrowserWindow, dialog, shell } from "electron";
 import log from "electron-log";
 import path from "path";
-import fs, { constants } from "fs"
+import fs, { constants } from "fs";
+import fsPromises from 'fs/promises';
 import { ipcWebContentsSend, isDev } from "./util.js";
 import { checkDirs, getAssetPath, getDBbBilancioPath, getLogDir, getPreloadPath, getSavedDocumentsPathWithCustomFile, getUIPath, getUserDataDirPath, } from "./pathResolver.js";
 import { getFormattedDate, logTitle } from "./dataBase/dbFunction.js";
+
 
 const defaultDirConfig = checkDirs();
 const logDir = getLogDir();
 const dbPatch = getDBbBilancioPath();
 
 //Funkcja do zarządzania plikami logów
-export function configureLogs(): void {
-  //Utworzenie katalog dla logów, jeśli nie istnieje
-  if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
-    log.warn('[config] [configureLogs]: Utworzono katalog dla logów:', logDir);
+export async function configureLogs(): Promise<void> {
+  try {
+    const MAX_SAVED_LOG_FILES = parseInt(process.env.MAX_SAVED_LOG_FILES || '10', 10);
+    //Utworzenie katalog dla logów, jeśli nie istnieje
+    try {
+      await fsPromises.access(logDir, constants.F_OK);
+    } catch {
+      await fsPromises.mkdir(logDir, { recursive: true });
+      log.warn('[config] [configureLogs]: Utworzono katalog dla logów:', logDir);
+    }
+
+    //Nazwa pliku logów z aktualną datą
+    const logFileName = `log-${getFormattedDate(new Date())}.log`;
+    const logFilePath = path.join(logDir, logFileName);
+
+    // Konfiguracja electron-log
+    log.transports.file.level = 'info';
+    log.transports.file.resolvePathFn = () => logFilePath;
+    log.transports.console.level = isDev() ? false : false;
+
+    //Sprawdzanie liczby plików logów
+    const allFiles = await fsPromises.readdir(logDir);
+    const logFiles = allFiles
+      .filter(file => file.startsWith('log-') && file.endsWith('.log'))
+      .sort((a, b) => {
+        const dateA = new Date(a.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
+        const dateB = new Date(b.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
+        return dateA.getTime() - dateB.getTime();
+      });
+
+    // Jeśli jest 10 lub więcej plików, usuń najstarszy
+    if (logFiles.length >= MAX_SAVED_LOG_FILES) {
+      const oldestLogFile = path.join(logDir, logFiles[0]);
+      await fsPromises.unlink(oldestLogFile);
+      log.info('[config] [configureLogs]: Usunięto najstarszy plik logów:', oldestLogFile);
+    }
+
+    log.info('00. Logi zapisywane do pliku:', logFilePath);
+  } catch (error) {
+    console.error('[config] [configureLogs]: Błąd podczas konfiguracji logów:', error);
   }
-
-  //Nazwa pliku logów z aktualną datą
-  const logFileName = `log-${getFormattedDate(new Date())}.log`;
-  const logFilePath = path.join(logDir, logFileName);
-
-  //Konfiguracja electron-log
-  log.transports.file.level = 'info';
-  log.transports.file.resolvePathFn = () => logFilePath;
-  log.transports.console.level = isDev() ? false : false;
-
-  //Sprawdzanie liczby plików logów
-  const logFiles = fs.readdirSync(logDir)
-    .filter(file => file.startsWith('log-') && file.endsWith('.log'))
-    .sort((a, b) => {
-      const dateA = new Date(a.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
-      const dateB = new Date(b.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
-      return dateA.getTime() - dateB.getTime();
-    });
-
-  //Jeśli jest 10 lub więcej plików, usunięcie najstarszego
-  if (logFiles.length >= 10) {
-    const oldestLogFile = path.join(logDir, logFiles[0]);
-    fs.unlinkSync(oldestLogFile);
-    log.info('[config] [configureLogs]: Usunięto najstarszy plik logów:', oldestLogFile);
-  }
-
-  log.info('00. Logi zapisywane do pliku:', logFilePath);
 }
+
+// //Funkcja do zarządzania plikami logów1
+// export function configureLogs1(): void {
+//   //Utworzenie katalog dla logów, jeśli nie istnieje
+//   if (!fs.existsSync(logDir)) {
+//     fs.mkdirSync(logDir, { recursive: true });
+//     log.warn('[config] [configureLogs]: Utworzono katalog dla logów:', logDir);
+//   }
+
+//   //Nazwa pliku logów z aktualną datą
+//   const logFileName = `log-${getFormattedDate(new Date())}.log`;
+//   const logFilePath = path.join(logDir, logFileName);
+
+//   //Konfiguracja electron-log
+//   log.transports.file.level = 'info';
+//   log.transports.file.resolvePathFn = () => logFilePath;
+//   log.transports.console.level = isDev() ? false : false;
+
+//   //Sprawdzanie liczby plików logów
+//   const logFiles = fs.readdirSync(logDir)
+//     .filter(file => file.startsWith('log-') && file.endsWith('.log'))
+//     .sort((a, b) => {
+//       const dateA = new Date(a.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
+//       const dateB = new Date(b.replace('log-', '').replace('.log', '').split('.').reverse().join('-'));
+//       return dateA.getTime() - dateB.getTime();
+//     });
+
+//   //Jeśli jest 10 lub więcej plików, usunięcie najstarszego
+//   if (logFiles.length >= 10) {
+//     const oldestLogFile = path.join(logDir, logFiles[0]);
+//     fs.unlinkSync(oldestLogFile);
+//     log.info('[config] [configureLogs]: Usunięto najstarszy plik logów:', oldestLogFile);
+//   }
+
+//   log.info('00. Logi zapisywane do pliku:', logFilePath);
+// }
 
 //Funkcja do logowania podstawowych informacji o aplikacji oraz sprawdzania istnienia plików preload i UI
 export const defaultLogs = async () => {
@@ -71,71 +117,121 @@ export const defaultLogs = async () => {
   log.info('10. Ścieżka do bazy danych:', defaultDirConfig.dbPath);
   log.info("11. Ścieżka do database\\backup:", defaultDirConfig.backupDbPath);
   log.info('12. Ścieżka do katalogu z plikami konfiguracyjnymi:', getUserDataDirPath());
+  const MAX_BACKUP_DATABASE_FILES = parseInt(process.env.MAX_BACKUP_DATABASE_FILES || '10', 10);
+  log.info(`13. Limit kopii bazy danych:`, MAX_BACKUP_DATABASE_FILES);
+  const MAX_SAVED_LOG_FILES = parseInt(process.env.MAX_SAVED_LOG_FILES || '10', 10);
+  log.info(`14. Limit zapisanych plików logów:`, MAX_SAVED_LOG_FILES);
+  const MAX_SAVED_DOCUMENTS_FILES = parseInt(process.env.MAX_SAVED_DOCUMENTS_FILES || '50', 10);
+  log.info(`15. Limit zapisanych dokumentów:`, MAX_SAVED_DOCUMENTS_FILES);
 }
 
 //Tworzenie pliku bazy danych
-export function configureBackupDb(): void {
-  //Utworzenie katalogu dla kopii bazy danych, jeśli nie istnieje
-  if (!fs.existsSync(dbPatch)) {
-    log.error('[config] [configureBackupDb]: Plik bazy danych nie istnieje:', dbPatch);
-    return;
-  }
-  //Nazwa pliku kopi bazy danych z aktualną datą
-  const dataBaseBackupFileName = `BilancioDataBase-${getFormattedDate(new Date())}.db`;
-  const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
+export async function configureBackupDb(): Promise<void> {
+  try {
+    //Sprawdzenie czy plik bazy danych istnieje
+    const MAX_BACKUP_DATABASE_FILES = parseInt(process.env.MAX_BACKUP_DATABASE_FILES || '10', 10);
 
-  if (fs.existsSync(dataBaseDestinationFilePath)) {
-    return;
-  }
-
-  //Sprawdzanie liczby plików kopii bazy danych
-  const dbBackUpFiles = fs.readdirSync(defaultDirConfig.backupDbPath)
-    .filter(file => /^BilancioDataBase-\d{2}\.\d{2}\.\d{4}\.db$/.test(file))
-    .map(file => ({
-      name: file,
-      time: fs.statSync(path.join(defaultDirConfig.backupDbPath, file)).mtime.getTime()
-    }))
-    .sort((a, b) => a.time - b.time);
-
-  //Jeśli jest 10 lub więcej plików, usunięcie najstarszego
-  if (dbBackUpFiles.length >= 10) {
-    const oldestDbBackupFile = path.join(defaultDirConfig.backupDbPath, dbBackUpFiles[0].name);
-    fs.unlinkSync(oldestDbBackupFile);
-    log.info('[config] [configureBackupDb]: Usunięto najstarszy plik kopii bazy danych:', oldestDbBackupFile);
-  }
-  //Kopiowanie pliku
-  fs.copyFileSync(dbPatch, dataBaseDestinationFilePath);
-  //Weryfikacja
-  if (fs.existsSync(dataBaseDestinationFilePath)) {
-    const srcSize = fs.statSync(dbPatch).size;
-    const destSize = fs.statSync(dataBaseDestinationFilePath).size;
-
-    if (srcSize === destSize) {
-      log.info('[config] [configureBackupDb]: Plik został skopiowany poprawnie:', dataBaseDestinationFilePath);
-    } else {
-      log.error('[config] [configureBackupDb]: Rozmiar pliku różni się, możliwe uszkodzenie kopii:', dataBaseDestinationFilePath);
+    try {
+      await fsPromises.access(dbPatch, constants.F_OK);
+    } catch {
+      log.error('[config] [configureBackupDb]: Plik bazy danych nie istnieje:', dbPatch);
+      return;
     }
-  } else {
-    log.error('[config] [configureBackupDb]: Plik nie został znaleziony po kopiowaniu:', dataBaseDestinationFilePath);
+
+    // Utworzenie katalogu dla kopii bazy danych, jeśli nie istnieje
+    try {
+      await fsPromises.mkdir(defaultDirConfig.backupDbPath, { recursive: true });
+    } catch (err) {
+      log.error('[config] [configureBackupDb]: Wystąpił błąd przy tworzeniu katalogu kopii bazy danych:', err);
+      return;
+    }
+
+    //Nazwa pliku kopii bazy danych z aktualną datą
+    const dataBaseBackupFileName = `BilancioDataBase-${getFormattedDate(new Date())}.db`;
+    const dataBaseDestinationFilePath = path.join(defaultDirConfig.backupDbPath, dataBaseBackupFileName);
+
+    //Sprawdzenie czy plik kopii bazy danych już istnieje
+    try {
+      await fsPromises.access(dataBaseDestinationFilePath, constants.F_OK);
+
+      return;
+    } catch {
+      //Jeśli plik nie istnieje, kontynuowanie procesu tworzenia kopii
+    }
+
+    //Sprawdzanie liczby plików kopii bazy danych
+    let dbBackUpFiles: { name: string; time: number }[] = [];
+    try {
+      const files = await fsPromises.readdir(defaultDirConfig.backupDbPath);
+      const filteredFiles = files.filter(file => /^BilancioDataBase-\d{2}\.\d{2}\.\d{4}\.db$/.test(file));
+      dbBackUpFiles = await Promise.all(
+        filteredFiles.map(async file => ({
+          name: file,
+          time: (await fsPromises.stat(path.join(defaultDirConfig.backupDbPath, file))).mtime.getTime(),
+        }))
+      );
+      dbBackUpFiles.sort((a, b) => a.time - b.time);
+    } catch (err) {
+      log.error('[config] [configureBackupDb]: Błąd odczytania plików kopii bazy danych:', err);
+      return;
+    }
+
+    // Jeśli jest 10 lub więcej plików kopii bazy danych, usunięcie najstarszego
+    if (dbBackUpFiles.length >= MAX_BACKUP_DATABASE_FILES) {
+      const oldestDbBackupFile = path.join(defaultDirConfig.backupDbPath, dbBackUpFiles[0].name);
+      await fsPromises.unlink(oldestDbBackupFile);
+      log.info('[config] [configureBackupDb]: Usunięto najstarszy plik kopii bazy danych:', oldestDbBackupFile);
+    }
+
+    // Kopiowanie pliku
+    await fsPromises.copyFile(dbPatch, dataBaseDestinationFilePath);
+
+    // Weryfikacja kopii pliku bazy danych po skopiowaniu
+    const [srcStat, destStat] = await Promise.all([
+      fsPromises.stat(dbPatch),
+      fsPromises.stat(dataBaseDestinationFilePath),
+    ]);
+
+    if (srcStat.size === destStat.size) {
+      log.info('[config] [configureBackupDb]: Plik bazy danych został skopiowany poprawnie:', dataBaseDestinationFilePath);
+    } else {
+      log.error('[config] [configureBackupDb]: Rozmiar pliku kopii bazy danych różni się, możliwe uszkodzenie kopii:', dataBaseDestinationFilePath);
+    }
+  }
+  catch (err) {
+    log.error('[config] [configureBackupDb]: Błąd podczas tworzenia kopii bazy danych:', dbPatch);
   }
 }
 
 //Funkcja do usuwania najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
-export function deleteOldestFileInSavedDocuments(): void {
-  // Sprawdzanie liczby plików w katalogu zapisane dokumenty
-  const savedDocumentsFiles = fs.readdirSync(defaultDirConfig.savedDocumentsPath)
-    .filter(file => file !== "zapisane dokumenty.txt")
-    .map(file => ({
-      name: file,
-      time: fs.statSync(path.join(defaultDirConfig.savedDocumentsPath, file)).mtime.getTime()
-    }))
-    .sort((a, b) => a.time - b.time);
-
-  //Jeśli jest 50 lub więcej plików, usunięcie najstarszego
-  if (savedDocumentsFiles.length >= 50) {
-    const oldestFilePath = path.join(defaultDirConfig.savedDocumentsPath, savedDocumentsFiles[0].name);
-    fs.unlinkSync(oldestFilePath);
-    log.info('[config] [deleteOldestFileInSavedDocuments]: Usunięto najstarszy plik z katalogu "zapisane dokumenty":', oldestFilePath);
+export async function deleteOldestFileInSavedDocuments(): Promise<void> {
+  try {
+    const MAX_SAVED_DOCUMENTS_FILES = parseInt(process.env.MAX_SAVED_DOCUMENTS_FILES || '50', 10);
+    // Utworzenie katalogu zapisane dokumenty, jeśli nie istnieje
+    try {
+      await fsPromises.mkdir(defaultDirConfig.savedDocumentsPath, { recursive: true });
+    } catch (err) {
+      log.error('[config] [deleteOldestFileInSavedDocuments]: Wystąpił błąd przy tworzeniu katalogu "zapisane dokumenty":', err);
+      return;
+    }
+    // Sprawdzanie liczby plików w katalogu zapisane dokumenty
+    const files = await fsPromises.readdir(defaultDirConfig.savedDocumentsPath);
+    const savedDocumentsFiles = await Promise.all(
+      files
+        .filter(file => file !== "zapisane dokumenty.txt")
+        .map(async (file) => ({
+          name: file,
+          time: (await fsPromises.stat(path.join(defaultDirConfig.savedDocumentsPath, file))).mtime.getTime(),
+        }))
+    ).then(files => files.sort((a, b) => a.time - b.time));
+    // Jeśli jest 50 lub więcej plików, usunięcie najstarszego
+    if (savedDocumentsFiles.length >= MAX_SAVED_DOCUMENTS_FILES) {
+      const oldestFilePath = path.join(defaultDirConfig.savedDocumentsPath, savedDocumentsFiles[0].name);
+      await fsPromises.unlink(oldestFilePath);
+      log.info('[config] [deleteOldestFileInSavedDocuments]: Usunięto najstarszy plik z katalogu "zapisane dokumenty":', oldestFilePath);
+    }
+  } catch (err) {
+    log.error('[config] [deleteOldestFileInSavedDocuments]: Błąd usuwania pliku:', err);
   }
 }
 

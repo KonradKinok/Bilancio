@@ -27,6 +27,7 @@
   "dependencies": {
     "@types/lodash": "^4.17.16",
     "better-sqlite3": "^11.9.0",
+    "dotenv": "^17.2.3",
     "electron-log": "^5.4.1",
     "exceljs": "^4.4.0",
     "jspdf": "^3.0.3",

@@ -37,6 +37,9 @@ export const ReportFormDateTimePickers: React.FC<
     } else if (!dateTimePickerFirstDate && dateTimePickerLastDate && checked) {
       errorMessage =
         "Data początkowa nie może być pusta jeżeli data końcowa nie jest pusta.";
+    } else if (dateTimePickerFirstDate && !dateTimePickerLastDate && checked) {
+      errorMessage =
+        "Data końcowa nie może być pusta jeżeli data początkowa nie jest pusta.";
     } else {
       errorMessage = "";
     }

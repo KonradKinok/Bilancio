@@ -1429,6 +1429,21 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
         message: message,
       };
     }
+
+    if (process.env.FIRST_LOGIN === "WKM2026") {
+      return {
+        status: STATUS.Success,
+        data: {
+          UserId: 0,
+          UserSystemName: systemUserName,
+          UserDisplayName: "Pierwsze Logowanie",
+          UserPassword: null,
+          UserRole: 'admin',
+          IsDeleted: 0,
+          Hostname: systemHostName,
+        } as User,
+      };
+    }
     const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
                    FROM Users 
                    WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
@@ -1445,6 +1460,7 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
         message: message,
       };
     }
+
     //Dodanie wartości Host do User
     const enrichedUser = {
       ...result,

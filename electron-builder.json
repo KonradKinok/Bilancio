@@ -2,7 +2,10 @@
   "appId": "com.3K.nexgen.bilancio.konradkonik",
   "files": ["dist-electron", "dist-react"],
   "extraResources": ["dist-electron/preload.cjs", "src/assets/**"],
-  "extraFiles": ["userData/"],
+  "extraFiles": ["userData/",{
+      "from": ".env",
+      "to": ".env"
+    }],
   "icon": "./desktopIcon.png",
   "mac": {
     "target": "dmg"

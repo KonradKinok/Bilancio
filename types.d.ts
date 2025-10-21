@@ -350,6 +350,7 @@ declare global {
   };
 
   interface Window {
+    ENV?: { MAX_BACKUP_DATABASE_FILES: string };
     electron: {
       getConnectedTableDictionary: <T> (tableName, documentId, mainTypeId, typeId, subTypeId) => Promise<DataBaseResponse<T[]>>;
       //Documents
