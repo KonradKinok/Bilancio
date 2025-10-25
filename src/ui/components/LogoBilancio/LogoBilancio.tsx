@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
-import logoBilancio1 from "../../../assets/logoBilancio/TextBilancio1.png";
-import logoBilancio2 from "../../../assets/logoBilancio/textBilancioGold.png";
-import logoBilancio3 from "../../../assets/logoBilancio/textBilancioSilver.png";
-import logoBilancio4 from "../../../assets/logoBilancio/textBilancio4.png";
-import logoBilancio5 from "../../../assets/logoBilancio/textBilancio5.png";
-import logoBilancio6 from "../../../assets/logoBilancio/textBilancio6.png";
-import logoBilancio7 from "../../../assets/logoBilancio/textBilancio7.png";
+import logoBilancio from "../../../assets/logoBilancio/textBilancio.png";
 import scss from "./LogoBilancio.module.scss";
 
 interface LogoBilancioProps {
@@ -172,7 +166,7 @@ export const LogoBilancio: React.FC<LogoBilancioProps> = ({
           }`}
           onAnimationEnd={handleAnimationEnd}
         >
-          <img src={logoBilancio4} alt="logoText" />
+          <img src={logoBilancio} alt="logoText" />
         </div>
       </div>
     </div>

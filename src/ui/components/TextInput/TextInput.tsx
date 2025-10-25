@@ -3,17 +3,17 @@ import { Tooltip } from "react-tooltip";
 import scss from "./TextInput.module.scss";
 
 interface TextInputInterface {
-  inputType?: string;
-  inputName: string;
-  required?: boolean;
-  singleInputValue: string;
-  handleKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
-  handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
-  inputPlaceholder: string;
-  inputLabelText?: string;
-  singleInputError?: string;
-  handleSingleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  classNameInputContainer?: string;
+  inputType?: string; // Typ inputa (text, number, email itd.)
+  inputName: string; // Nazwa inputa, używana w id i htmlFor
+  required?: boolean; // Czy pole jest wymagane
+  singleInputValue: string; // Aktualna wartość inputa
+  handleKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void; // Opcjonalny handler dla zdarzenia keydown
+  handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void; // Opcjonalny handler dla wklejania
+  inputPlaceholder: string; // Placeholder w input
+  inputLabelText?: string; // Tekst labelki
+  singleInputError?: string; // Komunikat błędu do wyświetlenia
+  handleSingleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void; // Handler zmiany wartości
+  classNameInputContainer?: string; // Opcjonalna klasa dla kontenera
 }
 
 export const TextInput: React.FC<TextInputInterface> = ({

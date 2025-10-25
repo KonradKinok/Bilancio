@@ -138,26 +138,6 @@ export function getBackupDbPath() {
 }
 
 //Funkcja do otwierania plików
-// export function openFile(filePath: string) {
-//   let command: string;
-
-//   if (process.platform === "win32") {
-//     command = `start "" "${filePath}"`;
-//   } else if (process.platform === "darwin") {
-//     command = `open "${filePath}"`;
-//   } else {
-//     command = `xdg-open "${filePath}"`;
-//   }
-
-//   exec(command, (err) => {
-//     if (err) {
-//       log.error(`[pathResolver.js] [openFile]: Nie udało się otworzyć pliku: ${err.message}`);
-//       // Opcjonalnie: pokaż użytkownikowi komunikat w UI
-//       // showMessage("Plik zapisano, ale nie udało się go otworzyć automatycznie.");
-//     }
-//   });
-// }
-
 export async function openFile(filePath: string) {
   try {
     const result = await shell.openPath(filePath);

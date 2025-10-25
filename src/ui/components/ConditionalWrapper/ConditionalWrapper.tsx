@@ -1,8 +1,13 @@
 import { Loader } from "../Loader/Loader";
 
-export const ConditionalWrapper: React.FC<{
+interface ConditionalWrapperProps {
   isLoading: boolean;
   children: React.ReactNode;
-}> = ({ isLoading, children }) => {
+}
+
+export const ConditionalWrapper = ({
+  isLoading,
+  children,
+}: ConditionalWrapperProps) => {
   return isLoading ? <Loader /> : <>{children}</>;
 };

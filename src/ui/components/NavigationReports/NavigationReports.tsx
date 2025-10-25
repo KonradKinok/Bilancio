@@ -1,11 +1,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { useMainDataContext } from "../Context/useMainDataContext";
 import scss from "./NavigationReports.module.scss";
 
 export const NavigationReports: React.FC = () => {
-  const { auth } = useMainDataContext();
-
   return (
     <ul className={scss["reports-navigation"]}>
       <li>

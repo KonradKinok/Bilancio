@@ -319,6 +319,7 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
       if (db) {
         willClose = true;
         await db.close();
+        tray?.destroy();
         log.info("[main.js] [handleCloseEvents]: Baza danych została zamknięta.");
       }
     } catch (err) {

@@ -1,8 +1,8 @@
-import scss from "./ReportFormDateTimePickers.module.scss";
-import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
 import { useEffect, useState } from "react";
-import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
 import { Tooltip } from "react-tooltip";
+import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
+import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
+import scss from "./ReportFormDateTimePickers.module.scss";
 
 interface ReportFormDateTimePickersProps {
   reportCriteria: ReportCriteria;
@@ -24,7 +24,6 @@ export const ReportFormDateTimePickers: React.FC<
   const [checked, setChecked] = useState(checkbox.checked);
 
   useEffect(() => {
-    // if (!dateTimePickerFirstDate || !dateTimePickerLastDate) return;
     let errorMessage = "";
     if (
       dateTimePickerFirstDate &&

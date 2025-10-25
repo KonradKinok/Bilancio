@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { STATUS } from "../../../electron/sharedTypes/status";
 import { useToggle } from "../../hooks/useToggle";
+import { useMainDataContext } from "../Context/useMainDataContext";
 import { useDeleteInvoice } from "../../hooks/useDeleteInvoice";
 import { useRestoreInvoice } from "../../hooks/useRestoreInvoice";
 import {
@@ -13,7 +14,6 @@ import Pagination from "../Pagination/Pagination";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { ModalSelectionWindow } from "../ModalSelectionWindow/ModalSelectionWindow";
 import scss from "./MainTable.module.scss";
-import { useMainDataContext } from "../Context/useMainDataContext";
 
 interface MainTableProps {
   setFormValuesHomePage: React.Dispatch<

@@ -112,11 +112,11 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
       formValuesHomePage,
       setFormValuesHomePage,
       page,
-      setPage,
+      // setPage,
       rowsPerPage,
-      setRowsPerPage,
+      // setRowsPerPage,
       dotsNumber,
-      setDotsNumber,
+      // setDotsNumber,
       auth /*, allDocumentsData*/,
     ]
   );

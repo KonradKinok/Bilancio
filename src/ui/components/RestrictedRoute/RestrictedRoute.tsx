@@ -1,15 +1,17 @@
 import { Navigate } from "react-router-dom";
 import { useMainDataContext } from "../Context/useMainDataContext";
-import { use, useEffect, useState } from "react";
 import { Loader } from "../Loader/Loader";
 /**
- * - If the route is restricted and the user is logged in, render a <Navigate> to redirectTo
- * - Otherwise render the component
+ * Komponent chronionej trasy.
+ * - Jeśli użytkownik jest zalogowany, renderuje przekazany komponent.
+ * - Jeśli użytkownik nie jest zalogowany, przekierowuje na podany adres (redirectTo).
+ * - Jeśli trwa ładowanie stanu uwierzytelnienia, pokazuje Loader.
  */
 export interface RouteProps {
   component: React.ElementType;
   redirectTo?: string;
 }
+
 export const RestrictedRoute: React.FC<RouteProps> = ({
   component: Component,
   redirectTo = "/",

@@ -1,7 +1,7 @@
-import scss from "./TableReportStandardDocuments.module.scss";
+import { forwardRef, useEffect, useMemo } from "react";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import { currencyFormater } from "../GlobalFunctions/GlobalFunctions";
-import { forwardRef, useEffect, useMemo } from "react";
+import scss from "./TableReportStandardDocuments.module.scss";
 
 interface TableReportStandardDocumentsProps {
   dataReportStandardInvoices: ReportStandardInvoice[] | null;
@@ -23,21 +23,21 @@ export const TableReportStandardDocuments = forwardRef<
   ) => {
     const { options } = useMainDataContext();
 
-    useEffect(() => {
-      console.log(
-        "TableReportStandardDocuments: ",
-        JSON.stringify(reportDocumentsToTable, null, 2)
-      );
-    }, [reportDocumentsToTable]);
+    // useEffect(() => {
+    //   console.log(
+    //     "TableReportStandardDocuments: ",
+    //     JSON.stringify(reportDocumentsToTable, null, 2)
+    //   );
+    // }, [reportDocumentsToTable]);
 
     useEffect(() => {
-      // upewniamy się, że ref jest typu React.RefObject<HTMLTableElement>
+      // Przypisanie typu React.RefObject<HTMLTableElement> do ref
       const tableRef = ref as React.RefObject<HTMLTableElement>;
 
       if ((dataReportStandardInvoices?.length ?? 0) > 0 && tableRef.current) {
         tableRef.current.scrollIntoView({
           behavior: "smooth",
-          block: "start", // lub "center"
+          block: "start",
         });
       }
     }, [dataReportStandardInvoices, ref]);
@@ -86,19 +86,6 @@ export const TableReportStandardDocuments = forwardRef<
                 <th>Nazwa podtypu dokumentu</th>
                 <th>Liczba podtypu dokumentu</th>
                 <th>Suma cen podtypu dokumentu</th>
-                {/* <th>Lp.</th>
-                <th>Dokument</th>
-                <th>Ilość</th>
-                <th>Suma</th>
-                <th>Gł. typ</th>
-                <th>Ilość Gł. typ</th>
-                <th>Suma Gł. typ</th>
-                <th>Typ</th>
-                <th>Ilość Typ</th>
-                <th>Suma Typ</th>
-                <th>Podtyp</th>
-                <th>Ilość Podtyp</th>
-                <th>Suma Podtyp</th> */}
               </tr>
             </thead>
             <tbody>

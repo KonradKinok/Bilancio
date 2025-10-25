@@ -499,21 +499,6 @@ export const FormAddInvoice: React.FC<FormAddInvoiceProps> = ({
             />
           </div>
         </div>
-        {/* <p>Wybrana faktura: {JSON.stringify(selectedInvoice)}</p>
-        <p>Inna faktura: {JSON.stringify(addInvoiceData)}</p>
-        <p>Różnice w fakturach: {JSON.stringify(invoiceDifference)}</p>
-        <h2>Różnice w fakturach</h2>
-        <ul>
-          {invoiceDifference.map((diff, index) => (
-            <li key={index}>
-              <strong>{diff.key}</strong>:
-              <br />
-              Stara wartość: {JSON.stringify(diff.oldValue)}
-              <br />
-              Nowa wartość: {JSON.stringify(diff.newValue)}
-            </li>
-          ))}
-        </ul> */}
       </div>
       <ModalConfirmationSave
         addInvoiceData={addInvoiceData}

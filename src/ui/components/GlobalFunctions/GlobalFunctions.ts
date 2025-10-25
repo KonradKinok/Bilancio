@@ -63,11 +63,11 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
     }
   }
 
-  // Compare details arrays
+  // Porównanie szczegółów tablicy
   const maxLength = Math.max(oldInvoice.details.length, newInvoice.details.length);
   for (let i = 0; i < maxLength; i++) {
     if (i >= oldInvoice.details.length) {
-      // New details entry added
+      // Dodano nowy wpis szczegółów
       differences.push({
         key: `details[${i}]`,
         oldValue: null,
@@ -81,19 +81,6 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
         newValue: null,
       });
     } else {
-      // Compare properties of details entries
-      // const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
-      // for (const key of detailKeys) {
-      //   if (key === "InvoiceId") continue; // Skip DocumentId comparison
-      //   if (oldInvoice.details[i][key] !== newInvoice.details[i][key]) {
-      //     differences.push({
-      //       key: `details[${i}]`,
-      //       oldValue: oldInvoice.details[i],
-      //       newValue: newInvoice.details[i],
-      //     });
-      //     break; // Exit after the first difference in this detail
-      //   }
-      // }
       const detailKeys = Object.keys(oldInvoice.details[i]) as (keyof InvoiceDetailsTable)[];
       for (const key of detailKeys) {
         if (key === "InvoiceId") continue; // Pomijanie InvoiceId
@@ -111,9 +98,9 @@ export function compareInvoices(oldInvoice: InvoiceSave | undefined, newInvoice:
       }
     }
   }
-
   return differences;
 }
+
 
 type FormattedDetail = {
   documentName: string;
@@ -129,7 +116,6 @@ type FormattedDifference = {
   oldValue: FormattedDetail | null | unknown;
   newValue: FormattedDetail | null | unknown;
 };
-
 
 
 export function formatDocumentDetailsFunction(
@@ -168,7 +154,6 @@ export function formatDocumentDetailsFunction(
     };
   };
 }
-
 
 export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDocumentsName[] | null) {
   // Helper function to format a single InvoiceDetailsTable object
@@ -216,7 +201,7 @@ export function formatDocumentDetailsFunctionChanges(dataAllDocumentsName: AllDo
     };
   };
 
-  // Main function to format an array of Difference objects
+  // Główna funkcja formatowania tablicy do różnic obiektów
   return (differences: InvoicesDifferences[]): FormattedDifference[] => {
     return differences.map((difference) => {
       // Format only for keys matching details[i] (e.g., details[0], details[1])
@@ -254,8 +239,6 @@ export function getTodayFormattedDate(separator: string = "-"): string {
 }
 
 
-
-
 export function displayErrorMessage(componentName: string, functionName: string, error: unknown, isToast: boolean = true) {
   const errorMessage = error instanceof Error ? error.message : String(error);
   console.error(
@@ -269,7 +252,7 @@ export function displayErrorMessage(componentName: string, functionName: string,
   }
 }
 
-
+//Kopiowanie tabeli do schowka
 export function copyTableToClipboard(
   tableRef: React.RefObject<HTMLTableElement | null>
 ) {
@@ -290,7 +273,7 @@ export function copyTableToClipboard(
 
       window.electron.clipboard(htmlClean, textClean);
       const successTextToast =
-        "Tabela została skopiowana do schowka. Użyj skrótu Ctr+V żeby wkleić tabelę do pliku Word lub Excell";
+        "Tabela została skopiowana do schowka. Użyj skrótu Ctr+V żeby wkleić tabelę do pliku Word lub Excel.";
       toast.success(`${successTextToast} `);
     }
   } catch (err) {
@@ -302,51 +285,6 @@ export function copyTableToClipboard(
     );
   }
 };
-
-//REPORTS
-// export function reportStandardInvoicesAllDocumentsName(allInvoices: AllInvoices[]): ReportStandardInvoiceWithDocumentsName[] | null | undefined {
-//   if (!allInvoices || allInvoices.length === 0) {
-//     displayErrorMessage(
-//       "GlobalFunctions",
-//       "ReportStandardInvoicesAllDocumentsName",
-//       "allInvoices nie istnieje lub jest puste");
-//     return null
-//   };
-//   const reportStandardInvoiceWithDocumentsName = allInvoices.map((invoice) => {
-
-//     const reportStandardInvoiceWithDocumentsName = invoice.
-//     const invoiceName = dataAllDocumentsName.find(
-//       (doc) => doc.DocumentId === detail.DocumentId
-//     );
-//     return ({
-//       InvoiceName: invoice.InvoiceName,
-//       ReceiptDate: invoice.ReceiptDate,
-//       DeadlineDate: invoice.DeadlineDate,
-//     })
-//   }
-// const document = dataAllDocumentsName.find(
-//   (doc) => doc.DocumentId === detail.DocumentId
-// );
-// const mainType = detail.MainTypeId
-//   ? dataAllDocumentsName.find((doc) => doc.MainTypeId === detail.MainTypeId)
-//   : null;
-// const type = detail.TypeId
-//   ? dataAllDocumentsName.find((doc) => doc.TypeId === detail.TypeId)
-//   : null;
-// const subtype = detail.SubtypeId
-//   ? dataAllDocumentsName.find((doc) => doc.SubtypeId === detail.SubtypeId)
-//   : null;
-
-// return {
-//   documentName: document?.DocumentName ?? `Document Id: ${detail.DocumentId}`,
-//   mainTypeName: mainType?.MainTypeName ?? (detail.MainTypeId ? `Main Type ID: ${detail.MainTypeId}` : ""),
-//   typeName: type?.TypeName ?? (detail.TypeId ? `Type ID: ${detail.TypeId}` : ""),
-//   subtypeName: subtype?.SubtypeName ?? (detail.SubtypeId ? `Subtype ID: ${detail.SubtypeId}` : ""),
-//   quantity: detail.Quantity,
-//   price: detail.Price.toFixed(2),
-//   total: (detail.Quantity * detail.Price).toFixed(2),
-// };
-// }
 
 // Funkcja do poprawnej polskiej deklinacji słowa "pozycja"
 const pluralRules = new Intl.PluralRules("pl-PL");
@@ -379,12 +317,15 @@ export function pluralizeFaktura(count: number): string {
 // Funkcja pomocnicza do opóźnienia
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // await delay(5000); // czekamy 5 sekund
+
+
 //ACTIVITIES
 enum ActivityType {
   addInvoice = "dodanie faktury",
   editInvoice = "edycja faktury",
   deleteInvoice = "usunięcie faktury",
 }
+
 type UserActivitiesType = {
   date: string;
   userName: string;

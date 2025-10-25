@@ -3,12 +3,12 @@ import log from "electron-log";
 import { pathToFileURL } from "url";
 import { getUIPath } from "./pathResolver.js";
 
+//Sprawdza, czy aplikacja działa w trybie deweloperskim
 export function isDev(): boolean {
   return process.env.NODE_ENV === 'development';
 }
 
-
-
+//Rejestruje handler IPC dla danego kanału z argumentami.
 export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
   key: Key,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +22,7 @@ export function ipcMainHandle2<Key extends keyof EventPayloadMapping>(
   });
 }
 
+//Rejestruje handler IPC dla danego kanału bez argumentów.
 export function ipcMainHandle<Key extends keyof EventPayloadMapping>(
   key: Key,
   handler: () => Promise<EventPayloadMapping[Key]> | EventPayloadMapping[Key]
@@ -34,6 +35,7 @@ export function ipcMainHandle<Key extends keyof EventPayloadMapping>(
   });
 }
 
+//Rejestruje listener IPC (bez zwracania wartości).
 export function ipcMainOn<Key extends keyof EventPayloadMapping>(
   key: Key,
   handler: (payload: EventPayloadMapping[Key]) => void
@@ -46,7 +48,7 @@ export function ipcMainOn<Key extends keyof EventPayloadMapping>(
   });
 }
 
-
+//Wysyła dane do renderera przez WebContents.
 export function ipcWebContentsSend<Key extends keyof EventPayloadMapping>(
   key: Key,
   webContents: WebContents,
@@ -67,6 +69,7 @@ export function ipcWebContentsSend<Key extends keyof EventPayloadMapping>(
 //   }
 // }
 
+//Waliduje źródło zdarzenia IPC (ochrona przed złośliwymi ramkami).
 export function validateEventFrame(frame: WebFrameMain) {
   if (isDev() && new URL(frame.url).host === 'localhost:5123') {
     return;
@@ -75,8 +78,7 @@ export function validateEventFrame(frame: WebFrameMain) {
   const frameUrlBase = frame.url.split('#')[0];
   const uiPathUrl = pathToFileURL(getUIPath()).toString().split('#')[0];
   if (frameUrlBase !== uiPathUrl) {
-    log.error('validateEventFrame frame.url:', frame.url);
-    log.error('validateEventFrame pathToFileURL(getUIPath()):', pathToFileURL(getUIPath()).toString());
+    log.error(`[util] [validateEventFrame]: Adres ramki (${frame.url}) nie jest zgodny z oczekiwanym adresem interfejsu (${pathToFileURL(getUIPath()).toString()}).`);
     return;
   }
   //   const uiPathUrl = pathToFileURL(getUIPath()).toString();

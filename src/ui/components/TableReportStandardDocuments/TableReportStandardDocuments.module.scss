@@ -82,7 +82,6 @@
       transition: background-color 0.5s ease, transform 0.15s ease; // Animacja dla obu właściwości
 
       &:active {
-        // transition: 50ms linear;
         transform: scale(0.9);
       }
     }
@@ -107,7 +106,6 @@
   }
 
   .maintable-footer-container {
-
     display: flex;
     justify-content: space-around;
     background-color: var(--th-background-color);
@@ -117,13 +115,6 @@
     padding: 0.5rem;
     color: rgb(2, 247, 153);
     font-size: 0.8rem;
-    // .maintable-controls-container {
-    //   display: flex;
-    //   align-self: start;
-    //   justify-content: space-between;
-    //   gap: 50px;
-    // }
-
   }
 
   .small-font {

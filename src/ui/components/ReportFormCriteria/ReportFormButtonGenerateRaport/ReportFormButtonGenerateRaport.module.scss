@@ -9,11 +9,10 @@
       --button-gradient-second-color: rgb(17, 207, 11);
       flex-shrink: 0;
       width: 100%;
-      // margin: 10px;
       padding: 15px 30px;
       text-align: center;
       text-transform: uppercase;
-      transition: 0.5s;
+      transition: all 0.5s ease;
       background-size: 200% auto;
       color: white;
       border-radius: 10px;
@@ -28,23 +27,10 @@
       touch-action: manipulation;
     }
 
-    .button-generate-raport:hover {
-      background-position: right center;
-      /* change the direction of the change here */
-      color: #fff;
-      text-decoration: none;
-    }
-
-    // .button:active {
-    //   transform: scale(0.95);
-    // }
-
     .button-generate-raport:not(:disabled):focus,
     .button-generate-raport:not(:disabled):hover {
       background-position: right center;
-      /* change the direction of the change here */
-      color: rgb(255, 255, 255);
-      text-decoration: none;
+      transform: translateY(-1px);
     }
 
     .button-generate-raport:not(:disabled):active {

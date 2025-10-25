@@ -40,9 +40,10 @@
   --seventeenth-color: rgb(0, 255, 10); /* BrightGreen */
   --eighteenth-color: rgb(17, 145, 15); /* MediumGreen */
   --nineteenth-color: rgb(17, 207, 11); /* VividGreen */
-
-  /* radio-button */
-
+  --twentieth-color: rgb(0, 0, 0, 0.8); /* Black */
+  --twenty-first-color: rgb(0, 110, 0); /*Green */
+  /* navigation */
+  --navigation-submenu-background: var(--twenty-first-color); /*White*/
   /* dateTimePicker */
   --dateTimePicker-month: var(--fourth-color); /*PaleTurquoise */
   --dateTimePicker-day-color: var(--first-color); /*Indygo */
@@ -102,7 +103,8 @@
   /* Pagination */
   --pagination-item-hover-disabled-select-background: var(--thirteenth-color);
   --pagination-item-color: var(--fourteenth-color); /*Indygo */
-
+  /* Modal */
+  --modal-overlay-background: var(--twentieth-color);
   /* ReportPage */
   --reportPage-text-color: var(--seventeenth-color);
   --reportPage-text-color-hover: var(--fourteenth-color);

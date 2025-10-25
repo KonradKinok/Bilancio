@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
+import { useMainDataContext } from "../Context/useMainDataContext";
 import { useToggle } from "../../hooks/useToggle";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { IconInfo } from "../IconInfo/IconInfo";
 import scss from "./FormHomeDate.module.scss";
-import { useMainDataContext } from "../Context/useMainDataContext";
 
-interface FormHomeDate {
+interface FormHomeDateProps {
   formValuesHomePage: FormValuesHomePage;
   setFormValuesHomePage: React.Dispatch<
     React.SetStateAction<FormValuesHomePage>
@@ -16,7 +16,7 @@ interface FormHomeDate {
   refetchAllInvoices: () => void;
 }
 
-export const FormHomeDate: React.FC<FormHomeDate> = ({
+export const FormHomeDate: React.FC<FormHomeDateProps> = ({
   formValuesHomePage,
   setFormValuesHomePage,
   refetchAllInvoices,
@@ -51,22 +51,8 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
       secondDate: dateTimePickerLastDate,
       isDeleted: radioButtonIsDeleted,
     }));
-    setPage(1); // Reset page to 1 on form submission
+    setPage(1); // Resetowanie strony do 1 przy form submitcie
   };
-
-  // Synchronizacja z formValuesHomePage
-  // useEffect(() => {
-  //   if (dateTimePickerFirstDate !== formValuesHomePage.firstDate) {
-  //     setDateTimePickerFirstDate(formValuesHomePage.firstDate);
-  //   }
-  //   if (dateTimePickerLastDate !== formValuesHomePage.secondDate) {
-  //     setDateTimePickerLastDate(formValuesHomePage.secondDate);
-  //   }
-  //   if (radioButtonIsDeleted !== formValuesHomePage.isDeleted) {
-  //     setRadioButtonIsDeleted(formValuesHomePage.isDeleted || 0);
-  //   }
-  // // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [formValuesHomePage]);
 
   useEffect(() => {
     if (
@@ -154,10 +140,10 @@ export const FormHomeDate: React.FC<FormHomeDate> = ({
 };
 
 function tooltipInfoFormHomeDateTekst() {
-  const text = `Formularz wyboru daty.
+  const text = `📆 Formularz wyboru daty.
   Umożliwia wybór początkowej i końcowej daty wpływu faktury oraz opcjonalne wyświetlenie usuniętych elementów.
   Wybierz daty, kliknij przycisk "Pokaż", aby zastosować zmiany.
-  Uwaga! Data początkowa nie może być późniejsza niż data końcowa.
+  ⚠️ Data początkowa nie może być późniejsza niż data końcowa.
   Przycisk "Dodaj fakturę" służy do otwarcia okna, w którym można dodać fakturę.`;
   return text.replace(/\n/g, "<br/>");
 }

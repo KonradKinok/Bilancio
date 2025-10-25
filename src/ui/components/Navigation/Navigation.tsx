@@ -1,14 +1,12 @@
-import { useEffect, useState } from "react";
-import { NavLink, redirect, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { Tooltip } from "react-tooltip";
 import { IoSettingsSharp } from "react-icons/io5";
 import { FaDatabase } from "react-icons/fa";
 import { RxFontSize } from "react-icons/rx";
-import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
 import { useMainDataContext } from "../Context/useMainDataContext";
-import scss from "./Navigation.module.scss";
 import { useCheckStatusDatabase } from "../../hooks/useCheckStatusDatabase";
-import { Tooltip } from "react-tooltip";
-import { ConditionalWrapper } from "../ConditionalWrapper/ConditionalWrapper";
+import { LogoBilancio } from "../LogoBilancio/LogoBilancio";
+import scss from "./Navigation.module.scss";
 
 const sizes: Lang[] = [
   { en: "small", pl: "mała" },
@@ -38,10 +36,6 @@ export const Navigation: React.FC = () => {
       return prev;
     });
   };
-
-  useEffect(() => {
-    console.log("dataStatusDatabase: ", dataStatusDatabase);
-  }, [dataStatusDatabase, loadingStatusDatabase]);
 
   return (
     <nav className={scss["navigation-main-container"]}>
@@ -85,8 +79,8 @@ export const Navigation: React.FC = () => {
         >
           <RxFontSize />
         </div>
-        {/* <ConditionalWrapper isLoading={loadingStatusDatabase}> */}
         <div
+          onClick={checkStatusDatabase}
           className={`${scss["icon-container-db"]}`}
           data-status={dataStatusDatabase?.status}
           data-tooltip-id={"tooltip-navigation-database-status"}
@@ -97,7 +91,6 @@ export const Navigation: React.FC = () => {
         >
           <FaDatabase />
         </div>
-        {/* </ConditionalWrapper> */}
         <div className={scss["user-label-container"]}>
           <p className={`${scss["user-label"]}`}>
             <span className={`${scss["first-span"]} ${scss["animate"]}`}>
@@ -139,13 +132,13 @@ export const Navigation: React.FC = () => {
 
 //Tooltip Ustawienia
 function tooltipNavigationSettings(): string {
-  const text = `Ustawienia`;
+  const text = `🛠️ Ustawienia`;
   return text;
 }
 
 //Tooltip Wielkość czcionki
 function tooltipNavigationFontSize(fontSizeText: string) {
-  const text = `Wielkość czcionki: ${fontSizeText}`;
+  const text = `🔁 Wielkość czcionki: ${fontSizeText}`;
   return text;
 }
 
@@ -158,16 +151,16 @@ function tooltipNavigationDatabaseStatus(
   if (dataStatusDatabase) {
     switch (dataStatusDatabase.status) {
       case 0:
-        text = `Status bazy danych: Błąd połączenia.`;
+        text = `🟠 Status bazy danych: Błąd połączenia.`;
         break;
       case 1:
-        text = `Status bazy danych: Tylko do odczytu.`;
+        text = `🟡 Status bazy danych: Tylko do odczytu.`;
         break;
       case 2:
-        text = `Status bazy danych: OK.`;
+        text = `🟢 Status bazy danych: OK.`;
         break;
       default:
-        text = `Status bazy danych: Nieznany.`;
+        text = `🟠 Status bazy danych: Nieznany.`;
         break;
     }
   }

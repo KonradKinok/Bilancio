@@ -17,7 +17,6 @@
     visibility: visible;
     opacity: 1;
     transition: opacity 0.5s ease-in-out, visibility 0s;
-    // cursor: url('../../images/videoModal/exit-sign-svgrepo-com.svg'), auto;
   }
 
   .modal {
@@ -27,7 +26,7 @@
     width: 90%;
     max-width: 910px;
     max-height: 80vh;
-    border: 2px solid white;
+    border: 2px solid rgb(255, 255, 255);
     overflow-y: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -59,7 +58,7 @@
     }
 
     .error-message {
-      color: #dc3545;
+      color: rgb(220, 53, 69);
       font-size: 0.9rem;
     }
   }
@@ -72,23 +71,23 @@
 
     th,
     td {
-      border: 1px solid #00ff0d;
+      border: 1px solid rgb(0, 255, 13);
       padding: 8px;
       text-align: left;
 
       .modal-table-deleted-data {
         text-decoration: line-through;
-        color: #ff0000;
+        color: rgb(255, 0, 0);
       }
     }
 
     th {
-      background-color: #009700;
+      background-color: rgb(0, 151, 0);
       font-weight: bold;
     }
 
     .invalid-row {
-      background-color: #ffe6e6;
+      background-color: rgb(255, 230, 230);
     }
   }
 

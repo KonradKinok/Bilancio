@@ -3,7 +3,7 @@ import log from "electron-log";
 import { jsPDF } from "jspdf";
 import { autoTable } from 'jspdf-autotable'
 import ExcelJS from "exceljs";
-import { STATUS, DataBaseResponse, isSuccess } from "./sharedTypes/status.js";
+import { STATUS, DataBaseResponse } from "./sharedTypes/status.js";
 import { getDb, getFormattedDate, isValidDate, logTitle } from "./dataBase/dbFunction.js";
 import { QueryParams } from "./dataBase/dbClass.js";
 import { getSavedDocumentsPathWithCustomFile, openFile } from "./pathResolver.js";

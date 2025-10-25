@@ -17,7 +17,6 @@
    cursor: help;
    user-select: none;
 
-
    &>svg {
      color: var(--color);
      transition: color .75s cubic-bezier(.4, 0, .2, 1);
@@ -25,11 +24,8 @@
    }
 
    &:hover {
-
-     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
      >svg {
        color: var(--color-hover);
-
      }
    }
  }

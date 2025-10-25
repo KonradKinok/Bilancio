@@ -31,7 +31,7 @@ export function useCheckStatusDatabase() {
     }
   };
 
-  // 🌟 Automatyczne wywołanie przy montowaniu hooka
+  //Automatyczne wywołanie przy montowaniu hooka
   useEffect(() => {
     checkStatusDatabase();
   }, []);

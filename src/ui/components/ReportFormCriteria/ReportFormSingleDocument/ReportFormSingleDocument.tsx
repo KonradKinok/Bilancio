@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
-import { Tooltip } from "react-tooltip";
-import { FaPlus } from "react-icons/fa";
-import { FaMinus } from "react-icons/fa";
-import { DateTimePicker } from "../../DateTimePicker/DateTimePicker";
+import { useToggle } from "../../../hooks/useToggle";
 import { CheckboxRegular } from "../../CheckboxRegular/CheckboxRegular";
 import scss from "./ReportFormSingleDocument.module.scss";
-import { useToggle } from "../../../hooks/useToggle";
 
 interface ReportFormSingleDocumentProps {
   id: string;
@@ -22,8 +18,7 @@ export const ReportFormSingleDocument = ({
   onToggleCheckbox,
   children,
 }: ReportFormSingleDocumentProps) => {
-  const { isOpenModal: isResizeText, toggleModal: toogleText } = useToggle();
-  const [checked, setChecked] = useState(checkbox.checked);
+  const { isOpenModal: isResizeText, toggleModal: toggleText } = useToggle();
   const [hasChildren, setHasChildren] = useState(false);
 
   useEffect(() => {
@@ -37,9 +32,6 @@ export const ReportFormSingleDocument = ({
   const handleSetChecked: React.Dispatch<React.SetStateAction<boolean>> = (
     val
   ) => {
-    // ustaw lokalny stan
-    // setChecked(val as boolean);
-    // wywołaj callback do rodzica
     if (typeof val === "boolean") {
       onToggleCheckbox?.(id, val);
     }
@@ -56,10 +48,10 @@ export const ReportFormSingleDocument = ({
           />
         </div>
         <div
-          onClick={toogleText}
+          onClick={toggleText}
           className={`${scss["description-container"]} ${
             hasChildren ? scss["description-container-cursor"] : ""
-          }`}
+          } ${!checkbox.checked ? scss["inactive-component"] : ""}`}
         >
           <p>
             {name} <sup>{hasChildren ? `(${children?.length})` : null}</sup>

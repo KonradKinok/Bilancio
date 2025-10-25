@@ -1430,6 +1430,18 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
       };
     }
 
+    const checkDatabase = checkStatusDatabase();
+    if (checkDatabase.status === 0) {
+      const message = `Nie odnaleziono bazy danych.`;
+      log.error(
+        `[dbFunction.js] [${functionName}] [${systemUserName}] ${message}`
+      );
+      return {
+        status: STATUS.Error,
+        message: message,
+      };
+    }
+
     if (process.env.FIRST_LOGIN === "WKM2026") {
       return {
         status: STATUS.Success,
@@ -1444,6 +1456,7 @@ export async function getUserBySystemName(): Promise<DataBaseResponse<User>> {
         } as User,
       };
     }
+
     const query = `SELECT UserId, UserSystemName, UserDisplayName, UserPassword, UserRole 
                    FROM Users 
                    WHERE LOWER(UserSystemName) = LOWER(?) AND IsDeleted = 0`;
@@ -1508,14 +1521,6 @@ export async function displayUserNameForLog(): Promise<string> {
 }
 
 //Funkcja do konstrukcji logów
-// export function logTitle(
-//   functionName: string,
-//   message: string,
-//   displayUserNameLog: string = displayUserName
-// ): string {
-//   const title = `[${fileName}] [${functionName}] [${displayUserNameLog}]: ${message}`;
-//   return title;
-// }
 export function logTitle(
   functionName: string,
   message: string,
@@ -1529,6 +1534,7 @@ export function logTitle(
 
   return `[${finalFileName}] [${functionName}] [${finalDisplayUserName}]: ${message}`;
 }
+
 //Funkcja do formatowania daty (YYYY-MM-DD lub DD.MM.YYYY)
 export const getFormattedDate = (date: Date | null, separator: string = ".", format: "day" | "year" = "day"): string | null => {
   if (!date) return null;

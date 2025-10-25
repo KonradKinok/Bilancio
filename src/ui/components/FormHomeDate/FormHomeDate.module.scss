@@ -9,7 +9,6 @@
       0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 2px 1px -1px rgba(0, 0, 0, 0.12);
     border-radius: 1rem;
     position: relative;
-
   }
 
   .dateTimePicker-main-container {
@@ -33,13 +32,14 @@
     align-items: end;
 
     .button {
-      --button-gradient-first-color: rgb(0, 0, 255);
-      --button-gradient-second-color: rgb(0, 100, 255);
-      // margin: 10px;
+      // --button-gradient-first-color: rgb(0, 0, 255);
+      // --button-gradient-second-color: rgb(0, 100, 255);
+      --button-gradient-first-color: rgb(17, 145, 15);
+      --button-gradient-second-color: rgb(17, 207, 11);
       padding: 15px 30px;
       text-align: center;
       text-transform: uppercase;
-      transition: 0.5s;
+      transition: all 0.5s ease;
       background-size: 200% auto;
       color: white;
       border-radius: 10px;
@@ -54,23 +54,10 @@
       touch-action: manipulation;
     }
 
-    .button:hover {
-      background-position: right center;
-      /* change the direction of the change here */
-      color: #fff;
-      text-decoration: none;
-    }
-
-    // .button:active {
-    //   transform: scale(0.95);
-    // }
-
     button:not(:disabled):focus,
     button:not(:disabled):hover {
       background-position: right center;
-      /* change the direction of the change here */
-      color: rgb(255, 255, 255);
-      text-decoration: none;
+      transform: translateY(-1px);
     }
 
     button:not(:disabled):active {
@@ -124,14 +111,5 @@
 
   .tooltip-error {
     background-color: var(--tooltip-error-background);
-  }
-}
-
-//media
-@media print {
-
-  //Ukrywamy element
-  .container-form {
-    display: none;
   }
 }

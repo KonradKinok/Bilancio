@@ -100,7 +100,7 @@ export const ModalConfirmationSave: React.FC<ModalConfirmationSaveProps> = ({
 };
 
 function tooltipInfoFormAddInvoice() {
-  const text = `Formularz potwierdzenia zapisu faktury.
+  const text = `📃 Formularz potwierdzenia zapisu faktury.
   Kliknięcie przycisku "Zapisz" zapisuje dane faktury do bazy danych.
   Kliknięcie przycisku "Anuluj" zamyka okno potwierdzenia zapisu faktury i powraca do okna edycji danych faktury.`;
   return text.replace(/\n/g, "<br/>");

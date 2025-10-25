@@ -2,7 +2,6 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import scss from "./NavigationSettings.module.scss";
-import { useCheckStatusDatabase } from "../../hooks/useCheckStatusDatabase";
 
 export const NavigationSettings: React.FC = () => {
   const { auth } = useMainDataContext();

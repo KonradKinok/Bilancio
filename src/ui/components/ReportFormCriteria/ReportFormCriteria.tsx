@@ -1,8 +1,7 @@
 import { ReportFormDateTimePickers } from "./ReportFormDateTimePickers/ReportFormDateTimePickers";
-import scss from "./ReportFormCriteria.module.scss";
-import { use, useEffect, useState } from "react";
 import { ReportFormButtonGenerateRaport } from "./ReportFormButtonGenerateRaport/ReportFormButtonGenerateRaport";
 import { ReportFormSingleDocument } from "./ReportFormSingleDocument/ReportFormSingleDocument";
+import scss from "./ReportFormCriteria.module.scss";
 
 interface ReportFormCriteriaProps {
   reportCriteria: ReportCriteria[];
@@ -88,7 +87,7 @@ export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
   );
 };
 
-// Definiuj typ TreeNode, aby obsłużyć wszystkie poziomy drzewa
+// Definiowanie typ TreeNode, aby obsłużyć wszystkie poziomy drzewa
 type TreeNode =
   | ReportCriteriaAllDocuments
   | ReportCriteriaAllDocuments["documents"][number]
@@ -96,13 +95,14 @@ type TreeNode =
   | ReportCriteriaAllDocuments["documents"][number]["mainTypes"][number]["types"][number]
   | ReportCriteriaAllDocuments["documents"][number]["mainTypes"][number]["types"][number]["subtypes"][number];
 
+// Funkcja do aktualizacji stanu zaznaczenia checkboxów w drzewie
 function updateChecked(
   nodes: ReportCriteriaAllDocuments[],
   nodeId: string,
   checked: boolean
 ): ReportCriteriaAllDocuments[] {
   const updateNode = (node: TreeNode): TreeNode => {
-    // Sprawdź, czy to ten node (porównaj po wszystkich możliwych ID)
+    // Sprawdzenie, czy to ten node (porównanie po wszystkich możliwych ID)
     if (
       ("id" in node && node.id === nodeId) ||
       ("documentId" in node && node.documentId === nodeId) ||
@@ -110,11 +110,11 @@ function updateChecked(
       ("typeId" in node && node.typeId === nodeId) ||
       ("subtypeId" in node && node.subtypeId === nodeId)
     ) {
-      // Propaguj w dół (ustaw checked na tym nodzie i wszystkich dzieciach)
+      // Propagacja w dół (ustawienie checked na tym nodzie i wszystkich dzieciach)
       return propagateDown(node, checked);
     }
 
-    // Rekurencyjnie aktualizuj dzieci i recalculuj rodzica
+    // Rekurencyjna aktualizacja dzieci i rekalkulacja rodzica
     if ("documents" in node) {
       const updatedDocs = node.documents.map(
         updateNode
@@ -161,6 +161,7 @@ function updateChecked(
   return nodes.map(updateNode) as ReportCriteriaAllDocuments[];
 }
 
+// Funkcja do propagacji zmiany checked w dół drzewa
 function propagateDown(node: TreeNode, checked: boolean): TreeNode {
   const newNode = {
     ...node,

@@ -5,7 +5,6 @@ import { useMainDataContext } from "../Context/useMainDataContext";
 import { useToggle } from "../../hooks/useToggle";
 import { getFormatedDate } from "../GlobalFunctions/GlobalFunctions";
 import scss from "./ReportConditionsFulfilled.module.scss";
-import { use, useEffect, useMemo } from "react";
 
 interface ReportConditionsFulfilledProps {
   reportCriteriaToDb: ReportCriteriaToDb[];

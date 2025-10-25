@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { ElectronContextType } from "./ElectronProvider";
 
-// Tworzymy kontekst z typem ImageContextType
+// Tworzymy kontekst z typem ElectrobContextType
 export const ElectronContext = createContext<ElectronContextType | undefined>(
   undefined
 );
@@ -12,7 +12,7 @@ export const useMainDataContext = (): ElectronContextType => {
 
   // Jeśli kontekst nie jest dostępny, rzucamy błąd (zapobiegamy używaniu poza providerem)
   if (!context) {
-    throw new Error("useOptionsImage must be used within an ImageProvider.");
+    throw new Error("Hook useMainDataContext musi być używany wewnątrz ElectronProvider.");
   }
 
   return context;
