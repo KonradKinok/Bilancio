@@ -2,7 +2,7 @@
   --checkbox-checked-background: var(--checkbox-slider-checked-background);
   --checkbox-unchecked-background: var(--checkbox-slider-unchecked-background);
   --checkbox-unchecked-hover-background: var(--checkbox-slider-unchecked-hover-background);
-  --checkbox-color-circle: rgb(255, 255, 255);
+  --checkbox-color-circle: var(--checkbox-slider-color-circle-background);
   width: 100%;
   display: flex;
   flex-flow: column nowrap;

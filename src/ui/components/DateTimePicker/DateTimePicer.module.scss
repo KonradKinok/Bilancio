@@ -32,10 +32,15 @@
 }
 
 .input-button {
-    border: 2px solid var(--dateTimePicker-input-button-border);
+    --input-button-border-color: var(--dateTimePicker-input-button-border);
+    --input-button-color: var(--dateTimePicker-input-button-color);
+    --input-button-background: var(--dateTimePicker-input-button-background);
+    --input-button-background-hover: var(--dateTimePicker-input-button-hover-background);
+
+    border: 2px solid var(--input-button-border-color);
     border-radius: 5px;
-    background-color: var(--dateTimePicker-input-button-background);
-    color: var(--dateTimePicker-input-button-color);
+    background-color: var(--input-button-background);
+    color: var(--input-button-color);
     width: 145px;
     text-align: center;
     padding: 6px;
@@ -44,15 +49,18 @@
     font-size: 1rem;
     font-weight: 300;
     transition: background-color .25s cubic-bezier(.4, 0, .2, 1);
+
+    &:hover {
+        background-color: var(--input-button-background-hover);
+    }
 }
 
-.input-button:hover {
-    background-color: var(--dateTimePicker-input-button-hover-background);
-}
+
 
 .icon {
+    --icon-color: var(--dateTimePicker-icon-color);
     cursor: pointer;
-    color: var(--dateTimePicker-icon-color);
+    color: var(--icon-color);
     font-size: 1rem;
 }
 

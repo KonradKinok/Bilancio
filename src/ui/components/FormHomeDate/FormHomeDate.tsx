@@ -76,6 +76,8 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
               dateTimePickerDate={dateTimePickerFirstDate}
               setDateTimePickerDate={setDateTimePickerFirstDate}
               isClearable={false}
+              classNameButton={scss["custom-date-button"]}
+              classNameIcon={scss["icon-date-button"]}
             />
           </div>
           <div className={scss["dateTimePicker-container"]}>
@@ -84,6 +86,8 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
               dateTimePickerDate={dateTimePickerLastDate}
               setDateTimePickerDate={setDateTimePickerLastDate}
               isClearable={false}
+              classNameButton={scss["custom-date-button"]}
+              classNameIcon={scss["icon-date-button"]}
             />
           </div>
           <div>

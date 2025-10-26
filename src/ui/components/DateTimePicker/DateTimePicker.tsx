@@ -17,6 +17,8 @@ interface DateTimePickerProps {
   isClearable?: boolean;
   name?: string;
   id?: string;
+  classNameButton?: string;
+  classNameIcon?: string;
 }
 
 interface CustomInputProps {
@@ -35,6 +37,8 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   isClearable = true,
   name = "dateTimePicker",
   id = "dateTimePicker",
+  classNameButton = "",
+  classNameIcon = "",
 }) => {
   const [calendarLanguage, setCalendarLanguage] = useState(pl);
   const MyContainer: React.FC<MyContainerProps> = ({ className, children }) => {
@@ -57,7 +61,11 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
   return (
     <DatePicker
-      customInput={<ExampleCustomInput className={scss["input-button"]} />}
+      customInput={
+        <ExampleCustomInput
+          className={`${scss["input-button"]} ${classNameButton}`}
+        />
+      }
       dateFormat="dd.MM.yyyy"
       showIcon
       toggleCalendarOnIconClick
@@ -71,7 +79,7 @@ export const DateTimePicker: React.FC<DateTimePickerProps> = ({
       popperContainer={PopperContainer} //sprawia że portalId="root" działa na modalach
       portalId="root" //<-- to przenosi kalendarz na samą górę drzewa DOM, czyli nad wszystkie elementy (nie działa w modalach)
       locale={calendarLanguage}
-      icon={<FaRegCalendarAlt className={scss.icon} />}
+      icon={<FaRegCalendarAlt className={`${scss["icon"]} ${classNameIcon}`} />}
       calendarClassName={scss["month-container"]} //months style
       weekDayClassName={() => scss["week-day"]}
       dayClassName={(date) => {

@@ -40,6 +40,8 @@
   --seventeenth-color: rgb(0, 255, 10); /* BrightGreen */
   --eighteenth-color: rgb(17, 145, 15); /* MediumGreen */
   --nineteenth-color: rgb(17, 207, 11); /* VividGreen */
+  --nineteenth-color-alpha-five: rgba(17, 207, 11, 0.5); /* VividGreen */
+  --nineteenth-color-alpha-two: rgba(17, 207, 11, 0.2); /* VividGreen */
   --twentieth-color: rgb(0, 0, 0, 0.8); /* Black */
   --twenty-first-color: rgb(0, 110, 0); /*Green */
   /* navigation */
@@ -61,11 +63,16 @@
   --dateTimePicker-input-button-background: var(--third-color); /*LightCyan */
   --dateTimePicker-input-button-border: var(--first-color); /*Indygo */
   --dateTimePicker-input-button-hover-background: var(--fourth-color);
+
   /* checkbox*/
-  --checkbox-slider-checked-background: var(--first-color);
-  --checkbox-slider-unchecked-background: var(--first-color-alpha-two);
-  --checkbox-slider-unchecked-hover-background: var(--first-color-alpha-five);
-  /* checkbox*/
+  --checkbox-slider-checked-background: var(--nineteenth-color);
+  --checkbox-slider-unchecked-background: var(--nineteenth-color-alpha-two);
+  --checkbox-slider-unchecked-hover-background: var(
+    --nineteenth-color-alpha-five
+  );
+  --checkbox-slider-color-circle-background: var(--fifth-color);
+
+  /* formHomeDate*/
   --vertical-line-color: var(--eighth-color);
 
   /* checkbox-regular*/
