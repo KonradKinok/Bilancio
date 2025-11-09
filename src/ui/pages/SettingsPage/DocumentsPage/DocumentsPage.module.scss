@@ -9,7 +9,6 @@
   --font-size-medium: var(--medium-font-size);
   --font-size-large: var(--large-font-size);
 
-
   position: relative;
   display: flex;
   flex-direction: column;
@@ -57,8 +56,6 @@
         background-color: var(--tr-hover-background-color);
       }
     }
-
-
   }
 
   .small-font {
@@ -83,5 +80,10 @@
     border-bottom-right-radius: 0.5rem;
     padding: 0.5rem;
     color: rgb(2, 247, 153);
+  }
+
+  .tooltip {
+    z-index: 999;
+    font-size: 0.9rem;
   }
 }

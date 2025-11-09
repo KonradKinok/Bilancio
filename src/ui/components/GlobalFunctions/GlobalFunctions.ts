@@ -1,5 +1,5 @@
 import toast from "react-hot-toast";
-
+import * as DataBaseTables from "../../../electron/dataBase/enum";
 //Suma ceny faktury
 export function calculateTotalAmount(quantities: string[], prices: string[]): string {
   // Sprawdź, czy tablice są poprawne i mają tę samą długość
@@ -313,7 +313,57 @@ export function pluralizeFaktura(count: number): string {
   return `${count} ${forms[rule]}`;
 }
 
-
+// Domyślne kryteria raportu (ReportStandardDocumentsPage i ReportStandardInvoicePage)
+export const reportCriteriaArray: ReportCriteria[] = [
+  {
+    id: DataBaseTables.InvoicesTable.ReceiptDate,
+    description: "Data wystawienia faktury",
+    checkbox: { checked: true, name: "receiptDateCheckbox" },
+    firstDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      dtpLabelText: "od",
+      dtpName: "receiptFirstDate",
+    },
+    secondDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
+      dtpLabelText: "do",
+      dtpName: "receiptLastDate",
+    },
+    errorMessage: "",
+  },
+  {
+    id: DataBaseTables.InvoicesTable.DeadlineDate,
+    description: "Termin płatności",
+    checkbox: { checked: true, name: "deadlineDateCheckbox" },
+    firstDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      dtpLabelText: "od",
+      dtpName: "deadlineFirstDate",
+    },
+    secondDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
+      dtpLabelText: "do",
+      dtpName: "deadlineLastDate",
+    },
+    errorMessage: "",
+  },
+  {
+    id: DataBaseTables.InvoicesTable.PaymentDate,
+    description: "Data płatności",
+    checkbox: { checked: true, name: "paymentDateCheckbox" },
+    firstDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
+      dtpLabelText: "od",
+      dtpName: "paymentFirstDate",
+    },
+    secondDtp: {
+      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
+      dtpLabelText: "do",
+      dtpName: "paymentLastDate",
+    },
+    errorMessage: "",
+  },
+];
 // Funkcja pomocnicza do opóźnienia
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // await delay(5000); // czekamy 5 sekund

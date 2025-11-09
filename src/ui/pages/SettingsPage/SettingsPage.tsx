@@ -1,12 +1,10 @@
 import { Suspense } from "react";
-import { NavLink, Outlet } from "react-router-dom";
-import { useAllInvoices } from "../../hooks/useAllInvoices";
-import scss from "./SettingsPage.module.scss";
+import { Outlet } from "react-router-dom";
 import { NavigationSettings } from "../../components/NavigationSettings/NavigationSettings";
 import { Loader } from "../../components/Loader/Loader";
+import scss from "./SettingsPage.module.scss";
+
 const SettingsPage: React.FC = () => {
-  // const { data: dataAllInvoices } = useAllInvoices();
-  // console.log("ReportDataPage data", dataAllInvoices);
   return (
     <div>
       <div className={scss[""]}>
@@ -19,7 +17,6 @@ const SettingsPage: React.FC = () => {
           </Suspense>
         </div>
       </div>
-      {/* <Toaster position="top-right" reverseOrder={false} /> */}
     </div>
   );
 };

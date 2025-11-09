@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
-import { currencyFormater } from "../../../../components/GlobalFunctions/GlobalFunctions";
-import scss from "./SeparateDocument.module.scss";
-import { spacing } from "react-select/dist/declarations/src/theme";
 import { TextInput } from "../../../../components/TextInput/TextInput";
-import { Tooltip } from "react-tooltip";
+import scss from "./SeparateDocument.module.scss";
 
 interface SeparateDocumentProps {
   isNewDocument?: boolean;
@@ -40,8 +37,6 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
   handleDeleteRestoreDocument,
   handleIsSaveButtonEnabled,
 }) => {
-  // Domyślny stan
-
   const [editId, setEditId] = useState<string | null>(null);
   const [editedDocument, setEditedDocument] =
     useState<AllDocumentsName>(document);
@@ -57,7 +52,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     useState<string>("");
   const [inputPriceError, setInputPriceError] = useState<string>("");
 
-  // Synchronizuj stany z propem document, gdy się zmieni
+  // Synchronizowanie stanów z propem document, gdy się zmieni
   useEffect(() => {
     setOriginalDocument(document);
     setEditedDocument(document);
@@ -76,6 +71,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       setInputPriceError("");
     }
   };
+
   const isSaveButtonDisabled = () => {
     if (
       !editedDocument.DocumentName.trim() ||
@@ -88,8 +84,9 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       return true;
     return handleIsSaveButtonEnabled(editedDocument);
   };
+
   const handleSaveEditedDocument = () => {
-    // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
+    // Wywołanie saveEditedDocument i przekazanie funkcji onSuccess
     saveEditedDocument(isNewDocument, editedDocument, () => {
       setEditId(null); // Aktualizacja stanu po sukcesie
       setOriginalDocument(editedDocument); // Aktualizacja stanu po sukcesie
@@ -383,7 +380,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
 };
 
 function toolTipSeparateDocumentButtonSave(isNewDocument: boolean) {
-  const text = `Przycisk zapisu dokumentu zostanie uaktywniony
+  const text = `⛔ Przycisk zapisu dokumentu zostanie uaktywniony
   po prawidłowym uzupełnieniu pól formularza ${
     !isNewDocument ? " i wykryciu zmian w dokumencie" : ""
   }.`;

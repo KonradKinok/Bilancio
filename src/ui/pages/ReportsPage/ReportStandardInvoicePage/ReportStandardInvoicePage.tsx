@@ -9,6 +9,7 @@ import {
   copyTableToClipboard,
   displayErrorMessage,
   pluralizeFaktura,
+  reportCriteriaArray,
 } from "../../../components/GlobalFunctions/GlobalFunctions";
 import { Loader } from "../../../components/Loader/Loader";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
@@ -17,57 +18,6 @@ import { TableReportStandardInvoice } from "../../../components/TableReportStand
 import { ReportConditionsFulfilled } from "../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../components/ButtonsExportData/ButtonsExportData";
 import scss from "./ReportStandardInvoicePage.module.scss";
-
-const reportCriteriaArray: ReportCriteria[] = [
-  {
-    id: DataBaseTables.InvoicesTable.ReceiptDate,
-    description: "Data wystawienia faktury",
-    checkbox: { checked: true, name: "receiptDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "receiptFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "receiptLastDate",
-    },
-    errorMessage: "",
-  },
-  {
-    id: DataBaseTables.InvoicesTable.DeadlineDate,
-    description: "Termin płatności",
-    checkbox: { checked: true, name: "deadlineDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "deadlineFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "deadlineLastDate",
-    },
-    errorMessage: "",
-  },
-  {
-    id: DataBaseTables.InvoicesTable.PaymentDate,
-    description: "Data płatności",
-    checkbox: { checked: true, name: "paymentDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "paymentFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "paymentLastDate",
-    },
-    errorMessage: "",
-  },
-];
 
 const ReportStandardInvoicePage: React.FC = () => {
   const tableRef = useRef<HTMLTableElement>(null);

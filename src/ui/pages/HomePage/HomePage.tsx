@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { useAllInvoices } from "../../hooks/useAllInvoices";
 import { useMainDataContext } from "../../components/Context/useMainDataContext";
 import { MainTable } from "../../components/MainTable/MainTable";
@@ -5,6 +6,11 @@ import { FormHomeDate } from "../../components/FormHomeDate/FormHomeDate";
 import { ConditionalWrapper } from "../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./HomePage.module.scss";
 
+/**
+ * Komponent głównej strony aplikacji (HomePage).
+ * Wyświetla formularz filtrowania faktur oraz tabelę główną z wynikami.
+ * Dane są pobierane przy użyciu hooka `useAllInvoices`, z obsługą paginacji.
+ */
 const HomePage: React.FC = () => {
   const {
     page,
@@ -45,5 +51,5 @@ const HomePage: React.FC = () => {
     </div>
   );
 };
-
-export default HomePage;
+export default memo(HomePage);
+// export default HomePage;

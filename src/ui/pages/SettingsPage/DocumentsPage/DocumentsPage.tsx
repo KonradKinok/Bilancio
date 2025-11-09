@@ -13,7 +13,6 @@ import { SeparateDocument } from "./SeparateDocument/SeparateDocument";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
 import { ConditionalWrapper } from "../../../components/ConditionalWrapper/ConditionalWrapper";
 import scss from "./DocumentsPage.module.scss";
-import { ButtonUp } from "../../../components/ButtonUp/ButtonUp";
 
 const DocumentsPage: React.FC = () => {
   const { options } = useMainDataContext();
@@ -102,9 +101,9 @@ const DocumentsPage: React.FC = () => {
         ? addDocument(document)
         : updateDocument(document));
       if (result.status === STATUS.Success) {
-        getAllDocuments(); // Odśwież listę dokumentów
+        getAllDocuments(); // Odświeżenie listy dokumentów
         toast.success(`${successText}`);
-        onSuccess(); // Wywołaj funkcję zwrotną po sukcesie
+        onSuccess(); // Wywołanie funkcji zwrotnej po sukcesie
       } else {
         displayErrorMessage(
           "DocumentsPage",
@@ -117,7 +116,7 @@ const DocumentsPage: React.FC = () => {
     }
   };
 
-  //Usuwanie przywracanie dokumentu
+  //Usuwanie/Przywracanie dokumentu
   const handleDeleteRestoreDocument = async (document: AllDocumentsName) => {
     if (!document?.AllDocumentsId) return;
     let successText = "",
@@ -141,7 +140,7 @@ const DocumentsPage: React.FC = () => {
         : restoreDocument(document.AllDocumentsId));
 
       if (result.status === STATUS.Success) {
-        getAllDocuments(); // Odśwież listę dokumentów
+        getAllDocuments(); // Odświeżenie listy dokumentów
         toast.success(successText);
       } else {
         displayErrorMessage(
@@ -234,13 +233,12 @@ const DocumentsPage: React.FC = () => {
 export default DocumentsPage;
 
 function tooltipInfoDocumentsPage() {
-  const text = `Strona dokumentów.
+  const text = `📄 Strona dokumentów.
   Przycisk "Dodaj nowy" umożliwia dodanie nowego dokumentu.
   Przycisk "Edytuj" umożliwia edycję istniejącego dokumentu.
   Przycisk "Usuń" umożliwia usunięcie dokumentu.
   Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego dokumentu.
   Przycisk "Przywróć" umożliwia przywrócenie usuniętego dokumentu.
-  UWAGA! Nazwy dokumentów nie mogą się powtarzać.`;
-
+ ⚠️ Nazwy dokumentów nie mogą się powtarzać.`;
   return text.replace(/\n/g, "<br/>");
 }

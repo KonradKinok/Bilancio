@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { STATUS } from '../../electron/sharedTypes/status';
 
+/**
+ * Hook do automatycznego logowania użytkownika z bazy lokalnej.
+ * Zwraca dane użytkownika, status ładowania oraz ewentualny błąd.
+ */
 export function useAuth(login?: string, password?: string) {
   const [userDb, setUserDb] = useState<User | null>(null);
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true); //musi być true

@@ -1,77 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { useMainDataContext } from "../../../components/Context/useMainDataContext";
-import { useReportStandardInvoices } from "../../../hooks/hooksReports/useReportStandardInvoices";
-import { useExportStandardInvoiceReportToXLSX } from "../../../hooks/hooksReports/useExportStandardInvoiceReportToXLSX";
 import { STATUS } from "../../../../electron/sharedTypes/status";
-import * as DataBaseTables from "../../../../electron/dataBase/enum";
+import { useMainDataContext } from "../../../components/Context/useMainDataContext";
+import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
+import { useReportStandardInvoices } from "../../../hooks/hooksReports/useReportStandardInvoices";
+import { useExportStandardDocumentsReportToXLSX } from "../../../hooks/hooksReports/useExportStandardDocumentsReportToXLSX";
 import {
   copyTableToClipboard,
   displayErrorMessage,
   pluralizeFaktura,
-  pluralizePozycja,
+  reportCriteriaArray,
 } from "../../../components/GlobalFunctions/GlobalFunctions";
 import { Loader } from "../../../components/Loader/Loader";
 import { IconInfo } from "../../../components/IconInfo/IconInfo";
 import { ReportFormCriteria } from "../../../components/ReportFormCriteria/ReportFormCriteria";
-import { TableReportStandardInvoice } from "../../../components/TableReportStandardInvoice/TableReportStandardInvoice";
 import { ReportConditionsFulfilled } from "../../../components/ReportConditionsFulfilled/ReportConditionsFulfilled";
 import { ButtonsExportData } from "../../../components/ButtonsExportData/ButtonsExportData";
-import scss from "./ReportStandardDocumentsPage.module.scss";
-import { useAllDocumentsName } from "../../../hooks/useAllDocumentName";
 import { TableReportStandardDocuments } from "../../../components/TableReportStandardDocuments/TableReportStandardDocuments";
-import { useExportStandardDocumentsReportToXLSX } from "../../../hooks/hooksReports/useExportStandardDocumentsReportToXLSX";
-
-const reportCriteriaArray: ReportCriteria[] = [
-  {
-    id: DataBaseTables.InvoicesTable.ReceiptDate,
-    description: "Data wystawienia faktury",
-    checkbox: { checked: true, name: "receiptDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "receiptFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "receiptLastDate",
-    },
-    errorMessage: "",
-  },
-  {
-    id: DataBaseTables.InvoicesTable.DeadlineDate,
-    description: "Termin płatności",
-    checkbox: { checked: true, name: "deadlineDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "deadlineFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "deadlineLastDate",
-    },
-    errorMessage: "",
-  },
-  {
-    id: DataBaseTables.InvoicesTable.PaymentDate,
-    description: "Data płatności",
-    checkbox: { checked: true, name: "paymentDateCheckbox" },
-    firstDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
-      dtpLabelText: "od",
-      dtpName: "paymentFirstDate",
-    },
-    secondDtp: {
-      dtpDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
-      dtpLabelText: "do",
-      dtpName: "paymentLastDate",
-    },
-    errorMessage: "",
-  },
-];
+import scss from "./ReportStandardDocumentsPage.module.scss";
 
 const ReportStandardDocumentsPage: React.FC = () => {
   const tableRef = useRef<HTMLTableElement>(null);
@@ -114,13 +60,6 @@ const ReportStandardDocumentsPage: React.FC = () => {
     getReportStandardInvoices,
   } = useReportStandardInvoices();
 
-  //Hook do exportu raportu do XLSX
-  const {
-    data: dataExportStandardInvoiceReportToXLSX,
-    loading: loadingExportStandardInvoiceReportToXLSX,
-    error: errorExportStandardInvoiceReportToXLSX,
-    exportStandardInvoiceReportToXLSX,
-  } = useExportStandardInvoiceReportToXLSX();
   //Hook do exportu raportu do XLSX
   const {
     data: dataExportStandardDocumentsReportToXLSX,
@@ -259,14 +198,14 @@ const ReportStandardDocumentsPage: React.FC = () => {
           toast.success(`${successText} `);
         } else {
           displayErrorMessage(
-            "ReportStandardInvoicePage",
+            "ReportStandardDocumentsPage",
             "handleExportButtonClick",
             `${errorText} ${result.message}`
           );
         }
       } catch (err) {
         displayErrorMessage(
-          "ReportStandardInvoicePage",
+          "ReportStandardDocumentsPage",
           "handleExportButtonClick",
           err
         );
@@ -554,7 +493,7 @@ function transformationAllDocumentsName(
   dataAllDocumentsName: AllDocumentsName[]
 ) {
   const grouped = new Map<string, ReportCriteriaAllDocuments>();
-  // Tworzymy tylko jeden root "Dokumenty"
+  // Tworzenie tylko jednego root "Dokumenty"
   grouped.set("Dokumenty", {
     id: "0",
     name: "Dokumenty",
@@ -571,7 +510,7 @@ function transformationAllDocumentsName(
     const typeId = `${mainTypeId}-${document.TypeId ?? ""}`;
     const subtypeId = `${typeId}-${document.SubtypeId ?? ""}`;
     // --- Level 1: DocumentName
-    // Szukamy dokumentu w root.document (czy już istnieje)
+    // Szukanie dokumentu w root.document (czy już istnieje)
     let documentGroup = root.documents.find((d) => d.documentId === documentId);
     if (!documentGroup) {
       documentGroup = {
@@ -626,6 +565,5 @@ function transformationAllDocumentsName(
       }
     }
   }
-  console.log("transformationAllDocumentsName", [...grouped.values()]);
   return [...grouped.values()];
 }

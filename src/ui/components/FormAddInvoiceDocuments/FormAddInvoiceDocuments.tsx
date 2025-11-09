@@ -751,7 +751,7 @@ const getDictionarySubtypeTable = (
 };
 
 function tooltipButtonDeleteDocumentFormAddInvoiceDocuments() {
-  const text = `Przycisk usunięcia dokumentu zostanie uaktywniony
+  const text = `⛔ Przycisk usunięcia dokumentu zostanie uaktywniony
   po dodaniu nowego dokumentu.`;
   return text.replace(/\n/g, "<br/>");
 }

@@ -125,13 +125,13 @@ const UsersPage: React.FC = () => {
         toast.success(successText);
       } else {
         displayErrorMessage(
-          "DocumentsPage",
+          "UsersPage",
           "handleDeleteUser",
           `${errorText} ${result.message}`
         );
       }
     } catch (err) {
-      displayErrorMessage("DocumentsPage", "handleDeleteUser", err);
+      displayErrorMessage("UsersPage", "handleDeleteUser", err);
     }
   };
 
@@ -202,12 +202,12 @@ const UsersPage: React.FC = () => {
 export default UsersPage;
 
 function tooltipInfoUsersPage() {
-  const text = `Strona użytkowników.
+  const text = `🧍🧍‍♂️ Strona użytkowników.
   Przycisk "Dodaj nowy" umożliwia dodanie nowego użytkownika.
   Przycisk "Edytuj" umożliwia edycję istniejącego użytkownika.
   Przycisk "Usuń" umożliwia usunięcie użytkownika.
   Przycisk "Zapisz" umożliwia zapisanie nowego lub edytowanego użytkownika.
-  UWAGA! Nazwy systemowe użytkowników nie mogą się powtarzać.`;
+  ⚠️ Nazwy systemowe użytkowników nie mogą się powtarzać.`;
 
   return text.replace(/\n/g, "<br/>");
 }

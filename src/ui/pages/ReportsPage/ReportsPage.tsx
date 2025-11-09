@@ -1,15 +1,14 @@
-import { Suspense, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
-import { useAllInvoices } from "../../hooks/useAllInvoices";
-import { useMainDataContext } from "../../components/Context/useMainDataContext";
-import scss from "./ReportsPage.module.scss";
+import { Suspense } from "react";
+import { Outlet } from "react-router-dom";
 import { NavigationReports } from "../../components/NavigationReports/NavigationReports";
 import { Loader } from "../../components/Loader/Loader";
-import { ButtonUp } from "../../components/ButtonUp/ButtonUp";
+import scss from "./ReportsPage.module.scss";
 
-const ReportDataPage: React.FC = () => {
-  const { options } = useMainDataContext();
-
+/**
+ * Strona raportów — główny kontener dla sekcji raportowych.
+ * Wyświetla nawigację raportów i wczytuje dynamicznie ich zawartość przez React Router (Outlet).
+ */
+const ReportsPage: React.FC = () => {
   return (
     <div className={`${scss[""]}`}>
       <div className={scss[""]}>
@@ -26,4 +25,4 @@ const ReportDataPage: React.FC = () => {
   );
 };
 
-export default ReportDataPage;
+export default ReportsPage;

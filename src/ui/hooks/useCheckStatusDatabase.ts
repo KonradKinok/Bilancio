@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
-import { STATUS, DataBaseResponse } from "../../electron/sharedTypes/status";
 
+/**
+ * Hook do sprawdzania statusu połączenia z bazą danych.
+ * Zwraca ostatni wynik, stan ładowania i ewentualny błąd.
+ */
 export function useCheckStatusDatabase() {
   const [data, setData] = useState<ReturnStatusDbMessage | null>(null);
   const [loading, setLoading] = useState<boolean>(false);

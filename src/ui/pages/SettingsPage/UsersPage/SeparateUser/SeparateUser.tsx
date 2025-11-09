@@ -32,7 +32,7 @@ const defaultUser: User = {
   UserPassword: null,
   UserRole: "user",
   IsDeleted: 0,
-  Hostname:"",
+  Hostname: "",
 };
 
 export const SeparateUser: React.FC<SeparateUserProps> = ({
@@ -82,8 +82,7 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
     return handleIsSaveButtonEnabled(isNewUser, editedUser);
   };
   const handleSaveEditedDocument = () => {
-    console.log("handleSaveEditedDocument: ", editedUser);
-    // Wywołaj saveEditedDocument i przekaż funkcję onSuccess
+    // Wywołanie saveEditedDocument i przekazanie funkcji onSuccess
     saveEditedUser(isNewUser, editedUser, () => {
       setEditId(null); // Aktualizacja stanu po sukcesie
       setOriginalUser(editedUser); // Aktualizacja stanu po sukcesie
@@ -115,12 +114,6 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
       ...prevDokument,
       [currentName]: currentValue,
     }));
-    console.log(
-      "handleInputChange: ",
-      currentValue,
-      editedUser.UserDisplayName,
-      inputUserDisplayNameError
-    );
   };
   const handleUserComboBoxChange = (option: ComboBoxOption | null) => {
     if (option) {
@@ -192,7 +185,7 @@ export const SeparateUser: React.FC<SeparateUserProps> = ({
             onChange={(option) =>
               handleUserComboBoxChange(option as ComboBoxOption)
             }
-            options={comboBoxOptions} // Użyj danych z hooka
+            options={comboBoxOptions} // Użycie danych z hooka
             isSearchable={true}
             placeholder="Wybierz..."
             styles={customStylesComboBox}
@@ -317,7 +310,7 @@ const getRoleLabel = (role: string | undefined): ComboBoxOption | null => {
 };
 
 function toolTipSeparateDocumentButtonSave(isNewDocument: boolean) {
-  const text = `Przycisk zapisu użytkownika zostanie uaktywniony
+  const text = `⛔ Przycisk zapisu użytkownika zostanie uaktywniony
   po prawidłowym uzupełnieniu pól formularza ${
     !isNewDocument ? " i wykryciu zmian w użytkowniku" : ""
   }.`;
