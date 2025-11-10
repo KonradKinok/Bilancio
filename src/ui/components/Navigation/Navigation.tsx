@@ -40,7 +40,9 @@ export const Navigation: React.FC = () => {
   return (
     <nav className={scss["navigation-main-container"]}>
       <div className={scss["navigation-container"]}>
-        <div className={scss["logo-container"]}>{/* <LogoBilancio /> */}</div>
+        <div className={scss["logo-container"]}>
+          <LogoBilancio />{" "}
+        </div>
         <NavLink
           to="/"
           className={({ isActive }) => (isActive ? scss.active : "")}
