@@ -83,19 +83,7 @@ export default tseslint.config({
 ```
 
 Bilancio
-├─ backup
-│  ├─ ai.docx
-│  ├─ BilancioDataBase.27.07.2025.db
-│  ├─ BilancioDataBase03.08.2025.db
-│  ├─ BilancioDataBase1.db
-│  ├─ BilancioDataBase14.07.2025.db
-│  ├─ BilancioDataBase20.04.2025.db
-│  ├─ BilancioDataBase20.04.2025a.db
-│  ├─ BilancioDataBase21.07.2025.db
-│  ├─ config.ts
-│  ├─ package2.json
-│  │  └─ package.json
-│  └─ tsconfig.app.json..txtbackup
+├─ .env
 ├─ desktopIcon.png
 ├─ electron-builder.json
 ├─ eslint.config.js
@@ -109,6 +97,13 @@ Bilancio
 │  │  ├─ footer
 │  │  │  ├─ 3KLogo.png
 │  │  │  └─ konikMaly24x24Squoosh.png
+│  │  ├─ logoBilancio
+│  │  │  └─ textBilancio.png
+│  │  ├─ splash
+│  │  │  ├─ bilancioSplash.jpg
+│  │  │  ├─ splash.css
+│  │  │  ├─ splash.html
+│  │  │  └─ textBilancio.png
 │  │  ├─ trayIcon.png
 │  │  └─ trayIconTemplate.png
 │  ├─ electron
@@ -116,14 +111,12 @@ Bilancio
 │  │  ├─ dataBase
 │  │  │  ├─ dbClass.ts
 │  │  │  ├─ dbFunction.ts
-│  │  │  ├─ dbQuerySqlString.ts
 │  │  │  └─ enum.ts
-│  │  ├─ dataBase.ts
 │  │  ├─ main.ts
 │  │  ├─ menu.ts
 │  │  ├─ pathResolver.ts
 │  │  ├─ preload.cts
-│  │  ├─ resourceManager.ts
+│  │  ├─ reportsFunctions.ts
 │  │  ├─ sharedTypes
 │  │  │  └─ status.ts
 │  │  ├─ tray.ts
@@ -134,21 +127,29 @@ Bilancio
 │     │  ├─ App.css
 │     │  └─ App.tsx
 │     ├─ assets
-│     │  └─ react.svg
-│     ├─ BaseChart.tsx
-│     ├─ Chart.tsx
 │     ├─ components
+│     │  ├─ ButtonsExportData
+│     │  │  ├─ ButtonsExportData.module.scss
+│     │  │  └─ ButtonsExportData.tsx
 │     │  ├─ ButtonUniversal
 │     │  │  ├─ ButtonUniversal.module.scss
 │     │  │  └─ ButtonUniversal.tsx
+│     │  ├─ ButtonUp
+│     │  │  ├─ ButtonUp.module.scss
+│     │  │  └─ ButtonUp.tsx
+│     │  ├─ CheckboxRegular
+│     │  │  ├─ CheckboxRegular.module.scss
+│     │  │  └─ CheckboxRegular.tsx
 │     │  ├─ CheckboxSlider
 │     │  │  ├─ CheckboxSlider.module.scss
 │     │  │  └─ CheckboxSlider.tsx
 │     │  ├─ ComboBox
 │     │  │  └─ ComboBox.tsx
+│     │  ├─ ConditionalWrapper
+│     │  │  └─ ConditionalWrapper.tsx
 │     │  ├─ Context
 │     │  │  ├─ ElectronProvider.tsx
-│     │  │  └─ useOptionsImage.ts
+│     │  │  └─ useMainDataContext.ts
 │     │  ├─ DateTimePicker
 │     │  │  ├─ DateTimePicer.module.scss
 │     │  │  └─ DateTimePicker.tsx
@@ -198,6 +199,12 @@ Bilancio
 │     │  ├─ Navigation
 │     │  │  ├─ Navigation.module.scss
 │     │  │  └─ Navigation.tsx
+│     │  ├─ NavigationReports
+│     │  │  ├─ NavigationReports.module.scss
+│     │  │  └─ NavigationReports.tsx
+│     │  ├─ NavigationReportStandard
+│     │  │  ├─ NavigationReportStandard.module.scss
+│     │  │  └─ NavigationReportStandard.tsx
 │     │  ├─ NavigationSettings
 │     │  │  ├─ NavigationSettings.module.scss
 │     │  │  └─ NavigationSettings.tsx
@@ -206,30 +213,62 @@ Bilancio
 │     │  │  ├─ pagination.scss
 │     │  │  ├─ Pagination.tsx
 │     │  │  └─ usePagination.ts
+│     │  ├─ ReportConditionsFulfilled
+│     │  │  ├─ ReportConditionsFulfilled.module.scss
+│     │  │  └─ ReportConditionsFulfilled.tsx
+│     │  ├─ ReportFormCriteria
+│     │  │  ├─ ReportFormButtonGenerateRaport
+│     │  │  │  ├─ ReportFormButtonGenerateRaport.module.scss
+│     │  │  │  └─ ReportFormButtonGenerateRaport.tsx
+│     │  │  ├─ ReportFormCriteria.module.scss
+│     │  │  ├─ ReportFormCriteria.tsx
+│     │  │  ├─ ReportFormDateTimePickers
+│     │  │  │  ├─ ReportFormDateTimePickers.module.scss
+│     │  │  │  └─ ReportFormDateTimePickers.tsx
+│     │  │  └─ ReportFormSingleDocument
+│     │  │     ├─ ReportFormSingleDocument.module.scss
+│     │  │     └─ ReportFormSingleDocument.tsx
+│     │  ├─ RestrictedRoute
+│     │  │  └─ RestrictedRoute.tsx
 │     │  ├─ SingleInput
 │     │  │  ├─ SingleInput.module.scss
 │     │  │  └─ SingleInput.tsx
+│     │  ├─ TableReportStandardDocuments
+│     │  │  ├─ TableReportStandardDocuments.module.scss
+│     │  │  └─ TableReportStandardDocuments.tsx
+│     │  ├─ TableReportStandardInvoice
+│     │  │  ├─ TableReportStandardInvoice.module.scss
+│     │  │  └─ TableReportStandardInvoice.tsx
 │     │  └─ TextInput
 │     │     ├─ TextInput.module.scss
 │     │     └─ TextInput.tsx
 │     ├─ hooks
-│     │  ├─ useAddActivityLogs.ts
+│     │  ├─ hooksReports
+│     │  │  ├─ useExportStandardDocumentsReportToXLSX.ts
+│     │  │  ├─ useExportStandardInvoiceReportToPDF.ts
+│     │  │  ├─ useExportStandardInvoiceReportToXLSX.ts
+│     │  │  └─ useReportStandardInvoices.ts
 │     │  ├─ useAddDocument.ts
 │     │  ├─ useAddInvoice.ts
-│     │  ├─ useAllActivityLog.ts
+│     │  ├─ useAddUser.ts
 │     │  ├─ useAllDocumentName.ts
 │     │  ├─ useAllInvoices.ts
+│     │  ├─ useAllUsers.ts
+│     │  ├─ useAuth.ts
+│     │  ├─ useCheckStatusDatabase.ts
 │     │  ├─ useConfig.ts
 │     │  ├─ useConnectedTableDictionary.ts
 │     │  ├─ useDeleteDocument.ts
 │     │  ├─ useDeleteInvoice.ts
-│     │  ├─ useEditDocument.ts
+│     │  ├─ useDeleteUser.ts
 │     │  ├─ useLocalStorage.ts
 │     │  ├─ useRestoreDocument.ts
 │     │  ├─ useRestoreInvoice.ts
 │     │  ├─ useTableDictionaryDocuments.ts
 │     │  ├─ useToggle.ts
-│     │  └─ useUpdateInvoice.ts
+│     │  ├─ useUpdateDocument.ts
+│     │  ├─ useUpdateInvoice.ts
+│     │  └─ useUpdateUser.ts
 │     ├─ index.css
 │     ├─ main.tsx
 │     ├─ pages
@@ -239,15 +278,22 @@ Bilancio
 │     │  ├─ LayoutPage
 │     │  │  ├─ LayoutPage.module.scss
 │     │  │  └─ LayoutPage.tsx
-│     │  ├─ ReportDataPage
-│     │  │  └─ ReportDataPage.tsx
+│     │  ├─ NotLoggedInPage
+│     │  │  ├─ NotLoggedInPage.module.scss
+│     │  │  └─ NotLoggedInPage.tsx
+│     │  ├─ ReportsPage
+│     │  │  ├─ ReportsPage.module.scss
+│     │  │  ├─ ReportsPage.tsx
+│     │  │  ├─ ReportsStandardPage
+│     │  │  │  ├─ ReportsStandardPage.module.scss
+│     │  │  │  └─ ReportsStandardPage.tsx
+│     │  │  ├─ ReportStandardDocumentsPage
+│     │  │  │  ├─ ReportStandardDocumentsPage.module.scss
+│     │  │  │  └─ ReportStandardDocumentsPage.tsx
+│     │  │  └─ ReportStandardInvoicePage
+│     │  │     ├─ ReportStandardInvoicePage.module.scss
+│     │  │     └─ ReportStandardInvoicePage.tsx
 │     │  └─ SettingsPage
-│     │     ├─ ActivityLogPage
-│     │     │  ├─ ActivityLog.module.scss
-│     │     │  ├─ ActivityLogPage.tsx
-│     │     │  └─ SeparateActivityLog
-│     │     │     ├─ SeparateActivityLog.module.scss
-│     │     │     └─ SeparateActivityLog.tsx
 │     │     ├─ DocumentsPage
 │     │     │  ├─ DocumentsPage.module.scss
 │     │     │  ├─ DocumentsPage.tsx
@@ -260,12 +306,11 @@ Bilancio
 │     │     ├─ SettingsPage.module.scss
 │     │     ├─ SettingsPage.tsx
 │     │     └─ UsersPage
+│     │        ├─ SeparateUser
+│     │        │  ├─ SeparateUser.module.scss
+│     │        │  └─ SeparateUser.tsx
 │     │        ├─ UsersPage.module.scss
 │     │        └─ UsersPage.tsx
-│     ├─ TempStart
-│     │  ├─ TempStart.css
-│     │  └─ TempStart.tsx
-│     ├─ useStatistics.ts
 │     └─ vite-env.d.ts
 ├─ tsconfig.json
 ├─ tsconfig.node.json
