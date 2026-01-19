@@ -1,6 +1,40 @@
 import toast from "react-hot-toast";
 import * as DataBaseTables from "../../../electron/dataBase/enum";
+
+
+// function roundTo(value: number, decimals = 2): number {
+//   if (!Number.isFinite(value)) return 0;
+
+//   const factor = Math.pow(10, decimals);
+//   return Math.round(value * factor + Number.EPSILON) / factor;
+// }
+
 //Suma ceny faktury
+// export function calculateTotalAmount(
+//   quantities: string[],
+//   prices: string[]
+// ): string {
+//   if (!quantities || !prices || quantities.length !== prices.length) {
+//     return currencyFormater("0");
+//   }
+
+//   const totalAmount = quantities.reduce((acc, quantity, i) => {
+//     const parsedQuantity = parseFloat(quantity);
+//     const parsedPrice = parseFloat(prices[i]);
+
+//     if (!Number.isFinite(parsedQuantity) || !Number.isFinite(parsedPrice)) {
+//       return acc;
+//     }
+
+//     //zaokrąglamy każdą pozycję
+//     // const rowAmount = roundTo(parsedQuantity * parsedPrice, 2);
+//     const rowAmount = parseFloat((parsedQuantity * parsedPrice).toFixed(2));
+//     return acc + rowAmount;
+//   }, 0);
+
+//   return currencyFormater(totalAmount.toFixed(2));
+// }
+// Suma ceny faktury
 export function calculateTotalAmount(quantities: string[], prices: string[]): string {
   // Sprawdź, czy tablice są poprawne i mają tę samą długość
   if (!quantities || !prices || quantities.length !== prices.length) {
@@ -12,8 +46,9 @@ export function calculateTotalAmount(quantities: string[], prices: string[]): st
     // Sprawdź, czy quantity i price są poprawnymi liczbami
     const parsedQuantity = parseFloat(quantity);
     const parsedPrice = parseFloat(price);
-    if (!isNaN(parsedQuantity) && !isNaN(parsedPrice)) {
-      return acc + parsedQuantity * parsedPrice;
+    if (Number.isFinite(parsedQuantity) && Number.isFinite(parsedPrice)) {
+      // return acc + parsedQuantity * parsedPrice;
+      return acc + parseFloat((parsedQuantity * parsedPrice).toFixed(2));
     }
     return acc; // Pomiń niepoprawne pary
   }, 0);
