@@ -72,6 +72,8 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
       firstDate: new Date(Date.UTC(new Date().getFullYear(), 0, 1)),
       secondDate: new Date(Date.UTC(new Date().getFullYear(), 11, 31)),
       isDeleted: 0,
+      sortBy: "ReceiptDate",
+      sortDirection: "DESC",
     });
 
   const allDocumentsData = useAllDocumentsName();

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import { FaSortDown, FaSortUp } from "react-icons/fa";
 import { STATUS } from "../../../electron/sharedTypes/status";
 import { useToggle } from "../../hooks/useToggle";
 import { useMainDataContext } from "../Context/useMainDataContext";
@@ -28,7 +29,14 @@ interface MainTableProps {
   totalCount: number;
 }
 
+type SortableInvoiceColumn =
+  | "InvoiceName"
+  | "ReceiptDate"
+  | "DeadlineDate"
+  | "PaymentDate";
+
 export const MainTable: React.FC<MainTableProps> = ({
+  setFormValuesHomePage,
   dataAllInvoices,
   refetchAllInvoices,
   rowsPerPage,
@@ -37,7 +45,8 @@ export const MainTable: React.FC<MainTableProps> = ({
   setPage,
   totalCount,
 }) => {
-  const { dotsNumber, setDotsNumber, options } = useMainDataContext();
+  const { dotsNumber, setDotsNumber, options, formValuesHomePage } =
+    useMainDataContext();
 
   // Synchronizacja dotsNumber z totalCount
   useEffect(() => {
@@ -154,6 +163,57 @@ export const MainTable: React.FC<MainTableProps> = ({
     [page, rowsPerPage]
   );
 
+  const handleSortClick = useCallback(
+    (sortBy: SortableInvoiceColumn, sortDirection: "ASC" | "DESC") => {
+      setFormValuesHomePage((prevData) => ({
+        ...prevData,
+        sortBy,
+        sortDirection,
+      }));
+      setPage(1);
+    },
+    [setFormValuesHomePage, setPage]
+  );
+
+  const renderSortableHeader = (
+    label: string,
+    sortBy: SortableInvoiceColumn
+  ) => {
+    const isActiveColumn = formValuesHomePage.sortBy === sortBy;
+    const isAscending =
+      isActiveColumn && formValuesHomePage.sortDirection === "ASC";
+    const isDescending =
+      isActiveColumn && formValuesHomePage.sortDirection === "DESC";
+
+    return (
+      <div className={scss["sortable-header"]}>
+        <span>{label}</span>
+        <div className={scss["sort-buttons"]}>
+          <button
+            type="button"
+            className={`${scss["sort-button"]} ${
+              isAscending ? scss["sort-button-active"] : ""
+            }`}
+            onClick={() => handleSortClick(sortBy, "ASC")}
+            aria-label={`Sortuj ${label} rosnąco`}
+          >
+            <FaSortUp />
+          </button>
+          <button
+            type="button"
+            className={`${scss["sort-button"]} ${
+              isDescending ? scss["sort-button-active"] : ""
+            }`}
+            onClick={() => handleSortClick(sortBy, "DESC")}
+            aria-label={`Sortuj ${label} malejąco`}
+          >
+            <FaSortDown />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`${scss["mainTable-main-container"]}`}>
       <div>
@@ -164,10 +224,12 @@ export const MainTable: React.FC<MainTableProps> = ({
             <tr>
               <th>Lp.</th>
               <th>Suma faktury</th>
-              <th>Nazwa faktury</th>
-              <th>Data wpływu</th>
-              <th>Termin płatności</th>
-              <th>Data płatności</th>
+              <th>{renderSortableHeader("Nazwa faktury", "InvoiceName")}</th>
+              <th>{renderSortableHeader("Data wpływu", "ReceiptDate")}</th>
+              <th>
+                {renderSortableHeader("Termin płatności", "DeadlineDate")}
+              </th>
+              <th>{renderSortableHeader("Data płatności", "PaymentDate")}</th>
               <th>Dokumenty</th>
               <th>Liczba</th>
               <th>Cena</th>

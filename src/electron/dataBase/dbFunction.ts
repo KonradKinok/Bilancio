@@ -766,6 +766,18 @@ export async function getAllInvoices(
 
   const invoiceName = formValuesHomePage.invoiceName?.trim();
   const invoiceNameFilter = invoiceName ? `%${invoiceName}%` : null;
+  const sortColumns: Record<string, string> = {
+    InvoiceName: "Invoices.InvoiceName",
+    ReceiptDate: "Invoices.ReceiptDate",
+    DeadlineDate: "Invoices.DeadlineDate",
+    PaymentDate: "Invoices.PaymentDate",
+  };
+  const sortColumn =
+    formValuesHomePage.sortBy && sortColumns[formValuesHomePage.sortBy]
+      ? sortColumns[formValuesHomePage.sortBy]
+      : "Invoices.ReceiptDate";
+  const sortDirection =
+    formValuesHomePage.sortDirection === "ASC" ? "ASC" : "DESC";
   try {
     //Budowa zapytania SQL
     let query = `
@@ -800,7 +812,7 @@ export async function getAllInvoices(
           OR LOWER(Invoices.InvoiceName) LIKE LOWER(?)
         )
       GROUP BY Invoices.InvoiceId
-      ORDER BY Invoices.ReceiptDate DESC
+      ORDER BY ${sortColumn} ${sortDirection}
     `;
 
     //Parametry

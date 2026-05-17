@@ -7,6 +7,8 @@ declare global {
     secondDate: Date | null;
     isDeleted?: 0 | 1;
     invoiceName?: string;
+    sortBy?: "InvoiceName" | "ReceiptDate" | "DeadlineDate" | "PaymentDate";
+    sortDirection?: "ASC" | "DESC";
   }
   export interface PageState {
     firstPage: number;
