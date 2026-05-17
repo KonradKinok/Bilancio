@@ -86,6 +86,22 @@
     }
   }
 
+  .container-search {
+    display: flex;
+    gap: 1.5rem;
+
+
+    .custom-input-container {
+      --border-color: var(--input-border-color-green);
+      --border-color-focus: var(--input-border-color-focus-green);
+      --border-radius: 5px;
+      --label-text-color: black;
+      --text-color: var(--input-text-color-green);
+      --placeholder-text-color: var(--input-placeholder-text-color-green);
+      --font-size: 16px;
+    }
+  }
+
   .vertical-line {
     width: 1px;
     background-color: var(--vertical-line-color);
@@ -99,4 +115,7 @@
   .tooltip-error {
     background-color: var(--tooltip-error-background);
   }
+
+
+
 }

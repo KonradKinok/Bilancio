@@ -9,7 +9,7 @@ interface SeparateDocumentProps {
   saveEditedDocument: (
     isNewDocument: boolean,
     document: AllDocumentsName,
-    onSuccess: () => void
+    onSuccess: () => void,
   ) => void;
   handleDeleteRestoreDocument: (document: AllDocumentsName) => void;
   handleIsSaveButtonEnabled: (document: AllDocumentsName) => boolean;
@@ -52,6 +52,8 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
     useState<string>("");
   const [inputPriceError, setInputPriceError] = useState<string>("");
 
+  const safeTrim = (value: unknown) =>
+    typeof value === "string" ? value.trim() : "";
   // Synchronizowanie stanów z propem document, gdy się zmieni
   useEffect(() => {
     setOriginalDocument(document);
@@ -74,7 +76,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
 
   const isSaveButtonDisabled = () => {
     if (
-      !editedDocument.DocumentName.trim() ||
+      !safeTrim(editedDocument.DocumentName) ||
       inputDocumentNameError ||
       inputMainTypeNameError ||
       inputTypeNameError ||
@@ -94,28 +96,33 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
   };
 
   const handleSingleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const currentName = event.target.name as keyof AllDocumentsName;
-    const currentValue: string | number = event.target.value;
+    const currentValue = event.target.value;
+    const documentName = safeTrim(editedDocument.DocumentName);
+    const mainTypeName = safeTrim(editedDocument.MainTypeName);
+    const typeName = safeTrim(editedDocument.TypeName);
+    const subtypeName = safeTrim(editedDocument.SubtypeName);
+
     let errorTextInput = "";
     if (currentName === "DocumentName") {
       if (!currentValue.trim()) {
         errorTextInput = "Musisz wypełnić to pole";
         setInputDocumentNameError(errorTextInput);
-      } else if (currentValue.trim() && editedDocument.MainTypeName.trim()) {
+      } else if (currentValue.trim() && mainTypeName) {
         setInputDocumentNameError("");
         setInputMainTypeNameError("");
       } else {
         setInputDocumentNameError("");
       }
     }
+
     if (currentName === "MainTypeName") {
-      if (!currentValue.trim() && editedDocument.TypeName.trim()) {
-        console.log(`editedDocument.TypeName: "${editedDocument.TypeName}"`);
+      if (!currentValue.trim() && typeName) {
         errorTextInput = "Musisz wypełnić pole Główny Typ Dokumentu";
         setInputMainTypeNameError(errorTextInput);
-      } else if (currentValue.trim() && !editedDocument.DocumentName.trim()) {
+      } else if (currentValue.trim() && !documentName) {
         errorTextInput = "Musisz wypełnić pole Nazwa Dokumentu";
         setInputDocumentNameError(errorTextInput);
       } else {
@@ -123,11 +130,12 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
         setInputDocumentNameError("");
       }
     }
+
     if (currentName === "TypeName") {
-      if (currentValue.trim() && !editedDocument.MainTypeName.trim()) {
+      if (currentValue.trim() && !mainTypeName) {
         errorTextInput = "Musisz wypełnić pole Główny Typ Dokumentu";
         setInputMainTypeNameError(errorTextInput);
-      } else if (!currentValue.trim() && editedDocument.SubtypeName.trim()) {
+      } else if (!currentValue.trim() && subtypeName) {
         errorTextInput = "Musisz wypełnić pole Typ Dokumentu";
         setInputTypeNameError(errorTextInput);
       } else {
@@ -136,7 +144,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
       }
     }
     if (currentName === "SubtypeName") {
-      if (currentValue.trim() && !editedDocument.TypeName.trim()) {
+      if (currentValue.trim() && !typeName) {
         errorTextInput = "Musisz wypełnić pole Typ Dokumentu";
         setInputTypeNameError(errorTextInput);
       } else {
@@ -298,7 +306,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
                     : undefined
                 }
                 data-tooltip-html={toolTipSeparateDocumentButtonSave(
-                  isNewDocument
+                  isNewDocument,
                 )}
               >
                 Zapisz
@@ -336,7 +344,7 @@ export const SeparateDocument: React.FC<SeparateDocumentProps> = ({
                     : undefined
                 }
                 data-tooltip-html={toolTipSeparateDocumentButtonSave(
-                  isNewDocument
+                  isNewDocument,
                 )}
               >
                 Zapisz

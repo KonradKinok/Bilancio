@@ -1,12 +1,13 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import { app, BrowserWindow, ipcMain, Menu, Tray, dialog, clipboard } from "electron";
-import log from "electron-log";
-import { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } from "./util.js";
-import { getDBbBilancioPath, getPreloadPath, getSplashPath, getUIPath, } from "./pathResolver.js";
-import { createTray } from "./tray.js";
-import { createMenu } from "./menu.js";
-import { db } from "./dataBase/dbFunction.js";
+import path from "path";
+
+function isDevelopmentMode(): boolean {
+  return process.env.NODE_ENV === "development";
+}
+
+function getEarlySplashPath(): string {
+  return path.join(app.getAppPath(), isDevelopmentMode() ? "." : "..", "src/assets/splash/splash.html");
+}
 
 //Potrzebne do działania na dysku sieciowym
 app.commandLine.appendSwitch("no-sandbox");
@@ -56,8 +57,8 @@ app.on("ready", async () => {
       nodeIntegration: false,
     },
   });
-  splash.loadFile(getSplashPath());
   splash.show();
+  splash.loadFile(getEarlySplashPath());
 
   //Fallback timeout - jeśli coś pójdzie nie tak, splash zostanie zamknięty po 20 sekundach
   const splashTimeout = setTimeout(() => {
@@ -73,6 +74,17 @@ app.on("ready", async () => {
 
   //Dynamiczne importowanie modułów po splash
   try {
+    const [{ default: dotenv }, { default: log }, util, pathResolver] = await Promise.all([
+      import("dotenv"),
+      import("electron-log"),
+      import("./util.js"),
+      import("./pathResolver.js"),
+    ]);
+    dotenv.config();
+
+    const { ipcMainHandle, ipcMainHandle2, ipcMainOn, isDev } = util;
+    const { getDBbBilancioPath, getPreloadPath, getUIPath } = pathResolver;
+
     const { configureLogs, defaultLogs, configureBackupDb, deleteOldestFileInSavedDocuments, generatePdf, generateScreenShot } = await import("./config.js");
     const {
       addInvoiceDetails, countInvoices, deleteInvoice, deleteUser, getAllDocumentsName, getAllInvoices, getAllUsers, getConnectedTableDictionary, getUserBySystemName, restoreInvoice, updateDocument, addDocument, addUser, deleteRestoreDocument, updateInvoice, updateUser, initDb, checkStatusDatabase
@@ -80,13 +92,24 @@ app.on("ready", async () => {
     const {
       getReportStandardAllInvoices, exportStandardInvoiceReportToPDF, exportStandardInvoiceReportToXLSX, exportStandardDocumentsReportToXLSX
     } = await import("./reportsFunctions.js");
+    const [{ createTray }, { createMenu }] = await Promise.all([
+      import("./tray.js"),
+      import("./menu.js"),
+    ]);
 
     await configureLogs(); // Wywołanie funkcji konfiguracyjnej plików logów
     Object.assign(console, log.functions); //Przeniesienie console.log do log
     defaultLogs(); //Zapisanie domyślnych logów
-    await configureBackupDb(); //Utworzenie kopii bazy danych
     initDb(); //Zainicjalizowanie bazy danych
-    await deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+
+    const runStartupMaintenance = async () => {
+      try {
+        await configureBackupDb(); //Utworzenie kopii bazy danych
+        await deleteOldestFileInSavedDocuments(); //Usunięcie najstarszego pliku w katalogu zapisane dokumenty, jeśli jest ich 50 lub więcej
+      } catch (error) {
+        log.error("[main.js] Błąd podczas zadań startowych w tle:", error);
+      }
+    };
 
     //Tworzenie okna głównego aplikacji
     mainWindow = new BrowserWindow({
@@ -140,6 +163,9 @@ app.on("ready", async () => {
       }
       mainWindow!.maximize();
       mainWindow!.show();
+      setTimeout(() => {
+        void runStartupMaintenance();
+      }, 0);
     });
 
     if (isDev()) {
@@ -282,6 +308,7 @@ app.on("ready", async () => {
     handleCloseEvents(mainWindow); //Handler do zamykania okna aplikacji
     createMenu(mainWindow); //Utworzenie menu
   } catch (error) {
+    const { default: log } = await import("electron-log");
     log.error("[main.js] Błąd podczas dynamicznego importu modułów:", error);
     // Opcjonalnie: Zamknięcie splash i pokazanie błędu
     if (splash) splash.close();
@@ -315,7 +342,9 @@ function handleCloseEvents(mainWindow: BrowserWindow) {
 
   //Zamykanie bazy danych przy zamykaniu aplikacji
   app.on("before-quit", async () => {
+    const { default: log } = await import("electron-log");
     try {
+      const { db } = await import("./dataBase/dbFunction.js");
       if (db) {
         willClose = true;
         await db.close();

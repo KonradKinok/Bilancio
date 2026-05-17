@@ -6,6 +6,7 @@ declare global {
     firstDate: Date | null;
     secondDate: Date | null;
     isDeleted?: 0 | 1;
+    invoiceName?: string;
   }
   export interface PageState {
     firstPage: number;

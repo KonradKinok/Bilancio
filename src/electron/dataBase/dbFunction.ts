@@ -763,6 +763,9 @@ export async function getAllInvoices(
   }
   //Domyślna wartość isDeleted
   const isDeleted = formValuesHomePage.isDeleted ?? 0;
+
+  const invoiceName = formValuesHomePage.invoiceName?.trim();
+  const invoiceNameFilter = invoiceName ? `%${invoiceName}%` : null;
   try {
     //Budowa zapytania SQL
     let query = `
@@ -789,9 +792,13 @@ export async function getAllInvoices(
       LEFT JOIN DictionaryMainType ON InvoiceDetails.MainTypeId = DictionaryMainType.MainTypeId
       LEFT JOIN DictionaryType ON InvoiceDetails.TypeId = DictionaryType.TypeId
       LEFT JOIN DictionarySubtype ON InvoiceDetails.SubtypeId = DictionarySubtype.SubtypeId
-      WHERE 
+      WHERE
         Invoices.ReceiptDate BETWEEN ? AND ?
         AND Invoices.IsDeleted = ?
+        AND (
+          ? IS NULL
+          OR LOWER(Invoices.InvoiceName) LIKE LOWER(?)
+        )
       GROUP BY Invoices.InvoiceId
       ORDER BY Invoices.ReceiptDate DESC
     `;
@@ -801,6 +808,8 @@ export async function getAllInvoices(
       getFormattedDate(formValuesHomePage.firstDate, "-", "year"),
       getFormattedDate(formValuesHomePage.secondDate, "-", "year"),
       isDeleted,
+      invoiceNameFilter,
+      invoiceNameFilter,
     ];
 
     //Paginacja
@@ -1186,7 +1195,12 @@ export async function countInvoices(
       query += ` AND IsDeleted = ?`;
       params.push(formValuesHomePage.isDeleted);
     }
+    const invoiceName = formValuesHomePage.invoiceName?.trim();
 
+    if (invoiceName) {
+      query += ` AND LOWER(InvoiceName) LIKE LOWER(?)`;
+      params.push(`%${invoiceName}%`);
+    }
     const result = await getDb().get<{ total: number }>(query, params);
     return {
       status: STATUS.Success,

@@ -93,6 +93,11 @@
   --input-border-color-focus: var(--second-color); /*Indygo */
   --input-text-color: var(--first-color);
   --input-placeholder-text-color: var(--first-color-alpha-five);
+  /* input FormHomeDate*/
+  --input-border-color-green: var(--eighth-color); /*Indygo */
+  --input-border-color-focus-green: var(--nineteenth-color); /*Indygo */
+  --input-text-color-green: var(--eighth-color);
+  --input-placeholder-text-color-green: var(--eighth-color);
   /* combobox */
   --combobox-text-color: var(--first-color); /*Indygo */
   --combobox-text-hover-color: var(--first-color-alpha-two); /*LightCyan */
@@ -158,8 +163,9 @@
 } */
 body {
   margin: 0 0;
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+  font-family:
+    -apple-system, BlinkMacSystemFont, system-ui, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

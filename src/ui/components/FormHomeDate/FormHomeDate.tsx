@@ -3,6 +3,7 @@ import { Tooltip } from "react-tooltip";
 import { useMainDataContext } from "../Context/useMainDataContext";
 import { useToggle } from "../../hooks/useToggle";
 import { DateTimePicker } from "../DateTimePicker/DateTimePicker";
+import { TextInput } from "../TextInput/TextInput";
 import { ModalAddInvoice } from "../ModalAddInvoice/ModalAddInvoice";
 import { CheckboxSlider } from "../CheckboxSlider/CheckboxSlider";
 import { IconInfo } from "../IconInfo/IconInfo";
@@ -15,7 +16,7 @@ interface FormHomeDateProps {
   >;
   refetchAllInvoices: () => void;
 }
-
+const SEARCH_DEBOUNCE_MS = 400;
 export const FormHomeDate: React.FC<FormHomeDateProps> = ({
   formValuesHomePage,
   setFormValuesHomePage,
@@ -23,6 +24,7 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
 }) => {
   const { setPage } = useMainDataContext();
   const [showTooltip, setShowTooltip] = useState(false);
+
   const {
     isOpenModal: isModalAddInvoiceOpen,
     openModal: openModalAddInvoice,
@@ -33,8 +35,30 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
   const [dateTimePickerLastDate, setDateTimePickerLastDate] =
     useState<Date | null>(formValuesHomePage.secondDate);
   const [radioButtonIsDeleted, setRadioButtonIsDeleted] = useState<0 | 1>(
-    formValuesHomePage.isDeleted || 0
+    formValuesHomePage.isDeleted || 0,
   );
+  const [inputSearchInvoice, setInputInvoiceName] = useState<string>(
+    formValuesHomePage.invoiceName ?? "",
+  );
+  const [inputSearchInvoiceError, setInputInvoiceNameError] =
+    useState<string>("");
+
+  const handleInputSearchChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const currentValue = event.target.value;
+    const searchValue = currentValue.trim();
+
+    setInputInvoiceName(currentValue);
+
+    if (searchValue.length > 0 && searchValue.length < 3) {
+      setInputInvoiceNameError(
+        "Do wyszukania potrzebne są przynajmniej 3 znaki.",
+      );
+    } else {
+      setInputInvoiceNameError("");
+    }
+  };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -50,11 +74,18 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
       firstDate: dateTimePickerFirstDate,
       secondDate: dateTimePickerLastDate,
       isDeleted: radioButtonIsDeleted,
+      invoiceName: inputSearchInvoice.trim() || undefined,
     }));
+
     setPage(1); // Resetowanie strony do 1 przy form submitcie
   };
 
+  const handleClickSearchInvoiceButton = () => {
+    updateInvoiceNameFilter(inputSearchInvoice);
+  };
+
   useEffect(() => {
+    // Walidacja daty i wyświetlanie tooltipu
     if (
       dateTimePickerFirstDate &&
       dateTimePickerLastDate &&
@@ -64,7 +95,54 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
     } else {
       setShowTooltip(false);
     }
-  }, [dateTimePickerFirstDate, dateTimePickerLastDate]);
+  }, [dateTimePickerFirstDate, dateTimePickerLastDate, inputSearchInvoice]);
+
+  // Debounce dla inputa wyszukiwania faktury
+  useEffect(() => {
+    const searchValue = inputSearchInvoice.trim();
+
+    if (searchValue.length > 0 && searchValue.length < 3) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      updateInvoiceNameFilter(inputSearchInvoice);
+    }, SEARCH_DEBOUNCE_MS);
+
+    return () => window.clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputSearchInvoice]);
+
+  // Obsługa naciśnięcia klawisza Enter w polu wyszukiwania faktury
+  const handleSearchInvoiceKeyDown = (
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      updateInvoiceNameFilter(inputSearchInvoice);
+    }
+  };
+
+  // Obsługa kliknięcia przycisku "Szukaj"
+  const updateInvoiceNameFilter = (value: string) => {
+    const invoiceName = value.trim();
+
+    if (invoiceName.length > 0 && invoiceName.length < 3) {
+      setInputInvoiceNameError(
+        "Do wyszukania potrzebne są przynajmniej 3 znaki.",
+      );
+      return;
+    }
+
+    setInputInvoiceNameError("");
+
+    setFormValuesHomePage((prevData) => ({
+      ...prevData,
+      invoiceName: invoiceName || undefined,
+    }));
+
+    setPage(1);
+  };
 
   return (
     <div className={scss["formhomedate-main-container"]}>
@@ -112,6 +190,37 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
             >
               Pokaż
             </button>
+          </div>
+          <div className={scss["vertical-line"]}></div>
+          <div className={scss["container-search"]}>
+            <div className={scss[""]}>
+              <TextInput
+                inputName="searchInvoiceName"
+                singleInputValue={inputSearchInvoice}
+                handleSingleInputChange={handleInputSearchChange}
+                handleKeyDown={handleSearchInvoiceKeyDown}
+                inputPlaceholder="Wprowadź szukaną nazwę faktury ..."
+                inputLabelText="Pole wyszukiwania:"
+                singleInputError={inputSearchInvoiceError}
+                required={false}
+                classNameInputContainer={scss["custom-input-container"]}
+              />
+            </div>
+            <div className={scss["container-button"]}>
+              <button
+                name="button-search"
+                className={scss["button"]}
+                type="button"
+                onClick={handleClickSearchInvoiceButton}
+                disabled={!!inputSearchInvoiceError}
+                data-tooltip-id={
+                  inputSearchInvoiceError ? "tooltip-error-date" : undefined
+                }
+                data-tooltip-content={inputSearchInvoiceError || undefined}
+              >
+                Szukaj
+              </button>
+            </div>
           </div>
           <div className={scss["vertical-line"]}></div>
           <div className={scss["container-button"]}>
