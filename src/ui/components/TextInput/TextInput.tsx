@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { Tooltip } from "react-tooltip";
+import { RxCross1 } from "react-icons/rx";
 import scss from "./TextInput.module.scss";
 
 interface TextInputInterface {
@@ -11,6 +12,7 @@ interface TextInputInterface {
   handleOnPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void; // Opcjonalny handler dla wklejania
   inputPlaceholder: string; // Placeholder w input
   inputLabelText?: string; // Tekst labelki
+
   singleInputError?: string; // Komunikat błędu do wyświetlenia
   handleSingleInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void; // Handler zmiany wartości
   classNameInputContainer?: string; // Opcjonalna klasa dla kontenera
@@ -22,6 +24,7 @@ export const TextInput: React.FC<TextInputInterface> = ({
   singleInputValue,
   inputPlaceholder,
   inputLabelText,
+
   singleInputError = "",
   handleSingleInputChange,
   handleKeyDown,
@@ -30,6 +33,21 @@ export const TextInput: React.FC<TextInputInterface> = ({
   classNameInputContainer = "",
 }) => {
   const inputRef = useRef<HTMLInputElement>(null); // Ref do inputa
+
+  const handleIconClick = () => {
+    if (!inputRef.current) return;
+
+    const clearEvent = {
+      target: {
+        ...inputRef.current,
+        name: inputName,
+        value: "",
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    handleSingleInputChange(clearEvent);
+    inputRef.current.focus();
+  };
 
   // Ustawienie dynamicznej klasy
   const containerClassName =
@@ -42,23 +60,35 @@ export const TextInput: React.FC<TextInputInterface> = ({
           {inputLabelText}
         </label>
       )}
-      <input
-        ref={inputRef}
-        type={inputType}
-        name={inputName}
-        id={inputName}
-        placeholder={inputPlaceholder}
-        value={singleInputValue}
-        onChange={handleSingleInputChange}
-        onKeyDown={handleKeyDown} // Obsługa zdarzenia onKeyDown
-        onPaste={handleOnPaste} // Obsługa zdarzenia onPaste
-        required={required}
-        className={`${scss["input"]} ${
-          singleInputError ? scss["input-error"] : ""
-        }`}
-        data-tooltip-id={singleInputError ? inputName : undefined}
-        data-tooltip-content={singleInputError ? singleInputError : undefined}
-      />
+      <div className={scss["input-and-icon-container"]}>
+        <input
+          ref={inputRef}
+          type={inputType}
+          name={inputName}
+          id={inputName}
+          placeholder={inputPlaceholder}
+          value={singleInputValue}
+          onChange={handleSingleInputChange}
+          onKeyDown={handleKeyDown} // Obsługa zdarzenia onKeyDown
+          onPaste={handleOnPaste} // Obsługa zdarzenia onPaste
+          required={required}
+          className={`${scss["input"]} ${
+            singleInputError ? scss["input-error"] : ""
+          }`}
+          data-tooltip-id={singleInputError ? inputName : undefined}
+          data-tooltip-content={singleInputError ? singleInputError : undefined}
+        />
+        {singleInputValue && (
+          <button
+            type="button"
+            className={`${scss["icons-input-right"]} `}
+            onClick={handleIconClick}
+            aria-label="Wyczyść pole"
+          >
+            <RxCross1 className={scss["icon"]} />
+          </button>
+        )}
+      </div>
       <Tooltip
         id={inputName}
         className={`${scss["tooltip"]} ${scss["tooltip-error"]}`}
