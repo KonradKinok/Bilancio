@@ -328,7 +328,7 @@ export async function exportStandardInvoiceReportToXLSX(reportCriteriaToDb: Repo
 }
 
 //Export standard documents report do XLSX
-export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[]): Promise<ReturnStatusDbMessage> {
+export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[], isSimpleDocumentsReport: boolean = false): Promise<ReturnStatusDbMessage> {
   const functionName = exportStandardDocumentsReportToXLSX.name;
   if (!dataReportStandardInvoices || dataReportStandardInvoices.length === 0) {
     const message = 'Brak danych faktur do raportu.';
@@ -502,21 +502,28 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
 
     // SHEET DOCUMENTS
     //Dane
-    const headersDocumentsTable: ColumnType[] = [
-      { name: "Lp.", type: "number" },
-      { name: "Nazwa dokumentu", type: "string" },
-      { name: "Liczba dokumentów", type: "number" },
-      { name: "Suma cen dokumentu", type: "currency2" },
-      { name: "Nazwa głównego typu dokumentu", type: "string" },
-      { name: "Liczba głównego typu dokumentu", type: "number" },
-      { name: "Suma cen głównego typu dokumentu", type: "currency2" },
-      { name: "Nazwa typu dokumentu", type: "string" },
-      { name: "Liczba typu dokumentu", type: "number" },
-      { name: "Suma cen typu dokumentu", type: "currency2" },
-      { name: "Nazwa podtypu dokumentu", type: "string" },
-      { name: "Liczba podtypu dokumentu", type: "number" },
-      { name: "Suma cen podtypu dokumentu", type: "currency2" },
-    ];
+    const headersDocumentsTable: ColumnType[] = isSimpleDocumentsReport
+      ? [
+        { name: "Lp.", type: "number" },
+        { name: "Nazwa dokumentu", type: "string" },
+        { name: "Liczba dokumentów", type: "number" },
+        { name: "Suma cen dokumentu", type: "currency2" },
+      ]
+      : [
+        { name: "Lp.", type: "number" },
+        { name: "Nazwa dokumentu", type: "string" },
+        { name: "Liczba dokumentów", type: "number" },
+        { name: "Suma cen dokumentu", type: "currency2" },
+        { name: "Nazwa głównego typu dokumentu", type: "string" },
+        { name: "Liczba głównego typu dokumentu", type: "number" },
+        { name: "Suma cen głównego typu dokumentu", type: "currency2" },
+        { name: "Nazwa typu dokumentu", type: "string" },
+        { name: "Liczba typu dokumentu", type: "number" },
+        { name: "Suma cen typu dokumentu", type: "currency2" },
+        { name: "Nazwa podtypu dokumentu", type: "string" },
+        { name: "Liczba podtypu dokumentu", type: "number" },
+        { name: "Suma cen podtypu dokumentu", type: "currency2" },
+      ];
     //Ustawienia sheet documents
     sheetDocuments.views = [{ state: 'frozen', ySplit: 1 }];
     sheetDocuments.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: headersDocumentsTable.length } };
@@ -540,7 +547,34 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
     //Pobranie pierwszego pustego wiersza pod nazwami kolumn
     let currentRowSheetDocuments = sheetDocuments.rowCount + 1; // pierwszy pusty wiersz po nagłówkach
     //Dodanie wartości zawartości tabeli + stylowanie komórek
-    reportDocumentsToTable.forEach((highLevelDocument, documentIndex) => {
+    if (isSimpleDocumentsReport) {
+      let documentCounter = 0;
+
+      reportDocumentsToTable.forEach((highLevelDocument) => {
+        highLevelDocumentSumData.quantity = highLevelDocument.quantity;
+        highLevelDocumentSumData.totalPrice = highLevelDocument.totalPrice;
+
+        highLevelDocument.documents.forEach((doc) => {
+          documentCounter++;
+          const row = sheetDocuments.addRow([
+            documentCounter,
+            doc.documentName,
+            doc.quantity,
+            doc.totalPrice,
+          ]);
+          styleContentRow(row);
+          currentRowSheetDocuments++;
+        });
+
+        sheetDocuments.getCell(`C${currentRowSheetDocuments}`).value = highLevelDocumentSumData.quantity;
+        sheetDocuments.getCell(`C${currentRowSheetDocuments}`).font = { bold: true };
+        sheetDocuments.getCell(`C${currentRowSheetDocuments}`).numFmt = '#,##0';
+        sheetDocuments.getCell(`D${currentRowSheetDocuments}`).value = highLevelDocumentSumData.totalPrice;
+        sheetDocuments.getCell(`D${currentRowSheetDocuments}`).font = { bold: true };
+        sheetDocuments.getCell(`D${currentRowSheetDocuments}`).numFmt = '#,##0.00 [$zł-415]';
+      });
+    } else {
+      reportDocumentsToTable.forEach((highLevelDocument, documentIndex) => {
 
       //Przypisanie sumy ilości i ceny dokumentów na najwyższym poziomie do zmiennej
       highLevelDocumentSumData.quantity = highLevelDocument.quantity;
@@ -687,7 +721,8 @@ export async function exportStandardDocumentsReportToXLSX(reportCriteriaToDb: Re
           sheetDocuments.getCell(`D${currentRowSheetDocuments}`).numFmt = '#,##0.00 [$zł-415]';
         }
       });
-    });
+      });
+    }
 
     //Automatyczne nadanie szerokości kolumn dla wszystkich sheetów
     autoSizeColumns(sheetCriteria);

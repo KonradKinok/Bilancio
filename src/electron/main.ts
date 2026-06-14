@@ -244,8 +244,8 @@ app.on("ready", async () => {
     ipcMainHandle2('exportStandardInvoiceReportToXLSX', (dataReportStandardInvoices, reportCriteriaToDb) => {
       return exportStandardInvoiceReportToXLSX(dataReportStandardInvoices, reportCriteriaToDb);
     });
-    ipcMainHandle2('exportStandardDocumentsReportToXLSX', (reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable) => {
-      return exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable);
+    ipcMainHandle2('exportStandardDocumentsReportToXLSX', (reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable, isSimpleDocumentsReport) => {
+      return exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable, isSimpleDocumentsReport);
     });
 
     // Nowe IPC dla konfiguracji
@@ -318,47 +318,222 @@ app.on("ready", async () => {
 });
 
 //Funkcja do obsługi zdarzeń zamykania głównego okna aplikacji
+// function handleCloseEvents(mainWindow: BrowserWindow) {
+//   let willClose = false;
+//   mainWindow.on("close", (e) => {
+//     if (willClose) {
+//       return;
+//     }
+//     e.preventDefault();
+//     mainWindow.hide();
+//     if (app.dock) {
+//       app.dock.hide();
+//     }
+//     //Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
+//     if (process.platform === 'win32' && tray) {
+//       tray.displayBalloon({
+//         title: 'Bilancio',
+//         content: 'Aplikacja działa w tle. Kliknij ikonę programu, aby ponownie otworzyć okno.',
+//         iconType: 'info',
+//         noSound: true,
+//       });
+//     }
+//   });
+
+//   //Zamykanie bazy danych przy zamykaniu aplikacji
+//   app.on("before-quit", async () => {
+//     const { default: log } = await import("electron-log");
+//     try {
+//       const { db } = await import("./dataBase/dbFunction.js");
+//       if (db) {
+//         willClose = true;
+//         await db.close();
+//         tray?.destroy();
+//         log.info("[main.js] [handleCloseEvents]: Baza danych została zamknięta.");
+//       }
+//     } catch (err) {
+//       log.error("[main.js] [handleCloseEvents]: Błąd przy zamykaniu bazy:", err);
+//     }
+//   });
+
+//   //Resetowanie willClose jeśli okno zostanie ponownie pokazane
+//   mainWindow.on('show', () => {
+//     willClose = false;
+//   });
+// }
+
+// function handleCloseEvents(mainWindow: BrowserWindow) {
+//   let willClose = false;
+
+//   mainWindow.on("close", (e) => {
+//     if (willClose) {
+//       return;
+//     }
+
+//     e.preventDefault();
+
+//     mainWindow.hide();
+
+//     if (app.dock) {
+//       app.dock.hide();
+//     }
+
+//     // Windows balloon
+//     if (
+//       process.platform === "win32" &&
+//       tray &&
+//       !tray.isDestroyed()
+//     ) {
+//       tray.displayBalloon({
+//         title: "Bilancio",
+//         content:
+//           "Aplikacja działa w tle. Kliknij ikonę programu, aby ponownie otworzyć okno.",
+//         iconType: "info",
+//         noSound: true,
+//       });
+//     }
+//   });
+
+//   app.on("before-quit", async () => {
+//     const { default: log } = await import("electron-log");
+
+//     try {
+//       willClose = true;
+
+//       const { db } = await import("./dataBase/dbFunction.js");
+
+//       if (db) {
+//         await db.close();
+//         log.info("[main.js] Baza danych została zamknięta.");
+//       }
+
+//       if (tray && !tray.isDestroyed()) {
+//         tray.destroy();
+//       }
+
+//       tray = null;
+
+//     } catch (err) {
+//       log.error(
+//         "[main.js] [handleCloseEvents]: Błąd przy zamykaniu bazy:",
+//         err
+//       );
+//     }
+//   });
+
+//   mainWindow.on("show", () => {
+//     willClose = false;
+//   });
+// }
+
+// Globalnie (poza funkcją)
+let isQuitting = false;
+
+// Funkcja do obsługi zdarzeń zamykania głównego okna aplikacji
 function handleCloseEvents(mainWindow: BrowserWindow) {
-  let willClose = false;
+
+  // Próba zamknięcia okna
   mainWindow.on("close", (e) => {
-    if (willClose) {
+
+    // Jeśli aplikacja NIE jest zamykana całkowicie,
+    // tylko użytkownik kliknął X -> ukryj do tray
+    if (!isQuitting) {
+      e.preventDefault();
+
+      mainWindow.hide();
+
+      // macOS
+      if (app.dock) {
+        app.dock.hide();
+      }
+
+      // Windows balloon notification
+      if (
+        process.platform === "win32" &&
+        tray &&
+        !tray.isDestroyed()
+      ) {
+        tray.displayBalloon({
+          title: "Bilancio",
+          content:
+            "Aplikacja działa w tle. Kliknij ikonę programu, aby ponownie otworzyć okno.",
+          iconType: "info",
+          noSound: true,
+        });
+      }
+
       return;
     }
-    e.preventDefault();
-    mainWindow.hide();
-    if (app.dock) {
-      app.dock.hide();
-    }
-    //Wyświetlenie powiadomienia balonowego na Windows po zminimalizowaniu do trayu
-    if (process.platform === 'win32' && tray) {
-      tray.displayBalloon({
-        title: 'Bilancio',
-        content: 'Aplikacja działa w tle. Kliknij ikonę programu, aby ponownie otworzyć okno.',
-        iconType: 'info',
-        noSound: true,
-      });
-    }
   });
 
-  //Zamykanie bazy danych przy zamykaniu aplikacji
-  app.on("before-quit", async () => {
-    const { default: log } = await import("electron-log");
-    try {
-      const { db } = await import("./dataBase/dbFunction.js");
-      if (db) {
-        willClose = true;
-        await db.close();
-        tray?.destroy();
-        log.info("[main.js] [handleCloseEvents]: Baza danych została zamknięta.");
+  // Prawdziwe zamykanie aplikacji
+  app.on("before-quit", (event) => {
+
+    // Jeśli cleanup już został wykonany
+    // pozwól Electronowi zakończyć proces
+    if (isQuitting) {
+      return;
+    }
+
+    // Zatrzymanie standardowego quit
+    event.preventDefault();
+
+    // Informacja że aplikacja jest zamykana
+    isQuitting = true;
+
+    // Async cleanup
+    (async () => {
+      const { default: log } = await import("electron-log");
+
+      try {
+
+        log.info("[main.js] Rozpoczęcie zamykania aplikacji.");
+
+        // Zamknięcie bazy danych
+        const { db } = await import("./dataBase/dbFunction.js");
+
+        if (db) {
+          await db.close();
+          log.info("[main.js] Baza danych została zamknięta.");
+        }
+
+        // Usunięcie tray
+        if (tray && !tray.isDestroyed()) {
+          tray.destroy();
+          log.info("[main.js] Tray został usunięty.");
+        }
+
+        tray = null;
+
+        // Zamknięcie wszystkich okien
+        BrowserWindow.getAllWindows().forEach((window) => {
+          if (!window.isDestroyed()) {
+            window.destroy();
+          }
+        });
+
+        log.info("[main.js] Zamykanie aplikacji zakończone.");
+
+      } catch (err) {
+
+        log.error(
+          "[main.js] [handleCloseEvents] Błąd przy zamykaniu aplikacji:",
+          err
+        );
+
+      } finally {
+
+        // Wymuszenie zakończenia aplikacji
+        app.exit(0);
+
       }
-    } catch (err) {
-      log.error("[main.js] [handleCloseEvents]: Błąd przy zamykaniu bazy:", err);
-    }
+    })();
   });
 
-  //Resetowanie willClose jeśli okno zostanie ponownie pokazane
-  mainWindow.on('show', () => {
-    willClose = false;
+  // Bezpieczne zamykanie po zamknięciu wszystkich okien
+  app.on("window-all-closed", () => {
+    // Nic nie rób
+    // Tray app ma działać dalej
   });
 }
 

@@ -95,7 +95,7 @@ export const FormHomeDate: React.FC<FormHomeDateProps> = ({
     } else {
       setShowTooltip(false);
     }
-  }, [dateTimePickerFirstDate, dateTimePickerLastDate, inputSearchInvoice]);
+  }, [dateTimePickerFirstDate, dateTimePickerLastDate]);
 
   // Debounce dla inputa wyszukiwania faktury
   useEffect(() => {

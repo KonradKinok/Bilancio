@@ -1,6 +1,7 @@
 import { ReportFormDateTimePickers } from "./ReportFormDateTimePickers/ReportFormDateTimePickers";
 import { ReportFormButtonGenerateRaport } from "./ReportFormButtonGenerateRaport/ReportFormButtonGenerateRaport";
 import { ReportFormSingleDocument } from "./ReportFormSingleDocument/ReportFormSingleDocument";
+import { CheckboxRegular } from "../CheckboxRegular/CheckboxRegular";
 import scss from "./ReportFormCriteria.module.scss";
 
 interface ReportFormCriteriaProps {
@@ -12,6 +13,8 @@ interface ReportFormCriteriaProps {
   setReportDocumentsCriteria?: React.Dispatch<
     React.SetStateAction<ReportCriteriaAllDocuments[] | undefined>
   >;
+  isSimpleDocumentsReport?: boolean;
+  setIsSimpleDocumentsReport?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
@@ -21,6 +24,8 @@ export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
   isRaportGenerating,
   reportDocumentsCriteria = undefined,
   setReportDocumentsCriteria = undefined,
+  isSimpleDocumentsReport = true,
+  setIsSimpleDocumentsReport = undefined,
 }) => {
   const onButtonClick = () => {
     handleButtonClick();
@@ -77,6 +82,22 @@ export const ReportFormCriteria: React.FC<ReportFormCriteriaProps> = ({
             }))}
           />
         ))}
+        {setIsSimpleDocumentsReport && (
+          <li className={scss["simple-report-option"]}>
+            <CheckboxRegular
+              checked={isSimpleDocumentsReport}
+              setChecked={setIsSimpleDocumentsReport}
+              name="simple-documents-report"
+            />
+            <span
+              className={
+                !isSimpleDocumentsReport ? scss["inactive-component"] : ""
+              }
+            >
+              Raport uproszczony
+            </span>
+          </li>
+        )}
       </ul>
       <ReportFormButtonGenerateRaport
         reportCriteria={reportCriteria}

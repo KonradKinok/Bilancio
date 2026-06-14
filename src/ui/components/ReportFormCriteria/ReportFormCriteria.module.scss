@@ -17,6 +17,19 @@
     margin-top: .5rem;
   }
 
+  .simple-report-option {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: 2rem;
+    cursor: pointer;
+  }
+
+  .inactive-component {
+    opacity: 0.5;
+    transition: opacity .75s cubic-bezier(.4, 0, .2, 1);
+  }
+
   .dateTimePicker-container {
     display: flex;
   }

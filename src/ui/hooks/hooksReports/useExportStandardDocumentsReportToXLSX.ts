@@ -6,12 +6,12 @@ export function useExportStandardDocumentsReportToXLSX() {
   const [error, setError] = useState<string | null>(null);
 
   // Funkcja do pobierania danych z użyciem useCallback
-  const exportStandardDocumentsReportToXLSX = useCallback(async (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[]): Promise<ReturnStatusDbMessage> => {
+  const exportStandardDocumentsReportToXLSX = useCallback(async (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[], isSimpleDocumentsReport: boolean = false): Promise<ReturnStatusDbMessage> => {
     setLoading(true);
     setError(null);
     setData(null); // Reset danych
     try {
-      const result = await window.electron.exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable);
+      const result = await window.electron.exportStandardDocumentsReportToXLSX(reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable, isSimpleDocumentsReport);
       setData(result);
       setError(null);
       return result;

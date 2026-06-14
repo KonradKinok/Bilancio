@@ -378,7 +378,7 @@ declare global {
       getReportStandardAllInvoices: (reportCriteriaToDb: ReportCriteriaToDb[]) => Promise<DataBaseResponse<ReportStandardInvoice[]>>;
       exportStandardInvoiceReportToPDF: (dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
       exportStandardInvoiceReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[]) => Promise<ReturnStatusDbMessage>;
-      exportStandardDocumentsReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[]) => Promise<ReturnStatusDbMessage>;
+      exportStandardDocumentsReportToXLSX: (reportCriteriaToDb: ReportCriteriaToDb[], dataReportStandardInvoices: ReportStandardInvoice[], documentsReadyForDisplay: string[], reportDocumentsToTable: ReportAllDocumentsToTable[], isSimpleDocumentsReport?: boolean) => Promise<ReturnStatusDbMessage>;
       //Other
       getDBbBilancioPath: () => Promise<string>;
       checkStatusDatabase: () => Promise<ReturnStatusDbMessage>;

@@ -30,7 +30,7 @@ electron.contextBridge.exposeInMainWorld('electron', {
   getReportStandardAllInvoices: (reportCriteriaToDb) => ipcInvoke2('getReportStandardAllInvoices', reportCriteriaToDb),
   exportStandardInvoiceReportToPDF: (dataReportStandardInvoices) => ipcInvoke2('exportStandardInvoiceReportToPDF', dataReportStandardInvoices),
   exportStandardInvoiceReportToXLSX: (dataReportStandardInvoices, reportCriteriaToDb) => ipcInvoke2('exportStandardInvoiceReportToXLSX', dataReportStandardInvoices, reportCriteriaToDb),
-  exportStandardDocumentsReportToXLSX: (reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable) => ipcInvoke2('exportStandardDocumentsReportToXLSX', reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable),
+  exportStandardDocumentsReportToXLSX: (reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable, isSimpleDocumentsReport) => ipcInvoke2('exportStandardDocumentsReportToXLSX', reportCriteriaToDb, dataReportStandardInvoices, documentsReadyForDisplay, reportDocumentsToTable, isSimpleDocumentsReport),
   checkStatusDatabase: () => ipcInvoke('checkStatusDatabase'),
   //Electron
   reloadWindow: () => ipcRenderer.send('reload-window'),

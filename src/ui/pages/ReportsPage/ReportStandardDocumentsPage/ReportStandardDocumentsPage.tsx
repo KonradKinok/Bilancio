@@ -44,6 +44,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
 
   //Stan czy raport jest generowany
   const [isReportGenerating, setIsReportGenerating] = useState(false);
+  const [isSimpleDocumentsReport, setIsSimpleDocumentsReport] = useState(true);
 
   const {
     data: dataAllDocumentsName,
@@ -192,7 +193,8 @@ const ReportStandardDocumentsPage: React.FC = () => {
           reportCriteriaToDb,
           dataReportStandardInvoices,
           documentsReadyForDisplay,
-          reportDocumentsToTable || []
+          reportDocumentsToTable || [],
+          isSimpleDocumentsReport
         );
         if (result.status === 0) {
           toast.success(`${successText} `);
@@ -234,6 +236,8 @@ const ReportStandardDocumentsPage: React.FC = () => {
             isRaportGenerating={isReportGenerating}
             reportDocumentsCriteria={reportDocumentsCriteria}
             setReportDocumentsCriteria={setReportDocumentsCriteria}
+            isSimpleDocumentsReport={isSimpleDocumentsReport}
+            setIsSimpleDocumentsReport={setIsSimpleDocumentsReport}
           />
         </div>
       </div>
@@ -258,6 +262,7 @@ const ReportStandardDocumentsPage: React.FC = () => {
             dataReportStandardInvoices={dataReportStandardInvoices}
             totalPriceAllInvoices={totalPriceAllInvoices}
             reportDocumentsToTable={reportDocumentsToTable}
+            isSimpleDocumentsReport={isSimpleDocumentsReport}
           />
         </>
       )}

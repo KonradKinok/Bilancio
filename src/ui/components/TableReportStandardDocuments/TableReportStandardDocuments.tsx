@@ -7,6 +7,7 @@ interface TableReportStandardDocumentsProps {
   dataReportStandardInvoices: ReportStandardInvoice[] | null;
   totalPriceAllInvoices: number;
   reportDocumentsToTable: ReportAllDocumentsToTable[] | undefined;
+  isSimpleDocumentsReport?: boolean;
 }
 
 export const TableReportStandardDocuments = forwardRef<
@@ -18,6 +19,7 @@ export const TableReportStandardDocuments = forwardRef<
       dataReportStandardInvoices,
       totalPriceAllInvoices,
       reportDocumentsToTable,
+      isSimpleDocumentsReport = false,
     },
     ref
   ) => {
@@ -60,6 +62,66 @@ export const TableReportStandardDocuments = forwardRef<
       reportDocumentsToTable.length === 0
     ) {
       return null;
+    }
+
+    if (isSimpleDocumentsReport) {
+      let docCounter = 0;
+
+      return (
+        <div
+          className={`${scss["tableReportStandardDocuments-main-container"]}`}
+        >
+          <div className={scss["table-wrapper"]}>
+            <table
+              ref={ref}
+              className={`${scss["table"]} ${
+                scss[`${options.fontSize.en}-font`]
+              }`}
+            >
+              <thead className={`${scss["table-header"]}`}>
+                <tr>
+                  <th>Lp.</th>
+                  <th>Nazwa dokumentu</th>
+                  <th>Liczba dokumentów</th>
+                  <th>Suma cen dokumentu</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reportDocumentsToTable.flatMap((root) =>
+                  root.documents.map((doc) => {
+                    docCounter++;
+                    return (
+                      <tr key={doc.documentId}>
+                        <td>{String(docCounter).padStart(2, "0")}.</td>
+                        <td>{doc.documentName}</td>
+                        <td>{doc.quantity}</td>
+                        <td>{currencyFormater(doc.totalPrice)}</td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+            <div className={scss["maintable-footer-container"]}>
+              <div>
+                <p>
+                  Liczba documentów: {dataDocument?.totalDocumentsQuantity}
+                </p>
+                <p>
+                  Suma cen dokumentów:{" "}
+                  {currencyFormater(dataDocument?.totalDocumentsPrice || 0)}
+                </p>
+              </div>
+              <div>
+                <p>Liczba faktur: {dataReportStandardInvoices?.length}</p>
+                <p>
+                  Suma cen faktur: {currencyFormater(totalPriceAllInvoices)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
     }
 
     return (
