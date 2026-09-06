@@ -63,8 +63,8 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
 }) => {
   // Funkcja zmiany opcji
   const [options, setOptions] = useLocalStorage(
-    { fontSize: { en: "large", pl: "duża" }, color: "" }, // Wartość początkowa
-    "__options_storage_key" // Klucz w localStorage
+    { fontSize: { en: "large", pl: "duża" }, color: "green" }, // Wartość początkowa
+    "__options_storage_key", // Klucz w localStorage
   );
 
   const [formValuesHomePage, setFormValuesHomePage] =
@@ -120,7 +120,7 @@ export const ElectronProvider: React.FC<ElectronProviderProps> = ({
       dotsNumber,
       // setDotsNumber,
       auth /*, allDocumentsData*/,
-    ]
+    ],
   );
   return (
     <ElectronContext.Provider value={value}>

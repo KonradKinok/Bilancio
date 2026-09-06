@@ -5,7 +5,7 @@ import { ElectronContextType } from "./ElectronProvider";
 export const ElectronContext = createContext<ElectronContextType | undefined>(
   undefined
 );
-
+//temp
 // Niestandardowy hak do używania kontekstu ImageContext
 export const useMainDataContext = (): ElectronContextType => {
   const context = useContext(ElectronContext);
